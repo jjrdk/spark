@@ -244,7 +244,7 @@ namespace Spark.Engine.Core
                             typeof(Attachment),
                             typeof(Identifier),
                             typeof(Quantity),
-                            typeof(Range),
+                            typeof(Hl7.Fhir.Model.Range),
                             typeof(Period),
                             typeof(Ratio),
                             typeof(HumanName),

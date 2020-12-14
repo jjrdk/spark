@@ -11,6 +11,7 @@ using Spark.Engine.Extensions;
 namespace Spark.Engine.Service.FhirServiceExtensions
 {
     using System.Threading.Tasks;
+    using Microsoft.AspNetCore.Mvc.ModelBinding;
 
     public static partial class ResourceManipulationOperationFactory
     {

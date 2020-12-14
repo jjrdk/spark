@@ -126,7 +126,7 @@ namespace Spark.Engine.Core
         public static FhirResponse Gone(Entry entry)
         {
 
-            var message = String.Format(
+            var message = string.Format(
                   "A {0} resource with id {1} existed, but was deleted on {2} (version {3}).",
                   entry.Key.TypeName,
                   entry.Key.ResourceId,

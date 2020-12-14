@@ -1,5 +1,4 @@
 ﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Hl7.Fhir.Model;
 using Spark.Engine.Core;
 using System.Collections.Generic;
@@ -16,45 +15,47 @@ using Spark.Engine.Store.Interfaces;
 namespace Spark.Engine.Test.Service
 {
     using System.Threading.Tasks;
+    using Xunit;
 
-    [TestClass]
     public class IndexServiceTests
     {
-        private IndexService sutLimited;
-        private IndexService sutFull;
+        private readonly IndexService sutLimited;
+        private readonly IndexService sutFull;
 
-        [TestInitialize]
-        public void TestInitialize()
+        public IndexServiceTests()
         {
+            var indexStoreMock = new Mock<IIndexStore>();
 
-            IFhirModel _fhirModel;
-            FhirPropertyIndex _propIndex;
-            ResourceVisitor _resourceVisitor;
-            ElementIndexer _elementIndexer;
-            var _indexStoreMock = new Mock<IIndexStore>();
-
-            var spPatientName = new SearchParamDefinition() { Resource = "Patient", Name = "name", Description = @"A portion of either family or given name of the patient", Type = SearchParamType.String, Path = new string[] { "Patient.name", } };
-            var searchParameters = new List<SearchParamDefinition> { spPatientName };
-            var resources = new Dictionary<Type, string> { { typeof(Patient), "Patient" }, { typeof(HumanName), "HumanName" } };
+            var spPatientName = new SearchParamDefinition()
+            {
+                Resource = "Patient",
+                Name = "name",
+                Description = new Markdown(@"A portion of either family or given name of the patient"),
+                Type = SearchParamType.String,
+                Path = new string[] {"Patient.name",}
+            };
+            var searchParameters = new List<SearchParamDefinition> {spPatientName};
+            var resources =
+                new Dictionary<Type, string> {{typeof(Patient), "Patient"}, {typeof(HumanName), "HumanName"}};
             //CK: I use real objects: saves me a lot of mocking and provides for a bit of integration testing.
-            _fhirModel = new FhirModel(resources, searchParameters);
-            _propIndex = new FhirPropertyIndex(_fhirModel, new List<Type> { typeof(Patient), typeof(HumanName) });
-            _resourceVisitor = new ResourceVisitor(_propIndex);
-            _elementIndexer = new ElementIndexer(_fhirModel);
+            IFhirModel fhirModel = new FhirModel(resources, searchParameters);
+            var propIndex = new FhirPropertyIndex(fhirModel, new List<Type> {typeof(Patient), typeof(HumanName)});
+            var resourceVisitor = new ResourceVisitor(propIndex);
+            var elementIndexer = new ElementIndexer(fhirModel);
 
             //_indexStoreMock.Setup(ixs => ixs.Save(It.IsAny<IndexValue>))
 
-            sutLimited = new IndexService(_fhirModel, _resourceVisitor, _elementIndexer, _indexStoreMock.Object);
+            sutLimited = new IndexService(fhirModel, resourceVisitor, elementIndexer, indexStoreMock.Object);
 
-            _fhirModel = new FhirModel(); //For this test I want all available types and searchparameters.
-            _propIndex = new FhirPropertyIndex(_fhirModel);
-            _resourceVisitor = new ResourceVisitor(_propIndex);
-            _elementIndexer = new ElementIndexer(_fhirModel);
+            fhirModel = new FhirModel(); //For this test I want all available types and searchparameters.
+            propIndex = new FhirPropertyIndex(fhirModel);
+            resourceVisitor = new ResourceVisitor(propIndex);
+            elementIndexer = new ElementIndexer(fhirModel);
 
-            sutFull = new IndexService(_fhirModel, _resourceVisitor, _elementIndexer, _indexStoreMock.Object);
+            sutFull = new IndexService(fhirModel, resourceVisitor, elementIndexer, indexStoreMock.Object);
         }
 
-        [TestMethod]
+        [Fact]
         public async Task TestIndexResourceSimple()
         {
             var patient = new Patient();
@@ -64,16 +65,16 @@ namespace Spark.Engine.Test.Service
 
             IndexValue result = await sutLimited.IndexResource(patient, patientKey).ConfigureAwait(false);
 
-            Assert.AreEqual("root", result.Name);
-            Assert.AreEqual(1, result.NonInternalValues().Count(), "Expected 1 non-internal result for searchparameter 'name'");
+            Assert.Equal("root", result.Name);
+            Assert.Single(result.NonInternalValues());//, "Expected 1 non-internal result for searchparameter 'name'");
             var first = result.NonInternalValues().First();
-            Assert.AreEqual("name", first.Name);
-            Assert.AreEqual(2, first.Values.Count);
-            Assert.IsInstanceOfType(first.Values[0], typeof(StringValue));
-            Assert.IsInstanceOfType(first.Values[1], typeof(StringValue));
+            Assert.Equal("name", first.Name);
+            Assert.Equal(2, first.Values.Count);
+            Assert.IsType<StringValue>(first.Values[0]);
+            Assert.IsType<StringValue>(first.Values[1]);
         }
 
-        [TestMethod]
+        [Fact]
         public async Task TestIndexResourcePatientComplete()
         {
             FhirJsonParser parser = new FhirJsonParser();
@@ -83,10 +84,10 @@ namespace Spark.Engine.Test.Service
 
             IndexValue result = await sutFull.IndexResource(patientResource, patientKey).ConfigureAwait(false);
 
-            Assert.IsNotNull(result);
+            Assert.NotNull(result);
         }
 
-        [TestMethod]
+        [Fact]
         public async Task TestIndexResourceAppointmentComplete()
         {
             FhirJsonParser parser = new FhirJsonParser();
@@ -96,10 +97,10 @@ namespace Spark.Engine.Test.Service
 
             IndexValue result = await sutFull.IndexResource(appResource, appKey).ConfigureAwait(false);
 
-            Assert.IsNotNull(result);
+            Assert.NotNull(result);
         }
 
-        [TestMethod]
+        [Fact]
         public async Task TestIndexResourceCareplanWithContainedGoal()
         {
             FhirJsonParser parser = new FhirJsonParser();
@@ -109,11 +110,11 @@ namespace Spark.Engine.Test.Service
 
             IndexValue result = await sutFull.IndexResource(cpResource, cpKey).ConfigureAwait(false);
 
-            Assert.IsNotNull(result);
+            Assert.NotNull(result);
         }
 
 
-        [TestMethod]
+        [Fact]
         public async Task TestIndexResourceObservation()
         {
             FhirJsonParser parser = new FhirJsonParser();
@@ -123,10 +124,10 @@ namespace Spark.Engine.Test.Service
 
             IndexValue result = await sutFull.IndexResource(obsResource, cpKey).ConfigureAwait(false);
 
-            Assert.IsNotNull(result);
+            Assert.NotNull(result);
         }
 
-        [TestMethod]
+        [Fact]
         public async Task TestIndexWithPath_x_()
         {
             Condition cd = new Condition();
@@ -136,8 +137,8 @@ namespace Spark.Engine.Test.Service
 
             IndexValue result = await sutFull.IndexResource(cd, cdKey).ConfigureAwait(false);
 
-            Assert.IsNotNull(result);
-            Assert.IsNotNull(result.Values.Where(iv => (iv as IndexValue).Name == "onset"));
+            Assert.NotNull(result);
+            Assert.NotNull(result.Values.Where(iv => (iv as IndexValue).Name == "onset"));
         }
 
         private readonly string exampleObservationJson = @"{""bodySite"":{""coding"":[{""code"":""368209003"",""display"":""Right arm"",""system"":""http://snomed.info/sct""}]},""code"":{""coding"":[{""code"":""55284-4"",""display"":""Blood pressure systolic & diastolic"",""system"":""http://loinc.org""}]},""component"":[{""code"":{""coding"":[{""code"":""8480-6"",""display"":""Systolic blood pressure"",""system"":""http://loinc.org""},{""code"":""271649006"",""display"":""Systolic blood pressure"",""system"":""http://snomed.info/sct""},{""code"":""bp-s"",""display"":""Systolic Blood pressure"",""system"":""http://acme.org/devices/clinical-codes""}]},""valueQuantity"":{""unit"":""mm[Hg]"",""value"":107}},{""code"":{""coding"":[{""code"":""8462-4"",""display"":""Diastolic blood pressure"",""system"":""http://loinc.org""}]},""valueQuantity"":{""unit"":""mm[Hg]"",""value"":60}}],""effectiveDateTime"":""2012-09-17"",""id"":""blood-pressure"",""identifier"":[{""system"":""urn:ietf:rfc:3986"",""value"":""urn:uuid:187e0c12-8dd2-67e2-99b2-bf273c878281""}],""interpretation"":{""coding"":[{""code"":""L"",""display"":""Below low normal"",""system"":""http://hl7.org/fhir/v2/0078""}],""text"":""low""},""meta"":{""lastUpdated"":""2014-01-30T22:35:23+11:00""},""performer"":[{""reference"":""Practitioner/example""}],""resourceType"":""Observation"",""status"":""final"",""subject"":{""reference"":""Patient/example""},""text"":{""div"":""<div><p><b>Generated Narrative with Details</b></p><p><b>id</b>: blood-pressure</p><p><b>meta</b>: </p><p><b>identifier</b>: urn:uuid:187e0c12-8dd2-67e2-99b2-bf273c878281</p><p><b>status</b>: final</p><p><b>code</b>: Blood pressure systolic &amp; diastolic <span>(Details : {LOINC code '55284-4' = 'Blood pressure systolic and diastolic', given as 'Blood pressure systolic &amp; diastolic'})</span></p><p><b>subject</b>: <a>Patient/example</a></p><p><b>effective</b>: 17/09/2012</p><p><b>performer</b>: <a>Practitioner/example</a></p><p><b>interpretation</b>: low <span>(Details : {http://hl7.org/fhir/v2/0078 code 'L' = 'Low', given as 'Below low normal'})</span></p><p><b>bodySite</b>: Right arm <span>(Details : {SNOMED CT code '368209003' = '368209003', given as 'Right arm'})</span></p><blockquote><p><b>component</b></p><p><b>code</b>: Systolic blood pressure <span>(Details : {LOINC code '8480-6' = 'Systolic blood pressure', given as 'Systolic blood pressure'}; {SNOMED CT code '271649006' = '271649006', given as 'Systolic blood pressure'}; {http://acme.org/devices/clinical-codes code 'bp-s' = '??', given as 'Systolic Blood pressure'})</span></p><p><b>value</b>: 107 mm[Hg]</p></blockquote><blockquote><p><b>component</b></p><p><b>code</b>: Diastolic blood pressure <span>(Details : {LOINC code '8462-4' = 'Diastolic blood pressure', given as 'Diastolic blood pressure'})</span></p><p><b>value</b>: 60 mm[Hg]</p></blockquote></div>"",""status"":""generated""}}";

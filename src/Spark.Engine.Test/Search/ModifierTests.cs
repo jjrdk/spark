@@ -1,49 +1,48 @@
 ﻿using Hl7.Fhir.Model;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Spark.Engine.Search.Model;
 
 namespace Spark.Engine.Test.Search
 {
-    [TestClass]
+    using Xunit;
+
     public class ModifierTests
     {
-        [TestMethod]
+        [Fact]
         public void TestActualModifierConstructorWithMissingModifiers()
         {
             var am = new ActualModifier("missing");
-            Assert.AreEqual(Modifier.MISSING, am.Modifier);
-            Assert.AreEqual("missing", am.RawModifier);
-            Assert.IsNull(am.ModifierType);
-            Assert.IsTrue(am.Missing.Value);
-            Assert.AreEqual("missing=true", am.ToString());
+            Assert.Equal(Modifier.MISSING, am.Modifier);
+            Assert.Equal("missing", am.RawModifier);
+            Assert.Null(am.ModifierType);
+            Assert.True(am.Missing.Value);
+            Assert.Equal("missing=true", am.ToString());
 
             am = new ActualModifier("missing=false");
-            Assert.AreEqual(Modifier.MISSING, am.Modifier);
-            Assert.AreEqual("missing=false", am.RawModifier);
-            Assert.IsNull(am.ModifierType);
-            Assert.IsFalse(am.Missing.Value);
-            Assert.AreEqual("missing=false", am.ToString());
+            Assert.Equal(Modifier.MISSING, am.Modifier);
+            Assert.Equal("missing=false", am.RawModifier);
+            Assert.Null(am.ModifierType);
+            Assert.False(am.Missing.Value);
+            Assert.Equal("missing=false", am.ToString());
         }
 
-        [TestMethod]
+        [Fact]
         public void TestActualModifierConstructorWithValidTypeModifier()
-        { 
+        {
             var am = new ActualModifier("Patient");
-            Assert.AreEqual(Modifier.TYPE, am.Modifier);
-            Assert.AreEqual("Patient", am.RawModifier);
-            Assert.AreEqual(typeof(Patient), am.ModifierType);
-            Assert.AreEqual("Patient", am.ToString());
+            Assert.Equal(Modifier.TYPE, am.Modifier);
+            Assert.Equal("Patient", am.RawModifier);
+            Assert.Equal(typeof(Patient), am.ModifierType);
+            Assert.Equal("Patient", am.ToString());
         }
 
-        [TestMethod]
+        [Fact]
         public void TestActualModifierConstructorWithInvalidModifier()
         {
             var am = new ActualModifier("blabla");
-            Assert.AreEqual(Modifier.UNKNOWN, am.Modifier);
-            Assert.AreEqual("blabla", am.RawModifier);
-            Assert.IsNull(am.ModifierType);
-            Assert.AreEqual(null, am.ToString());
-
+            Assert.Equal(Modifier.UNKNOWN, am.Modifier);
+            Assert.Equal("blabla", am.RawModifier);
+            Assert.Null(am.ModifierType);
+            Assert.Null(am.ToString());
         }
     }
 }

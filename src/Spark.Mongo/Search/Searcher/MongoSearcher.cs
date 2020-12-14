@@ -32,7 +32,10 @@ namespace Spark.Search.Mongo
         private readonly IFhirModel _fhirModel;
         private readonly IReferenceNormalizationService _referenceNormalizationService;
 
-        public MongoSearcher(MongoIndexStore mongoIndexStore, ILocalhost localhost, IFhirModel fhirModel,
+        public MongoSearcher(
+            MongoIndexStore mongoIndexStore,
+            ILocalhost localhost,
+            IFhirModel fhirModel,
             IReferenceNormalizationService referenceNormalizationService = null)
         {
             _collection = mongoIndexStore.Collection;
@@ -43,21 +46,28 @@ namespace Spark.Search.Mongo
 
         private async Task<List<BsonValue>> CollectKeys(FilterDefinition<BsonDocument> query)
         {
-            var cursor = (await _collection.FindAsync(query, new FindOptions<BsonDocument> { Projection = Builders<BsonDocument>.Projection.Include(InternalField.ID) }).ConfigureAwait(false))
-                .ToEnumerable();
+            var cursor = (await _collection.FindAsync(
+                    query,
+                    new FindOptions<BsonDocument>
+                    {
+                        Projection = Builders<BsonDocument>.Projection.Include(InternalField.ID)
+                    })
+                .ConfigureAwait(false)).ToEnumerable();
 
             return cursor.Select(doc => doc.GetValue(InternalField.ID)).ToList();
         }
 
-        private async Task<List<BsonValue>> CollectSelfLinks(FilterDefinition<BsonDocument> query, SortDefinition<BsonDocument> sortBy)
+        private async Task<List<BsonValue>> CollectSelfLinks(
+            FilterDefinition<BsonDocument> query,
+            SortDefinition<BsonDocument> sortBy)
         {
             var cursor = await _collection.FindAsync(
-                query,
-                new FindOptions<BsonDocument>
-                {
-                    Sort = sortBy,
-                    Projection = Builders<BsonDocument>.Projection.Include(InternalField.SELFLINK)
-                }).ConfigureAwait(false);
+                    query,
+                    new FindOptions<BsonDocument>
+                    {
+                        Sort = sortBy, Projection = Builders<BsonDocument>.Projection.Include(InternalField.SELFLINK)
+                    })
+                .ConfigureAwait(false);
 
             return cursor.ToEnumerable().Select(doc => doc.GetValue(InternalField.SELFLINK)).ToList();
         }
@@ -78,8 +88,10 @@ namespace Spark.Search.Mongo
                     //Uri rid = new Uri(id, UriKind.Relative); // NB. these MUST be relative paths. If not, the data at time of input was wrong
                     results.Add(id);
                 }
+
                 results.MatchCount = results.Count();
             }
+
             return results;
         }
 
@@ -88,9 +100,14 @@ namespace Spark.Search.Mongo
             return CollectKeys(resourceType, criteria, null, level);
         }
 
-        private async Task<List<BsonValue>> CollectKeys(string resourceType, IEnumerable<Criterium> criteria, SearchResults results, int level)
+        private async Task<List<BsonValue>> CollectKeys(
+            string resourceType,
+            IEnumerable<Criterium> criteria,
+            SearchResults results,
+            int level)
         {
-            Dictionary<Criterium, Criterium> closedCriteria = await CloseChainedCriteria(resourceType, criteria, results, level).ConfigureAwait(false);
+            Dictionary<Criterium, Criterium> closedCriteria =
+                await CloseChainedCriteria(resourceType, criteria, results, level).ConfigureAwait(false);
 
             //All chained criteria are 'closed' or 'rolled up' to something like subject IN (id1, id2, id3), so now we AND them with the rest of the criteria.
             FilterDefinition<BsonDocument> resultQuery = CreateMongoQuery(resourceType, results, level, closedCriteria);
@@ -98,9 +115,15 @@ namespace Spark.Search.Mongo
             return await CollectKeys(resultQuery).ConfigureAwait(false);
         }
 
-        private async Task<List<BsonValue>> CollectSelfLinks(string resourceType, IEnumerable<Criterium> criteria, SearchResults results, int level, IList<Tuple<string, SortOrder>> sortItems)
+        private async Task<List<BsonValue>> CollectSelfLinks(
+            string resourceType,
+            IEnumerable<Criterium> criteria,
+            SearchResults results,
+            int level,
+            IList<ValueTuple<string, SortOrder>> sortItems)
         {
-            Dictionary<Criterium, Criterium> closedCriteria = await CloseChainedCriteria(resourceType, criteria, results, level).ConfigureAwait(false);
+            Dictionary<Criterium, Criterium> closedCriteria =
+                await CloseChainedCriteria(resourceType, criteria, results, level).ConfigureAwait(false);
 
             //All chained criteria are 'closed' or 'rolled up' to something like subject IN (id1, id2, id3), so now we AND them with the rest of the criteria.
             FilterDefinition<BsonDocument> resultQuery = CreateMongoQuery(resourceType, results, level, closedCriteria);
@@ -108,7 +131,7 @@ namespace Spark.Search.Mongo
             return await CollectSelfLinks(resultQuery, sortBy).ConfigureAwait(false);
         }
 
-        private static SortDefinition<BsonDocument> CreateSortBy(IList<Tuple<string, SortOrder>> sortItems)
+        private static SortDefinition<BsonDocument> CreateSortBy(IList<ValueTuple<string, SortOrder>> sortItems)
         {
             if (sortItems.Any() == false)
                 return null;
@@ -123,23 +146,21 @@ namespace Spark.Search.Mongo
             {
                 sortDefinition = Builders<BsonDocument>.Sort.Descending(first.Item1);
             }
-            sortItems.Remove(first);
-            foreach (Tuple<string, SortOrder> sortItem in sortItems)
-            {
-                if (sortItem.Item2 == SortOrder.Ascending)
-                {
-                    sortDefinition = sortDefinition.Ascending(sortItem.Item1);
-                }
-                else
-                {
-                    sortDefinition = sortDefinition.Descending(sortItem.Item1);
-                }
-            }
-            return sortDefinition;
 
+            sortItems.Remove(first);
+
+            return sortItems.Aggregate(
+                sortDefinition,
+                (current, sortItem) => sortItem.Item2 == SortOrder.Ascending
+                    ? current.Ascending(sortItem.Item1)
+                    : current.Descending(sortItem.Item1));
         }
 
-        private static FilterDefinition<BsonDocument> CreateMongoQuery(string resourceType, SearchResults results, int level, Dictionary<Criterium, Criterium> closedCriteria)
+        private static FilterDefinition<BsonDocument> CreateMongoQuery(
+            string resourceType,
+            SearchResults results,
+            int level,
+            Dictionary<Criterium, Criterium> closedCriteria)
         {
             FilterDefinition<BsonDocument> resultQuery = CriteriaMongoExtensions.ResourceFilter(resourceType, level);
             if (closedCriteria.Count() > 0)
@@ -156,11 +177,17 @@ namespace Spark.Search.Mongo
                         catch (ArgumentException ex)
                         {
                             if (results == null) throw; //The exception *will* be caught on the highest level.
-                            results.AddIssue(String.Format("Parameter [{0}] was ignored for the reason: {1}.", crit.Key.ToString(), ex.Message), OperationOutcome.IssueSeverity.Warning);
+                            results.AddIssue(
+                                string.Format(
+                                    "Parameter [{0}] was ignored for the reason: {1}.",
+                                    crit.Key.ToString(),
+                                    ex.Message),
+                                OperationOutcome.IssueSeverity.Warning);
                             results.UsedCriteria.Remove(crit.Key);
                         }
                     }
                 }
+
                 if (criteriaQueries.Count > 0)
                 {
                     FilterDefinition<BsonDocument> criteriaQuery = Builders<BsonDocument>.Filter.And(criteriaQueries);
@@ -171,7 +198,11 @@ namespace Spark.Search.Mongo
             return resultQuery;
         }
 
-        private async Task<Dictionary<Criterium, Criterium>> CloseChainedCriteria(string resourceType, IEnumerable<Criterium> criteria, SearchResults results, int level)
+        private async Task<Dictionary<Criterium, Criterium>> CloseChainedCriteria(
+            string resourceType,
+            IEnumerable<Criterium> criteria,
+            SearchResults results,
+            int level)
         {
             //Mapping of original criterium and closed criterium, the former to be able to exclude it if it errors later on.
             var closedCriteria = new Dictionary<Criterium, Criterium>();
@@ -219,8 +250,9 @@ namespace Spark.Search.Mongo
             {
                 try
                 {
-                    Criterium innerCriterium = (Criterium)crit.Operand;
-                    var keys = await CollectKeys(target, new List<Criterium> { innerCriterium }, ++level).ConfigureAwait(false);               //Recursive call to CollectKeys!
+                    Criterium innerCriterium = (Criterium) crit.Operand;
+                    var keys = await CollectKeys(target, new List<Criterium> {innerCriterium}, ++level)
+                        .ConfigureAwait(false); //Recursive call to CollectKeys!
                     allKeys.AddRange(keys.Select(k => k.ToString()));
                 }
                 catch (Exception ex)
@@ -228,11 +260,16 @@ namespace Spark.Search.Mongo
                     errors.Add(ex);
                 }
             }
+
             if (errors.Count == targeted.Count())
             {
                 //It is possible that some of the targets don't support the current parameter. But if none do, there is a serious problem.
-                throw new ArgumentException(String.Format("None of the possible target resources support querying for parameter {0}", crit.ParamName));
+                throw new ArgumentException(
+                    string.Format(
+                        "None of the possible target resources support querying for parameter {0}",
+                        crit.ParamName));
             }
+
             crit.Operator = Operator.IN;
             crit.Operand = new ChoiceValue(allKeys.Select(k => new UntypedValue(k)));
             return crit;
@@ -246,7 +283,10 @@ namespace Spark.Search.Mongo
         /// <param name="criteria"></param>
         /// <param name="resourceType"></param>
         /// <returns></returns>
-        private List<Criterium> NormalizeNonChainedReferenceCriteria(List<Criterium> criteria, string resourceType, SearchSettings searchSettings)
+        private List<Criterium> NormalizeNonChainedReferenceCriteria(
+            List<Criterium> criteria,
+            string resourceType,
+            SearchSettings searchSettings)
         {
             var result = new List<Criterium>();
 
@@ -254,20 +294,25 @@ namespace Spark.Search.Mongo
             {
                 var critSp = crit.FindSearchParamDefinition(resourceType);
                 //                var critSp_ = _fhirModel.FindSearchParameter(resourceType, crit.ParamName); HIER VERDER: kunnen meerdere searchParameters zijn, hoewel dat alleen bij subcriteria van chains het geval is...
-                if (critSp != null && critSp.Type == SearchParamType.Reference && crit.Operator != Operator.CHAIN && crit.Modifier != Modifier.MISSING && crit.Operand != null)
+                if (critSp != null
+                    && critSp.Type == SearchParamType.Reference
+                    && crit.Operator != Operator.CHAIN
+                    && crit.Modifier != Modifier.MISSING
+                    && crit.Operand != null)
                 {
-                    if (_referenceNormalizationService != null &&
-                        searchSettings.ShouldSkipReferenceCheck(resourceType, crit.ParamName))
+                    if (_referenceNormalizationService != null
+                        && searchSettings.ShouldSkipReferenceCheck(resourceType, crit.ParamName))
                     {
                         var normalizedCriteria = _referenceNormalizationService.GetNormalizedReferenceCriteria(crit);
                         if (normalizedCriteria != null)
                         {
                             result.Add(normalizedCriteria);
                         }
+
                         continue;
                     }
 
-                    var subCrit = new Criterium { Operator = crit.Operator };
+                    var subCrit = new Criterium {Operator = crit.Operator};
                     string modifier = crit.Modifier;
 
                     //operand can be one of three things:
@@ -302,7 +347,8 @@ namespace Spark.Search.Mongo
                     int situation = 3;
                     if (!operand.Contains("/")) //Situation 1 or 2
                     {
-                        if (String.IsNullOrWhiteSpace(modifier)) // no modifier, so no info about the referenced type at all
+                        if (string.IsNullOrWhiteSpace(modifier)
+                        ) // no modifier, so no info about the referenced type at all
                         {
                             situation = 1;
                         }
@@ -324,33 +370,43 @@ namespace Spark.Search.Mongo
                             if (crit.Operand is ChoiceValue)
                             {
                                 subCrit.Operand = new ChoiceValue(
-                                    (crit.Operand as ChoiceValue).Choices.Select(choice =>
-                                        new UntypedValue(modifier + "/" + (choice as UntypedValue).Value))
-                                        .ToList());
+                                    (crit.Operand as ChoiceValue).Choices.Select(
+                                        choice => new UntypedValue(modifier + "/" + (choice as UntypedValue).Value))
+                                    .ToList());
                             }
                             else
                             {
                                 subCrit.Operand = new UntypedValue(modifier + "/" + operand);
                             }
+
                             break;
                         default: //remove the base of the url if there is one and it matches this server
                             subCrit.ParamName = InternalField.ID;
                             if (crit.Operand is ChoiceValue)
                             {
                                 subCrit.Operand = new ChoiceValue(
-                                    (crit.Operand as ChoiceValue).Choices.Select(choice =>
-                                    {
-                                        Uri.TryCreate((choice as UntypedValue).Value, UriKind.RelativeOrAbsolute, out var uriOperand);
-                                        var refUri = _localhost.RemoveBase(uriOperand); //Drop the first part if it points to our own server.
-                                        return new UntypedValue(refUri.ToString().TrimStart(new char[] { '/' }));
-                                    }));
+                                    (crit.Operand as ChoiceValue).Choices.Select(
+                                        choice =>
+                                        {
+                                            Uri.TryCreate(
+                                                (choice as UntypedValue).Value,
+                                                UriKind.RelativeOrAbsolute,
+                                                out var uriOperand);
+                                            var refUri =
+                                                _localhost.RemoveBase(
+                                                    uriOperand); //Drop the first part if it points to our own server.
+                                            return new UntypedValue(refUri.ToString().TrimStart(new char[] {'/'}));
+                                        }));
                             }
                             else
                             {
                                 Uri.TryCreate(operand, UriKind.RelativeOrAbsolute, out var uriOperand);
-                                var refUri = _localhost.RemoveBase(uriOperand); //Drop the first part if it points to our own server.
-                                subCrit.Operand = new UntypedValue(refUri.ToString().TrimStart(new char[] { '/' }));
+                                var refUri =
+                                    _localhost.RemoveBase(
+                                        uriOperand); //Drop the first part if it points to our own server.
+                                subCrit.Operand = new UntypedValue(refUri.ToString().TrimStart(new char[] {'/'}));
                             }
+
                             break;
                     }
 
@@ -371,7 +427,10 @@ namespace Spark.Search.Mongo
             return result;
         }
 
-        public async Task<SearchResults> Search(string resourceType, SearchParams searchCommand, SearchSettings searchSettings = null)
+        public async Task<SearchResults> Search(
+            string resourceType,
+            SearchParams searchCommand,
+            SearchSettings searchSettings = null)
         {
             if (searchSettings == null)
             {
@@ -386,48 +445,59 @@ namespace Spark.Search.Mongo
             {
                 results.UsedCriteria = criteria.Select(c => c.Clone()).ToList();
 
-                criteria = EnrichCriteriaWithSearchParameters(_fhirModel.GetResourceTypeForResourceName(resourceType),
+                criteria = EnrichCriteriaWithSearchParameters(
+                    _fhirModel.GetResourceTypeForResourceName(resourceType),
                     results);
 
                 var normalizedCriteria = NormalizeNonChainedReferenceCriteria(criteria, resourceType, searchSettings);
                 var normalizeSortCriteria = NormalizeSortItems(resourceType, searchCommand);
 
-                List<BsonValue> selfLinks = await CollectSelfLinks(resourceType, normalizedCriteria, results, 0, normalizeSortCriteria).ConfigureAwait(false);
+                List<BsonValue> selfLinks = await CollectSelfLinks(
+                        resourceType,
+                        normalizedCriteria,
+                        results,
+                        0,
+                        normalizeSortCriteria)
+                    .ConfigureAwait(false);
 
                 foreach (BsonValue selfLink in selfLinks)
                 {
                     results.Add(selfLink.ToString());
                 }
+
                 results.MatchCount = selfLinks.Count;
             }
 
             return results;
         }
 
-        private IList<Tuple<string, SortOrder>> NormalizeSortItems(string resourceType, SearchParams searchCommand)
+        private IList<(string, SortOrder)> NormalizeSortItems(string resourceType, SearchParams searchCommand)
         {
             var sortItems = searchCommand.Sort.Select(s => NormalizeSortItem(resourceType, s)).ToList();
             return sortItems;
         }
 
 
-        private Tuple<string, SortOrder> NormalizeSortItem(string resourceType, Tuple<string, SortOrder> sortItem)
+        private (string, SortOrder) NormalizeSortItem(string resourceType, (string, SortOrder) sortItem)
         {
             ModelInfo.SearchParamDefinition definition =
                 _fhirModel.FindSearchParameter(resourceType, sortItem.Item1)?.GetOriginalDefinition();
 
             if (definition?.Type == SearchParamType.Token)
             {
-                return new Tuple<string, SortOrder>(sortItem.Item1 + ".code", sortItem.Item2);
+                return (sortItem.Item1 + ".code", sortItem.Item2);
             }
+
             if (definition?.Type == SearchParamType.Date)
             {
-                return new Tuple<string, SortOrder>(sortItem.Item1 + ".start", sortItem.Item2);
+                return (sortItem.Item1 + ".start", sortItem.Item2);
             }
+
             if (definition?.Type == SearchParamType.Quantity)
             {
-                return new Tuple<string, SortOrder>(sortItem.Item1 + ".value", sortItem.Item2);
+                return (sortItem.Item1 + ".value", sortItem.Item2);
             }
+
             return sortItem;
         }
 
@@ -444,12 +514,13 @@ namespace Spark.Search.Mongo
                 foreach (var revInclude in revIncludes)
                 {
                     var ri = SM.ReverseInclude.Parse(revInclude);
-                    if (!ri.SearchPath.Contains(".")) //for now, leave out support for chained revIncludes. There aren't that many anyway.
+                    if (!ri.SearchPath.Contains(".")
+                    ) //for now, leave out support for chained revIncludes. There aren't that many anyway.
                     {
                         riQueries.Add(
                             Builders<BsonDocument>.Filter.And(
-                                Builders<BsonDocument>.Filter.Eq(InternalField.RESOURCE, ri.ResourceType)
-                                , Builders<BsonDocument>.Filter.In(ri.SearchPath, internal_ids)));
+                                Builders<BsonDocument>.Filter.Eq(InternalField.RESOURCE, ri.ResourceType),
+                                Builders<BsonDocument>.Filter.In(ri.SearchPath, internal_ids)));
                     }
                 }
 
@@ -460,6 +531,7 @@ namespace Spark.Search.Mongo
                     results = KeysToSearchResults(resultKeys);
                 }
             }
+
             return results;
         }
 
@@ -482,17 +554,20 @@ namespace Spark.Search.Mongo
 
             if (criterium.Operator == Operator.CHAIN)
             {
-                var subCrit = (Criterium)(criterium.Operand);
+                var subCrit = (Criterium) (criterium.Operand);
                 bool subCritResult = false;
                 foreach (var targetType in criterium.SearchParameters.SelectMany(spd => spd.Target))
                 {
                     //We're ok if at least one of the target types has this searchparameter.
                     subCritResult |= TryEnrichCriteriumWithSearchParameters(subCrit, targetType);
                 }
+
                 result &= subCritResult;
             }
+
             return result;
         }
+
         private List<Criterium> EnrichCriteriaWithSearchParameters(ResourceType resourceType, SearchResults results)
         {
             var result = new List<Criterium>();
@@ -506,7 +581,12 @@ namespace Spark.Search.Mongo
                 else
                 {
                     notUsed.Add(crit);
-                    results.AddIssue(String.Format("Parameter with name {0} is not supported for resource type {1}.", crit.ParamName, resourceType), OperationOutcome.IssueSeverity.Warning);
+                    results.AddIssue(
+                        string.Format(
+                            "Parameter with name {0} is not supported for resource type {1}.",
+                            crit.ParamName,
+                            resourceType),
+                        OperationOutcome.IssueSeverity.Warning);
                 }
             }
 
@@ -554,6 +634,7 @@ namespace Spark.Search.Mongo
                     results.AddIssue($"Could not parse parameter [{c}] for reason [{ex.Message}].");
                 }
             }
+
             return result;
         }
 

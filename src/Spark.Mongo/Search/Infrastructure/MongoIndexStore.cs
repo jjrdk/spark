@@ -13,7 +13,7 @@ namespace Spark.Mongo.Search.Common
 
     public class MongoIndexStore : IIndexStore
     {
-        private IMongoDatabase _database;
+        private readonly IMongoDatabase _database;
         private readonly MongoIndexMapper _indexMapper;
         public IMongoCollection<BsonDocument> Collection;
 

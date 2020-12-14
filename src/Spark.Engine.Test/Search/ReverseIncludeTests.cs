@@ -1,40 +1,38 @@
 ﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Spark.Engine.Search.Model;
 
 namespace Spark.Engine.Test.Search
 {
-    [TestClass]
+    using Xunit;
+
     public class ReverseIncludeTests
     {
-        [TestMethod]
+        [Fact]
         public void TestParseValid()
         {
             ReverseInclude sut = ReverseInclude.Parse("Patient.actor");
 
-            Assert.AreEqual("Patient", sut.ResourceType);
-            Assert.AreEqual("actor", sut.SearchPath);
+            Assert.Equal("Patient", sut.ResourceType);
+            Assert.Equal("actor", sut.SearchPath);
         }
-        [TestMethod]
+        [Fact]
         public void TestParseValidLongerPath()
         {
             ReverseInclude sut = ReverseInclude.Parse("Provenance.target.patient");
 
-            Assert.AreEqual("Provenance", sut.ResourceType);
-            Assert.AreEqual("target.patient", sut.SearchPath);
+            Assert.Equal("Provenance", sut.ResourceType);
+            Assert.Equal("target.patient", sut.SearchPath);
         }
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
+        [Fact]
         public void TestParseNull()
         {
-            ReverseInclude sut = ReverseInclude.Parse(null);
+            Assert.Throws<ArgumentNullException>(() => ReverseInclude.Parse(null));
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
+        [Fact]
         public void TestParseInvalid()
         {
-            ReverseInclude sut = ReverseInclude.Parse("bla;foo");
+            Assert.Throws<ArgumentException>(() => ReverseInclude.Parse("bla;foo"));
         }
     }
 }

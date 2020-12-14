@@ -1,14 +1,14 @@
 ﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
 using Spark.Engine.Auxiliary;
 
 namespace Spark.Engine.Test.Auxiliary
 {
-    [TestClass]
+    using Xunit;
+
     public class LimitedStreamTests
     {
-        [TestMethod]
+        [Fact]
         public void TestWriteWithinLimit()
         {
             MemoryStream innerStream = new MemoryStream();
@@ -20,11 +20,11 @@ namespace Spark.Engine.Test.Auxiliary
             innerStream.Seek(0, SeekOrigin.Begin);
             innerStream.Read(actual, 0, 5);
 
-            Assert.AreEqual((byte)1, actual[0]);
-            Assert.AreEqual((byte)5, actual[4]);
+            Assert.Equal((byte)1, actual[0]);
+            Assert.Equal((byte)5, actual[4]);
         }
 
-        [TestMethod]
+        [Fact]
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void TestWriteAboveLimit()
         {
@@ -34,7 +34,7 @@ namespace Spark.Engine.Test.Auxiliary
             sut.Write(new byte[5] { (byte)1, (byte)2, (byte)3, (byte)4, (byte)5 }, 0, 5);
         }
 
-        [TestMethod]
+        [Fact]
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void TestWriteWithinThenAboveLimit()
         {
@@ -47,8 +47,8 @@ namespace Spark.Engine.Test.Auxiliary
             innerStream.Seek(0, SeekOrigin.Begin);
             innerStream.Read(actual5, 0, 5);
 
-            Assert.AreEqual((byte)1, actual5[0]);
-            Assert.AreEqual((byte)5, actual5[4]);
+            Assert.Equal((byte)1, actual5[0]);
+            Assert.Equal((byte)5, actual5[4]);
 
             sut.Write(new byte[5] { (byte)6, (byte)7, (byte)8, (byte)9, (byte)10 }, 0, 5);
 
@@ -56,13 +56,13 @@ namespace Spark.Engine.Test.Auxiliary
             innerStream.Seek(0, SeekOrigin.Begin);
             innerStream.Read(actual10, 0, 10);
 
-            Assert.AreEqual((byte)1, actual10[0]);
-            Assert.AreEqual((byte)10, actual10[9]);
+            Assert.Equal((byte)1, actual10[0]);
+            Assert.Equal((byte)10, actual10[9]);
 
-            sut.Write(new byte[1] { (byte)11}, 0, 1);
+            sut.Write(new byte[1] { (byte)11 }, 0, 1);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestWriteWithinLimitWithOffset()
         {
             MemoryStream innerStream = new MemoryStream();
@@ -74,11 +74,11 @@ namespace Spark.Engine.Test.Auxiliary
             innerStream.Seek(0, SeekOrigin.Begin);
             innerStream.Read(actual3, 0, 3);
 
-            Assert.AreEqual((byte)3, actual3[0]);
-            Assert.AreEqual((byte)5, actual3[2]);
+            Assert.Equal((byte)3, actual3[0]);
+            Assert.Equal((byte)5, actual3[2]);
         }
 
-        [TestMethod]
+        [Fact]
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void TestWriteAboveLimitWithByteLengthShorterThanCount()
         {
@@ -88,7 +88,7 @@ namespace Spark.Engine.Test.Auxiliary
             sut.Write(new byte[5] { (byte)1, (byte)2, (byte)3, (byte)4, (byte)5 }, 1, 13);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestCopyToWithinLimit()
         {
             MemoryStream innerStream = new MemoryStream();
@@ -102,11 +102,11 @@ namespace Spark.Engine.Test.Auxiliary
             innerStream.Seek(0, SeekOrigin.Begin);
             innerStream.Read(actual, 0, 5);
 
-            Assert.AreEqual((byte)1, actual[0]);
-            Assert.AreEqual((byte)5, actual[4]);
+            Assert.Equal((byte)1, actual[0]);
+            Assert.Equal((byte)5, actual[4]);
         }
 
-        [TestMethod]
+        [Fact]
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void TestCopyToAboveLimit()
         {
@@ -118,7 +118,7 @@ namespace Spark.Engine.Test.Auxiliary
             sourceStream.CopyTo(sut);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestCopyToAsyncAboveLimit()
         {
             MemoryStream innerStream = new MemoryStream();
@@ -133,7 +133,7 @@ namespace Spark.Engine.Test.Auxiliary
             }
             catch (AggregateException ae)
             {
-                Assert.IsInstanceOfType(ae.InnerException, typeof(ArgumentOutOfRangeException));
+                Assert.IsType<ArgumentOutOfRangeException>(ae.InnerException);
             }
         }
 

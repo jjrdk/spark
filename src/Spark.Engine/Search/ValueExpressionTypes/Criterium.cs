@@ -51,8 +51,8 @@ namespace Spark.Search
 
         public static Criterium Parse(string key, string value)
         {
-            if (String.IsNullOrEmpty(key)) throw Error.ArgumentNull("key");
-            if (String.IsNullOrEmpty(value)) throw Error.ArgumentNull("value");
+            if (string.IsNullOrEmpty(key)) throw Error.ArgumentNull("key");
+            if (string.IsNullOrEmpty(value)) throw Error.ArgumentNull("value");
 
             // Split chained parts (if any) into name + modifier tuples
             var chainPath = key.Split(new char[] { SearchParams.SEARCH_CHAINSEPARATOR }, StringSplitOptions.RemoveEmptyEntries)
@@ -66,7 +66,7 @@ namespace Spark.Search
         //TODO: Probably not used anymore.
         public static Criterium Parse(string text)
         {
-            if (String.IsNullOrEmpty(text)) throw Error.ArgumentNull("text");
+            if (string.IsNullOrEmpty(text)) throw Error.ArgumentNull("text");
 
             var keyVal = text.SplitLeft('=');
 
@@ -84,7 +84,7 @@ namespace Spark.Search
             if (Operator == Operator.ISNULL || Operator == Operator.NOTNULL)
                 result += SearchParams.SEARCH_MODIFIERSEPARATOR + MISSINGMODIF;
             else
-                if (!String.IsNullOrEmpty(Modifier)) result += SearchParams.SEARCH_MODIFIERSEPARATOR + Modifier;
+                if (!string.IsNullOrEmpty(Modifier)) result += SearchParams.SEARCH_MODIFIERSEPARATOR + Modifier;
 
             if (Operator == Operator.CHAIN)
             {

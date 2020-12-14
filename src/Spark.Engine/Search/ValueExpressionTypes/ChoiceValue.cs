@@ -36,7 +36,7 @@ namespace Spark.Search
         public override string ToString()
         {
             var values = Choices.Select(v => v.ToString());
-            return String.Join(VALUESEPARATOR.ToString(),values);
+            return string.Join(VALUESEPARATOR.ToString(),values);
         }
 
         public static ChoiceValue Parse(string text)

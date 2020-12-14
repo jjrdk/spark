@@ -39,10 +39,10 @@ namespace Spark.Engine.Core
                 VisitByPath(fhirObject as IEnumerable<Base>, action, path, predicate);
             }
             //Single item, visit it if it adheres to the predicate (if any)
-            else if (String.IsNullOrEmpty(predicate) || PredicateIsTrue(predicate, fhirObject))
+            else if (string.IsNullOrEmpty(predicate) || PredicateIsTrue(predicate, fhirObject))
             {
                 //Path has ended, we arrived at the object that needs action.
-                if (String.IsNullOrEmpty(path))
+                if (string.IsNullOrEmpty(path))
                 {
                     action(fhirObject);
                 }

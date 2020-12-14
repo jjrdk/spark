@@ -3,19 +3,19 @@ using Spark.Engine.Search.Model;
 
 namespace Spark.Engine.Test.Search
 {
-    [TestClass]
+    
     public class SearchParamTypeTests
 
     {
-        [TestMethod]
+        [Fact]
         public void TestModifierIsAllowed()
         {
             var sptString = new SearchParamTypeString();
             var sptReference = new SearchParamTypeReference();
 
-            Assert.IsTrue(sptString.ModifierIsAllowed(new ActualModifier("exact")));
+            Assert.True(sptString.ModifierIsAllowed(new ActualModifier("exact")));
             Assert.IsFalse(sptReference.ModifierIsAllowed(new ActualModifier("exact")));
-            Assert.IsTrue(sptReference.ModifierIsAllowed(new ActualModifier("Patient")));
+            Assert.True(sptReference.ModifierIsAllowed(new ActualModifier("Patient")));
         }
     }
 }

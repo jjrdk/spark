@@ -1,59 +1,54 @@
 ﻿using Hl7.Fhir.Model;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Spark.Engine.Core;
 using System;
 using System.Collections.Generic;
 
 namespace Spark.Engine.Test.Search
 {
-    [TestClass]
+    using Xunit;
+
     public class FhirPropertyIndexTests
     {
         private static readonly IFhirModel _fhirModel = new FhirModel();
 
-        [TestInitialize]
-        public void TestInitialize()
-        {
-        }
-
-        [TestMethod]
+        [Fact]
         public void TestGetIndex()
         {
             var index = new FhirPropertyIndex(_fhirModel, new List<Type> { typeof(Patient), typeof(Account) });
-            Assert.IsNotNull(index);
+            Assert.NotNull(index);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestExistingPropertyIsFound()
         {
             var index = new FhirPropertyIndex(_fhirModel, new List<Type> { typeof(Patient), typeof(HumanName) });
 
             var pm = index.findPropertyInfo("Patient", "name");
-            Assert.IsNotNull(pm);
+            Assert.NotNull(pm);
 
             pm = index.findPropertyInfo("HumanName", "given");
-            Assert.IsNotNull(pm);
+            Assert.NotNull(pm);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestTypedNameIsFound()
         {
             var index = new FhirPropertyIndex(_fhirModel, new List<Type> { typeof(ClinicalImpression), typeof(CodeableConcept) });
 
             var pm = index.findPropertyInfo("ClinicalImpression", "triggerCodeableConcept");
-            Assert.IsNotNull(pm);
+            Assert.NotNull(pm);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestNonExistingPropertyReturnsNull()
         {
             var index = new FhirPropertyIndex(_fhirModel, new List<Type> { typeof(Patient), typeof(Account) });
 
             var pm = index.findPropertyInfo("TypeNotPresent", "subject");
-            Assert.IsNull(pm);
+            Assert.Null(pm);
 
             pm = index.findPropertyInfo("Patient", "property_not_present");
-            Assert.IsNull(pm);
+            Assert.Null(pm);
         }
     }
 }

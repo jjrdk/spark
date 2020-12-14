@@ -31,7 +31,7 @@ namespace Spark.Search.Support
         /// <returns>The formatted string.</returns>
         internal static string formatMessage(string format, params object[] args)
         {
-            return String.Format(CultureInfo.CurrentCulture, format, args);
+            return string.Format(CultureInfo.CurrentCulture, format, args);
         }
 
         /// <summary>
@@ -144,7 +144,7 @@ namespace Spark.Search.Support
 
             if (pos != null)
             {
-                message = String.Format("At line {0}, pos {1}: {2}", pos.LineNumber, pos.LinePosition,
+                message = string.Format("At line {0}, pos {1}: {2}", pos.LineNumber, pos.LinePosition,
                         Error.formatMessage(messageFormat, messageArgs));
             }
             else

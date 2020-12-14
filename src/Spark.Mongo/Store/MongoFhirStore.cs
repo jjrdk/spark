@@ -22,8 +22,8 @@ namespace Spark.Store.Mongo
 
     public class MongoFhirStore : IFhirStore
     {
-        private IMongoDatabase database;
-        private IMongoCollection<BsonDocument> collection;
+        private readonly IMongoDatabase database;
+        private readonly IMongoCollection<BsonDocument> collection;
 
         public MongoFhirStore(string mongoUrl)
         {
@@ -40,10 +40,12 @@ namespace Spark.Store.Mongo
 
         public async Task<Entry> Get(IKey key)
         {
-            var clauses = new List<FilterDefinition<BsonDocument>>();
+            var clauses = new List<FilterDefinition<BsonDocument>>
+            {
+                Builders<BsonDocument>.Filter.Eq(Field.TYPENAME, key.TypeName),
+                Builders<BsonDocument>.Filter.Eq(Field.RESOURCEID, key.ResourceId)
+            };
 
-            clauses.Add(Builders<BsonDocument>.Filter.Eq(Field.TYPENAME, key.TypeName));
-            clauses.Add(Builders<BsonDocument>.Filter.Eq(Field.RESOURCEID, key.ResourceId));
 
             if (key.HasVersionId())
             {
@@ -93,17 +95,19 @@ namespace Spark.Store.Mongo
 
         private FilterDefinition<BsonDocument> GetCurrentVersionQuery(IEnumerable<BsonValue> ids)
         {
-            var clauses = new List<FilterDefinition<BsonDocument>>();
-            clauses.Add(Builders<BsonDocument>.Filter.In(Field.REFERENCE, ids));
-            clauses.Add(Builders<BsonDocument>.Filter.Eq(Field.STATE, Value.CURRENT));
+            var clauses = new List<FilterDefinition<BsonDocument>>
+            {
+                Builders<BsonDocument>.Filter.In(Field.REFERENCE, ids),
+                Builders<BsonDocument>.Filter.Eq(Field.STATE, Value.CURRENT)
+            };
             return Builders<BsonDocument>.Filter.And(clauses);
 
         }
 
         private FilterDefinition<BsonDocument> GetSpecificVersionQuery(IEnumerable<BsonValue> ids)
         {
-            var clauses = new List<FilterDefinition<BsonDocument>>();
-            clauses.Add(Builders<BsonDocument>.Filter.In(Field.PRIMARYKEY, ids));
+            var clauses =
+                new List<FilterDefinition<BsonDocument>> {Builders<BsonDocument>.Filter.In(Field.PRIMARYKEY, ids)};
 
             return Builders<BsonDocument>.Filter.And(clauses);
         }

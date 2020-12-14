@@ -13,8 +13,8 @@ namespace Spark.Engine.Extensions
         private const string xpathSeparator = "/";
         private const string pathSeparator = ".";
         private const string generalPathPattern = @"(?<chainPart>(?<element>[^{0}\(]+)(?<predicate>\((?<propname>[^=]*)=(?<filterValue>[^\)]*)\))?((?<separator>{0})|(?<endofinput>$)))+";
-        public static Regex xpathPattern = new Regex(String.Format(@"(?<root>^//)" + generalPathPattern, xpathSeparator));
-        public static Regex pathPattern = new Regex(String.Format(generalPathPattern, @"\" + pathSeparator));
+        public static Regex xpathPattern = new Regex(string.Format(@"(?<root>^//)" + generalPathPattern, xpathSeparator));
+        public static Regex pathPattern = new Regex(string.Format(generalPathPattern, @"\" + pathSeparator));
 
         public static void SetPropertyPath(this SearchParameter searchParameter, string[] paths)
         {
@@ -23,13 +23,13 @@ namespace Spark.Engine.Extensions
             {
                 //A searchparameter always has a Resource as focus, so we don't need the name of the resource to be at the start of the Path.
                 //See also: https://github.com/ewoutkramer/fhirpath/blob/master/fhirpath.md
-                workingPaths = paths.Select<string, string>(pp => StripResourceNameFromStart(pp, searchParameter.Base.GetLiteral())).ToArray();
+                workingPaths = paths.Select<string, string>(pp => StripResourceNameFromStart(pp, searchParameter.Base.First().GetLiteral())).ToArray();
                 var xpaths = workingPaths.Select(pp => "//" + pathPattern.ReplaceGroup(pp, "separator", xpathSeparator));
-                searchParameter.Xpath = String.Join(" | ", xpaths);
+                searchParameter.Xpath = string.Join(" | ", xpaths);
             }
             else
             {
-                searchParameter.Xpath = String.Empty;
+                searchParameter.Xpath = string.Empty;
                 //Null is not an error, for example Composite parameters don't have a path.
             }
         }
@@ -43,7 +43,7 @@ namespace Spark.Engine.Extensions
             if (path.StartsWith(resourceName, StringComparison.CurrentCultureIgnoreCase))
             {
                 //Path is like "Patient.birthdate", but "Patient." is superfluous. Ignore it.
-                return path.Remove(0, resourceName.Length + 1); 
+                return path.Remove(0, resourceName.Length + 1);
             }
             else
             {
@@ -56,11 +56,11 @@ namespace Spark.Engine.Extensions
             if (searchParameter.Xpath != null)
             {
                 var xpaths = searchParameter.Xpath.Split(new string[] { " | " }, StringSplitOptions.None);
-                return xpaths.Select(xp => xpathPattern.ReplaceGroups(xp, new Dictionary<string, string>{ { "separator", pathSeparator},{ "root", String.Empty} })).ToArray();
+                return xpaths.Select(xp => xpathPattern.ReplaceGroups(xp, new Dictionary<string, string>{ { "separator", pathSeparator},{ "root", string.Empty} })).ToArray();
             }
             else
             {
-                return new string[] { };
+                return Array.Empty<string>();
             }
         }
 

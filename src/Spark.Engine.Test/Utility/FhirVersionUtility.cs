@@ -1,10 +1,11 @@
 ﻿using Hl7.Fhir.Model;
 using Hl7.Fhir.Utility;
-using NuGet.Versioning;
 using System.Collections.Generic;
 
 namespace Spark.Engine.Test.Utility
 {
+    using System;
+
     internal class FhirVersionUtility
     {
         public const string VERSION_R2 = "1.0";
@@ -24,7 +25,7 @@ namespace Spark.Engine.Test.Utility
         public static FhirVersionMoniker GetFhirVersionMoniker()
         {
             FhirVersionMoniker? fhirVersion = default;
-            if (SemanticVersion.TryParse(ModelInfo.Version, out SemanticVersion semanticVersion))
+            if (Version.TryParse(ModelInfo.Version, out Version semanticVersion))
             {
                 fhirVersion = EnumUtility.ParseLiteral<FhirVersionMoniker>($"{semanticVersion.Major}.{semanticVersion.Minor}");
             }

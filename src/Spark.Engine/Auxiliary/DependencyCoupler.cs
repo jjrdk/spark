@@ -18,7 +18,7 @@ namespace Spark.Engine.Auxiliary
 
     public static class DependencyCoupler
     {
-        private static readonly Dictionary<Type, Object> instances = new Dictionary<Type, object>();
+        private static readonly Dictionary<Type, object> instances = new Dictionary<Type, object>();
         private static readonly Dictionary<Type, Instantiator> instanciators = new Dictionary<Type, Instantiator>();
         private static readonly Dictionary<Type, Type> types = new Dictionary<Type, Type>();
 

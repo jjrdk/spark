@@ -19,7 +19,6 @@ using System.Linq;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.Extensions.Hosting;
-using Spark.Engine.Formatters;
 
 namespace Spark.Web
 {

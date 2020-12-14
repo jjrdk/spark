@@ -1,28 +1,27 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Spark.Engine.Core;
+﻿using Spark.Engine.Core;
 using System.Linq;
 using Hl7.Fhir.Model;
 
 namespace Spark.Engine.Test.Core
 {
-    [TestClass]
+    using Xunit;
+
     public class FhirModelTests
     {
         private static FhirModel sut;
 
-        [ClassInitialize]
-        public static void ClassInitialize(TestContext testContext)
+        public FhirModelTests()
         {
             sut = new FhirModel();
         }
 
-        [TestMethod]
+        [Fact]
         public void TestCompartments()
         {
             var actual = sut.FindCompartmentInfo(ResourceType.Patient);
 
-            Assert.IsNotNull(actual);
-            Assert.IsTrue(actual.ReverseIncludes.Any());
+            Assert.NotNull(actual);
+            Assert.True(actual.ReverseIncludes.Any());
         }
     }
 }

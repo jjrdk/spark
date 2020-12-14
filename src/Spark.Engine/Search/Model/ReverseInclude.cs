@@ -27,7 +27,7 @@ namespace Spark.Engine.Search.Model
             var match = pattern.Match(reverseInclude);
             if (match.Groups.Count < 2)
             {
-                throw new ArgumentException(String.Format("reverseInclude '{0}' does not adhere to the format 'ResourceType.searchParameter[.searchParameter]*'", reverseInclude));
+                throw new ArgumentException(string.Format("reverseInclude '{0}' does not adhere to the format 'ResourceType.searchParameter[.searchParameter]*'", reverseInclude));
             }
 
             result.ResourceType = match.Groups["resourcetype"].Captures[0].Value;

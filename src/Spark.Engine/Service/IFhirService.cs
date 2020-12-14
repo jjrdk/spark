@@ -14,7 +14,7 @@ namespace Spark.Service
         Task<FhirResponse> ConditionalCreate(IKey key, Resource resource, SearchParams parameters);
         Task<FhirResponse> ConditionalDelete(IKey key, IEnumerable<Tuple<string, string>> parameters);
         Task<FhirResponse> ConditionalUpdate(IKey key, Resource resource, SearchParams _params);
-        FhirResponse Conformance(string sparkVersion);
+        //FhirResponse Conformance(string sparkVersion);
         Task<FhirResponse> Create(IKey key, Resource resource);
         Task<FhirResponse> Delete(IKey key);
         Task<FhirResponse> GetPage(string snapshotkey, int index);

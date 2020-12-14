@@ -1,9 +1,9 @@
-﻿using Hl7.Fhir.Model;
+﻿//using Hl7.Fhir.Model;
 
-namespace Spark.Engine.Service.FhirServiceExtensions
-{
-    internal interface IConformanceService : IFhirServiceExtension
-    {
-        Conformance GetSparkConformance(string sparkVersion);
-    }
-}
+//namespace Spark.Engine.Service.FhirServiceExtensions
+//{
+//    internal interface IConformanceService : IFhirServiceExtension
+//    {
+//        Conformance GetSparkConformance(string sparkVersion);
+//    }
+//}

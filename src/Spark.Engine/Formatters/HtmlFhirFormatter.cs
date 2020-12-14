@@ -1,7 +1,7 @@
-﻿/* 
+﻿/*
  * Copyright (c) 2014, Furore (info@furore.com) and contributors
  * See the file CONTRIBUTORS for details.
- * 
+ *
  * This file is licensed under the BSD 3-Clause license
  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
  */
@@ -9,67 +9,48 @@
 using System;
 using System.IO;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Net.Http.Formatting;
 using System.Net.Http.Headers;
-using System.Threading.Tasks;
 using Hl7.Fhir.Model;
 using Hl7.Fhir.Serialization;
 using System.Text;
 using Hl7.Fhir.Rest;
-using Spark.Core;
 using System.Collections.Specialized;
 using Spark.Engine;
-using Spark.Engine.Extensions;
 using Spark.Engine.Core;
 
 namespace Spark.Formatters
 {
-    public class HtmlFhirFormatter : FhirMediaTypeFormatter
+    using Microsoft.AspNetCore.Mvc.Formatters;
+    using Task = System.Threading.Tasks.Task;
+
+    public class HtmlFhirFormatter : TextOutputFormatter
     {
         private readonly FhirXmlSerializer _serializer;
 
         public HtmlFhirFormatter(FhirXmlSerializer serializer) : base()
         {
             _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
-            SupportedMediaTypes.Add(new MediaTypeHeaderValue("text/html"));
+            SupportedMediaTypes.Add(new Microsoft.Net.Http.Headers.MediaTypeHeaderValue("text/html"));
         }
 
-        public override void SetDefaultContentHeaders(Type type, HttpContentHeaders headers, MediaTypeHeaderValue mediaType)
+        /// <inheritdoc />
+        public override void WriteResponseHeaders(OutputFormatterWriteContext context)
         {
-            base.SetDefaultContentHeaders(type, headers, mediaType);
-            headers.ContentType = new MediaTypeHeaderValue("text/html");
+            context.ContentType = new MediaTypeHeaderValue("text/html").ToString();
         }
 
-        public override Task<object> ReadFromStreamAsync(Type type, Stream readStream, HttpContent content, IFormatterLogger formatterLogger)
+        /// <inheritdoc />
+        public override async Task WriteResponseBodyAsync(OutputFormatterWriteContext context, Encoding selectedEncoding)
         {
-            try
-            {
-                throw new NotSupportedException(string.Format("Cannot read unsupported type {0} from body", type.Name));
-            }
-            catch (FormatException exc)
-            {
-                throw Error.BadRequest("Body parsing failed: " + exc.Message);
-            }
-        }
-
-        public override Task WriteToStreamAsync(Type type, object value, Stream writeStream, HttpContent content, TransportContext transportContext)
-        {
-            WriteHTMLOutput(type, value, writeStream);
-
-            return Task.CompletedTask;
-        }
-
-        private void WriteHTMLOutput(Type type, object value, Stream writeStream)
-        {
-            StreamWriter writer = new StreamWriter(writeStream, Encoding.UTF8);
-            writer.WriteLine("<html>");
-            writer.WriteLine("<head>");
-            writer.WriteLine("  <link rel=\"icon\" href=\"/Content/Fire.png\"></link>");
-            writer.WriteLine("  <link rel=\"icon\" href=\"/Content/css/fhir-html.css\"></link>");
-            writer.WriteLine("</head>");
-            writer.WriteLine("<body>");
+            var type = context.ObjectType;
+            var value = context.Object;
+            StreamWriter writer = new StreamWriter(context.HttpContext.Response.Body, Encoding.UTF8);
+            await writer.WriteLineAsync("<html>").ConfigureAwait(false);
+            await writer.WriteLineAsync("<head>").ConfigureAwait(false);
+            await writer.WriteLineAsync("  <link rel=\"icon\" href=\"/Content/Fire.png\"></link>").ConfigureAwait(false);
+            await writer.WriteLineAsync("  <link rel=\"icon\" href=\"/Content/css/fhir-html.css\"></link>").ConfigureAwait(false);
+            await writer.WriteLineAsync("</head>").ConfigureAwait(false);
+            await writer.WriteLineAsync("<body>").ConfigureAwait(false);
             if (type == typeof(Resource) || type == typeof(OperationOutcome))
             {
                 if (value is Bundle)
@@ -78,58 +59,59 @@ namespace Spark.Formatters
 
                     if (resource.SelfLink != null)
                     {
-                        writer.WriteLine(string.Format("Searching: {0}<br/>", resource.SelfLink.OriginalString));
+                        await writer.WriteLineAsync($"Searching: {resource.SelfLink.OriginalString}<br/>").ConfigureAwait(false);
 
                         NameValueCollection ps = resource.SelfLink.ParseQueryString();
                         if (ps.AllKeys.Contains(FhirParameter.SORT))
-                            writer.WriteLine(string.Format("    Sort by: {0}<br/>", ps[FhirParameter.SORT]));
+                            await writer.WriteLineAsync($"    Sort by: {ps[FhirParameter.SORT]}<br/>").ConfigureAwait(false);
                         if (ps.AllKeys.Contains(FhirParameter.SUMMARY))
-                            writer.WriteLine("    Summary only<br/>");
+                            await writer.WriteLineAsync("    Summary only<br/>").ConfigureAwait(false);
                         if (ps.AllKeys.Contains(FhirParameter.COUNT))
-                            writer.WriteLine(string.Format("    Count: {0}<br/>", ps[FhirParameter.COUNT]));
+                            await writer.WriteLineAsync($"    Count: {ps[FhirParameter.COUNT]}<br/>").ConfigureAwait(false);
                         if (ps.AllKeys.Contains(FhirParameter.SNAPSHOT_INDEX))
-                            writer.WriteLine(string.Format("    From RowNum: {0}<br/>", ps[FhirParameter.SNAPSHOT_INDEX]));
+                            await writer.WriteLineAsync($"    From RowNum: {ps[FhirParameter.SNAPSHOT_INDEX]}<br/>").ConfigureAwait(false);
                         if (ps.AllKeys.Contains(FhirParameter.SINCE))
-                            writer.WriteLine(string.Format("    Since: {0}<br/>", ps[FhirParameter.SINCE]));
+                            await writer.WriteLineAsync($"    Since: {ps[FhirParameter.SINCE]}<br/>").ConfigureAwait(false);
 
 
                         foreach (var item in ps.AllKeys.Where(k => !k.StartsWith("_")))
                         {
                             if (ModelInfo.SearchParameters.Exists(s => s.Name == item))
                             {
-                                writer.WriteLine(string.Format("    {0}: {1}<br/>", item, ps[item]));
+                                await writer.WriteLineAsync($"    {item}: {ps[item]}<br/>").ConfigureAwait(false);
                             }
                             else
                             {
-                                writer.WriteLine(string.Format("    <i>{0}: {1} (excluded)</i><br/>", item, ps[item]));
+                                await writer.WriteLineAsync($"    <i>{item}: {ps[item]} (excluded)</i><br/>").ConfigureAwait(false);
                             }
                         }
                     }
 
                     if (resource.FirstLink != null)
-                        writer.WriteLine(string.Format("First Link: {0}<br/>", resource.FirstLink.OriginalString));
+                        await writer.WriteLineAsync($"First Link: {resource.FirstLink.OriginalString}<br/>").ConfigureAwait(false);
                     if (resource.PreviousLink != null)
-                        writer.WriteLine(string.Format("Previous Link: {0}<br/>", resource.PreviousLink.OriginalString));
+                        await writer.WriteLineAsync($"Previous Link: {resource.PreviousLink.OriginalString}<br/>").ConfigureAwait(false);
                     if (resource.NextLink != null)
-                        writer.WriteLine(string.Format("Next Link: {0}<br/>", resource.NextLink.OriginalString));
+                        await writer.WriteLineAsync($"Next Link: {resource.NextLink.OriginalString}<br/>").ConfigureAwait(false);
                     if (resource.LastLink != null)
-                        writer.WriteLine(string.Format("Last Link: {0}<br/>", resource.LastLink.OriginalString));
+                        await writer.WriteLineAsync($"Last Link: {resource.LastLink.OriginalString}<br/>").ConfigureAwait(false);
 
                     // Write the other Bundle Header data
-                    writer.WriteLine(string.Format("<span style=\"word-wrap: break-word; display:block;\">Type: {0}, {1} of {2}</span>", resource.Type.ToString(), resource.Entry.Count, resource.Total));
+                    await writer.WriteLineAsync(
+                        $"<span style=\"word-wrap: break-word; display:block;\">Type: {resource.Type.ToString()}, {resource.Entry.Count} of {resource.Total}</span>").ConfigureAwait(false);
 
                     foreach (var item in resource.Entry)
                     {
-                        writer.WriteLine("<div class=\"item-tile\">");
+                        await writer.WriteLineAsync("<div class=\"item-tile\">").ConfigureAwait(false);
                         if (item.IsDeleted())
                         {
                             if (item.Request != null)
                             {
                                 string id = item.Request.Url;
-                                writer.WriteLine(string.Format("<span style=\"word-wrap: break-word; display:block;\">{0}</span>", id));
+                                await writer.WriteLineAsync($"<span style=\"word-wrap: break-word; display:block;\">{id}</span>").ConfigureAwait(false);
                             }
-                            writer.WriteLine("<hr/>");
-                            writer.WriteLine("<b>DELETED</b><br/>");
+                            await writer.WriteLineAsync("<hr/>").ConfigureAwait(false);
+                            await writer.WriteLineAsync("<b>DELETED</b><br/>").ConfigureAwait(false);
                         }
                         else if (item.Resource != null)
                         {
@@ -137,36 +119,38 @@ namespace Spark.Formatters
                             string visualurl = key.WithoutBase().ToUriString();
                             string realurl = key.ToUriString() + "?_format=html";
 
-                            writer.WriteLine(string.Format("<a style=\"word-wrap: break-word; display:block;\" href=\"{0}\">{1}</a>", realurl, visualurl));
+                            await writer.WriteLineAsync(
+                                $"<a style=\"word-wrap: break-word; display:block;\" href=\"{realurl}\">{visualurl}</a>").ConfigureAwait(false);
                             if (item.Resource.Meta != null && item.Resource.Meta.LastUpdated.HasValue)
-                                writer.WriteLine(string.Format("<i>Modified: {0}</i><br/>", item.Resource.Meta.LastUpdated.Value.ToString()));
-                            writer.WriteLine("<hr/>");
+                                await writer.WriteLineAsync(
+                                    $"<i>Modified: {item.Resource.Meta.LastUpdated.Value.ToString()}</i><br/>").ConfigureAwait(false);
+                            await writer.WriteLineAsync("<hr/>").ConfigureAwait(false);
 
                             if (item.Resource is DomainResource)
                             {
                                 if ((item.Resource as DomainResource).Text != null && !string.IsNullOrEmpty((item.Resource as DomainResource).Text.Div))
                                     writer.Write((item.Resource as DomainResource).Text.Div);
                                 else
-                                    writer.WriteLine(string.Format("Blank Text: {0}<br/>", item.Resource.ExtractKey().ToUriString()));
+                                    await writer.WriteLineAsync($"Blank Text: {item.Resource.ExtractKey().ToUriString()}<br/>").ConfigureAwait(false);
                             }
-                            else 
+                            else
                             {
-                                writer.WriteLine("This is not a domain resource");
+                                await writer.WriteLineAsync("This is not a domain resource").ConfigureAwait(false);
                             }
 
                         }
-                        writer.WriteLine("</div>");
+                        await writer.WriteLineAsync("</div>").ConfigureAwait(false);
                     }
                 }
                 else
                 {
                     DomainResource resource = (DomainResource)value;
-                    string org = resource.ResourceBase + "/" + resource.ResourceType.ToString() + "/" + resource.Id;
-                    writer.WriteLine(string.Format("Retrieved: {0}<hr/>", org));
+                    string org = resource.ResourceBase + "/" + resource.TypeName + "/" + resource.Id;
+                    await writer.WriteLineAsync($"Retrieved: {org}<hr/>").ConfigureAwait(false);
 
-                    string text = (resource.Text != null) ? resource.Text.Div : null;
+                    string text = resource.Text?.Div;
                     writer.Write(text);
-                    writer.WriteLine("<hr/>");
+                    await writer.WriteLineAsync("<hr/>").ConfigureAwait(false);
 
                     SummaryType summary = requestMessage.RequestSummary();
 
@@ -184,11 +168,11 @@ namespace Spark.Formatters
                     xslTransform.Load(stylesheetReader);
                     xslTransform.Transform(xmlDoc, null, output);
 
-                    writer.WriteLine(output.ToString());
+                    await writer.WriteLineAsync(output.ToString()).ConfigureAwait(false);
                 }
             }
-            writer.WriteLine("</body>");
-            writer.WriteLine("</html>");
+            await writer.WriteLineAsync("</body>").ConfigureAwait(false);
+            await writer.WriteLineAsync("</html>").ConfigureAwait(false);
             writer.Flush();
         }
     }

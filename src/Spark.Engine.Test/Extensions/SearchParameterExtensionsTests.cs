@@ -1,83 +1,82 @@
 ﻿using Hl7.Fhir.Model;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Spark.Engine.Extensions;
 using System.Linq;
 
 namespace Spark.Engine.Test.Extensions
 {
-    [TestClass]
+    using Xunit;
+
     public class SearchParameterExtensionsTests
     {
-        [TestMethod]
+        [Fact]
         public void TestSetPropertyPathWithSinglePath()
         {
             SearchParameter sut = new SearchParameter();
-            sut.Base = ResourceType.Appointment;
+            sut.Base = new ResourceType?[] { ResourceType.Appointment };
             sut.SetPropertyPath(new string[] { "Appointment.participant.actor" });
 
-            Assert.AreEqual("//participant/actor", sut.Xpath);
+            Assert.Equal("//participant/actor", sut.Xpath);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestSetPropertyPathWithMultiplePath()
         {
             SearchParameter sut = new SearchParameter();
-            sut.Base = ResourceType.AuditEvent;
+            sut.Base = new ResourceType?[] { ResourceType.AuditEvent };
             sut.SetPropertyPath(new string[] { "AuditEvent.participant.reference", "AuditEvent.object.reference" });
 
-            Assert.AreEqual("//participant/reference | //object/reference", sut.Xpath);
+            Assert.Equal("//participant/reference | //object/reference", sut.Xpath);
         }
 
-        [TestMethod]
-        public void  TestGetPropertyPathWithSinglePath()
+        [Fact]
+        public void TestGetPropertyPathWithSinglePath()
         {
             SearchParameter sut = new SearchParameter();
             sut.Xpath = "//participant/actor";
 
             var paths = sut.GetPropertyPath();
-            Assert.AreEqual(1, paths.Count());
-            Assert.IsTrue(paths.Contains("participant.actor"));
+            Assert.Single(paths);
+            Assert.Contains("participant.actor", paths);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestGetPropertyPathWithMultiplePath()
         {
             SearchParameter sut = new SearchParameter();
             sut.Xpath = "//participant/reference | //object/reference";
 
             var paths = sut.GetPropertyPath();
-            Assert.AreEqual(2, paths.Count());
-            Assert.IsTrue(paths.Contains("participant.reference"));
-            Assert.IsTrue(paths.Contains("object.reference"));
+            Assert.Equal(2, paths.Count());
+            Assert.Contains("participant.reference", paths);
+            Assert.Contains("object.reference", paths);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestSetPropertyPathWithPredicate()
         {
-            SearchParameter sut = new SearchParameter();
-            sut.Base = ResourceType.Slot;
+            SearchParameter sut = new SearchParameter { Base = new ResourceType?[] { ResourceType.Slot } };
             sut.SetPropertyPath(new string[] { "Slot.extension(url=http://foo.com/myextension).valueReference" });
 
-            Assert.AreEqual("//extension(url=http://foo.com/myextension)/valueReference", sut.Xpath);
+            Assert.Equal("//extension(url=http://foo.com/myextension)/valueReference", sut.Xpath);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestGetPropertyPathWithPredicate()
         {
             SearchParameter sut = new SearchParameter();
             sut.Xpath = "//extension(url=http://foo.com/myextension)/valueReference";
 
             var paths = sut.GetPropertyPath();
-            Assert.AreEqual(1, paths.Count());
-            Assert.AreEqual(@"extension(url=http://foo.com/myextension).valueReference", paths[0]);
+            Assert.Single(paths);
+            Assert.Equal(@"extension(url=http://foo.com/myextension).valueReference", paths[0]);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestMatchExtension()
         {
             var input = "//extension(url=http://foo.com/myextension)/valueReference";
             var result = SearchParameterExtensions.xpathPattern.Match(input).Value;
-            Assert.AreEqual(input, result);
+            Assert.Equal(input, result);
         }
     }
 }

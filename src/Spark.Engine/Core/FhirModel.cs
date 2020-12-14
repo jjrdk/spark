@@ -82,13 +82,16 @@ namespace Spark.Engine.Core
 
         private SearchParameter createSearchParameterFromSearchParamDefinition(SearchParamDefinition def)
         {
-            var result = new ComparableSearchParameter();
-            result.Name = def.Name;
-            result.Code = def.Name; //CK: SearchParamDefinition has no Code, but in all current SearchParameter resources, name and code are equal.
-            result.Base = GetResourceTypeForResourceName(def.Resource);
-            result.Type = def.Type;
-            result.Target = def.Target != null ? def.Target.ToList().Cast<ResourceType?>() : new List<ResourceType?>();
-            result.Description = def.Description;
+            var result = new ComparableSearchParameter
+            {
+                Name = def.Name,
+                Code = def.Name,
+                Base = new ResourceType?[] { GetResourceTypeForResourceName(def.Resource) },
+                Type = def.Type,
+                Target = def.Target != null ? def.Target.ToList().Cast<ResourceType?>() : new List<ResourceType?>(),
+                Description = def.Description
+            };
+            //CK: SearchParamDefinition has no Code, but in all current SearchParameter resources, name and code are equal.
             //Strip off the [x], for example in Condition.onset[x].
             result.SetPropertyPath(def.Path?.Select(p => p.Replace("[x]", "")).ToArray());
 

@@ -58,7 +58,7 @@ namespace Spark.Engine.Service.FhirServiceExtensions
             {
                 foreach (var ri in compartment.ReverseIncludes)
                 {
-                    searchCommand.RevInclude.Add(ri);
+                    searchCommand.RevInclude.Add((ri, IncludeModifier.None));
                 }
             }
 
@@ -79,10 +79,10 @@ namespace Spark.Engine.Service.FhirServiceExtensions
 
             if (searchCommand.Sort.Any())
             {
-                foreach (Tuple<string, SortOrder> tuple in searchCommand.Sort)
+                foreach (var (s, sortOrder) in searchCommand.Sort)
                 {
                     selflink = selflink.AddParam(SearchParams.SEARCH_PARAM_SORT,
-                        string.Format("{0}:{1}", tuple.Item1, tuple.Item2 == SortOrder.Ascending ? "asc" : "desc"));
+                        $"{s}:{(sortOrder == SortOrder.Ascending ? "asc" : "desc")}");
                 }
             }
 

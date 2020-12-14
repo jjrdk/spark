@@ -132,7 +132,7 @@ namespace Spark.Service
 
         public static void VersionId(string versionId)
         {
-            if (String.IsNullOrEmpty(versionId))
+            if (string.IsNullOrEmpty(versionId))
             {
                 throw Error.BadRequest("Must pass history id in url.");
             }
@@ -146,7 +146,7 @@ namespace Spark.Service
             }
             else if (!Id.IsValidValue(resourceId))
             {
-                throw Error.BadRequest(String.Format("{0} is not a valid value for an id", resourceId));
+                throw Error.BadRequest(string.Format("{0} is not a valid value for an id", resourceId));
             }
             else if (resourceId.Length > 64)
             {

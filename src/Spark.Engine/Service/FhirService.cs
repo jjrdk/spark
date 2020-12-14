@@ -173,7 +173,7 @@ namespace Spark.Engine.Service
             };
             foreach (var inc in includes)
             {
-                searchCommand.Include.Add(inc);
+                searchCommand.Include.Add((inc, IncludeModifier.None));
             }
             return Search(key.TypeName, searchCommand);
         }
@@ -333,12 +333,12 @@ namespace Spark.Engine.Service
             throw new NotImplementedException();
         }
 
-        public FhirResponse Conformance(string sparkVersion)
-        {
-            IConformanceService conformanceService = this.GetFeature<IConformanceService>();
+        //public FhirResponse Conformance(string sparkVersion)
+        //{
+        //    IConformanceService conformanceService = this.GetFeature<IConformanceService>();
 
-            return Respond.WithResource(conformanceService.GetSparkConformance(sparkVersion));
-        }
+        //    return Respond.WithResource(conformanceService.GetSparkConformance(sparkVersion));
+        //}
 
         public async Task<FhirResponse> GetPage(string snapshotkey, int index)
         {

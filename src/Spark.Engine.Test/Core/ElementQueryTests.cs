@@ -1,5 +1,4 @@
 ﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Spark.Engine.Core;
 using Hl7.Fhir.Model;
 using System.Collections.Generic;
@@ -7,23 +6,24 @@ using System.Linq;
 
 namespace Spark.Engine.Test.Core
 {
-    [TestClass]
+    using Xunit;
+
     public class ElementQueryTests
     {
-        [TestMethod]
+        [Fact]
         public void TestVisitOnePathZeroMatch()
         {
             ElementQuery sut = new ElementQuery("Patient.name");
 
             Patient testPatient = new Patient();
-            var result = new List<Object>() ;
+            var result = new List<object>() ;
 
             sut.Visit(testPatient, fd => result.Add(fd));
 
-            Assert.AreEqual(testPatient.Name.Count, result.Where(ob => ob != null).Count());
+            Assert.Equal(testPatient.Name.Count, result.Where(ob => ob != null).Count());
         }
 
-        [TestMethod]
+        [Fact]
         public void TestVisitOnePathOneMatch()
         {
             ElementQuery sut = new ElementQuery("Patient.name");
@@ -32,15 +32,15 @@ namespace Spark.Engine.Test.Core
             var hn = new HumanName().WithGiven("Sjors").AndFamily("Jansen");
             testPatient.Name = new List<HumanName> { hn };
 
-            var result = new List<Object>();
+            var result = new List<object>();
 
             sut.Visit(testPatient, fd => result.Add(fd));
 
-            Assert.AreEqual(testPatient.Name.Count, result.Where(ob => ob != null).Count());
-            Assert.IsTrue(result.Contains(hn));
+            Assert.Equal(testPatient.Name.Count, result.Where(ob => ob != null).Count());
+            Assert.True(result.Contains(hn));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestVisitOnePathTwoMatches()
         {
             ElementQuery sut = new ElementQuery("Patient.name");
@@ -50,13 +50,13 @@ namespace Spark.Engine.Test.Core
             var hn2 = new HumanName().WithGiven("Y").AndFamily("Z");
             testPatient.Name = new List<HumanName> { hn1, hn2 };
 
-            var result = new List<Object>();
+            var result = new List<object>();
 
             sut.Visit(testPatient, fd => result.Add(fd));
 
-            Assert.AreEqual(testPatient.Name.Count, result.Where(ob => ob != null).Count());
-            Assert.IsTrue(result.Contains(hn1));
-            Assert.IsTrue(result.Contains(hn2));
+            Assert.Equal(testPatient.Name.Count, result.Where(ob => ob != null).Count());
+            Assert.True(result.Contains(hn1));
+            Assert.True(result.Contains(hn2));
         }
     }
 }

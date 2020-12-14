@@ -18,20 +18,22 @@ using Microsoft.AspNetCore.Http;
 
 namespace Spark.Engine.Extensions
 {
+    using Microsoft.AspNetCore.Http;
+
     public static class HttpRequestExtensions
     {
-        
-        public static bool Exists(this HttpHeaders headers, string key)
-        {
-            IEnumerable<string> values;
-            if (headers.TryGetValues(key, out values))
-            {
-                return values.Count() > 0;
-            }
-            else return false;
 
-        }
-        
+        //public static bool Exists(this HttpHeaders headers, string key)
+        //{
+        //    IEnumerable<string> values;
+        //    if (headers.TryGetValues(key, out values))
+        //    {
+        //        return values.Count() > 0;
+        //    }
+        //    else return false;
+
+        //}
+
         internal static void Replace(this HttpHeaders headers, string header, string value)
         {
             //if (headers.Exists(header)) 
@@ -55,25 +57,12 @@ namespace Spark.Engine.Extensions
                 || ContentType.JSON_CONTENT_HEADERS.Contains(contentType);
         }
 
-#if NETSTANDARD2_0
         public static string GetParameter(this HttpRequest request, string key)
         {
             string value = null;
             if(request.Query.ContainsKey(key))
                 value = request.Query.FirstOrDefault(p => p.Key == key).Value.FirstOrDefault();
             return value;
-        }
-
-        public static List<Tuple<string, string>> TupledParameters(this HttpRequest request)
-        {
-            var list = new List<Tuple<string, string>>();
-
-            IQueryCollection queryCollection = request.Query;
-            foreach(var query in queryCollection)
-            {
-                list.Add(new Tuple<string, string>(query.Key, query.Value));
-            }
-            return list;
         }
 
         public static SearchParams GetSearchParamsFromBody(this HttpRequest request)
@@ -87,33 +76,25 @@ namespace Spark.Engine.Extensions
 
             return request.GetSearchParams().AddAll(list);
         }
+        
+        //public static SearchParams GetSearchParamsFromBody(this HttpRequestMessage request)
+        //{
+        //    var list = new List<Tuple<string, string>>();
+        //    string content = request.Content.ReadAsStringAsync().Result;
+        //    string[] parameters = string.IsNullOrEmpty(content) ? null : content.Split('&');
+        //    foreach (string parameter in parameters)
+        //    {
+        //        string[] p = parameter.Split('=');
+        //        list.Add(new Tuple<string, string>(p[0], Uri.UnescapeDataString(p[1])));
+        //    }
+
+        //    return request.GetSearchParams().AddAll(list);
+        //}
 
         public static SearchParams GetSearchParams(this HttpRequest request)
         {
             var parameters = request.TupledParameters().Where(tp => tp.Item1 != "_format");
-            var searchCommand = SearchParams.FromUriParamList(parameters);
-            return searchCommand;
-        }
-#endif
-
-        public static SearchParams GetSearchParamsFromBody(this HttpRequestMessage request)
-        {
-            var list = new List<Tuple<string, string>>();
-            string content = request.Content.ReadAsStringAsync().Result;
-            string[] parameters = string.IsNullOrEmpty(content) ? null : content.Split('&');
-            foreach (string parameter in parameters)
-            {
-                string[] p = parameter.Split('=');
-                list.Add(new Tuple<string, string>(p[0], Uri.UnescapeDataString(p[1])));
-            }
-
-            return request.GetSearchParams().AddAll(list);
-        }
-
-        public static SearchParams GetSearchParams(this HttpRequestMessage request)
-        {
-            var parameters = request.TupledParameters().Where(tp => tp.Item1 != "_format");
-            var searchCommand = SearchParams.FromUriParamList(parameters);
+            var searchCommand = SearchParams.FromUriParamList(parameters.Select(x => Tuple.Create(x.Item1, x.Item2)));
             return searchCommand;
         }
     }

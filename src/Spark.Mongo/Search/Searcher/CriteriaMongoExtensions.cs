@@ -25,7 +25,7 @@ namespace Spark.Search.Mongo
 
     internal static class CriteriaMongoExtensions
     {
-        private static List<MethodInfo> FixedQueries = CacheQueryMethods();
+        private static readonly List<MethodInfo> FixedQueries = CacheQueryMethods();
 
         private static List<MethodInfo> CacheQueryMethods()
         {
@@ -74,20 +74,20 @@ namespace Spark.Search.Mongo
                 //return null;
             }
 
-            throw new ArgumentException(String.Format("Resource {0} has no parameter with the name {1}.", resourceType, param.ParamName));
+            throw new ArgumentException(string.Format("Resource {0} has no parameter with the name {1}.", resourceType, param.ParamName));
         }
 
-        private static FilterDefinition<BsonDocument> SetParameter(this FilterDefinition<BsonDocument> query, string parameterName, IEnumerable<String> values)
+        private static FilterDefinition<BsonDocument> SetParameter(this FilterDefinition<BsonDocument> query, string parameterName, IEnumerable<string> values)
         {
             return query.SetParameter(new BsonArray() { parameterName }.ToJson(), new BsonArray(values).ToJson());
         }
 
-        private static FilterDefinition<BsonDocument> SetParameter(this FilterDefinition<BsonDocument> query, string parameterName, String value)
+        private static FilterDefinition<BsonDocument> SetParameter(this FilterDefinition<BsonDocument> query, string parameterName, string value)
         {
             return BsonDocument.Parse(query.ToString().Replace(parameterName, value));
         }
 
-        private static FilterDefinition<BsonDocument> CreateFilter(ModelInfo.SearchParamDefinition parameter, Operator op, String modifier, Expression operand)
+        private static FilterDefinition<BsonDocument> CreateFilter(ModelInfo.SearchParamDefinition parameter, Operator op, string modifier, Expression operand)
         {
             if (op == Operator.CHAIN)
             {
@@ -127,16 +127,16 @@ namespace Spark.Search.Mongo
                         return UriQuery(parameterName, op, modifier, valueOperand);
                     default:
                         //return Builders<BsonDocument>.Filter.Null;
-                        throw new NotSupportedException(String.Format("SearchParamType {0} on parameter {1} not supported.", parameter.Type, parameter.Name));
+                        throw new NotSupportedException(string.Format("SearchParamType {0} on parameter {1} not supported.", parameter.Type, parameter.Name));
                 }
             }
         }
 
-        private static List<string> GetTargetedReferenceTypes(ModelInfo.SearchParamDefinition parameter, String modifier)
+        private static List<string> GetTargetedReferenceTypes(ModelInfo.SearchParamDefinition parameter, string modifier)
         {
             var allowedResourceTypes = parameter.Target.Select(t => EnumUtility.GetLiteral(t)).ToList();// ModelInfo.SupportedResources; //TODO: restrict to parameter.ReferencedResources. This means not making this static, because you want to use IFhirModel.
             List<string> searchResourceTypes = new List<string>();
-            if (String.IsNullOrEmpty(modifier))
+            if (string.IsNullOrEmpty(modifier))
                 searchResourceTypes.AddRange(allowedResourceTypes);
             else if (allowedResourceTypes.Contains(modifier))
             {
@@ -144,7 +144,7 @@ namespace Spark.Search.Mongo
             }
             else
             {
-                throw new NotSupportedException(String.Format("Referenced type cannot be of type %s.", modifier));
+                throw new NotSupportedException(string.Format("Referenced type cannot be of type %s.", modifier));
             }
 
             return searchResourceTypes;
@@ -170,7 +170,7 @@ namespace Spark.Search.Mongo
             return searchResourceTypes.Where(rt => InternalField.All.Contains(nextParameter) || UniversalField.All.Contains(nextParameter) || ModelInfo.SearchParameters.Exists(sp => rt.Equals(sp.Resource) && nextParameter.Equals(sp.Name))).ToList();
         }
 
-        private static FilterDefinition<BsonDocument> StringQuery(String parameterName, Operator optor, String modifier, ValueExpression operand)
+        private static FilterDefinition<BsonDocument> StringQuery(string parameterName, Operator optor, string modifier, ValueExpression operand)
         {
             switch (optor)
             {
@@ -191,7 +191,7 @@ namespace Spark.Search.Mongo
                             //partial from begin
                             return Builders<BsonDocument>.Filter.Regex(parameterName, new BsonRegularExpression("^" + typedOperand, "i"));
                         default:
-                            throw new ArgumentException(String.Format("Invalid modifier {0} on string parameter {1}", modifier, parameterName));
+                            throw new ArgumentException(string.Format("Invalid modifier {0} on string parameter {1}", modifier, parameterName));
                     }
                 case Operator.IN: //We'll only handle choice like :exact
                     IEnumerable<ValueExpression> opMultiple = ((ChoiceValue)operand).Choices;
@@ -201,12 +201,12 @@ namespace Spark.Search.Mongo
                 case Operator.NOTNULL:
                     return Builders<BsonDocument>.Filter.Ne(parameterName, BsonNull.Value); //We don't use Builders<BsonDocument>.Filter.Exists, because that would include resources that have this field with an explicit null in it.
                 default:
-                    throw new ArgumentException(String.Format("Invalid operator {0} on string parameter {1}", optor.ToString(), parameterName));
+                    throw new ArgumentException(string.Format("Invalid operator {0} on string parameter {1}", optor.ToString(), parameterName));
             }
         }
 
         //No modifiers allowed on number parameters, hence not in the method signature.
-        private static FilterDefinition<BsonDocument> NumberQuery(String parameterName, Operator optor, ValueExpression operand)
+        private static FilterDefinition<BsonDocument> NumberQuery(string parameterName, Operator optor, ValueExpression operand)
         {
             string typedOperand;
             try
@@ -215,11 +215,11 @@ namespace Spark.Search.Mongo
             }
             catch (InvalidCastException)
             {
-                throw new ArgumentException(String.Format("Invalid number value {0} on number parameter {1}", operand, parameterName));
+                throw new ArgumentException(string.Format("Invalid number value {0} on number parameter {1}", operand, parameterName));
             }
             catch (FormatException)
             {
-                throw new ArgumentException(String.Format("Invalid number value {0} on number parameter {1}", operand, parameterName));
+                throw new ArgumentException(string.Format("Invalid number value {0} on number parameter {1}", operand, parameterName));
             }
 
             switch (optor)
@@ -246,7 +246,7 @@ namespace Spark.Search.Mongo
                 case Operator.NOTNULL:
                     return Builders<BsonDocument>.Filter.Ne(parameterName, BsonNull.Value);
                 default:
-                    throw new ArgumentException(String.Format("Invalid operator {0} on number parameter {1}", optor.ToString(), parameterName));
+                    throw new ArgumentException(string.Format("Invalid operator {0} on number parameter {1}", optor.ToString(), parameterName));
             }
         }
 
@@ -276,11 +276,11 @@ namespace Spark.Search.Mongo
                     return Builders<BsonDocument>.Filter.Ne(name, BsonNull.Value);
 
                 default:
-                    throw new ArgumentException(String.Format("Invalid operator {0} on token parameter {1}", optor.ToString(), name));
+                    throw new ArgumentException(string.Format("Invalid operator {0} on token parameter {1}", optor.ToString(), name));
             }
         }
 
-        private static FilterDefinition<BsonDocument> QuantityQuery(String parameterName, Operator optor, String modifier, ValueExpression operand)
+        private static FilterDefinition<BsonDocument> QuantityQuery(string parameterName, Operator optor, string modifier, ValueExpression operand)
         {
             //$elemMatch only works on array values. But the MongoIndexMapper only creates an array if there are multiple values for a given parameter.
             //So we also construct a query for when there is only one set of values in the searchIndex, hence there is no array.
@@ -319,7 +319,7 @@ namespace Spark.Search.Mongo
             return query;
         }
 
-        private static FilterDefinition<BsonDocument> TokenQuery(String parameterName, Operator optor, String modifier, ValueExpression operand)
+        private static FilterDefinition<BsonDocument> TokenQuery(string parameterName, Operator optor, string modifier, ValueExpression operand)
         {
             //$elemMatch only works on array values. But the MongoIndexMapper only creates an array if there are multiple values for a given parameter.
             //So we also construct a query for when there is only one set of values in the searchIndex, hence there is no array.
@@ -363,7 +363,7 @@ namespace Spark.Search.Mongo
                         //Handle the system part, if present.
                         if (!typedEqOperand.AnyNamespace)
                         {
-                            if (String.IsNullOrWhiteSpace(typedEqOperand.Namespace))
+                            if (string.IsNullOrWhiteSpace(typedEqOperand.Namespace))
                             {
                                 arrayQueries.Add(Builders<BsonDocument>.Filter.Exists("system", false));
                                 noArrayQueries.Add(Builders<BsonDocument>.Filter.Exists(systemfield, false));
@@ -391,15 +391,15 @@ namespace Spark.Search.Mongo
                 case Operator.NOTNULL:
                     return Builders<BsonDocument>.Filter.Or(Builders<BsonDocument>.Filter.Ne(parameterName, BsonNull.Value), Builders<BsonDocument>.Filter.Eq(textfield, BsonNull.Value)); //We don't use Builders<BsonDocument>.Filter.Exists, because that would include resources that have this field with an explicit null in it.
                 default:
-                    throw new ArgumentException(String.Format("Invalid operator {0} on token parameter {1}", optor.ToString(), parameterName));
+                    throw new ArgumentException(string.Format("Invalid operator {0} on token parameter {1}", optor.ToString(), parameterName));
             }
         }
 
-        private static FilterDefinition<BsonDocument> UriQuery(String parameterName, Operator optor, String modifier, ValueExpression operand)
+        private static FilterDefinition<BsonDocument> UriQuery(string parameterName, Operator optor, string modifier, ValueExpression operand)
         {
             //CK: Ugly implementation by just using existing features on the StringQuery.
             //TODO: Implement :ABOVE.
-            String localModifier = "";
+            string localModifier = "";
             switch (modifier)
             {
                 case Modifier.BELOW:
@@ -407,7 +407,7 @@ namespace Spark.Search.Mongo
                     break;
                 case Modifier.ABOVE:
                     //Not supported by string search, still TODO.
-                    throw new NotImplementedException(String.Format("Modifier {0} on Uri parameter {1} not supported yet.", modifier, parameterName));
+                    throw new NotImplementedException(string.Format("Modifier {0} on Uri parameter {1} not supported yet.", modifier, parameterName));
                 case Modifier.NONE:
                 case null:
                     localModifier = Modifier.EXACT;
@@ -416,7 +416,7 @@ namespace Spark.Search.Mongo
                     localModifier = Modifier.MISSING;
                     break;
                 default:
-                    throw new ArgumentException(String.Format("Invalid modifier {0} on Uri parameter {1}", modifier, parameterName));
+                    throw new ArgumentException(string.Format("Invalid modifier {0} on Uri parameter {1}", modifier, parameterName));
             }
             return StringQuery(parameterName, optor, localModifier, operand);
         }
@@ -434,7 +434,7 @@ namespace Spark.Search.Mongo
                 return null;
         }
 
-        private static FilterDefinition<BsonDocument> DateQuery(String parameterName, Operator optor, String modifier, ValueExpression operand)
+        private static FilterDefinition<BsonDocument> DateQuery(string parameterName, Operator optor, string modifier, ValueExpression operand)
         {
             if (optor == Operator.IN)
             {
@@ -471,11 +471,11 @@ namespace Spark.Search.Mongo
                 case Operator.NOTNULL:
                     return Builders<BsonDocument>.Filter.Ne(parameterName, BsonNull.Value); //We don't use Builders<BsonDocument>.Filter.Exists, because that would include resources that have this field with an explicit null in it.
                 default:
-                    throw new ArgumentException(String.Format("Invalid operator {0} on date parameter {1}", optor.ToString(), parameterName));
+                    throw new ArgumentException(string.Format("Invalid operator {0} on date parameter {1}", optor.ToString(), parameterName));
             }
         }
 
-        private static FilterDefinition<BsonDocument> CompositeQuery(ModelInfo.SearchParamDefinition parameterDef, Operator optor, String modifier, ValueExpression operand)
+        private static FilterDefinition<BsonDocument> CompositeQuery(ModelInfo.SearchParamDefinition parameterDef, Operator optor, string modifier, ValueExpression operand)
         {
             if (optor == Operator.IN)
             {
@@ -496,7 +496,7 @@ namespace Spark.Search.Mongo
 
                 if (components.Count() != subParams.Count())
                 {
-                    throw new ArgumentException(String.Format("Parameter {0} requires exactly {1} composite values, not the currently provided {2} values.", parameterDef.Name, subParams.Count(), components.Count()));
+                    throw new ArgumentException(string.Format("Parameter {0} requires exactly {1} composite values, not the currently provided {2} values.", parameterDef.Name, subParams.Count(), components.Count()));
                 }
 
                 for (int i = 0; i < subParams.Count(); i++)
@@ -510,7 +510,7 @@ namespace Spark.Search.Mongo
                 }
                 return Builders<BsonDocument>.Filter.And(queries);
             }
-            throw new ArgumentException(String.Format("Invalid operator {0} on composite parameter {1}", optor.ToString(), parameterDef.Name));
+            throw new ArgumentException(string.Format("Invalid operator {0} on composite parameter {1}", optor.ToString(), parameterDef.Name));
         }
 
         //internal static FilterDefinition<BsonDocument> _lastUpdatedFixedQuery(Criterium crit)

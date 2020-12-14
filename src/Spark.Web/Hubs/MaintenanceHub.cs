@@ -17,6 +17,8 @@ using Spark.Engine.Service.FhirServiceExtensions;
 
 namespace Spark.Web.Hubs
 {
+    using Task = System.Threading.Tasks.Task;
+
     //[Authorize(Policy = "RequireAdministratorRole")]
     public class MaintenanceHub : Hub
     {
@@ -134,7 +136,7 @@ namespace Spark.Web.Hubs
                 {
                     var res = resarray[x];
                     // Sending message:
-                    var msg = Message("Importing " + res.ResourceType.ToString() + " " + res.Id + "...", x);
+                    var msg = Message("Importing " + res.TypeName + " " + res.Id + "...", x);
                     await notifier.SendProgressUpdate(msg.Message, msg.Progress).ConfigureAwait(false);
 
                     try
@@ -153,12 +155,10 @@ namespace Spark.Web.Hubs
                     catch (Exception e)
                     {
                         // Sending message:
-                        var msgError = Message("ERROR Importing " + res.ResourceType.ToString() + " " + res.Id + "... ", x);
+                        var msgError = Message("ERROR Importing " + res.TypeName + " " + res.Id + "... ", x);
                         await Clients.All.SendAsync("Error", msg).ConfigureAwait(false);
                         messages.AppendLine(msgError.Message + ": " + e.Message);
                     }
-
-
                 }
 
                 await notifier.SendProgressUpdate(messages.ToString(), 100).ConfigureAwait(false);

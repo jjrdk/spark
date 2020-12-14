@@ -1,14 +1,14 @@
 ﻿using Hl7.Fhir.Model;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Spark.Engine.Extensions;
 using System;
 
 namespace Spark.Engine.Test.Extensions
 {
-    [TestClass]
+    using Xunit;
+
     public class OperationOutcomeExtensionsTests
     {
-        [TestMethod]
+        [Fact]
         public void Three_Level_InnerErrors_Test()
         {
             OperationOutcome outcome;
@@ -36,39 +36,39 @@ namespace Spark.Engine.Test.Extensions
                 outcome = new OperationOutcome().AddAllInnerErrors(e1);
             }
 
-            Assert.IsTrue(outcome.Issue.FindIndex(i => i.Diagnostics.Equals("Exception: First error level")) == 0, "First error level should be at index 0");
-            Assert.IsTrue(outcome.Issue.FindIndex(i => i.Diagnostics.Equals("Exception: Second error level")) == 1, "Second error level should be at index 1");
-            Assert.IsTrue(outcome.Issue.FindIndex(i => i.Diagnostics.Equals("Exception: Third error level")) == 2, "Third error level should be at index 2");
+            Assert.True(outcome.Issue.FindIndex(i => i.Diagnostics.Equals("Exception: First error level")) == 0, "First error level should be at index 0");
+            Assert.True(outcome.Issue.FindIndex(i => i.Diagnostics.Equals("Exception: Second error level")) == 1, "Second error level should be at index 1");
+            Assert.True(outcome.Issue.FindIndex(i => i.Diagnostics.Equals("Exception: Third error level")) == 2, "Third error level should be at index 2");
         }
 
-        [TestMethod]
+        [Fact]
         public void IssueSeverity_Is_Information_When_HttpStatusCode_Is_Continue_Test()
         {
-            Assert.AreEqual(OperationOutcome.IssueSeverity.Information, OperationOutcomeExtensions.IssueSeverityOf(System.Net.HttpStatusCode.Continue));
+            Assert.Equal(OperationOutcome.IssueSeverity.Information, OperationOutcomeExtensions.IssueSeverityOf(System.Net.HttpStatusCode.Continue));
         }
 
-        [TestMethod]
+        [Fact]
         public void IssueSeverity_Is_Information_When_HttpStatusCode_Is_Created_Test()
         {
-            Assert.AreEqual(OperationOutcome.IssueSeverity.Information, OperationOutcomeExtensions.IssueSeverityOf(System.Net.HttpStatusCode.Created));
+            Assert.Equal(OperationOutcome.IssueSeverity.Information, OperationOutcomeExtensions.IssueSeverityOf(System.Net.HttpStatusCode.Created));
         }
 
-        [TestMethod]
+        [Fact]
         public void IssueSeverity_Is_Warning_When_HttpStatusCode_Is_MovedPermanently_Test()
         {
-            Assert.AreEqual(OperationOutcome.IssueSeverity.Warning, OperationOutcomeExtensions.IssueSeverityOf(System.Net.HttpStatusCode.MovedPermanently));
+            Assert.Equal(OperationOutcome.IssueSeverity.Warning, OperationOutcomeExtensions.IssueSeverityOf(System.Net.HttpStatusCode.MovedPermanently));
         }
 
-        [TestMethod]
+        [Fact]
         public void IssueSeverity_Is_Error_When_HttpStatusCode_Is_BadRequest_Test()
         {
-            Assert.AreEqual(OperationOutcome.IssueSeverity.Error, OperationOutcomeExtensions.IssueSeverityOf(System.Net.HttpStatusCode.BadRequest));
+            Assert.Equal(OperationOutcome.IssueSeverity.Error, OperationOutcomeExtensions.IssueSeverityOf(System.Net.HttpStatusCode.BadRequest));
         }
 
-        [TestMethod]
+        [Fact]
         public void IssueSeverity_Is_Fatal_When_HttpStatusCode_Is_InternalServerError_Test()
         {
-            Assert.AreEqual(OperationOutcome.IssueSeverity.Fatal, OperationOutcomeExtensions.IssueSeverityOf(System.Net.HttpStatusCode.InternalServerError));
+            Assert.Equal(OperationOutcome.IssueSeverity.Fatal, OperationOutcomeExtensions.IssueSeverityOf(System.Net.HttpStatusCode.InternalServerError));
         }
     }
 }

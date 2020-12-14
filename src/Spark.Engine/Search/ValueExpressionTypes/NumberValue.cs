@@ -13,9 +13,9 @@ namespace Spark.Search
 {
     public class NumberValue : ValueExpression
     {
-        public Decimal Value { get; private set; }
+        public decimal Value { get; private set; }
      
-        public NumberValue(Decimal value)
+        public NumberValue(decimal value)
         {
             Value = value;
         }
@@ -27,7 +27,7 @@ namespace Spark.Search
 
         public static NumberValue Parse(string text)
         {
-            return new NumberValue(PrimitiveTypeConverter.ConvertTo<Decimal>(text));
+            return new NumberValue(PrimitiveTypeConverter.ConvertTo<decimal>(text));
         }
     }
 }
