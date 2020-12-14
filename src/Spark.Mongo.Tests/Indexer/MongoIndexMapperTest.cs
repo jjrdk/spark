@@ -1,11 +1,6 @@
-﻿using System;
-using System.Text;
-using System.Collections.Generic;
-using Spark.Search;
+﻿using Spark.Search;
 using Spark.Mongo.Search.Indexer;
 using Spark.Engine.Model;
-using MongoDB.Bson;
-using System.Diagnostics;
 using Xunit;
 
 namespace Spark.Mongo.Tests.Indexer
@@ -15,7 +10,7 @@ namespace Spark.Mongo.Tests.Indexer
     /// </summary>
     public class MongoIndexMapperTest
     {
-        private MongoIndexMapper sut;
+        private readonly MongoIndexMapper sut;
         public MongoIndexMapperTest()
         {
             sut = new MongoIndexMapper();

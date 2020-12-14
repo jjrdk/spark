@@ -6,15 +6,11 @@
  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
  */
 
-using System;
-using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Spark.Filters 
@@ -26,7 +22,7 @@ namespace Spark.Filters
     /// <seealso cref="GZipStream"/>
     public class GZipContent : HttpContent
     {
-        readonly HttpContent content;
+        private readonly HttpContent content;
 
         /// <summary>
         ///   Creates a new instance of the <see cref="GZipContent"/> from the
@@ -62,7 +58,7 @@ namespace Spark.Filters
             using (content)
             using (var compressedStream = new GZipStream(stream, CompressionMode.Compress, leaveOpen: true))
             {
-                await content.CopyToAsync(compressedStream);
+                await content.CopyToAsync(compressedStream).ConfigureAwait(false);
             }
         }
 

@@ -1,6 +1,4 @@
-﻿using Hl7.Fhir.Rest;
-using System;
-using Spark.Core;
+﻿using System;
 
 namespace Spark.Engine.Core
 {
@@ -68,13 +66,13 @@ namespace Spark.Engine.Core
             }
         }
 
-        public static Uri HistoryKeyFor(this IGenerator generator, Uri key)
-        {
-            var identity = new ResourceIdentity(key);
-            string vid = generator.NextVersionId(identity.ResourceType, identity.Id);
-            Uri result = identity.WithVersion(vid);
-            return result;
-        }
+        //public static Uri HistoryKeyFor(this IGenerator generator, Uri key)
+        //{
+        //    var identity = new ResourceIdentity(key);
+        //    string vid = generator.NextVersionId(identity.ResourceType, identity.Id);
+        //    Uri result = identity.WithVersion(vid);
+        //    return result;
+        //}
 
         /// <summary>
         /// Bugfixed_IsBaseOf is a fix for Uri.IsBaseOf which has a bug

@@ -6,8 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Spark.Engine.Core
 {
@@ -62,8 +60,8 @@ namespace Spark.Engine.Core
             return result;
         }
 
-        private IFhirModel _fhirModel;
-        private IEnumerable<FhirTypeInfo> _fhirTypeInfoList;
+        private readonly IFhirModel _fhirModel;
+        private readonly IEnumerable<FhirTypeInfo> _fhirTypeInfoList;
 
         internal FhirTypeInfo findFhirTypeInfo(Predicate<FhirTypeInfo> typePredicate)
         {

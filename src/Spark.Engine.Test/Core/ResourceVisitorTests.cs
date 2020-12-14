@@ -4,9 +4,7 @@ using Spark.Engine.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace Spark.Engine.Test.Core
 {
@@ -17,7 +15,7 @@ namespace Spark.Engine.Test.Core
         //private Regex headTailRegex = new Regex(@"(?([^\.]*\[.*])(?<head>[^\[]*)\[(?<predicate>.*)](\.(?<tail>.*))?|(?<head>[^\.]*)(\.(?<tail>.*))?)");
 
         //new version, with (x=y) as predicate (so with round brackets instead of square brackets.
-        private Regex headTailRegex = new Regex(@"(?([^\.]*\(.*\))(?<head>[^\(]*)\((?<predicate>.*)\)(\.(?<tail>.*))?|(?<head>[^\.]*)(\.(?<tail>.*))?)");
+        private readonly Regex headTailRegex = new Regex(@"(?([^\.]*\(.*\))(?<head>[^\(]*)\((?<predicate>.*)\)(\.(?<tail>.*))?|(?<head>[^\.]*)(\.(?<tail>.*))?)");
 
         [TestMethod]
         public void TestHeadNoTail()

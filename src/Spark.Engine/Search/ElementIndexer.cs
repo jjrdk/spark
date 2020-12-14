@@ -8,9 +8,6 @@ using Spark.Search;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using Expression = Spark.Search.Expression;
 
 namespace Spark.Engine.Search
@@ -18,8 +15,8 @@ namespace Spark.Engine.Search
     //This class is not static because it needs a IFhirModel to do some of the indexing (especially enums).
     public class ElementIndexer
     {
-        private SparkEngineEventSource _log = SparkEngineEventSource.Log;
-        private IFhirModel _fhirModel;
+        private readonly SparkEngineEventSource _log = SparkEngineEventSource.Log;
+        private readonly IFhirModel _fhirModel;
         private readonly IReferenceNormalizationService _referenceNormalizationService;
 
         public ElementIndexer(IFhirModel fhirModel, IReferenceNormalizationService referenceNormalizationService = null)

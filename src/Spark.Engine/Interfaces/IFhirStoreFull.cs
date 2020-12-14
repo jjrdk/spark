@@ -8,12 +8,12 @@
 
 using System;
 using System.Collections.Generic;
-using Hl7.Fhir.Model;
-using Hl7.Fhir.Rest;
 using Spark.Engine.Core;
 
 namespace Spark.Engine.Interfaces
 {
+    using System.Threading.Tasks;
+
     public interface IFhirStoreFull
     {
         void Add(Entry entry);
@@ -40,7 +40,7 @@ namespace Spark.Engine.Interfaces
 
     public interface IFhirStoreAdministration
     {
-        void Clean();
+        Task Clean();
     }
 
 

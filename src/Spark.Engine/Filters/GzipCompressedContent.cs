@@ -7,15 +7,10 @@
  */
 
 using Spark.Engine.Auxiliary;
-using System;
-using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Spark.Filters 
@@ -27,7 +22,7 @@ namespace Spark.Filters
     /// <seealso cref="GZipStream"/>
     public class GZipCompressedContent : HttpContent
     {
-        readonly HttpContent content;
+        private readonly HttpContent content;
 
         /// <summary>
         ///   Creates a new instance of the <see cref="GZipCompressedContent"/> from the
@@ -65,17 +60,17 @@ namespace Spark.Filters
         {
             using (content)
             {
-                var compressedStream = await content.ReadAsStreamAsync();
+                var compressedStream = await content.ReadAsStreamAsync().ConfigureAwait(false);
                 using (var uncompressedStream = new GZipStream(compressedStream, CompressionMode.Decompress))
                 {
                     if (maxDecompressedBodySizeInBytes.HasValue)
                     {
                         var limitedStream = new LimitedStream(stream, maxDecompressedBodySizeInBytes.Value);
-                        await uncompressedStream.CopyToAsync(limitedStream);
+                        await uncompressedStream.CopyToAsync(limitedStream).ConfigureAwait(false);
                     }
                     else
                     {
-                        await uncompressedStream.CopyToAsync(stream);
+                        await uncompressedStream.CopyToAsync(stream).ConfigureAwait(false);
                     }
                 }
             }

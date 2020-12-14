@@ -22,12 +22,12 @@ namespace Spark.Web.Hubs
     {
         private List<Resource> _resources = null;
 
-        private IFhirService _fhirService;
-        private ILocalhost _localhost;
-        private IFhirStoreAdministration _fhirStoreAdministration;
-        private IFhirIndex _fhirIndex;
-        private ExamplesSettings _examplesSettings;
-        private IIndexRebuildService _indexRebuildService;
+        private readonly IFhirService _fhirService;
+        private readonly ILocalhost _localhost;
+        private readonly IFhirStoreAdministration _fhirStoreAdministration;
+        private readonly IFhirIndex _fhirIndex;
+        private readonly ExamplesSettings _examplesSettings;
+        private readonly IIndexRebuildService _indexRebuildService;
         private readonly ILogger<MaintenanceHub> _logger;
         private readonly IHubContext<MaintenanceHub> _hubContext;
 
@@ -89,14 +89,14 @@ namespace Spark.Web.Hubs
             var notifier = new HubContextProgressNotifier(_hubContext, _logger);
             try
             {
-                await notifier.SendProgressUpdate(0, "Clearing the database...");
-                _fhirStoreAdministration.Clean();
-                _fhirIndex.Clean();
-                await notifier.SendProgressUpdate(100, "Database cleared");
+                await notifier.SendProgressUpdate(0, "Clearing the database...").ConfigureAwait(false);
+                await _fhirStoreAdministration.Clean().ConfigureAwait(false);
+                await _fhirIndex.Clean().ConfigureAwait(false);
+                await notifier.SendProgressUpdate(100, "Database cleared").ConfigureAwait(false);
             }
             catch (Exception e)
             {
-                await notifier.SendProgressUpdate(100, "ERROR CLEARING :( " + e.InnerException);
+                await notifier.SendProgressUpdate(100, "ERROR CLEARING :( " + e.InnerException).ConfigureAwait(false);
             }
 
         }
@@ -124,7 +124,7 @@ namespace Spark.Web.Hubs
             var notifier = new HubContextProgressNotifier(_hubContext, _logger);
             try
             {
-                await notifier.SendProgressUpdate(1, "Loading examples data...");
+                await notifier.SendProgressUpdate(1, "Loading examples data...").ConfigureAwait(false);
                 _resources = GetExampleData();
 
                 var resarray = _resources.ToArray();
@@ -135,37 +135,37 @@ namespace Spark.Web.Hubs
                     var res = resarray[x];
                     // Sending message:
                     var msg = Message("Importing " + res.TypeName + " " + res.Id + "...", x);
-                    await notifier.SendProgressUpdate(msg.Progress, msg.Message);
+                    await notifier.SendProgressUpdate(msg.Progress, msg.Message).ConfigureAwait(false);
 
                     try
                     {
                         Key key = res.ExtractKey();
 
-                        if (res.Id != null && res.Id != "")
+                        if (!string.IsNullOrEmpty(res.Id))
                         {
-                            _fhirService.Put(key, res);
+                            await _fhirService.Put(key, res).ConfigureAwait(false);
                         }
                         else
                         {
-                            _fhirService.Create(key, res);
+                            await _fhirService.Create(key, res).ConfigureAwait(false);
                         }
                     }
                     catch (Exception e)
                     {
                         // Sending message:
                         var msgError = Message("ERROR Importing " + res.TypeName + " " + res.Id + "... ", x);
-                        await Clients.All.SendAsync("Error", msg);
+                        await Clients.All.SendAsync("Error", msg).ConfigureAwait(false);
                         messages.AppendLine(msgError.Message + ": " + e.Message);
                     }
 
 
                 }
 
-                await notifier.SendProgressUpdate(100, messages.ToString());
+                await notifier.SendProgressUpdate(100, messages.ToString()).ConfigureAwait(false);
             }
             catch (Exception e)
             {
-                await notifier.Progress("Error: " + e.Message);
+                await notifier.Progress("Error: " + e.Message).ConfigureAwait(false);
             }
         }
     }
@@ -202,12 +202,12 @@ namespace Spark.Web.Hubs
                 Progress = progress
             };
 
-            await _hubContext.Clients.All.SendAsync("UpdateProgress", msg);
+            await _hubContext.Clients.All.SendAsync("UpdateProgress", msg).ConfigureAwait(false);
         }
 
         public async Tasks.Task Progress(string message)
         {
-            await SendProgressUpdate(_progress, message);
+            await SendProgressUpdate(_progress, message).ConfigureAwait(false);
         }
 
         public async Tasks.Task ReportProgressAsync(int progress, string message)

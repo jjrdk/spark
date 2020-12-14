@@ -1,9 +1,5 @@
 ﻿using Hl7.Fhir.Model;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Spark.Engine.Model
 {
@@ -15,7 +11,7 @@ namespace Spark.Engine.Model
     {
         public ResourceType ResourceType { get; set; }
 
-        private List<string> revIncludes = new List<string>();
+        private readonly List<string> revIncludes = new List<string>();
         public List<string> ReverseIncludes { get { return revIncludes; }  }
 
         public CompartmentInfo(ResourceType resourceType)

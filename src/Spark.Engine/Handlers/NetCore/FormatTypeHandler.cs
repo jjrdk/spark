@@ -2,7 +2,6 @@
 using Hl7.Fhir.Rest;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
-using Microsoft.Net.Http.Headers;
 using Spark.Engine.Core;
 using Spark.Engine.Extensions;
 using System.Threading.Tasks;
@@ -49,7 +48,7 @@ namespace Spark.Engine.Handlers.NetCore
             //    context.Request.Headers.Add("Accept", new StringValues(FhirMediaType.OCTET_STREAM_CONTENT_HEADER));
             //}
 
-            await _next(context);
+            await _next(context).ConfigureAwait(false);
         }
     }
 }
