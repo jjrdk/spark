@@ -5,7 +5,11 @@ VisualStudioVersion = 16.0.29709.97
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Spark.Engine", "src\Spark.Engine\Spark.Engine.csproj", "{426991A6-546C-43D5-B055-A38D0175824F}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Spark.Mongo", "src\Spark.Mongo\Spark.Mongo.csproj", "{5F0EAEA9-5226-46FF-A915-4DE9B3BA6ADD}"
+EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Spark.Engine.Test", "src\Spark.Engine.Test\Spark.Engine.Test.csproj", "{5CA90A21-AC2E-4C30-B618-A459A1E5B04F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Spark.Mongo.Tests", "src\Spark.Mongo.Tests\Spark.Mongo.Tests.csproj", "{3D3C588D-6BB5-46CD-B844-61136D30A1FB}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Spark.Web", "src\Spark.Web\Spark.Web.csproj", "{6A59CE4B-D912-4995-A805-89705B8134E0}"
 EndProject
@@ -45,6 +49,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ISSUE_TEMPLATE", "ISSUE_TEM
 		.github\ISSUE_TEMPLATE\feature_request.md = .github\ISSUE_TEMPLATE\feature_request.md
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Spark.Engine.Web", "src\Spark.Engine.Web\Spark.Engine.Web.csproj", "{FF6EA470-2011-4106-900B-2668428D6A30}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -55,10 +61,18 @@ Global
 		{426991A6-546C-43D5-B055-A38D0175824F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{426991A6-546C-43D5-B055-A38D0175824F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{426991A6-546C-43D5-B055-A38D0175824F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5F0EAEA9-5226-46FF-A915-4DE9B3BA6ADD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5F0EAEA9-5226-46FF-A915-4DE9B3BA6ADD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5F0EAEA9-5226-46FF-A915-4DE9B3BA6ADD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5F0EAEA9-5226-46FF-A915-4DE9B3BA6ADD}.Release|Any CPU.Build.0 = Release|Any CPU
 		{5CA90A21-AC2E-4C30-B618-A459A1E5B04F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{5CA90A21-AC2E-4C30-B618-A459A1E5B04F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5CA90A21-AC2E-4C30-B618-A459A1E5B04F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5CA90A21-AC2E-4C30-B618-A459A1E5B04F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3D3C588D-6BB5-46CD-B844-61136D30A1FB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3D3C588D-6BB5-46CD-B844-61136D30A1FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3D3C588D-6BB5-46CD-B844-61136D30A1FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3D3C588D-6BB5-46CD-B844-61136D30A1FB}.Release|Any CPU.Build.0 = Release|Any CPU
 		{6A59CE4B-D912-4995-A805-89705B8134E0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{6A59CE4B-D912-4995-A805-89705B8134E0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6A59CE4B-D912-4995-A805-89705B8134E0}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -67,6 +81,10 @@ Global
 		{49FB5DBC-8F10-49C2-B358-84EEF9B12F83}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{49FB5DBC-8F10-49C2-B358-84EEF9B12F83}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{49FB5DBC-8F10-49C2-B358-84EEF9B12F83}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FF6EA470-2011-4106-900B-2668428D6A30}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FF6EA470-2011-4106-900B-2668428D6A30}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FF6EA470-2011-4106-900B-2668428D6A30}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FF6EA470-2011-4106-900B-2668428D6A30}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

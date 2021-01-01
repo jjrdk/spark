@@ -1,4 +1,4 @@
-﻿using Hl7.Fhir.Model;
+﻿using FhirModel = Hl7.Fhir.Model;
 using Hl7.Fhir.Serialization;
 using Microsoft.AspNetCore.Http;
 using Spark.Engine.Formatters;
@@ -39,7 +39,7 @@ namespace Spark.Engine.Test.Formatters
             var contentBytes = Encoding.UTF8.GetBytes("{ \"resourceType\": \"Patient\", \"id\": \"example\", \"active\": true }");
             var httpContext = GetHttpContext(contentBytes, contentType);
 
-            var formatterContext = CreateInputFormatterContext(typeof(Resource), httpContext);
+            var formatterContext = CreateInputFormatterContext(typeof(FhirModel.Resource), httpContext);
 
             var result = formatter.CanRead(formatterContext);
 
@@ -68,13 +68,13 @@ namespace Spark.Engine.Test.Formatters
             httpContext.Request.ContentType = DEFAULT_CONTENT_TYPE;
             httpContext.Request.Body = new NonSeekableReadStream(contentBytes);
 
-            var formatterContext = CreateInputFormatterContext(typeof(Resource), httpContext);
+            var formatterContext = CreateInputFormatterContext(typeof(FhirModel.Resource), httpContext);
 
             var result = await formatter.ReadAsync(formatterContext).ConfigureAwait(false);
 
             Assert.False(result.HasError);
 
-            var patient = Assert.IsType<Patient>(result.Model);
+            var patient = Assert.IsType<FhirModel.Patient>(result.Model);
             Assert.Equal("example", patient.Id);
             Assert.Equal(true, patient.Active);
 
@@ -87,7 +87,7 @@ namespace Spark.Engine.Test.Formatters
 
             Assert.False(result.HasError);
 
-            patient = Assert.IsType<Patient>(result.Model);
+            patient = Assert.IsType<FhirModel.Patient>(result.Model);
             Assert.Equal("example", patient.Id);
             Assert.Equal(true, patient.Active);
         }

@@ -34,7 +34,7 @@ namespace Spark.Engine.Service.FhirServiceExtensions
         {
             if (entry.State != EntryState.Internal)
             {
-                transfer.Internalize(entry);
+                await transfer.Internalize(entry).ConfigureAwait(false);
             }
 
             await fhirStore.Add(entry).ConfigureAwait(false);

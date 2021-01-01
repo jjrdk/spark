@@ -1,29 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net.Http;
-using Spark.Engine.Extensions;
-#if NETSTANDARD2_0
-using Microsoft.AspNetCore.Http;
-#endif
-
-namespace Spark.Engine.Core
+﻿namespace Spark.Engine.Core
 {
-    using Microsoft.AspNetCore.Http;
-    using Microsoft.Net.Http.Headers;
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
 
     public class ConditionalHeaderParameters
     {
-        public ConditionalHeaderParameters(HttpRequest request)
+        public ConditionalHeaderParameters(IEnumerable<string> ifNoneMatchTags, DateTimeOffset? ifModifiedSince)
         {
-            IfNoneMatchTags = request.Headers[HeaderNames.IfNoneMatch];
-            foreach (var stringValue in request.Headers[HeaderNames.IfModifiedSince])
-            {
-                if (DateTimeOffset.TryParse(stringValue, out var result))
-                {
-                    IfModifiedSince = result;
-                    break;
-                }
-            }
+            IfModifiedSince = ifModifiedSince;
+            IfNoneMatchTags = ifNoneMatchTags.ToArray();
         }
 
         public IEnumerable<string> IfNoneMatchTags { get; }

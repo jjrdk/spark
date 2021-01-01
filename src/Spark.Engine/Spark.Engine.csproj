@@ -7,17 +7,21 @@
         <Copyright>Copyright © Firely 2014, © Kufu 2018</Copyright>
         <Company>Firely and Kufu</Company>
         <Authors>Firely, Kufu and contributors</Authors>
-        <Product>Spark.Engine.DSTU2</Product>
+        <Product>Spark.Engine.R4</Product>
         <Description>FHIR Server Engine - handling REST calls and service layer</Description>
         <PackageLicenseFile>LICENSE</PackageLicenseFile>
+        <langVersion>latest</langVersion>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
         <PackageReference Include="Fhir.Metrics" Version="1.2.0" />
-        <PackageReference Include="Hl7.Fhir.R4" Version="1.9.0" />
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="5.0.0" />
+        <PackageReference Include="Hl7.Fhir.R4" Version="2.0.1" />
+        <PackageReference Include="System.Security.Cryptography.Xml" Version="5.0.0" />
         <None Include="..\..\LICENSE" Pack="true" Visible="false" PackagePath="" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Handlers\NetCore\" />
     </ItemGroup>
 
 </Project>

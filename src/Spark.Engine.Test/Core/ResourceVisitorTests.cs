@@ -119,20 +119,22 @@ namespace Spark.Engine.Test.Core
                 }, "name");
         }
 
-        //[Fact]
-        //public void TestVisitDataChoiceProperty()
-        //{
-        //    _expectedActionCounter = 1;
-        //    ClinicalImpression ci = new ClinicalImpression();
-        //    ci.Trigger = new CodeableConcept("test.system", "test.code");
-        //    _sut.VisitByPath(ci, ob =>
-        //        {
-        //            _actualActionCounter++;
-        //            if (ob.ToString() != "test.system")
-        //                Assert.Fail();
-        //        },
-        //        "triggerCodeableConcept.coding.system");
-        //}
+        [Fact]
+        public void TestVisitDataChoiceProperty()
+        {
+            _expectedActionCounter = 1;
+            ClinicalImpression ci = new ClinicalImpression();
+            ci.Code = new CodeableConcept("test.system", "test.code");
+            _sut.VisitByPath(ci, ob =>
+                {
+                    _actualActionCounter++;
+                    if (ob.ToString() != "test.system")
+                    {
+                        throw new Exception("Test fail");
+                    }
+                },
+                "code.coding.system");
+        }
 
         [Fact]
         public void TestVisitDataChoice_x_Property()
@@ -155,7 +157,7 @@ namespace Spark.Engine.Test.Core
             _sut.VisitByPath(_patient, ob =>
                 {
                     _actualActionCounter++;
-                    if (ob.ToString() != "Sjors"){ throw new Exception("Failed test"); }
+                    if (ob.ToString() != "Sjors") { throw new Exception("Failed test"); }
                 }, "name.given");
         }
 
@@ -167,7 +169,7 @@ namespace Spark.Engine.Test.Core
             _sut.VisitByPath(_patient, ob =>
                 {
                     _actualActionCounter++;
-                    if (ob.ToString() != "Sjimmie"){ throw new Exception("Failed test"); }
+                    if (ob.ToString() != "Sjimmie") { throw new Exception("Failed test"); }
                 }, "name[given=Sjimmie].given");
         }
 

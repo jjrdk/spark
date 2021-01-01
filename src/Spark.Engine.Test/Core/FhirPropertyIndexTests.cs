@@ -33,9 +33,9 @@ namespace Spark.Engine.Test.Search
         [Fact]
         public void TestTypedNameIsFound()
         {
-            var index = new FhirPropertyIndex(_fhirModel, new List<Type> { typeof(ClinicalImpression), typeof(CodeableConcept) });
+            var index = new FhirPropertyIndex(_fhirModel, new List<Type> { typeof(ClinicalImpression), typeof(Period) });
 
-            var pm = index.findPropertyInfo("ClinicalImpression", "triggerCodeableConcept");
+            var pm = index.findPropertyInfo("ClinicalImpression", "effectivePeriod");
             Assert.NotNull(pm);
         }
 

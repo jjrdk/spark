@@ -1,21 +1,24 @@
 ﻿//using Hl7.Fhir.Model;
 //using Spark.Engine.Core;
 
-//namespace Spark.Engine.Service.FhirServiceExtensions
-//{
-//    public class ConformanceService : IConformanceService
-//    {
-//        private readonly ILocalhost localhost;
+namespace Spark.Engine.Service.FhirServiceExtensions
+{
+    using Core;
+    using Hl7.Fhir.Model;
 
-//        public ConformanceService(ILocalhost localhost)
-//        {
-//            this.localhost = localhost;
-//        }
+    public class CapabilityStatementService : ICapabilityStatementService
+    {
+        private readonly ILocalhost localhost;
 
-//        public Conformance GetSparkConformance(string sparkVersion)
-//        {
-//           return ConformanceBuilder.GetSparkConformance(sparkVersion, localhost);
-//        }
+        public CapabilityStatementService(ILocalhost localhost)
+        {
+            this.localhost = localhost;
+        }
 
-//    }
-//}
+        public CapabilityStatement GetSparkCapabilityStatement(string sparkVersion)
+        {
+           return CapabilityStatementBuilder.GetSparkCapabilityStatement(sparkVersion, localhost);
+        }
+
+    }
+}

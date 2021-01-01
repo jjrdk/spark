@@ -4,6 +4,7 @@ using System.Linq;
 
 namespace Spark.Engine.Test.Extensions
 {
+    using System.Collections.Generic;
     using Xunit;
 
     public class SearchParameterExtensionsTests
@@ -12,7 +13,8 @@ namespace Spark.Engine.Test.Extensions
         public void TestSetPropertyPathWithSinglePath()
         {
             SearchParameter sut = new SearchParameter();
-            sut.Base = new ResourceType?[] { ResourceType.Appointment };
+            sut.Base = new List<ResourceType?> { ResourceType.Appointment };
+
             sut.SetPropertyPath(new string[] { "Appointment.participant.actor" });
 
             Assert.Equal("//participant/actor", sut.Xpath);
@@ -22,7 +24,7 @@ namespace Spark.Engine.Test.Extensions
         public void TestSetPropertyPathWithMultiplePath()
         {
             SearchParameter sut = new SearchParameter();
-            sut.Base = new ResourceType?[] { ResourceType.AuditEvent };
+            sut.Base = new List<ResourceType?> { ResourceType.AuditEvent };
             sut.SetPropertyPath(new string[] { "AuditEvent.participant.reference", "AuditEvent.object.reference" });
 
             Assert.Equal("//participant/reference | //object/reference", sut.Xpath);
@@ -54,7 +56,8 @@ namespace Spark.Engine.Test.Extensions
         [Fact]
         public void TestSetPropertyPathWithPredicate()
         {
-            SearchParameter sut = new SearchParameter { Base = new ResourceType?[] { ResourceType.Slot } };
+            SearchParameter sut = new SearchParameter();
+            sut.Base = new List<ResourceType?> { ResourceType.Slot };
             sut.SetPropertyPath(new string[] { "Slot.extension(url=http://foo.com/myextension).valueReference" });
 
             Assert.Equal("//extension(url=http://foo.com/myextension)/valueReference", sut.Xpath);

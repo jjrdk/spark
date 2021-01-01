@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.SignalR;
 using Spark.Web.Models.Config;
 using Spark.Web.Utilities;
 using System.IO;
-using System.Threading.Tasks;
+using Tasks = System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Spark.Engine.Service.FhirServiceExtensions;
 
@@ -91,14 +91,14 @@ namespace Spark.Web.Hubs
             var notifier = new HubContextProgressNotifier(_hubContext, _logger);
             try
             {
-                await notifier.SendProgressUpdate("Clearing the database...", 0).ConfigureAwait(false);
-                _fhirStoreAdministration.Clean();
+                await notifier.SendProgressUpdate(0, "Clearing the database...").ConfigureAwait(false);
+                await _fhirStoreAdministration.Clean().ConfigureAwait(false);
                 await _fhirIndex.Clean().ConfigureAwait(false);
-                await notifier.SendProgressUpdate("Database cleared", 100).ConfigureAwait(false);
+                await notifier.SendProgressUpdate(100, "Database cleared").ConfigureAwait(false);
             }
             catch (Exception e)
             {
-                await notifier.SendProgressUpdate("ERROR CLEARING :( " + e.InnerException, 100).ConfigureAwait(false);
+                await notifier.SendProgressUpdate(100, "ERROR CLEARING :( " + e.InnerException).ConfigureAwait(false);
             }
 
         }
@@ -115,7 +115,7 @@ namespace Spark.Web.Hubs
             {
                 _logger.LogError(e, "Failed to rebuild index");
 
-                await notifier.SendProgressUpdate("ERROR REBUILDING INDEX :( " + e.InnerException, 100)
+                await notifier.SendProgressUpdate(100, "ERROR REBUILDING INDEX :( " + e.InnerException)
                     .ConfigureAwait(false);
             }
         }
@@ -126,7 +126,7 @@ namespace Spark.Web.Hubs
             var notifier = new HubContextProgressNotifier(_hubContext, _logger);
             try
             {
-                await notifier.SendProgressUpdate("Loading examples data...", 1).ConfigureAwait(false);
+                await notifier.SendProgressUpdate(1, "Loading examples data...").ConfigureAwait(false);
                 _resources = GetExampleData();
 
                 var resarray = _resources.ToArray();
@@ -137,7 +137,7 @@ namespace Spark.Web.Hubs
                     var res = resarray[x];
                     // Sending message:
                     var msg = Message("Importing " + res.TypeName + " " + res.Id + "...", x);
-                    await notifier.SendProgressUpdate(msg.Message, msg.Progress).ConfigureAwait(false);
+                    await notifier.SendProgressUpdate(msg.Progress, msg.Message).ConfigureAwait(false);
 
                     try
                     {
@@ -161,7 +161,7 @@ namespace Spark.Web.Hubs
                     }
                 }
 
-                await notifier.SendProgressUpdate(messages.ToString(), 100).ConfigureAwait(false);
+                await notifier.SendProgressUpdate(100, messages.ToString()).ConfigureAwait(false);
             }
             catch (Exception e)
             {
@@ -190,7 +190,7 @@ namespace Spark.Web.Hubs
             _logger = logger;
         }
 
-        public async Task SendProgressUpdate(string message, int progress)
+        public async Tasks.Task SendProgressUpdate(int progress, string message)
         {
             _logger.LogInformation($"[{progress}%] {message}");
 
@@ -205,18 +205,18 @@ namespace Spark.Web.Hubs
             await _hubContext.Clients.All.SendAsync("UpdateProgress", msg).ConfigureAwait(false);
         }
 
-        public async Task Progress(string message)
+        public async Tasks.Task Progress(string message)
         {
-            await SendProgressUpdate(message, _progress).ConfigureAwait(false);
+            await SendProgressUpdate(_progress, message).ConfigureAwait(false);
         }
 
-        public async Task ReportProgressAsync(int progress, string message)
+        public async Tasks.Task ReportProgressAsync(int progress, string message)
         {
-            await SendProgressUpdate(message, progress)
+            await SendProgressUpdate(progress, message)
                 .ConfigureAwait(false);
         }
 
-        public async Task ReportErrorAsync(string message)
+        public async Tasks.Task ReportErrorAsync(string message)
         {
             await Progress(message)
                 .ConfigureAwait(false);

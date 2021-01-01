@@ -27,7 +27,7 @@ namespace Spark.Engine.Service.FhirServiceExtensions
            {
                 GetSearch,
                 GetHistory,
-                //GetConformance,
+                GetCapabilityStatement,
                 GetPaging,
                 GetStorage
            };
@@ -37,23 +37,22 @@ namespace Spark.Engine.Service.FhirServiceExtensions
         protected virtual IFhirServiceExtension GetSearch()
         {
             IFhirIndex fhirStore = fhirStoreBuilder.GetStore<IFhirIndex>();
-            if (fhirStore!= null)
-                return new SearchService(new Localhost(baseUri),  new FhirModel(), fhirStore, indexService);
+            if (fhirStore != null)
+                return new SearchService(new Localhost(baseUri), new FhirModel(), fhirStore, indexService);
             return null;
         }
 
         protected virtual IFhirServiceExtension GetHistory()
         {
             IHistoryStore historyStore = fhirStoreBuilder.GetStore<IHistoryStore>();
-            if (historyStore != null)
-                return new HistoryService(historyStore);
-            return null;
+
+            return historyStore;
         }
 
-        //protected virtual IFhirServiceExtension GetConformance()
-        //{
-        //    return new ConformanceService(new Localhost(baseUri));
-        //}
+        protected virtual IFhirServiceExtension GetCapabilityStatement()
+        {
+            return new CapabilityStatementService(new Localhost(baseUri));
+        }
 
 
         protected virtual IFhirServiceExtension GetPaging()
@@ -71,7 +70,7 @@ namespace Spark.Engine.Service.FhirServiceExtensions
             IFhirStore fhirStore = fhirStoreBuilder.GetStore<IFhirStore>();
             IGenerator fhirGenerator = fhirStoreBuilder.GetStore<IGenerator>();
             if (fhirStore != null)
-                return new ResourceStorageService(new Transfer(fhirGenerator, new Localhost(baseUri), sparkSettings),  fhirStore);
+                return new ResourceStorageService(new Transfer(fhirGenerator, new Localhost(baseUri), sparkSettings), fhirStore);
             return null;
         }
 

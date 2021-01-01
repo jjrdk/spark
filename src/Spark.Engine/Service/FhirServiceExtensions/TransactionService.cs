@@ -50,7 +50,7 @@ namespace Spark.Engine.Service.FhirServiceExtensions
             return response;
         }
 
-        private FhirResponse MergeFhirResponse(FhirResponse previousResponse, FhirResponse response)
+        private static FhirResponse MergeFhirResponse(FhirResponse previousResponse, FhirResponse response)
         {
             //CCR: How to handle responses?
             //Currently we assume that all FhirResponses from one ResourceManipulationOperation should be equivalent - kind of hackish
@@ -71,7 +71,7 @@ namespace Spark.Engine.Service.FhirServiceExtensions
         {
             if (mapper == null)
                 return;
-            if (interactions.Count() == 1)
+            if (interactions.Count == 1)
             {
                 Entry entry = interactions.First();
                 if (!entry.Key.Equals(operation.OperationKey))
@@ -113,7 +113,7 @@ namespace Spark.Engine.Service.FhirServiceExtensions
         {
             List<Tuple<Entry, FhirResponse>> responses = new List<Tuple<Entry, FhirResponse>>();
 
-            transfer.Internalize(interactions, mapper);
+            await transfer.Internalize(interactions, mapper).ConfigureAwait(false);
 
             foreach (Entry interaction in interactions)
             {

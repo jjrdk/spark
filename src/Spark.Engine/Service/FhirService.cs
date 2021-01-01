@@ -14,6 +14,7 @@ using Spark.Service;
 namespace Spark.Engine.Service
 {
     using System.Threading.Tasks;
+    using Store.Interfaces;
 
     public class FhirService : ExtendableWith<IFhirServiceExtension>, IFhirService, IInteractionHandler
     //CCCR: FhirService now implementents InteractionHandler that is used by the TransactionService to actually perform the operation.
@@ -85,12 +86,8 @@ namespace Spark.Engine.Service
             Validate.HasTypeName(key);
             Validate.ResourceType(key, resource);
 
-            Validate.HasNoResourceId(key);
-            Validate.HasNoVersion(key);
-
-
-            Entry result = await Store(Entry.POST(key, resource)).ConfigureAwait(false);
-
+            key = key.CleanupForCreate();
+            var result = await Store(Entry.POST(key, resource)).ConfigureAwait(false);
             return Respond.WithResource(HttpStatusCode.Created, result);
         }
 
@@ -301,7 +298,7 @@ namespace Spark.Engine.Service
 
         public async Task<FhirResponse> History(HistoryParameters parameters)
         {
-            IHistoryService historyExtension = this.GetFeature<IHistoryService>();
+            IHistoryStore historyExtension = this.GetFeature<IHistoryStore>();
 
             var snapshot = await historyExtension.History(parameters).ConfigureAwait(false);
             return await CreateSnapshotResponse(snapshot).ConfigureAwait(false);
@@ -309,7 +306,7 @@ namespace Spark.Engine.Service
 
         public async Task<FhirResponse> History(string type, HistoryParameters parameters)
         {
-            IHistoryService historyExtension = this.GetFeature<IHistoryService>();
+            IHistoryStore historyExtension = this.GetFeature<IHistoryStore>();
 
             var snapshot = await historyExtension.History(type, parameters).ConfigureAwait(false);
             return await CreateSnapshotResponse(snapshot).ConfigureAwait(false);
@@ -322,7 +319,7 @@ namespace Spark.Engine.Service
             {
                 return Respond.NotFound(key);
             }
-            IHistoryService historyExtension = this.GetFeature<IHistoryService>();
+            IHistoryStore historyExtension = this.GetFeature<IHistoryStore>();
 
             var snapshot = await historyExtension.History(key, parameters).ConfigureAwait(false);
             return await CreateSnapshotResponse(snapshot).ConfigureAwait(false);
@@ -333,12 +330,12 @@ namespace Spark.Engine.Service
             throw new NotImplementedException();
         }
 
-        //public FhirResponse Conformance(string sparkVersion)
-        //{
-        //    IConformanceService conformanceService = this.GetFeature<IConformanceService>();
+        public FhirResponse CapabilityStatement(string sparkVersion)
+        {
+            ICapabilityStatementService capabilityStatementService = this.GetFeature<ICapabilityStatementService>();
 
-        //    return Respond.WithResource(conformanceService.GetSparkConformance(sparkVersion));
-        //}
+            return Respond.WithResource(capabilityStatementService.GetSparkCapabilityStatement(sparkVersion));
+        }
 
         public async Task<FhirResponse> GetPage(string snapshotkey, int index)
         {

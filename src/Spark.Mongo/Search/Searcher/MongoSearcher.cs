@@ -115,12 +115,7 @@ namespace Spark.Search.Mongo
             return await CollectKeys(resultQuery).ConfigureAwait(false);
         }
 
-        private async Task<List<BsonValue>> CollectSelfLinks(
-            string resourceType,
-            IEnumerable<Criterium> criteria,
-            SearchResults results,
-            int level,
-            IList<ValueTuple<string, SortOrder>> sortItems)
+        private async Task<List<BsonValue>> CollectSelfLinks(string resourceType, IEnumerable<Criterium> criteria, SearchResults results, int level, IList<(string, SortOrder)> sortItems)
         {
             Dictionary<Criterium, Criterium> closedCriteria =
                 await CloseChainedCriteria(resourceType, criteria, results, level).ConfigureAwait(false);
@@ -131,7 +126,7 @@ namespace Spark.Search.Mongo
             return await CollectSelfLinks(resultQuery, sortBy).ConfigureAwait(false);
         }
 
-        private static SortDefinition<BsonDocument> CreateSortBy(IList<ValueTuple<string, SortOrder>> sortItems)
+        private static SortDefinition<BsonDocument> CreateSortBy(IList<(string, SortOrder)> sortItems)
         {
             if (sortItems.Any() == false)
                 return null;
@@ -148,6 +143,18 @@ namespace Spark.Search.Mongo
             }
 
             sortItems.Remove(first);
+            foreach (var sortItem in sortItems)
+            {
+                if (sortItem.Item2 == SortOrder.Ascending)
+                {
+                    sortDefinition = sortDefinition.Ascending(sortItem.Item1);
+                }
+                else
+                {
+                    sortDefinition = sortDefinition.Descending(sortItem.Item1);
+                }
+            }
+            return sortDefinition;
 
             return sortItems.Aggregate(
                 sortDefinition,

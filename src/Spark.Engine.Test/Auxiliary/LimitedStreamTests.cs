@@ -25,17 +25,15 @@ namespace Spark.Engine.Test.Auxiliary
         }
 
         [Fact]
-        [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void TestWriteAboveLimit()
         {
             MemoryStream innerStream = new MemoryStream();
             LimitedStream sut = new LimitedStream(innerStream, 3);
 
-            sut.Write(new byte[5] { (byte)1, (byte)2, (byte)3, (byte)4, (byte)5 }, 0, 5);
+            Assert.Throws<ArgumentOutOfRangeException>(() => sut.Write(new byte[5] { (byte)1, (byte)2, (byte)3, (byte)4, (byte)5 }, 0, 5));
         }
 
         [Fact]
-        [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void TestWriteWithinThenAboveLimit()
         {
             MemoryStream innerStream = new MemoryStream();
@@ -59,7 +57,7 @@ namespace Spark.Engine.Test.Auxiliary
             Assert.Equal((byte)1, actual10[0]);
             Assert.Equal((byte)10, actual10[9]);
 
-            sut.Write(new byte[1] { (byte)11 }, 0, 1);
+            Assert.Throws<ArgumentOutOfRangeException>(() => sut.Write(new byte[1] { (byte)11 }, 0, 1));
         }
 
         [Fact]
@@ -79,13 +77,12 @@ namespace Spark.Engine.Test.Auxiliary
         }
 
         [Fact]
-        [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void TestWriteAboveLimitWithByteLengthShorterThanCount()
         {
             MemoryStream innerStream = new MemoryStream();
             LimitedStream sut = new LimitedStream(innerStream, 3);
 
-            sut.Write(new byte[5] { (byte)1, (byte)2, (byte)3, (byte)4, (byte)5 }, 1, 13);
+            Assert.Throws<ArgumentOutOfRangeException>(() => sut.Write(new byte[5] { (byte)1, (byte)2, (byte)3, (byte)4, (byte)5 }, 1, 13));
         }
 
         [Fact]
@@ -107,7 +104,6 @@ namespace Spark.Engine.Test.Auxiliary
         }
 
         [Fact]
-        [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void TestCopyToAboveLimit()
         {
             MemoryStream innerStream = new MemoryStream();
@@ -115,7 +111,7 @@ namespace Spark.Engine.Test.Auxiliary
 
             MemoryStream sourceStream = new MemoryStream(new byte[5] { (byte)1, (byte)2, (byte)3, (byte)4, (byte)5 });
 
-            sourceStream.CopyTo(sut);
+            Assert.Throws<ArgumentOutOfRangeException>(() => sourceStream.CopyTo(sut));
         }
 
         [Fact]

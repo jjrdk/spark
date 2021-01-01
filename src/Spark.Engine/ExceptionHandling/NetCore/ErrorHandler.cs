@@ -1,5 +1,5 @@
 ﻿#if NETSTANDARD2_0
-using Hl7.Fhir.Model;
+using FhirModel = Hl7.Fhir.Model;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Spark.Engine.Core;
@@ -36,7 +36,7 @@ namespace Spark.Engine.ExceptionHandling
         private async Task HandleExceptionAsync(HttpContext context, Exception exception)
         {
             HttpStatusCode code = HttpStatusCode.InternalServerError;
-            OperationOutcome outcome;
+            FhirModel.OperationOutcome outcome;
             if (exception is SparkException ex1)
             {
                 code = ex1.StatusCode;
@@ -58,22 +58,22 @@ namespace Spark.Engine.ExceptionHandling
             await formatter.WriteAsync(writeContext).ConfigureAwait(false);
         }
 
-        private OperationOutcome GetOperationOutcome(SparkException exception)
+        private FhirModel.OperationOutcome GetOperationOutcome(SparkException exception)
         {
             if (exception == null) return null;
-            return (exception.Outcome ?? new OperationOutcome()).AddAllInnerErrors(exception);
+            return (exception.Outcome ?? new FhirModel.OperationOutcome()).AddAllInnerErrors(exception);
         }
 
-        private OperationOutcome GetOperationOutcome(HttpResponseException exception)
+        private FhirModel.OperationOutcome GetOperationOutcome(HttpResponseException exception)
         {
             if (exception == null) return null;
-            return new OperationOutcome().AddError(exception.Response.ReasonPhrase);
+            return new FhirModel.OperationOutcome().AddError(exception.Response.ReasonPhrase);
         }
 
-        private OperationOutcome GetOperationOutcome(Exception exception)
+        private FhirModel.OperationOutcome GetOperationOutcome(Exception exception)
         {
             if (exception == null) return null;
-            return new OperationOutcome().AddAllInnerErrors(exception);
+            return new FhirModel.OperationOutcome().AddAllInnerErrors(exception);
         }
     }
 }

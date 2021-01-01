@@ -54,12 +54,12 @@ namespace Spark.Engine.Search.Tests
             Assert.IsType<ElementIndexer>(sut);
         }
 
-        //[Fact]
-        //public void ElementMapTest()
-        //{
-        //    var input = new Annotation();
-        //    input.Text = new Markdown("Text of the annotation");
-        //    var result = sut.Map(input);
+        [TestMethod()]
+        public void ElementMapTest()
+        {
+            var input = new Annotation();
+            input.Text = new Markdown("Text of the annotation");
+            var result = sut.Map(input);
 
         //    Assert.Equal(2, lastLogEntry.EventId); //EventId 2 is related to Unsupported  features.
         //}
@@ -74,7 +74,7 @@ namespace Spark.Engine.Search.Tests
             Assert.Equal(1081.54M, ((NumberValue)result.First()).Value);
         }
 
-        private static void CheckPeriod(List<Spark.Search.Expression> result, string start, string end)
+        private void CheckPeriod(List<Spark.Search.Expression> result, string start, string end)
         {
             var nrOfComponents = 0;
             if (!string.IsNullOrWhiteSpace(start)) nrOfComponents++;
@@ -366,7 +366,7 @@ namespace Spark.Engine.Search.Tests
             Assert.Single(result.Where(r => (r as StringValue).Value == "Pietje"));
         }
 
-        public static void CheckQuantity(List<Spark.Search.Expression> result, decimal? value, string unit, string system, string decimals)
+        public void CheckQuantity(List<Spark.Search.Expression> result, decimal? value, string unit, string system, string decimals)
         {
             var nrOfElements = (value.HasValue ? 1 : 0) + new List<string> { unit, system, decimals }.Count(s => s != null);
 

@@ -9,12 +9,14 @@ using Spark.Engine.Core;
 using Spark.Engine.FhirResponseFactory;
 using Spark.Engine.Formatters;
 using Spark.Engine.Interfaces;
-using Spark.Engine.Model;
+using Spark.Engine.Search;
 using Spark.Engine.Service;
 using Spark.Engine.Service.FhirServiceExtensions;
 using Spark.Service;
 using System;
 using System.Buffers;
+using System.Collections.Generic;
+using System.Net.Http.Formatting;
 using Spark.Engine.Search;
 
 namespace Spark.Engine.Extensions
@@ -29,13 +31,13 @@ namespace Spark.Engine.Extensions
 
             services.TryAddSingleton<SparkSettings>(settings);
             services.TryAddTransient<ElementIndexer>();
-            services.TryAddTransient<ResourceVisitor>();
+
 
             services.TryAddTransient<IReferenceNormalizationService, ReferenceNormalizationService>();
 
             services.TryAddTransient<IIndexService, IndexService>();
             services.TryAddTransient<ILocalhost>((provider) => new Localhost(settings.Endpoint));
-            services.TryAddTransient<IFhirModel>((provider) => new FhirModel(SparkModelInfo.SparkSearchParameters));
+            services.TryAddTransient<IFhirModel>((provider) => new FhirModel(ModelInfo.SearchParameters));
             services.TryAddTransient((provider) => new FhirPropertyIndex(provider.GetRequiredService<IFhirModel>()));
             services.TryAddTransient<ITransfer, Transfer>();
             services.TryAddTransient<ConditionalHeaderFhirResponseInterceptor>();
@@ -53,7 +55,7 @@ namespace Spark.Engine.Extensions
             services.TryAddTransient<HistoryService>();                    // history
             services.TryAddTransient<PagingService>();                     // paging
             services.TryAddTransient<ResourceStorageService>();            // storage
-            services.TryAddTransient<ConformanceService>();                // conformance
+            services.TryAddTransient<CapabilityStatementService>();        // conformance
             services.TryAddTransient<ICompositeServiceListener, ServiceListener>();
             services.TryAddTransient<ResourceJsonInputFormatter>();
             services.TryAddTransient<ResourceJsonOutputFormatter>();
@@ -67,7 +69,7 @@ namespace Spark.Engine.Extensions
                 provider.GetRequiredService<HistoryService>(),
                 provider.GetRequiredService<PagingService>(),
                 provider.GetRequiredService<ResourceStorageService>(),
-                provider.GetRequiredService<ConformanceService>(),
+                provider.GetRequiredService<CapabilityStatementService>(),
             });
 
             services.TryAddSingleton((provider) => new FhirJsonParser(settings.ParserSettings));
@@ -78,6 +80,9 @@ namespace Spark.Engine.Extensions
             services.TryAddSingleton<IFhirService, FhirService>();
 
             IMvcCoreBuilder builder = services.AddFhirFormatters(settings, setupAction);
+
+            services.RemoveAll<OutputFormatterSelector>();
+            services.TryAddSingleton<OutputFormatterSelector, FhirOutputFormatterSelector>();
 
             services.RemoveAll<OutputFormatterSelector>();
             services.TryAddSingleton<OutputFormatterSelector, FhirOutputFormatterSelector>();
@@ -120,6 +125,12 @@ namespace Spark.Engine.Extensions
 
                 setupAction?.Invoke(options);
             });
+        }
+
+        public static void AddCustomSearchParameters(this IServiceCollection services, IEnumerable<ModelInfo.SearchParamDefinition> searchParameters)
+        {
+            // Add any user-supplied SearchParameters
+            ModelInfo.SearchParameters.AddRange(searchParameters);
         }
 
         private static void AddFhirHttpSearchParameters(this IServiceCollection services)
