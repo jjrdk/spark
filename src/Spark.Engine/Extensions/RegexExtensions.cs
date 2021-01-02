@@ -21,7 +21,7 @@ namespace Spark.Engine.Extensions
 
         private static string ReplaceNamedGroups(Match m, string input, Dictionary<string, string> replacements)
         {
-            string result = m.Value;
+            var result = m.Value;
             foreach (var replacement in replacements)
             {
                 var groupName = replacement.Key;

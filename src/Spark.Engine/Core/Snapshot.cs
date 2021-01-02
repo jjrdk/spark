@@ -33,7 +33,7 @@ namespace Spark.Engine.Core
 
         public static Snapshot Create(Bundle.BundleType type, Uri selflink, IEnumerable<string> keys, string sortby, int? count, IList<string> includes, IList<string> reverseIncludes)
         {
-            Snapshot snapshot = new Snapshot();
+            var snapshot = new Snapshot();
             snapshot.Type = type;
             snapshot.Id = Snapshot.CreateKey();
             snapshot.WhenCreated = DateTimeOffset.UtcNow;
@@ -69,7 +69,7 @@ namespace Spark.Engine.Core
             if (index == 0 && Keys.Count() == 0)
                 return true;
 
-            int last = Keys.Count()-1;
+            var last = Keys.Count()-1;
             return (index > 0 || index <= last);
         }
     }

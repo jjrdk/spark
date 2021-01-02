@@ -18,9 +18,9 @@ namespace Spark.Web.Services
         public async Task<List<ResourceStat>> GetResourceStats()
         {
             var stats = new List<ResourceStat>();
-            List<string> names = Hl7.Fhir.Model.ModelInfo.SupportedResources;
+            var names = Hl7.Fhir.Model.ModelInfo.SupportedResources;
 
-            foreach (string name in names)
+            foreach (var name in names)
             {
                 var search = await _searchService.GetSnapshot(name, new SearchParams { Summary = SummaryType.Count }).ConfigureAwait(false);
                 stats.Add(new ResourceStat { ResourceName = name, Count = search.Count });

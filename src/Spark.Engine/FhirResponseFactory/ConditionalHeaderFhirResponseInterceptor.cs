@@ -20,11 +20,11 @@ namespace Spark.Engine.FhirResponseFactory
 
         public FhirResponse GetFhirResponse(Entry entry, object input)
         {
-            ConditionalHeaderParameters parameters = ConvertInput(input);
+            var parameters = ConvertInput(input);
             if (parameters == null) return null;
 
-            bool? matchTags = parameters.IfNoneMatchTags.Any() ? parameters.IfNoneMatchTags.Any(t => t == ETag.Create(entry.Key.VersionId).Tag) : (bool?)null;
-            bool? matchModifiedDate = parameters.IfModifiedSince.HasValue
+            var matchTags = parameters.IfNoneMatchTags.Any() ? parameters.IfNoneMatchTags.Any(t => t == ETag.Create(entry.Key.VersionId).Tag) : (bool?)null;
+            var matchModifiedDate = parameters.IfModifiedSince.HasValue
                 ? parameters.IfModifiedSince.Value < entry.Resource.Meta.LastUpdated
                 : (bool?) null;
 

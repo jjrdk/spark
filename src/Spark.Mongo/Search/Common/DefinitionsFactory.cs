@@ -16,7 +16,7 @@ namespace Spark.Mongo.Search.Common
     {
         public static Definition CreateDefinition(ModelInfo.SearchParamDefinition paramdef)
         {
-            Definition definition = new Definition();
+            var definition = new Definition();
             definition.Argument = ArgumentFactory.Create(paramdef.Type);
             definition.Resource = paramdef.Resource;
             definition.ParamName = paramdef.Name;
@@ -34,7 +34,7 @@ namespace Spark.Mongo.Search.Common
             {
                 if (param.Path != null && param.Path.Length > 0)
                 {
-                    Definition definition = CreateDefinition(param);
+                    var definition = CreateDefinition(param);
                     definitions.Add(definition);
                 }
             }

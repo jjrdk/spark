@@ -35,15 +35,15 @@
         public void ConfigureServices(IServiceCollection services)
         {
             // Bind to Spark and store settings from appSettings.json
-            SparkSettings sparkSettings = new SparkSettings();
+            var sparkSettings = new SparkSettings();
             Configuration.Bind("SparkSettings", sparkSettings);
             services.AddSingleton(sparkSettings);
 
-            StoreSettings storeSettings = new StoreSettings();
+            var storeSettings = new StoreSettings();
             Configuration.Bind("StoreSettings", storeSettings);
 
             // Read examples settings from config
-            ExamplesSettings examplesSettings = new ExamplesSettings();
+            var examplesSettings = new ExamplesSettings();
             Configuration.Bind("ExamplesSettings", examplesSettings);
             services.Configure<ExamplesSettings>(options => Configuration.GetSection("ExamplesSettings").Bind(options));
             services.AddSingleton(examplesSettings);

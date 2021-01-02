@@ -107,7 +107,7 @@ namespace Spark.Engine.Web.Tests.Formatters
 
             var formatterContext = CreateInputFormatterContext(typeof(Hl7.Fhir.Model.Resource), httpContext);
 
-            SparkException exception = await Assert.ThrowsAsync<SparkException>(() => formatter.ReadAsync(formatterContext)).ConfigureAwait(false);
+            var exception = await Assert.ThrowsAsync<SparkException>(() => formatter.ReadAsync(formatterContext)).ConfigureAwait(false);
             Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
         }
 

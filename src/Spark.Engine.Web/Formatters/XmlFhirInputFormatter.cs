@@ -52,7 +52,7 @@ namespace Spark.Engine.Web.Formatters
 
                 if (typeof(Resource).IsAssignableFrom(context.ModelType))
                 {
-                    Resource resource = _parser.Parse<Resource>(body);
+                    var resource = _parser.Parse<Resource>(body);
                     return await InputFormatterResult.SuccessAsync(resource).ConfigureAwait(false);
                 }
 

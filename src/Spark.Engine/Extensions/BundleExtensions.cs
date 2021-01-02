@@ -21,7 +21,7 @@ namespace Spark.Engine.Extensions
 
         public static void Append(this Bundle bundle, Bundle.HTTPVerb method, Resource resource)
         {
-            Bundle.EntryComponent entry = CreateEntryForResource(resource);
+            var entry = CreateEntryForResource(resource);
 
             if (entry.Request == null) entry.Request = new Bundle.RequestComponent();
             entry.Request.Method = method;
@@ -39,7 +39,7 @@ namespace Spark.Engine.Extensions
 
         public static void Append(this Bundle bundle, IEnumerable<Resource> resources)
         {
-            foreach (Resource resource in resources)
+            foreach (var resource in resources)
             {
                 bundle.Append(resource);
             }
@@ -47,7 +47,7 @@ namespace Spark.Engine.Extensions
 
         public static void Append(this Bundle bundle, Bundle.HTTPVerb method, IEnumerable<Resource> resources)
         {
-            foreach (Resource resource in resources)
+            foreach (var resource in resources)
             {
                 bundle.Append(method, resource);
             }
@@ -74,7 +74,7 @@ namespace Spark.Engine.Extensions
 
         public static Bundle Append(this Bundle bundle, IEnumerable<Entry> entries)
         {
-            foreach (Entry entry in entries)
+            foreach (var entry in entries)
             {
                 // BALLOT: whether to send transactionResponse components... not a very clean solution
                 bundle.Append(entry);
@@ -91,7 +91,7 @@ namespace Spark.Engine.Extensions
             var entries = new List<Entry>();
             foreach(var bundleEntry in bundle.Entry)
             {
-                Entry entry = localhost.ToInteraction(bundleEntry);
+                var entry = localhost.ToInteraction(bundleEntry);
                 entries.Add(entry);
             }
             return entries;

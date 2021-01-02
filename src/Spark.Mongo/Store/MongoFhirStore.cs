@@ -32,7 +32,7 @@ namespace Spark.Mongo.Store
 
         public async Task Add(Entry entry)
         {
-            BsonDocument document = SparkBsonHelper.ToBsonDocument(entry);
+            var document = SparkBsonHelper.ToBsonDocument(entry);
             await Supercede(entry.Key).ConfigureAwait(false);
             await collection.InsertOneAsync(document).ConfigureAwait(false);
         }
@@ -55,10 +55,10 @@ namespace Spark.Mongo.Store
                 clauses.Add(Builders<BsonDocument>.Filter.Eq(Field.STATE, Value.CURRENT));
             }
 
-            FilterDefinition<BsonDocument> query = Builders<BsonDocument>.Filter.And(clauses);
+            var query = Builders<BsonDocument>.Filter.And(clauses);
 
             var result = await collection.FindAsync(query).ConfigureAwait(false);
-            BsonDocument document = result.FirstOrDefault();
+            var document = result.FirstOrDefault();
             return document.ToEntry();
 
         }
@@ -79,10 +79,10 @@ namespace Spark.Mongo.Store
                 queries.Add(GetSpecificVersionQuery(versionedIdentifiers));
             if (unversionedIdentifiers.Any())
                 queries.Add(GetCurrentVersionQuery(unversionedIdentifiers));
-            FilterDefinition<BsonDocument> query = Builders<BsonDocument>.Filter.Or(queries);
+            var query = Builders<BsonDocument>.Filter.Or(queries);
 
             var asyncCursor = await collection.FindAsync(query).ConfigureAwait(false);
-            IEnumerable<BsonDocument> cursor = asyncCursor.ToEnumerable();
+            var cursor = asyncCursor.ToEnumerable();
 
             return cursor.ToEntries().ToList();
         }
@@ -114,12 +114,12 @@ namespace Spark.Mongo.Store
         private Task Supercede(IKey key)
         {
             var pk = key.ToBsonReferenceKey();
-            FilterDefinition<BsonDocument> query = Builders<BsonDocument>.Filter.And(
+            var query = Builders<BsonDocument>.Filter.And(
                 Builders<BsonDocument>.Filter.Eq(Field.REFERENCE, pk),
                 Builders<BsonDocument>.Filter.Eq(Field.STATE, Value.CURRENT)
             );
 
-            UpdateDefinition<BsonDocument> update = Builders<BsonDocument>.Update.Set(Field.STATE, Value.SUPERCEDED);
+            var update = Builders<BsonDocument>.Update.Set(Field.STATE, Value.SUPERCEDED);
             // A single delete on a sharded collection must contain an exact match on _id (and have the collection default collation) or contain the shard key (and have the simple collation).
             return collection.UpdateManyAsync(query, update);
         }

@@ -103,7 +103,7 @@ namespace Spark.Engine.Search.Support
 #if PORTABLE45
             return t.GetTypeInfo().DeclaredConstructors.FirstOrDefault(s => s.GetParameters().Length == 0 && s.IsPublic && !s.IsStatic);
 #else
-            BindingFlags bindingFlags = BindingFlags.Instance | BindingFlags.Public;
+            var bindingFlags = BindingFlags.Instance | BindingFlags.Public;
 
 			return t.GetConstructors(bindingFlags).SingleOrDefault(c => !c.GetParameters().Any());
 #endif
@@ -240,7 +240,7 @@ namespace Spark.Engine.Search.Support
 				if (type.IsGenericType)
 #endif
 				{
-                    Type interfaceDefinition = type.GetGenericTypeDefinition();
+                    var interfaceDefinition = type.GetGenericTypeDefinition();
 
                     if (genericInterfaceDefinition == interfaceDefinition)
                     {
@@ -253,7 +253,7 @@ namespace Spark.Engine.Search.Support
 #if PORTABLE45
 			foreach (Type i in type.GetTypeInfo().ImplementedInterfaces)
 #else
-            foreach (Type i in type.GetInterfaces())
+            foreach (var i in type.GetInterfaces())
 #endif
 			{
 #if PORTABLE45
@@ -262,7 +262,7 @@ namespace Spark.Engine.Search.Support
                 if (i.IsGenericType)
 #endif
 				{
-                    Type interfaceDefinition = i.GetGenericTypeDefinition();
+                    var interfaceDefinition = i.GetGenericTypeDefinition();
 
                     if (genericInterfaceDefinition == interfaceDefinition)
                     {

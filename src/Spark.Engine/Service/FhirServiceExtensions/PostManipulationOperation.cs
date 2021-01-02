@@ -35,11 +35,11 @@ namespace Spark.Engine.Service.FhirServiceExtensions
                         throw new SparkException(HttpStatusCode.PreconditionFailed, 
                            string.Format( "Multiple matches found when trying to resolve conditional create. Client's criteria were not selective enough.{0}", 
                            GetSearchInformation()));
-                    string localKeyValue = SearchResults.SingleOrDefault();
+                    var localKeyValue = SearchResults.SingleOrDefault();
                     //throw exception. probably we should manually throw this in order to add fhir specific details
                     if (string.IsNullOrEmpty(localKeyValue) == false)
                     {
-                        Key localKey = Core.Key.ParseOperationPath(localKeyValue);
+                        var localKey = Core.Key.ParseOperationPath(localKeyValue);
                         postEntry = Entry.Create(Bundle.HTTPVerb.GET, localKey, null);
                     }
                 }

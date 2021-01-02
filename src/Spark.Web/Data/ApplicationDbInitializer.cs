@@ -10,18 +10,18 @@ namespace Spark.Web.Data
         {
             context.Database.Migrate();
 
-            string admin_email = config.GetValue<string>("Admin:Email");
-            string admin_password = config.GetValue<string>("Admin:Password");
+            var admin_email = config.GetValue<string>("Admin:Email");
+            var admin_password = config.GetValue<string>("Admin:Password");
 
             if (userManager.FindByEmailAsync(admin_email).Result == null)
             {
-                IdentityUser user = new IdentityUser
+                var user = new IdentityUser
                 {
                     UserName = admin_email,
                     Email = admin_email
                 };
 
-                IdentityResult result = userManager.CreateAsync(user, admin_password).Result;
+                var result = userManager.CreateAsync(user, admin_password).Result;
 
                 if (result.Succeeded)
                 {

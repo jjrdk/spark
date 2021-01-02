@@ -45,7 +45,7 @@ namespace Spark.Engine.Web.Formatters
                 using var bodyReader = context.ReaderFactory(context.HttpContext.Request.Body, encoding);
                 var body = await bodyReader.ReadToEndAsync().ConfigureAwait(false); // base.ReadBodyFromStream(readStream, content);
 
-                Resource resource = _parser.Parse<Resource>(body);
+                var resource = _parser.Parse<Resource>(body);
                 return await InputFormatterResult.SuccessAsync(resource).ConfigureAwait(false);
             }
             catch (FormatException exception)

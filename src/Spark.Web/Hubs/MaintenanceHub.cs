@@ -57,7 +57,7 @@ namespace Spark.Web.Hubs
         public List<Resource> GetExampleData()
         {
             var list = new List<Resource>();
-            string examplePath = Path.Combine(AppContext.BaseDirectory, _examplesSettings.FilePath);
+            var examplePath = Path.Combine(AppContext.BaseDirectory, _examplesSettings.FilePath);
 
             Bundle data;
             data = FhirFileImport.ImportEmbeddedZip(examplePath).ToBundle(_localhost.DefaultBase);
@@ -131,7 +131,7 @@ namespace Spark.Web.Hubs
                 var resarray = _resources.ToArray();
                 _resourceCount = resarray.Count();
 
-                for (int x = 0; x <= _resourceCount - 1; x++)
+                for (var x = 0; x <= _resourceCount - 1; x++)
                 {
                     var res = resarray[x];
                     // Sending message:
@@ -140,7 +140,7 @@ namespace Spark.Web.Hubs
 
                     try
                     {
-                        Key key = res.ExtractKey();
+                        var key = res.ExtractKey();
 
                         if (!string.IsNullOrEmpty(res.Id))
                         {

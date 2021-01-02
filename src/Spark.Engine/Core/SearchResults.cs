@@ -65,7 +65,7 @@ namespace Spark.Engine.Core
         {
             get
             {
-                string[] used = UsedCriteria.Select(c => c.ToString()).ToArray();
+                var used = UsedCriteria.Select(c => c.ToString()).ToArray();
                 return string.Join("&", used);
             }
         }

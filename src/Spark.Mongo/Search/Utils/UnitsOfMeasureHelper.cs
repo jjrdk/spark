@@ -21,9 +21,9 @@ namespace Spark.Mongo.Search.Utils
         public static BsonDocument ToBson(this Quantity quantity)
         {
             quantity = QuantityExtensions.System.Canonical(quantity);
-            string searchable = quantity.LeftSearchableString();
+            var searchable = quantity.LeftSearchableString();
 
-            BsonDocument block = new BsonDocument
+            var block = new BsonDocument
             {
                 { "system", UCUM.Uri.ToString() },
                 { "value", quantity.GetValueAsBson() },
@@ -35,10 +35,10 @@ namespace Spark.Mongo.Search.Utils
 
         public static BsonDocument NonUcumIndexed(this FM.Quantity quantity)
         {
-            BsonValue system = (quantity.System != null) ? (BsonValue)quantity.System : BsonNull.Value;
-            BsonValue code = (quantity.Code != null) ? (BsonValue)quantity.Code : BsonNull.Value;
+            var system = (quantity.System != null) ? (BsonValue)quantity.System : BsonNull.Value;
+            var code = (quantity.Code != null) ? (BsonValue)quantity.Code : BsonNull.Value;
 
-            BsonDocument block = new BsonDocument
+            var block = new BsonDocument
             {
                 { "system", system },
                 { "value", quantity.GetValueAsBson() },
@@ -51,7 +51,7 @@ namespace Spark.Mongo.Search.Utils
         {
             if (quantity.IsUcum())
             {
-                Quantity q = quantity.ToUnitsOfMeasureQuantity();
+                var q = quantity.ToUnitsOfMeasureQuantity();
                 return ToBson(q);
             }
             else return quantity.NonUcumIndexed();
@@ -60,21 +60,21 @@ namespace Spark.Mongo.Search.Utils
 
         public static BsonDouble GetValueAsBson(this FM.Quantity quantity)
         {
-            double value = (double)quantity.Value;
+            var value = (double)quantity.Value;
             return new BsonDouble(value);
         }
 
         public static BsonDouble GetValueAsBson(this Quantity quantity)
         {
-            double value = (double)quantity.Value.ToDecimal();
+            var value = (double)quantity.Value.ToDecimal();
             return new BsonDouble(value);
         }
 
         // This code might have a better place somewhere else: //mh
         public static FM.Quantity ToModelQuantity(this ValueExpression expression)
         {
-            QuantityValue q = QuantityValue.Parse(expression.ToString());            
-            FM.Quantity quantity = new FM.Quantity
+            var q = QuantityValue.Parse(expression.ToString());            
+            var quantity = new FM.Quantity
             {                
                 Value = q.Number,
                 System = q.Namespace,

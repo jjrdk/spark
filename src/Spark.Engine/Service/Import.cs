@@ -56,7 +56,7 @@ namespace Spark.Engine.Service
         }
         public void Add(IEnumerable<Entry> interactions)
         {
-            foreach (Entry interaction in interactions)
+            foreach (var interaction in interactions)
             {
                 Add(interaction);
             }
@@ -71,7 +71,7 @@ namespace Spark.Engine.Service
 
         private void InternalizeState()
         {
-            foreach (Entry interaction in this.entries.Transferable())
+            foreach (var interaction in this.entries.Transferable())
             {
                 interaction.State = EntryState.Internal;
             }
@@ -79,7 +79,7 @@ namespace Spark.Engine.Service
 
         private async Task InternalizeKeys()
         {
-            foreach (Entry interaction in this.entries.Transferable())
+            foreach (var interaction in this.entries.Transferable())
             {
                 await InternalizeKey(interaction).ConfigureAwait(false);
             }
@@ -87,7 +87,7 @@ namespace Spark.Engine.Service
 
         private void InternalizeReferences()
         {
-            foreach (Entry entry in entries.Transferable())
+            foreach (var entry in entries.Transferable())
             {
                 InternalizeReferences(entry.Resource);
             }
@@ -95,7 +95,7 @@ namespace Spark.Engine.Service
 
         private async Task<IKey> Remap(Resource resource)
         {
-            Key newKey = await generator.NextKey(resource).ConfigureAwait(false);
+            var newKey = await generator.NextKey(resource).ConfigureAwait(false);
             AddKeyToInternalMapping(resource.ExtractKey(), newKey.WithoutBase());
             return newKey;
         }
@@ -121,7 +121,7 @@ namespace Spark.Engine.Service
 
         private async Task InternalizeKey(Entry entry)
         {
-            IKey key = entry.Key;
+            var key = entry.Key;
 
             switch (localhost.GetKeyKind(key))
             {
@@ -184,7 +184,7 @@ namespace Spark.Engine.Service
 
         private IKey InternalizeReference(IKey localkey)
         {
-            KeyKind triage = (localhost.GetKeyKind(localkey));
+            var triage = (localhost.GetKeyKind(localkey));
             if (triage == KeyKind.Foreign) throw new ArgumentException("Cannot internalize foreign reference");
 
             if (triage == KeyKind.Temporary)
@@ -203,11 +203,11 @@ namespace Spark.Engine.Service
 
         private IKey GetReplacement(IKey localkey)
         {
-            IKey replacement = localkey;
+            var replacement = localkey;
             //CCR: To check if this is still needed. Since we don't store the version in the mapper, do we ever need to replace the key multiple times?
             while (mapper.Exists(replacement.ResourceId))
             {
-                KeyKind triage = (localhost.GetKeyKind(localkey));
+                var triage = (localhost.GetKeyKind(localkey));
                 if (triage == KeyKind.Temporary)
                 {
                     replacement = mapper.TryGet(replacement.ResourceId);
@@ -232,7 +232,7 @@ namespace Spark.Engine.Service
         {
             if (string.IsNullOrWhiteSpace(uristring)) return uristring;
 
-            Uri uri = new Uri(uristring, UriKind.RelativeOrAbsolute);
+            var uri = new Uri(uristring, UriKind.RelativeOrAbsolute);
 
             // If it is a reference to another contained resource do not internalize.
             // BALLOT: this seems very... ad hoc.
@@ -253,7 +253,7 @@ namespace Spark.Engine.Service
         {
             try
             {
-                XDocument xdoc = XDocument.Parse(div);
+                var xdoc = XDocument.Parse(div);
                 xdoc.VisitAttributes("img", "src", (n) => n.Value = InternalizeReference(n.Value));
                 xdoc.VisitAttributes("a", "href", (n) => n.Value = InternalizeReference(n.Value));
                 return xdoc.ToString();

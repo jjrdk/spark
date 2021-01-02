@@ -115,8 +115,8 @@ namespace Spark.Mongo.Search.Common
         {
             if (value != null)
             {
-                string s = Regex.Replace(value, @"[T\s:\-]", "");
-                int i = s.IndexOf('+');
+                var s = Regex.Replace(value, @"[T\s:\-]", "");
+                var i = s.IndexOf('+');
                 if (i > 0) s = s.Remove(i);
                 return s;
             }

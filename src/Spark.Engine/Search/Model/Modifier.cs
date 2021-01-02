@@ -80,8 +80,8 @@ namespace Spark.Engine.Search.Model
         /// <returns></returns>
         private bool? TryParseMissing(string rawModifier)
         {
-            string missing = mapping.FirstOrDefault(m => m.Value == Modifier.MISSING).Key;
-            string[] parts = rawModifier.Split(new string[] { MISSING_SEPARATOR }, StringSplitOptions.None);
+            var missing = mapping.FirstOrDefault(m => m.Value == Modifier.MISSING).Key;
+            var parts = rawModifier.Split(new string[] { MISSING_SEPARATOR }, StringSplitOptions.None);
             if (parts[0].Equals(missing, StringComparison.InvariantCultureIgnoreCase))
             {
                 if (parts.Length > 1)
@@ -105,7 +105,7 @@ namespace Spark.Engine.Search.Model
 
         public override string ToString()
         {
-            string modifierText = mapping.FirstOrDefault(m => m.Value == Modifier).Key;
+            var modifierText = mapping.FirstOrDefault(m => m.Value == Modifier).Key;
             switch (Modifier)
             {
                 case Modifier.MISSING:

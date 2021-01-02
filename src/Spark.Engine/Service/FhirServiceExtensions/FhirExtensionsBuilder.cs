@@ -36,7 +36,7 @@ namespace Spark.Engine.Service.FhirServiceExtensions
 
         protected virtual IFhirServiceExtension GetSearch()
         {
-            IFhirIndex fhirStore = fhirStoreBuilder.GetStore<IFhirIndex>();
+            var fhirStore = fhirStoreBuilder.GetStore<IFhirIndex>();
             if (fhirStore != null)
                 return new SearchService(new Localhost(baseUri), new FhirModel(), fhirStore, indexService);
             return null;
@@ -44,7 +44,7 @@ namespace Spark.Engine.Service.FhirServiceExtensions
 
         protected virtual IFhirServiceExtension GetHistory()
         {
-            IHistoryStore historyStore = fhirStoreBuilder.GetStore<IHistoryStore>();
+            var historyStore = fhirStoreBuilder.GetStore<IHistoryStore>();
 
             return historyStore;
         }
@@ -57,9 +57,9 @@ namespace Spark.Engine.Service.FhirServiceExtensions
 
         protected virtual IFhirServiceExtension GetPaging()
         {
-            IFhirStore fhirStore = fhirStoreBuilder.GetStore<IFhirStore>();
-            ISnapshotStore snapshotStore = fhirStoreBuilder.GetStore<ISnapshotStore>();
-            IGenerator storeGenerator = fhirStoreBuilder.GetStore<IGenerator>();
+            var fhirStore = fhirStoreBuilder.GetStore<IFhirStore>();
+            var snapshotStore = fhirStoreBuilder.GetStore<ISnapshotStore>();
+            var storeGenerator = fhirStoreBuilder.GetStore<IGenerator>();
             if (fhirStore != null)
                 return new PagingService(snapshotStore, new SnapshotPaginationProvider(fhirStore, new Transfer(storeGenerator, new Localhost(baseUri), sparkSettings), new Localhost(baseUri), new SnapshotPaginationCalculator()));
             return null;
@@ -67,8 +67,8 @@ namespace Spark.Engine.Service.FhirServiceExtensions
 
         protected virtual IFhirServiceExtension GetStorage()
         {
-            IFhirStore fhirStore = fhirStoreBuilder.GetStore<IFhirStore>();
-            IGenerator fhirGenerator = fhirStoreBuilder.GetStore<IGenerator>();
+            var fhirStore = fhirStoreBuilder.GetStore<IFhirStore>();
+            var fhirGenerator = fhirStoreBuilder.GetStore<IGenerator>();
             if (fhirStore != null)
                 return new ResourceStorageService(new Transfer(fhirGenerator, new Localhost(baseUri), sparkSettings), fhirStore);
             return null;

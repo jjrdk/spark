@@ -49,12 +49,12 @@ namespace Spark.Engine.Service.FhirServiceExtensions
 
         private async Task<Bundle> CreateBundle(int? start = null)
         {
-            Bundle bundle = new Bundle();
+            var bundle = new Bundle();
             bundle.Type = snapshot.Type;
             bundle.Total = snapshot.Count;
             bundle.Id = Guid.NewGuid().ToString();
 
-            List<IKey> keys = _snapshotPaginationCalculator.GetKeysForPage(snapshot, start).ToList();
+            var keys = _snapshotPaginationCalculator.GetKeysForPage(snapshot, start).ToList();
             var items = await fhirStore.Get(keys).ConfigureAwait(false);
             IList<Entry> entries = items.ToList();
             if (snapshot.SortBy != null)
@@ -63,7 +63,7 @@ namespace Spark.Engine.Service.FhirServiceExtensions
                     .OrderBy(e => e.Index)
                     .Select(e => e.Entry).ToList();
             }
-            IList<Entry> included = await GetIncludesRecursiveFor(entries, snapshot.Includes).ConfigureAwait(false);
+            var included = await GetIncludesRecursiveFor(entries, snapshot.Includes).ConfigureAwait(false);
             entries.Append(included);
 
             transfer.Externalize(entries);
@@ -93,7 +93,7 @@ namespace Spark.Engine.Service.FhirServiceExtensions
         {
             if (includes == null) return new List<Entry>();
 
-            IEnumerable<string> paths = includes.SelectMany(i => IncludeToPath(i));
+            var paths = includes.SelectMany(i => IncludeToPath(i));
             IList<IKey> identifiers = entries.GetResources().GetReferences(paths).Distinct().Select(k => (IKey)Key.ParseOperationPath(k)).ToList();
 
             var task = await fhirStore.Get(identifiers).ConfigureAwait(false);
@@ -110,13 +110,13 @@ namespace Spark.Engine.Service.FhirServiceExtensions
             bundle.FirstLink = BuildSnapshotPageLink(0);
             bundle.LastLink = BuildSnapshotPageLink(_snapshotPaginationCalculator.GetIndexForLastPage(snapshot));
 
-            int? previousPageIndex = _snapshotPaginationCalculator.GetIndexForPreviousPage(snapshot, start);
+            var previousPageIndex = _snapshotPaginationCalculator.GetIndexForPreviousPage(snapshot, start);
             if (previousPageIndex != null)
             {
                 bundle.PreviousLink = BuildSnapshotPageLink(previousPageIndex);
             }
 
-            int? nextPageIndex = _snapshotPaginationCalculator.GetIndexForNextPage(snapshot, start);
+            var nextPageIndex = _snapshotPaginationCalculator.GetIndexForNextPage(snapshot, start);
             if (nextPageIndex != null)
             {
                 bundle.NextLink = BuildSnapshotPageLink(nextPageIndex);
@@ -147,9 +147,9 @@ namespace Spark.Engine.Service.FhirServiceExtensions
 
         private IEnumerable<string> IncludeToPath(string include)
         {
-            string[] _include = include.Split(':');
-            string resource = _include.FirstOrDefault();
-            string paramname = _include.Skip(1).FirstOrDefault();
+            var _include = include.Split(':');
+            var resource = _include.FirstOrDefault();
+            var paramname = _include.Skip(1).FirstOrDefault();
             var param = ModelInfo.SearchParameters.FirstOrDefault(p => p.Resource == resource && p.Name == paramname);
             if (param != null)
             {

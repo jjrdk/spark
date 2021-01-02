@@ -50,7 +50,7 @@ namespace Spark.Engine.Core
         private static IEnumerable<Type> LoadSupportedTypesFromAssembly(Assembly fhirAssembly)
         {
             var result = new List<Type>();
-            foreach (Type fhirType in fhirAssembly.GetTypes())
+            foreach (var fhirType in fhirAssembly.GetTypes())
             {
                 if (typeof(Resource).IsAssignableFrom(fhirType) || typeof(Element).IsAssignableFrom(fhirType)) //It is derived of Resource or Element, so we should support it.
                 {

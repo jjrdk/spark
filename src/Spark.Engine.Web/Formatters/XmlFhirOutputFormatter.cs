@@ -44,21 +44,21 @@
         {
             var bodyWriter = context.WriterFactory(context.HttpContext.Response.Body, selectedEncoding);
             XmlWriter writer = new XmlTextWriter(bodyWriter);
-            SummaryType summary = context.HttpContext.Request.RequestSummary();
+            var summary = context.HttpContext.Request.RequestSummary();
 
             if (context.ObjectType == typeof(OperationOutcome))
             {
-                Resource resource = (Resource)context.Object;
+                var resource = (Resource)context.Object;
                 _serializer.Serialize(resource, writer, summary);
             }
             else if (typeof(Resource).IsAssignableFrom(context.ObjectType))
             {
-                Resource resource = (Resource)context.Object;
+                var resource = (Resource)context.Object;
                 _serializer.Serialize(resource, writer, summary);
             }
             else if (context.ObjectType == typeof(FhirResponse))
             {
-                FhirResponse response = (context.Object as FhirResponse);
+                var response = (context.Object as FhirResponse);
                 if (response.HasBody)
                     _serializer.Serialize(response.Resource, writer, summary);
             }

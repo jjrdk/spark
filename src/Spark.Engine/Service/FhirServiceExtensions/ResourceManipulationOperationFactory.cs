@@ -62,8 +62,8 @@ namespace Spark.Engine.Service.FhirServiceExtensions
         public static Task<ResourceManipulationOperation> GetManipulationOperation(Bundle.EntryComponent entryComponent, ILocalhost localhost, ISearchService service = null)
         {
             _searchService = service;
-            Bundle.HTTPVerb method = localhost.ExtrapolateMethod(entryComponent, null); //CCR: is key needed? Isn't method required?
-            Key key = localhost.ExtractKey(entryComponent);
+            var method = localhost.ExtrapolateMethod(entryComponent, null); //CCR: is key needed? Isn't method required?
+            var key = localhost.ExtractKey(entryComponent);
             var searchUri = GetSearchUri(entryComponent, method);
 
             return builders[method](entryComponent.Resource, key, service, searchUri != null ? ParseQueryString(localhost, searchUri) : null);

@@ -29,7 +29,7 @@ namespace Spark.Engine.Web.Extensions
     {
         internal static SummaryType RequestSummary(this HttpRequest request)
         {
-            request.Query.TryGetValue("_summary", out StringValues stringValues);
+            request.Query.TryGetValue("_summary", out var stringValues);
             return GetSummary(stringValues.FirstOrDefault());
         }
 
@@ -41,9 +41,9 @@ namespace Spark.Engine.Web.Extensions
         /// <param name="id">A <see cref="string"/> containing the id to transfer to Resource.Id.</param>
         public static void TransferResourceIdIfRawBinary(this HttpRequest request, Resource resource, string id)
         {
-            if (request.Headers.TryGetValue("Content-Type", out StringValues value))
+            if (request.Headers.TryGetValue("Content-Type", out var value))
             {
-                string contentType = value.FirstOrDefault();
+                var contentType = value.FirstOrDefault();
                 TransferResourceIdIfRawBinary(contentType, resource, id);
             }
         }
@@ -51,7 +51,7 @@ namespace Spark.Engine.Web.Extensions
         public static string IfNoneExist(this RequestHeaders headers)
         {
             string ifNoneExist = null;
-            if (headers.Headers.TryGetValue(FhirHttpHeaders.IF_NONE_EXIST, out StringValues values))
+            if (headers.Headers.TryGetValue(FhirHttpHeaders.IF_NONE_EXIST, out var values))
             {
                 ifNoneExist = values.FirstOrDefault();
             }

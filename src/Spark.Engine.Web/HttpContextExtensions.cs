@@ -53,7 +53,7 @@
 
         public static Type GetResourceType(this HttpContext context)
         {
-            return context.Items.TryGetValue(RESOURCE_TYPE_KEY, out object resourceType) ? resourceType as Type : null;
+            return context.Items.TryGetValue(RESOURCE_TYPE_KEY, out var resourceType) ? resourceType as Type : null;
         }
     }
 }

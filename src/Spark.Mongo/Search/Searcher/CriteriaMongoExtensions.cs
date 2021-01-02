@@ -60,7 +60,7 @@ namespace Spark.Mongo.Search.Searcher
         internal static FilterDefinition<BsonDocument> ToFilter(this Criterium param, string resourceType)
         {
             //Maybe it's a generic parameter.
-            MethodInfo methodForParameter = FixedQueries.Find(m => m.Name.Equals(param.ParamName + "FixedQuery"));
+            var methodForParameter = FixedQueries.Find(m => m.Name.Equals(param.ParamName + "FixedQuery"));
             if (methodForParameter != null)
             {
                 return (FilterDefinition<BsonDocument>)methodForParameter.Invoke(null, new object[] { param });
@@ -97,7 +97,7 @@ namespace Spark.Mongo.Search.Searcher
             }
             else // There's only one operand.
             {
-                string parameterName = parameter.Name;
+                var parameterName = parameter.Name;
                 if (parameterName == "_id")
                 {
                     parameterName = "fhir_id"; //See MongoIndexMapper for counterpart.
@@ -148,7 +148,7 @@ namespace Spark.Mongo.Search.Searcher
         private static List<string> GetTargetedReferenceTypes(ModelInfo.SearchParamDefinition parameter, string modifier)
         {
             var allowedResourceTypes = parameter.Target.Select(t => EnumUtility.GetLiteral(t)).ToList();// ModelInfo.SupportedResources; //TODO: restrict to parameter.ReferencedResources. This means not making this static, because you want to use IFhirModel.
-            List<string> searchResourceTypes = new List<string>();
+            var searchResourceTypes = new List<string>();
             if (string.IsNullOrEmpty(modifier))
                 searchResourceTypes.AddRange(allowedResourceTypes);
             else if (allowedResourceTypes.Contains(modifier))
@@ -298,12 +298,12 @@ namespace Spark.Mongo.Search.Searcher
             //$elemMatch only works on array values. But the MongoIndexMapper only creates an array if there are multiple values for a given parameter.
             //So we also construct a query for when there is only one set of values in the searchIndex, hence there is no array.
             var quantity = operand.ToModelQuantity();
-            Fhir.Metrics.Quantity q = quantity.ToUnitsOfMeasureQuantity().Canonical();
-            string decimals = q.SearchableString();
+            var q = quantity.ToUnitsOfMeasureQuantity().Canonical();
+            var decimals = q.SearchableString();
             BsonValue value = q.GetValueAsBson();
 
-            List<FilterDefinition<BsonDocument>> arrayQueries = new List<FilterDefinition<BsonDocument>>();
-            List<FilterDefinition<BsonDocument>> noArrayQueries = new List<FilterDefinition<BsonDocument>>() { Builders<BsonDocument>.Filter.Not(Builders<BsonDocument>.Filter.Type(parameterName, BsonType.Array)) };
+            var arrayQueries = new List<FilterDefinition<BsonDocument>>();
+            var noArrayQueries = new List<FilterDefinition<BsonDocument>>() { Builders<BsonDocument>.Filter.Not(Builders<BsonDocument>.Filter.Type(parameterName, BsonType.Array)) };
             switch (optor)
             {
                 case Operator.EQ:
@@ -328,7 +328,7 @@ namespace Spark.Mongo.Search.Searcher
             var arrayQuery = Builders<BsonDocument>.Filter.ElemMatch(parameterName, Builders<BsonDocument>.Filter.And(arrayQueries));
             var noArrayQuery = Builders<BsonDocument>.Filter.And(noArrayQueries);
 
-            FilterDefinition<BsonDocument> query = Builders<BsonDocument>.Filter.Or(arrayQuery, noArrayQuery);
+            var query = Builders<BsonDocument>.Filter.Or(arrayQuery, noArrayQuery);
             return query;
         }
 
@@ -336,9 +336,9 @@ namespace Spark.Mongo.Search.Searcher
         {
             //$elemMatch only works on array values. But the MongoIndexMapper only creates an array if there are multiple values for a given parameter.
             //So we also construct a query for when there is only one set of values in the searchIndex, hence there is no array.
-            string systemfield = parameterName + ".system";
-            string codefield = parameterName + ".code";
-            string textfield = parameterName + ".text";
+            var systemfield = parameterName + ".system";
+            var codefield = parameterName + ".code";
+            var textfield = parameterName + ".text";
 
             switch (optor)
             {
@@ -412,7 +412,7 @@ namespace Spark.Mongo.Search.Searcher
         {
             //CK: Ugly implementation by just using existing features on the StringQuery.
             //TODO: Implement :ABOVE.
-            string localModifier = "";
+            var localModifier = "";
             switch (modifier)
             {
                 case Modifier.BELOW:
@@ -438,8 +438,8 @@ namespace Spark.Mongo.Search.Searcher
         {
             if (value != null)
             {
-                string s = Regex.Replace(value, @"[T\s:\-]", "");
-                int i = s.IndexOf('+');
+                var s = Regex.Replace(value, @"[T\s:\-]", "");
+                var i = s.IndexOf('+');
                 if (i > 0) s = s.Remove(i);
                 return s;
             }
@@ -455,8 +455,8 @@ namespace Spark.Mongo.Search.Searcher
                 return Builders<BsonDocument>.Filter.Or(opMultiple.Select(choice => DateQuery(parameterName, Operator.EQ, modifier, choice)));
             }
 
-            string start = parameterName + ".start";
-            string end = parameterName + ".end";
+            var start = parameterName + ".start";
+            var end = parameterName + ".end";
 
             var fdtValue = ((UntypedValue)operand).AsDateTimeValue();
             var valueLower = BsonDateTime.Create(fdtValue.LowerBound());
@@ -512,7 +512,7 @@ namespace Spark.Mongo.Search.Searcher
                     throw new ArgumentException(string.Format("Parameter {0} requires exactly {1} composite values, not the currently provided {2} values.", parameterDef.Name, subParams.Count(), components.Count()));
                 }
 
-                for (int i = 0; i < subParams.Count(); i++)
+                for (var i = 0; i < subParams.Count(); i++)
                 {
                     var subCrit = new Criterium();
                     subCrit.Operator = Operator.EQ;

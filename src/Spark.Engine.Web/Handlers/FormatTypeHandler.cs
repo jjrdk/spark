@@ -11,10 +11,10 @@
     {
         public async Task InvokeAsync(HttpContext context, RequestDelegate next)
         {
-            string format = context.Request.GetParameter("_format");
+            var format = context.Request.GetParameter("_format");
             if (!string.IsNullOrEmpty(format))
             {
-                ResourceFormat accepted = ContentType.GetResourceFormatFromFormatParam(format);
+                var accepted = ContentType.GetResourceFormatFromFormatParam(format);
                 if (accepted != ResourceFormat.Unknown)
                 {
                     if (context.Request.Headers.ContainsKey("Accept")) context.Request.Headers.Remove("Accept");
@@ -30,7 +30,7 @@
             {
                 if (!context.Request.ContentType.IsContentTypeHeaderFhirMediaType())
                 {
-                    string contentType = context.Request.ContentType;
+                    var contentType = context.Request.ContentType;
                     context.Request.Headers.Add("X-Content-Type", contentType);
                     context.Request.ContentType = FhirMediaType.OCTET_STREAM_CONTENT_HEADER;
                 }

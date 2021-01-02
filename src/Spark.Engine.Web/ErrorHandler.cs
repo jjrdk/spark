@@ -25,7 +25,7 @@
 
         private async Task HandleExceptionAsync(HttpContext context, Exception exception)
         {
-            HttpStatusCode code = HttpStatusCode.InternalServerError;
+            var code = HttpStatusCode.InternalServerError;
             Hl7.Fhir.Model.OperationOutcome outcome;
             if (exception is SparkException ex1)
             {
@@ -39,8 +39,8 @@
 
             // Set HTTP status code
             context.Response.StatusCode = (int) code;
-            OutputFormatterWriteContext writeContext = context.GetOutputFormatterWriteContext(outcome);
-            IOutputFormatter formatter = context.SelectFormatter(writeContext);
+            var writeContext = context.GetOutputFormatterWriteContext(outcome);
+            var formatter = context.SelectFormatter(writeContext);
             // Write the OperationOutcome to the Response using an OutputFormatter from the request pipeline
             await formatter.WriteAsync(writeContext).ConfigureAwait(false);
         }

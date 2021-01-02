@@ -200,7 +200,7 @@ namespace Spark.Engine.Search
             if (element == null || string.Empty.Equals(element.Value))
                 return null;
 
-            FhirDateTime fdt = new FhirDateTime(element.Value);
+            var fdt = new FhirDateTime(element.Value);
             return ToExpressions(fdt);
         }
 

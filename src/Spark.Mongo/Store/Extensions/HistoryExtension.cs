@@ -69,14 +69,14 @@ namespace Spark.Mongo.Store.Extensions
 
         private Task<IList<string>> FetchPrimaryKeys(IEnumerable<FilterDefinition<BsonDocument>> clauses)
         {
-            FilterDefinition<BsonDocument> query = clauses.Any() ? Builders<BsonDocument>.Filter.And(clauses) : Builders<BsonDocument>.Filter.Empty;
+            var query = clauses.Any() ? Builders<BsonDocument>.Filter.And(clauses) : Builders<BsonDocument>.Filter.Empty;
             return FetchPrimaryKeys(query);
         }
 
         private Snapshot CreateSnapshot(IEnumerable<string> keys, int? count = null, IList<string> includes = null, IList<string> reverseIncludes = null)
         {
-            Uri link = new Uri(RestOperation.HISTORY, UriKind.Relative);
-            Snapshot snapshot = Snapshot.Create(Bundle.BundleType.History, link, keys, "history", count, includes, reverseIncludes);
+            var link = new Uri(RestOperation.HISTORY, UriKind.Relative);
+            var snapshot = Snapshot.Create(Bundle.BundleType.History, link, keys, "history", count, includes, reverseIncludes);
             return snapshot;
         }
 

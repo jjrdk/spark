@@ -43,7 +43,7 @@ namespace Spark.Mongo.Tests.Indexer
         public void TestMapRootIndexValue()
         {
             //"root" element should be skipped.
-            IndexValue iv = new IndexValue("root");
+            var iv = new IndexValue("root");
             iv.Values.Add(new IndexValue("internal_resource", new StringValue("Patient")));
 
             var results = sut.MapEntry(iv);

@@ -22,14 +22,14 @@ namespace Spark.Engine.Auxiliary
         {
             if (xml == null) throw new ArgumentNullException(nameof(xml));
 
-            XmlDocument doc = new XmlDocument {PreserveWhitespace = true};
+            var doc = new XmlDocument {PreserveWhitespace = true};
             doc.LoadXml(xml);
 
             // If there's no signature => return that we are "valid"
-            XmlNode signatureNode = findSignatureElement(doc);
+            var signatureNode = findSignatureElement(doc);
             if (signatureNode == null) return true;
 
-            SignedXml signedXml = new SignedXml(doc);
+            var signedXml = new SignedXml(doc);
             signedXml.LoadXml((XmlElement)signatureNode);
 
             //var x509Certificates = signedXml.KeyInfo.OfType<KeyInfoX509Data>();
@@ -73,15 +73,15 @@ namespace Spark.Engine.Auxiliary
             if (certificate == null) throw new ArgumentNullException(nameof(certificate));
             if (!certificate.HasPrivateKey) throw new ArgumentException("Certificate should have a private key", nameof(certificate));
 
-            XmlDocument doc = new XmlDocument {PreserveWhitespace = true};
+            var doc = new XmlDocument {PreserveWhitespace = true};
 
             doc.LoadXml(xml);
 
-            SignedXml signedXml = new SignedXml(doc) {SigningKey = certificate.PrivateKey};
+            var signedXml = new SignedXml(doc) {SigningKey = certificate.PrivateKey};
 
             // Attach certificate KeyInfo
-            KeyInfoX509Data keyInfoData = new KeyInfoX509Data(certificate);
-            KeyInfo keyInfo = new KeyInfo();
+            var keyInfoData = new KeyInfoX509Data(certificate);
+            var keyInfo = new KeyInfo();
             keyInfo.AddClause(keyInfoData);
             signedXml.KeyInfo = keyInfo;
 

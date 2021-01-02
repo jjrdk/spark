@@ -123,7 +123,7 @@ namespace Spark.Engine.Test.Core
         public void TestVisitDataChoiceProperty()
         {
             _expectedActionCounter = 1;
-            ClinicalImpression ci = new ClinicalImpression {Code = new CodeableConcept("test.system", "test.code")};
+            var ci = new ClinicalImpression {Code = new CodeableConcept("test.system", "test.code")};
             _sut.VisitByPath(ci, ob =>
                 {
                     _actualActionCounter++;
@@ -139,7 +139,7 @@ namespace Spark.Engine.Test.Core
         public void TestVisitDataChoice_x_Property()
         {
             _expectedActionCounter = 0; //We expect 0 actions: ResourceVisitor needs not recognize this, it should be solved in processing the searchparameter at indexing time.
-            Condition cd = new Condition {Onset = new FhirDateTime(2015, 6, 15)};
+            var cd = new Condition {Onset = new FhirDateTime(2015, 6, 15)};
             _sut.VisitByPath(cd, ob =>
             {
                 _actualActionCounter++;

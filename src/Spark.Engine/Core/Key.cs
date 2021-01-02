@@ -68,14 +68,14 @@
 
         public static Key ParseOperationPath(string path)
         {
-            Key key = new Key();
+            var key = new Key();
             path = path.Trim('/');
-            int indexOfQueryString = path.IndexOf('?');
+            var indexOfQueryString = path.IndexOf('?');
             if (indexOfQueryString >= 0)
             {
                 path = path.Substring(0, indexOfQueryString);
             }
-            string[] segments = path.Split('/');
+            var segments = path.Split('/');
             if (segments.Length >= 1) key.TypeName = segments[0];
             if (segments.Length >= 2) key.ResourceId = segments[1];
             if (segments.Length == 4 && segments[2] == "_history") key.VersionId = segments[3];

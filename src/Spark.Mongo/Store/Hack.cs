@@ -12,11 +12,11 @@
         {
             if (resource is DomainResource)
             {
-                DomainResource domain = (DomainResource)resource;
+                var domain = (DomainResource)resource;
                 domain.Extension = null;
                 domain.ModifierExtension = null;
                 RemoveExtensionsFromElements(resource);
-                foreach (Resource r in domain.Contained)
+                foreach (var r in domain.Contained)
                 {
                     Hack.RemoveExtensions(r);
                 }

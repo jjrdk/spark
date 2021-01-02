@@ -87,7 +87,7 @@ namespace Spark.Engine.Auxiliary
 
         public override void Write(byte[] buffer, int offset, int count)
         {
-            int bytesToBeAdded = Math.Min(buffer.Length - offset, count);
+            var bytesToBeAdded = Math.Min(buffer.Length - offset, count);
             if (Length + bytesToBeAdded > SizeLimitInBytes)
                 throw new ArgumentOutOfRangeException("buffer", $"Adding {bytesToBeAdded} bytes to the stream would exceed the size limit of {SizeLimitInBytes} bytes.");
 

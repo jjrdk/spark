@@ -118,7 +118,7 @@ namespace Spark.Engine.Core
             var propertyName = match.Groups["propname"].Value;
             var filterValue = match.Groups["filterValue"].Value.Trim('\'');
 
-            bool result = false;
+            var result = false;
 
             //Handle the predicate by (again recursively) visiting from here.
             VisitByPath(
@@ -161,7 +161,7 @@ namespace Spark.Engine.Core
                 throw new ArgumentNullException("type");
             }
 
-            bool? codedEnum = type.GenericTypeArguments?.FirstOrDefault()?.IsEnum;
+            var codedEnum = type.GenericTypeArguments?.FirstOrDefault()?.IsEnum;
             if (codedEnum.HasValue && codedEnum.Value)
             {
                 return true;

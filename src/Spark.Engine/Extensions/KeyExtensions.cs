@@ -21,8 +21,8 @@ namespace Spark.Engine.Extensions
     {
         public static Key ExtractKey(this Resource resource)
         {
-            string _base = (resource.ResourceBase != null) ? resource.ResourceBase.ToString() : null;
-            Key key = new Key(_base, resource.TypeName, resource.Id, resource.VersionId);
+            var _base = (resource.ResourceBase != null) ? resource.ResourceBase.ToString() : null;
+            var key = new Key(_base, resource.TypeName, resource.Id, resource.VersionId);
             return key;
         }
 
@@ -31,15 +31,15 @@ namespace Spark.Engine.Extensions
             
             var identity = new ResourceIdentity(uri);
             
-            string _base = (identity.HasBaseUri) ? identity.BaseUri.ToString() : null;
-            Key key = new Key(_base, identity.ResourceType, identity.Id, identity.VersionId);
+            var _base = (identity.HasBaseUri) ? identity.BaseUri.ToString() : null;
+            var key = new Key(_base, identity.ResourceType, identity.Id, identity.VersionId);
             return key;
         }
 
         public static Key ExtractKey(this Localhost localhost, Bundle.EntryComponent entry)
         {
-            Uri uri = new Uri(entry.Request.Url, UriKind.RelativeOrAbsolute);
-            Key compare = ExtractKey(uri); // This fails!! ResourceIdentity does not work in this case.
+            var uri = new Uri(entry.Request.Url, UriKind.RelativeOrAbsolute);
+            var compare = ExtractKey(uri); // This fails!! ResourceIdentity does not work in this case.
             return localhost.LocalUriToKey(uri);   
             
         }
@@ -53,7 +53,7 @@ namespace Spark.Engine.Extensions
 
         public static Key Clone(this IKey self)
         {
-            Key key = new Key(self.Base, self.TypeName, self.ResourceId, self.VersionId);
+            var key = new Key(self.Base, self.TypeName, self.ResourceId, self.VersionId);
             return key;
         }
 
@@ -160,7 +160,7 @@ namespace Spark.Engine.Extensions
 
         public static Key CreateFromLocalReference(string reference)
         {
-            string[] parts = reference.Split('/');
+            var parts = reference.Split('/');
             if (parts.Length == 2)
             {
                 return Key.Create(parts[0], parts[1], parts[3]);
@@ -185,8 +185,8 @@ namespace Spark.Engine.Extensions
 
         public static Uri ToUri(this IKey key, Uri endpoint)
         {
-            string _base = endpoint.ToString().TrimEnd('/');
-            string s = string.Format("{0}/{1}", _base, key);
+            var _base = endpoint.ToString().TrimEnd('/');
+            var s = string.Format("{0}/{1}", _base, key);
             return new Uri(s);
         }
 

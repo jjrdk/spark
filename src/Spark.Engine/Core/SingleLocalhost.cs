@@ -19,8 +19,8 @@ namespace Spark.Engine.Core
             }
             else
             {
-                string _base = DefaultBase.ToString().TrimEnd('/') + "/";
-                string path = uri.ToString();
+                var _base = DefaultBase.ToString().TrimEnd('/') + "/";
+                var path = uri.ToString();
                 return new Uri(_base + uri);
             }
         }
@@ -29,7 +29,7 @@ namespace Spark.Engine.Core
         {
             if (uri.IsAbsoluteUri)
             {
-                bool isbase = DefaultBase.Bugfixed_IsBaseOf(uri);
+                var isbase = DefaultBase.Bugfixed_IsBaseOf(uri);
                 return isbase;
             }
             else

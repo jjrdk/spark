@@ -56,7 +56,7 @@ namespace Spark.Mongo.Search.Infrastructure
         {
             // todo: this needs optimization
 
-            SearchResults results = await _searcher.Search(resource, searchCommand, _searchSettings).ConfigureAwait(false);
+            var results = await _searcher.Search(resource, searchCommand, _searchSettings).ConfigureAwait(false);
             if (results.Count > 1)
             {
                 throw Error.BadRequest("The search for a single resource yielded more than one.");
@@ -67,7 +67,7 @@ namespace Spark.Mongo.Search.Infrastructure
             }
             else
             {
-                string location = results.FirstOrDefault();
+                var location = results.FirstOrDefault();
                 return Key.ParseOperationPath(location);
             }
         }

@@ -10,7 +10,7 @@ namespace Spark.Engine.Test.Search
         [Fact]
         public void TestParseValid()
         {
-            ReverseInclude sut = ReverseInclude.Parse("Patient.actor");
+            var sut = ReverseInclude.Parse("Patient.actor");
 
             Assert.Equal("Patient", sut.ResourceType);
             Assert.Equal("actor", sut.SearchPath);
@@ -18,7 +18,7 @@ namespace Spark.Engine.Test.Search
         [Fact]
         public void TestParseValidLongerPath()
         {
-            ReverseInclude sut = ReverseInclude.Parse("Provenance.target.patient");
+            var sut = ReverseInclude.Parse("Provenance.target.patient");
 
             Assert.Equal("Provenance", sut.ResourceType);
             Assert.Equal("target.patient", sut.SearchPath);

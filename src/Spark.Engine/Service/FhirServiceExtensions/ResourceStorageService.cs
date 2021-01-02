@@ -53,7 +53,7 @@ namespace Spark.Engine.Service.FhirServiceExtensions
 
         public async Task<IList<Entry>> Get(IEnumerable<string> localIdentifiers, string sortby = null)
         {
-            IList<Entry> results = await fhirStore.Get(localIdentifiers.Select(k => (IKey)Key.ParseOperationPath(k))).ConfigureAwait(false);
+            var results = await fhirStore.Get(localIdentifiers.Select(k => (IKey)Key.ParseOperationPath(k))).ConfigureAwait(false);
             transfer.Externalize(results);
             return results;
 

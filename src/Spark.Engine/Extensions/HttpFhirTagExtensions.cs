@@ -51,12 +51,12 @@ namespace Spark.Engine.Extensions
             // Union works with equality [http://www.healthintersections.com.au/?p=1941]
             // the source should overwrite the existing target tags
 
-            foreach(Coding s in source)
+            foreach(var s in source)
             {
                 if (!target.HasTag(s)) yield return s;
             }
 
-            foreach(Coding t in target)
+            foreach(var t in target)
             {
                 yield return t;
             }
@@ -67,8 +67,8 @@ namespace Spark.Engine.Extensions
         public static IEnumerable<Coding> AffixTags(this Meta target, Meta source)
         {
 
-            IEnumerable<Coding> targetTags = target.Tag ?? Enumerable.Empty<Coding>();
-            IEnumerable<Coding> sourceTags = source.Tag ?? Enumerable.Empty<Coding>();
+            var targetTags = target.Tag ?? Enumerable.Empty<Coding>();
+            var sourceTags = source.Tag ?? Enumerable.Empty<Coding>();
             return targetTags.AffixTags(sourceTags);
         }
 
@@ -101,7 +101,7 @@ namespace Spark.Engine.Extensions
         {
             foreach(var parameter in parameters.Parameter.Where(p => p.Name == "meta"))
             {
-                Meta meta = (parameter.Value as Meta);
+                var meta = (parameter.Value as Meta);
                 if (meta != null)
                 {
                     yield return meta;

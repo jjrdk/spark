@@ -37,7 +37,7 @@ namespace Spark.Engine.Service.FhirServiceExtensions
             IList<Entry> interactions = operation.GetEntries().ToList();
 
             FhirResponse response = null;
-            foreach (Entry interaction in interactions)
+            foreach (var interaction in interactions)
             {
                 var handleInteraction = await interactionHandler.HandleInteraction(interaction).ConfigureAwait(false);
                 response = MergeFhirResponse(response, handleInteraction);
@@ -73,7 +73,7 @@ namespace Spark.Engine.Service.FhirServiceExtensions
                 return;
             if (interactions.Count == 1)
             {
-                Entry entry = interactions.First();
+                var entry = interactions.First();
                 if (!entry.Key.Equals(operation.OperationKey))
                 {
                     if (localhost.GetKeyKind(operation.OperationKey) == KeyKind.Temporary)
@@ -96,7 +96,7 @@ namespace Spark.Engine.Service.FhirServiceExtensions
             }
 
             var entries = new List<Entry>();
-            Mapper<string, IKey> mapper = new Mapper<string, IKey>();
+            var mapper = new Mapper<string, IKey>();
 
             foreach (var operation in bundle.Entry.Select(
                 e => ResourceManipulationOperationFactory.GetManipulationOperation(e, localhost, searchService)))
@@ -111,13 +111,13 @@ namespace Spark.Engine.Service.FhirServiceExtensions
 
         private async Task<IList<Tuple<Entry, FhirResponse>>> HandleTransaction(IList<Entry> interactions, IInteractionHandler interactionHandler, Mapper<string, IKey> mapper)
         {
-            List<Tuple<Entry, FhirResponse>> responses = new List<Tuple<Entry, FhirResponse>>();
+            var responses = new List<Tuple<Entry, FhirResponse>>();
 
             await transfer.Internalize(interactions, mapper).ConfigureAwait(false);
 
-            foreach (Entry interaction in interactions)
+            foreach (var interaction in interactions)
             {
-                FhirResponse response = await interactionHandler.HandleInteraction(interaction).ConfigureAwait(false);
+                var response = await interactionHandler.HandleInteraction(interaction).ConfigureAwait(false);
                 if (!response.IsValid) throw new Exception();
                 interaction.Resource = response.Resource;
                 response.Resource = null;

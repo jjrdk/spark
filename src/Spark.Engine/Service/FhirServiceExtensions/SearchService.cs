@@ -30,18 +30,18 @@ namespace Spark.Engine.Service.FhirServiceExtensions
         public async Task<Snapshot> GetSnapshot(string type, SearchParams searchCommand)
         {
             Validate.TypeName(type);
-            SearchResults results = await fhirIndex.Search(type, searchCommand).ConfigureAwait(false);
+            var results = await fhirIndex.Search(type, searchCommand).ConfigureAwait(false);
 
             if (results.HasErrors)
             {
                 throw new SparkException(HttpStatusCode.BadRequest, results.Outcome);
             }
 
-            UriBuilder builder = new UriBuilder(localhost.Uri(type));
+            var builder = new UriBuilder(localhost.Uri(type));
             builder.Query = results.UsedParameters;
-            Uri link = builder.Uri;
+            var link = builder.Uri;
 
-            Snapshot snapshot = CreateSnapshot(link, results, searchCommand);
+            var snapshot = CreateSnapshot(link, results, searchCommand);
             return snapshot;
         }
 
@@ -66,9 +66,9 @@ namespace Spark.Engine.Service.FhirServiceExtensions
 
         private Snapshot CreateSnapshot(Uri selflink, IEnumerable<string> keys, SearchParams searchCommand)
         {
-            string sort = GetFirstSort(searchCommand);
+            var sort = GetFirstSort(searchCommand);
 
-            int? count = searchCommand.Count;
+            var count = searchCommand.Count;
             if (count.HasValue)
             {
                 //TODO: should we change count?
@@ -118,14 +118,14 @@ namespace Spark.Engine.Service.FhirServiceExtensions
         public async Task<IKey> FindSingleOrDefault(string type, SearchParams searchCommand)
         {
             var searchResults = await GetSearchResults(type, searchCommand).ConfigureAwait(false);
-            string value = searchResults.SingleOrDefault();
+            var value = searchResults.SingleOrDefault();
             return value != null ? Key.ParseOperationPath(value) : null;
         }
 
         public async Task<SearchResults> GetSearchResults(string type, SearchParams searchCommand)
         {
             Validate.TypeName(type);
-            SearchResults results = await fhirIndex.Search(type, searchCommand).ConfigureAwait(false);
+            var results = await fhirIndex.Search(type, searchCommand).ConfigureAwait(false);
 
             if (results.HasErrors)
             {

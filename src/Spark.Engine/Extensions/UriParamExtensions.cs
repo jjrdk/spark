@@ -17,7 +17,7 @@ namespace Spark.Engine.Extensions
     {
         public static Tuple<string, string> SplitParam(string s)
         {
-            string[] a = s.Split(new char[] { '=' }, 2);
+            var a = s.Split(new char[] { '=' }, 2);
             return new Tuple<string, string>(a.First(), a.Skip(1).FirstOrDefault());
         }
 
@@ -43,7 +43,7 @@ namespace Spark.Engine.Extensions
         //TODO: horrible!! Should refactor
         public static Uri AddParam(this Uri uri, string name, params string[] values)
         {
-            Uri fakeBase = new Uri("http://example.com");
+            var fakeBase = new Uri("http://example.com");
             UriBuilder builder;
             if (uri.IsAbsoluteUri)
             {
@@ -57,7 +57,7 @@ namespace Spark.Engine.Extensions
 
             ICollection<Tuple<string, string>> query = UriUtils.SplitParams(builder.Query).ToList();
 
-            foreach (string value in values)
+            foreach (var value in values)
             {
                 query.Add(new Tuple<string, string>(name, value));
             }

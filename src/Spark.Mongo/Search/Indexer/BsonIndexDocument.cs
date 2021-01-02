@@ -26,7 +26,7 @@ namespace Spark.Mongo.Search.Indexer
             if (field.StartsWith("_")) field = "PREFIX" + field;
             // todo: make sure the search query builder also picks up this name change.
 
-            bool forcearray = (value.BsonType == BsonType.Document);
+            var forcearray = (value.BsonType == BsonType.Document);
             // anders kan er op zo'n document geen $elemMatch gedaan worden.
 
             BsonElement element;

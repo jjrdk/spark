@@ -58,7 +58,7 @@ namespace Spark.Engine.Service
 
         public void Merge(Mapper<TKEY, TVALUE> mapper)
         {
-            foreach (KeyValuePair<TKEY, TVALUE> keyValuePair in mapper.mapping)
+            foreach (var keyValuePair in mapper.mapping)
             {
                 if (!Exists(keyValuePair.Key))
                 {

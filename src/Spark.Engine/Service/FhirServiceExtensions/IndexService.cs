@@ -58,15 +58,15 @@ namespace Spark.Engine.Service.FhirServiceExtensions
 
         public async Task<IndexValue> IndexResource(Resource resource, IKey key)
         {
-            Resource resourceToIndex = MakeContainedReferencesUnique(resource);
-            IndexValue indexValue = await IndexResourceRecursively(resourceToIndex, key).ConfigureAwait(false);
+            var resourceToIndex = MakeContainedReferencesUnique(resource);
+            var indexValue = await IndexResourceRecursively(resourceToIndex, key).ConfigureAwait(false);
             await _indexStore.Save(indexValue).ConfigureAwait(false);
             return indexValue;
         }
 
         private async Task<IndexValue> IndexResourceRecursively(Resource resource, IKey key, string rootPartName = "root")
         {
-            IEnumerable<SearchParameter> searchParameters = _fhirModel.FindSearchParameters(resource.GetType());
+            var searchParameters = _fhirModel.FindSearchParameters(resource.GetType());
 
             if (searchParameters == null) return null;
 
@@ -128,7 +128,7 @@ namespace Spark.Engine.Service.FhirServiceExtensions
             Resource result = (dynamic)resource.DeepCopy();
             if (resource is DomainResource)
             {
-                DomainResource domainResource = (DomainResource)result;
+                var domainResource = (DomainResource)result;
                 if (domainResource.Contained != null && domainResource.Contained.Any())
                 {
                     var referenceMap = new Dictionary<string, string>();
@@ -136,10 +136,10 @@ namespace Spark.Engine.Service.FhirServiceExtensions
                     // Create a unique id for each contained resource.
                     foreach (var containedResource in domainResource.Contained)
                     {
-                        string oldRef = "#" + containedResource.Id;
-                        string newId = Guid.NewGuid().ToString();
+                        var oldRef = "#" + containedResource.Id;
+                        var newId = Guid.NewGuid().ToString();
                         containedResource.Id = newId;
-                        string newRef = containedResource.TypeName + "/" + newId;
+                        var newRef = containedResource.TypeName + "/" + newId;
                         referenceMap.Add(oldRef, newRef);
                     }
 
@@ -148,10 +148,10 @@ namespace Spark.Engine.Service.FhirServiceExtensions
                         domainResource,
                          (el, path) =>
                          {
-                             ResourceReference currentRefence = (el as ResourceReference);
+                             var currentRefence = (el as ResourceReference);
                              if (!string.IsNullOrEmpty(currentRefence.Reference))
                              {
-                                 referenceMap.TryGetValue(currentRefence.Reference, out string replacementId);
+                                 referenceMap.TryGetValue(currentRefence.Reference, out var replacementId);
                                  if (replacementId != null)
                                      currentRefence.Reference = replacementId;
                              }

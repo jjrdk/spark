@@ -12,7 +12,7 @@ namespace Spark.Engine.Test.Extensions
         [Fact]
         public void TestSetPropertyPathWithSinglePath()
         {
-            SearchParameter sut = new SearchParameter { Base = new List<ResourceType?> { ResourceType.Appointment } };
+            var sut = new SearchParameter { Base = new List<ResourceType?> { ResourceType.Appointment } };
 
             sut.SetPropertyPath(new string[] { "Appointment.participant.actor" });
 
@@ -22,7 +22,7 @@ namespace Spark.Engine.Test.Extensions
         [Fact]
         public void TestSetPropertyPathWithMultiplePath()
         {
-            SearchParameter sut = new SearchParameter { Base = new List<ResourceType?> { ResourceType.AuditEvent } };
+            var sut = new SearchParameter { Base = new List<ResourceType?> { ResourceType.AuditEvent } };
             sut.SetPropertyPath(new string[] { "AuditEvent.participant.reference", "AuditEvent.object.reference" });
 
             Assert.Equal("//participant/reference | //object/reference", sut.Xpath);
@@ -31,7 +31,7 @@ namespace Spark.Engine.Test.Extensions
         [Fact]
         public void TestGetPropertyPathWithSinglePath()
         {
-            SearchParameter sut = new SearchParameter { Xpath = "//participant/actor" };
+            var sut = new SearchParameter { Xpath = "//participant/actor" };
 
             var paths = sut.GetPropertyPath();
             Assert.Single(paths);
@@ -41,7 +41,7 @@ namespace Spark.Engine.Test.Extensions
         [Fact]
         public void TestGetPropertyPathWithMultiplePath()
         {
-            SearchParameter sut = new SearchParameter { Xpath = "//participant/reference | //object/reference" };
+            var sut = new SearchParameter { Xpath = "//participant/reference | //object/reference" };
 
             var paths = sut.GetPropertyPath();
             Assert.Equal(2, paths.Length);
@@ -52,7 +52,7 @@ namespace Spark.Engine.Test.Extensions
         [Fact]
         public void TestSetPropertyPathWithPredicate()
         {
-            SearchParameter sut = new SearchParameter { Base = new List<ResourceType?> { ResourceType.Slot } };
+            var sut = new SearchParameter { Base = new List<ResourceType?> { ResourceType.Slot } };
             sut.SetPropertyPath(new string[] { "Slot.extension(url=http://foo.com/myextension).valueReference" });
 
             Assert.Equal("//extension(url=http://foo.com/myextension)/valueReference", sut.Xpath);
@@ -61,7 +61,7 @@ namespace Spark.Engine.Test.Extensions
         [Fact]
         public void TestGetPropertyPathWithPredicate()
         {
-            SearchParameter sut =
+            var sut =
                 new SearchParameter { Xpath = "//extension(url=http://foo.com/myextension)/valueReference" };
 
             var paths = sut.GetPropertyPath();

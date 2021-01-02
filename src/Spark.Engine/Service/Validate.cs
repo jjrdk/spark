@@ -186,7 +186,7 @@ namespace Spark.Engine.Service
 
         public static OperationOutcome AgainstSchema(Resource resource)
         {
-            OperationOutcome result = new OperationOutcome();
+            var result = new OperationOutcome();
             result.Issue = new List<OperationOutcome.IssueComponent>();
             
             throw new NotImplementedException();

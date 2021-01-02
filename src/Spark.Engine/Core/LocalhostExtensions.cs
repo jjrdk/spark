@@ -21,24 +21,24 @@ namespace Spark.Engine.Core
 
         public static Uri RemoveBase(this ILocalhost localhost, Uri uri)
         {
-            string _base = localhost.GetBaseOf(uri)?.ToString();
+            var _base = localhost.GetBaseOf(uri)?.ToString();
             if (_base == null)
             {
                 return uri;
             }
             else
             {
-                string s = uri.ToString();
-                string path = s.Remove(0, _base.Length);
+                var s = uri.ToString();
+                var path = s.Remove(0, _base.Length);
                 return new Uri(path, UriKind.Relative);
             }
         }
 
         public static Key LocalUriToKey(this ILocalhost localhost, Uri uri)
         {
-            string s = uri.ToString();
-            string _base = localhost.GetBaseOf(uri)?.ToString();
-            string path = s.Remove(0, _base == null ? 0 : _base.Length);
+            var s = uri.ToString();
+            var _base = localhost.GetBaseOf(uri)?.ToString();
+            var path = s.Remove(0, _base == null ? 0 : _base.Length);
 
             return Key.ParseOperationPath(path).WithBase(_base);
         }
@@ -63,14 +63,14 @@ namespace Spark.Engine.Core
             }
             else
             {
-                string path = uri.ToString();
+                var path = uri.ToString();
                 return Key.ParseOperationPath(path);
             }
         }
         
         public static Key UriToKey(this ILocalhost localhost, string uristring)
         {
-            Uri uri = new Uri(uristring, UriKind.RelativeOrAbsolute);
+            var uri = new Uri(uristring, UriKind.RelativeOrAbsolute);
             return localhost.UriToKey(uri);
         }
 
@@ -101,7 +101,7 @@ namespace Spark.Engine.Core
 
         public static bool IsBaseOf(this ILocalhost localhost, string uristring)
         {
-            Uri uri = new Uri(uristring, UriKind.RelativeOrAbsolute);
+            var uri = new Uri(uristring, UriKind.RelativeOrAbsolute);
             return localhost.IsBaseOf(uri);
         }
 
@@ -128,7 +128,7 @@ namespace Spark.Engine.Core
 
         public static Bundle CreateBundle(this ILocalhost localhost, Bundle.BundleType type)
         {
-            Bundle bundle = new Bundle();
+            var bundle = new Bundle();
             bundle.Type = type;
             return bundle;
         }

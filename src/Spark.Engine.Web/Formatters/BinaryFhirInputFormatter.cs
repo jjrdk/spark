@@ -39,10 +39,10 @@ namespace Spark.Engine.Web.Formatters
                 //throw Error.BadRequest("POST to binary must provide a Content-Type header");
             }
 
-            string contentType = context.HttpContext.Request.Headers["X-Content-Type"].First();
-            MemoryStream stream = new MemoryStream();
+            var contentType = context.HttpContext.Request.Headers["X-Content-Type"].First();
+            var stream = new MemoryStream();
             await context.HttpContext.Request.Body.CopyToAsync(stream).ConfigureAwait(false);
-            Binary binary = new Binary
+            var binary = new Binary
             {
                 Data = stream.ToArray(),
                 ContentType = contentType

@@ -46,7 +46,7 @@ namespace Spark.Engine.Extensions
 
         internal static OperationOutcome.IssueSeverity IssueSeverityOf(HttpStatusCode code)
         {
-            int range = ((int)code / 100);
+            var range = ((int)code / 100);
             switch (range)
             {
                 case 1:
@@ -143,15 +143,15 @@ namespace Spark.Engine.Extensions
             byte[] data = null;
             if (target == ResourceFormat.Xml)
             {
-                FhirXmlSerializer serializer = new FhirXmlSerializer();
+                var serializer = new FhirXmlSerializer();
                 data = serializer.SerializeToBytes(outcome);
             }
             else if (target == ResourceFormat.Json)
             {
-                FhirJsonSerializer serializer = new FhirJsonSerializer();
+                var serializer = new FhirJsonSerializer();
                 data = serializer.SerializeToBytes(outcome);
             }
-            HttpResponseMessage response = new HttpResponseMessage
+            var response = new HttpResponseMessage
             {
                 Content = new ByteArrayContent(data)
             };

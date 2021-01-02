@@ -24,7 +24,7 @@
         public static FhirVersionMoniker GetFhirVersionMoniker()
         {
             FhirVersionMoniker? fhirVersion = default;
-            if (Version.TryParse(ModelInfo.Version, out Version semanticVersion))
+            if (Version.TryParse(ModelInfo.Version, out var semanticVersion))
             {
                 fhirVersion = EnumUtility.ParseLiteral<FhirVersionMoniker>($"{semanticVersion.Major}.{semanticVersion.Minor}");
             }

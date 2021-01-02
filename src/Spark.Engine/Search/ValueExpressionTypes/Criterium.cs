@@ -103,8 +103,8 @@ namespace Spark.Engine.Search.ValueExpressionTypes
         {
             var pair = pathPart.Split(SearchParams.SEARCH_MODIFIERSEPARATOR);
 
-            string name = pair[0];
-            string modifier = pair.Length == 2 ? pair[1] : null;
+            var name = pair[0];
+            var modifier = pair.Length == 2 ? pair[1] : null;
 
             return Tuple.Create(name, modifier);
         }
@@ -189,7 +189,7 @@ namespace Spark.Engine.Search.ValueExpressionTypes
             if (Operand == null) throw new InvalidOperationException("Criterium does not have an operand");
             if (!(Operand is ValueExpression)) throw new FormatException("Expected a ValueExpression as operand");
 
-            string value = Operand.ToString();
+            var value = Operand.ToString();
 
             if (Operator == Operator.EQ)
                 return value;
@@ -206,7 +206,7 @@ namespace Spark.Engine.Search.ValueExpressionTypes
 
         public Criterium Clone()
         {
-            Criterium result = new Criterium();
+            var result = new Criterium();
             result.Modifier = Modifier;
             result.Operand = (Operand is Criterium) ? (Operand as Criterium).Clone() : Operand;
             result.Operator = Operator;

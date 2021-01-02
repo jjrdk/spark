@@ -45,7 +45,7 @@ namespace Spark.Engine.Core
         {
             get
             {
-                int code = (int)this.StatusCode;
+                var code = (int)this.StatusCode;
                 return code <= 300;
             }
         }
@@ -60,8 +60,8 @@ namespace Spark.Engine.Core
 
         public override string ToString()
         {
-            string details = (Resource != null) ? string.Format("({0})", Resource.TypeName) : null;
-            string location = Key?.ToString();
+            var details = (Resource != null) ? string.Format("({0})", Resource.TypeName) : null;
+            var location = Key?.ToString();
             return string.Format("{0}: {1} {2} ({3})", (int)StatusCode, StatusCode.ToString(), details, location);
         }
     }

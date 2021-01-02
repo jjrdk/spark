@@ -40,8 +40,8 @@ namespace Spark.Engine.Auxiliary
 
         public static T Inject<T>()
         {
-            T instance = default(T);
-            Type key = typeof(T);
+            var instance = default(T);
+            var key = typeof(T);
             Type type = null;
             Instantiator instanciator = null;
 

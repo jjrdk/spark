@@ -35,7 +35,7 @@
 
         public async Task Save(BsonDocument document)
         {
-            string keyvalue = document.GetValue(InternalField.ID).ToString();
+            var keyvalue = document.GetValue(InternalField.ID).ToString();
                 var query = Builders<BsonDocument>.Filter.Eq(InternalField.ID, keyvalue);
 
                 // todo: should use Update: collection.Update();
@@ -45,7 +45,7 @@
 
         public Task Delete(Entry entry)
         {
-            string id = entry.Key.WithoutVersion().ToOperationPath();
+            var id = entry.Key.WithoutVersion().ToOperationPath();
             var query = Builders<BsonDocument>.Filter.Eq(InternalField.ID, id);
             return Collection.DeleteManyAsync(query);
         }

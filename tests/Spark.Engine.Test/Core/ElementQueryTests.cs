@@ -12,9 +12,9 @@ namespace Spark.Engine.Test.Core
         [Fact]
         public void TestVisitOnePathZeroMatch()
         {
-            ElementQuery sut = new ElementQuery("Patient.name");
+            var sut = new ElementQuery("Patient.name");
 
-            Patient testPatient = new Patient();
+            var testPatient = new Patient();
             var result = new List<object>() ;
 
             sut.Visit(testPatient, fd => result.Add(fd));
@@ -25,9 +25,9 @@ namespace Spark.Engine.Test.Core
         [Fact]
         public void TestVisitOnePathOneMatch()
         {
-            ElementQuery sut = new ElementQuery("Patient.name");
+            var sut = new ElementQuery("Patient.name");
 
-            Patient testPatient = new Patient();
+            var testPatient = new Patient();
             var hn = new HumanName().WithGiven("Sjors").AndFamily("Jansen");
             testPatient.Name = new List<HumanName> { hn };
 
@@ -42,9 +42,9 @@ namespace Spark.Engine.Test.Core
         [Fact]
         public void TestVisitOnePathTwoMatches()
         {
-            ElementQuery sut = new ElementQuery("Patient.name");
+            var sut = new ElementQuery("Patient.name");
 
-            Patient testPatient = new Patient();
+            var testPatient = new Patient();
             var hn1 = new HumanName().WithGiven("A").AndFamily("B");
             var hn2 = new HumanName().WithGiven("Y").AndFamily("Z");
             testPatient.Name = new List<HumanName> { hn1, hn2 };

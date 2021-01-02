@@ -33,7 +33,7 @@
         [Fact]
         public void Resolve_Questionnaire_ItemElement_Hierarchy_Test()
         {
-            Type resourceType = typeof(Questionnaire);
+            var resourceType = typeof(Questionnaire);
             var expression = ModelInfo.Version == "1.0.2"
                 ? "Group.Question[3].Group[0].Question[3]"
                 : "Item[0].Item[3].Item[0].Item[3]";
@@ -41,7 +41,7 @@
                 ? "Questionnaire.group.question[3].group[0].question[3]"
                 : "Questionnaire.item[0].item[3].item[0].item[3]";
 
-            string resolvedExpression = FhirPathUtil.ResolveToFhirPathExpression(resourceType, expression);
+            var resolvedExpression = FhirPathUtil.ResolveToFhirPathExpression(resourceType, expression);
 
             Assert.Equal(expected, resolvedExpression);
         }
@@ -49,7 +49,7 @@
         [Fact]
         public void Resolve_Questionnaire_RequriedElement_In_ItemElement_Hierarchy_Test()
         {
-            Type resourceType = typeof(Questionnaire);
+            var resourceType = typeof(Questionnaire);
             var expression = ModelInfo.Version == "1.0.2"
                 ? "Group.Question[3].Group[0].Question[3].RequiredElement"
                 : "Item[0].Item[3].Item[0].Item[3].RequiredElement";
@@ -65,16 +65,16 @@
         [Fact]
         public void Resolve_Questionnaire_Initial_In_ItemElement_Hierarchy_Test()
         {
-            Type resourceType = typeof(Questionnaire);
+            var resourceType = typeof(Questionnaire);
             // NOTE: Initial does not exist in DSTU2
-            string expression = ModelInfo.Version == "1.0.2"
+            var expression = ModelInfo.Version == "1.0.2"
                 ? "Group.Question[3].Group[0].Question[3].TextElement"
                 : "Item[0].Item[3].Item[0].Item[3].Initial";
-            string expected = ModelInfo.Version == "1.0.2"
+            var expected = ModelInfo.Version == "1.0.2"
                 ? "Questionnaire.group.question[3].group[0].question[3].text"
                 : "Questionnaire.item[0].item[3].item[0].item[3].initial";
 
-            string resolvedExpression = FhirPathUtil.ResolveToFhirPathExpression(resourceType, expression);
+            var resolvedExpression = FhirPathUtil.ResolveToFhirPathExpression(resourceType, expression);
 
             Assert.Equal(expected, resolvedExpression);
         }
@@ -82,10 +82,10 @@
         [Fact]
         public void Resolve_Patient_Communication_Language_Test()
         {
-            Type resourceType = typeof(Patient);
-            string expression = "Communication[0].Language";
+            var resourceType = typeof(Patient);
+            var expression = "Communication[0].Language";
 
-            string resolvedExpression = FhirPathUtil.ResolveToFhirPathExpression(resourceType, expression);
+            var resolvedExpression = FhirPathUtil.ResolveToFhirPathExpression(resourceType, expression);
 
             Assert.Equal("Patient.communication[0].language", resolvedExpression);
         }

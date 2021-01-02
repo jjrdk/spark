@@ -20,8 +20,8 @@ namespace Spark.Engine.Service.FhirServiceExtensions
     {
         public static CapabilityStatement GetSparkCapabilityStatement(string sparkVersion, ILocalhost localhost)
         {
-            FHIRVersion vsn = FHIRVersion.N4_0_0;
-            CapabilityStatement capabilityStatement = CreateServer("Spark", sparkVersion, "Kufu", fhirVersion: vsn);
+            var vsn = FHIRVersion.N4_0_0;
+            var capabilityStatement = CreateServer("Spark", sparkVersion, "Kufu", fhirVersion: vsn);
 
             capabilityStatement.AddAllCoreResources(readhistory: true, updatecreate: true, versioning: CapabilityStatement.ResourceVersionPolicy.VersionedUpdate);
             capabilityStatement.AddAllSystemInteractions().AddAllInteractionsForAllResources().AddCoreSearchParamsAllResources();
@@ -39,7 +39,7 @@ namespace Spark.Engine.Service.FhirServiceExtensions
 
         public static CapabilityStatement CreateServer(String server, String serverVersion, String publisher, FHIRVersion fhirVersion)
         {
-            CapabilityStatement capabilityStatement = new CapabilityStatement();
+            var capabilityStatement = new CapabilityStatement();
             capabilityStatement.Name = server;
             capabilityStatement.Publisher = publisher;
             capabilityStatement.Version = serverVersion;

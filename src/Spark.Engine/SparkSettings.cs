@@ -20,7 +20,7 @@ namespace Spark.Engine
             get
             {
                 var asm = Assembly.GetExecutingAssembly();
-                FileVersionInfo version = FileVersionInfo.GetVersionInfo(asm.Location);
+                var version = FileVersionInfo.GetVersionInfo(asm.Location);
                 return string.Format("{0}.{1}", version.ProductMajorPart, version.ProductMinorPart);
             }
         }

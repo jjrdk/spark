@@ -39,8 +39,8 @@
                     default(DateTimeOffset?),
                     (d, s) => !d.HasValue && DateTimeOffset.TryParse(s, out var result) ? result : d);
 
-            ConditionalHeaderParameters parameters = new ConditionalHeaderParameters(Request.Headers[HeaderNames.IfNoneMatch], ifModifiedSince);
-            Key key = Key.Create(type, id);
+            var parameters = new ConditionalHeaderParameters(Request.Headers[HeaderNames.IfNoneMatch], ifModifiedSince);
+            var key = Key.Create(type, id);
             var result = await _fhirService.Read(key, parameters).ConfigureAwait(false);
             return new ActionResult<FhirResponse>(result);
         }
@@ -48,15 +48,15 @@
         [HttpGet("{type}/{id}/_history/{vid}")]
         public Task<FhirResponse> VRead(string type, string id, string vid)
         {
-            Key key = Key.Create(type, id, vid);
+            var key = Key.Create(type, id, vid);
             return _fhirService.VersionRead(key);
         }
 
         [HttpPut("{type}/{id?}")]
         public async Task<ActionResult<FhirResponse>> Update(string type, Resource resource, string id = null)
         {
-            string versionId = Request.GetTypedHeaders().IfMatch?.FirstOrDefault()?.Tag.Buffer;
-            Key key = Key.Create(type, id, versionId);
+            var versionId = Request.GetTypedHeaders().IfMatch?.FirstOrDefault()?.Tag.Buffer;
+            var key = Key.Create(type, id, versionId);
             if (key.HasResourceId())
             {
                 Request.TransferResourceIdIfRawBinary(resource, id);
@@ -77,12 +77,12 @@
         [HttpPost("{type}")]
         public Task<FhirResponse> Create(string type, Resource resource)
         {
-            Key key = Key.Create(type, resource?.Id);
+            var key = Key.Create(type, resource?.Id);
 
             if (Request.Headers.ContainsKey(FhirHttpHeaders.IF_NONE_EXIST))
             {
-                NameValueCollection searchQueryString = HttpUtility.ParseQueryString(Request.GetTypedHeaders().IfNoneExist());
-                IEnumerable<Tuple<string, string>> searchValues =
+                var searchQueryString = HttpUtility.ParseQueryString(Request.GetTypedHeaders().IfNoneExist());
+                var searchValues =
                     searchQueryString.Keys.Cast<string>()
                         .Select(k => new Tuple<string, string>(k, searchQueryString[k]));
 
@@ -95,21 +95,21 @@
         [HttpDelete("{type}/{id}")]
         public Task<FhirResponse> Delete(string type, string id)
         {
-            Key key = Key.Create(type, id);
+            var key = Key.Create(type, id);
             return _fhirService.Delete(key);
         }
 
         [HttpDelete("{type}")]
         public Task<FhirResponse> ConditionalDelete(string type)
         {
-            Key key = Key.Create(type);
+            var key = Key.Create(type);
             return _fhirService.ConditionalDelete(key, Request.TupledParameters());
         }
 
         [HttpGet("{type}/{id}/_history")]
         public Task<FhirResponse> History(string type, string id)
         {
-            Key key = Key.Create(type, id);
+            var key = Key.Create(type, id);
             var parameters = GetHistoryParameters(Request);
             return _fhirService.History(key, parameters);
         }
@@ -119,14 +119,14 @@
         [HttpPost("{type}/{id}/$validate")]
         public FhirResponse Validate(string type, string id, Resource resource)
         {
-            Key key = Key.Create(type, id);
+            var key = Key.Create(type, id);
             return _fhirService.ValidateOperation(key, resource);
         }
 
         [HttpPost("{type}/$validate")]
         public FhirResponse Validate(string type, Resource resource)
         {
-            Key key = Key.Create(type);
+            var key = Key.Create(type);
             return _fhirService.ValidateOperation(key, resource);
         }
 
@@ -135,7 +135,7 @@
         [HttpGet("{type}")]
         public Task<FhirResponse> Search(string type)
         {
-            int start = FhirParameterParser.ParseIntParameter(Request.GetParameter(FhirParameter.SNAPSHOT_INDEX)) ?? 0;
+            var start = FhirParameterParser.ParseIntParameter(Request.GetParameter(FhirParameter.SNAPSHOT_INDEX)) ?? 0;
             var searchparams = Request.GetSearchParams();
             //int pagesize = Request.GetIntParameter(FhirParameter.COUNT) ?? Const.DEFAULT_PAGE_SIZE;
             //string sortby = Request.GetParameter(FhirParameter.SORT);
@@ -147,8 +147,8 @@
         public Task<FhirResponse> SearchWithOperator(string type)
         {
             // TODO: start index should be retrieved from the body.
-            int start = FhirParameterParser.ParseIntParameter(Request.GetParameter(FhirParameter.SNAPSHOT_INDEX)) ?? 0;
-            SearchParams searchparams = Request.GetSearchParamsFromBody();
+            var start = FhirParameterParser.ParseIntParameter(Request.GetParameter(FhirParameter.SNAPSHOT_INDEX)) ?? 0;
+            var searchparams = Request.GetSearchParamsFromBody();
 
             return _fhirService.Search(type, searchparams, start);
         }
@@ -197,8 +197,8 @@
         [HttpGet, Route("_snapshot")]
         public Task<FhirResponse> Snapshot()
         {
-            string snapshot = Request.GetParameter(FhirParameter.SNAPSHOT_ID);
-            int start = FhirParameterParser.ParseIntParameter(Request.GetParameter(FhirParameter.SNAPSHOT_INDEX)) ?? 0;
+            var snapshot = Request.GetParameter(FhirParameter.SNAPSHOT_ID);
+            var start = FhirParameterParser.ParseIntParameter(Request.GetParameter(FhirParameter.SNAPSHOT_INDEX)) ?? 0;
             return _fhirService.GetPage(snapshot, start);
         }
 
@@ -219,7 +219,7 @@
         [HttpPost, Route("{type}/{id}/${operation}")]
         public async Task<FhirResponse> InstanceOperation(string type, string id, string operation, Parameters parameters)
         {
-            Key key = Key.Create(type, id);
+            var key = Key.Create(type, id);
             return operation.ToLower() switch
             {
                 "meta" => await _fhirService.ReadMeta(key).ConfigureAwait(false),
@@ -232,21 +232,21 @@
         [HttpPost, HttpGet, Route("{type}/{id}/$everything")]
         public Task<FhirResponse> Everything(string type, string id = null)
         {
-            Key key = Key.Create(type, id);
+            var key = Key.Create(type, id);
             return _fhirService.Everything(key);
         }
 
         [HttpPost, HttpGet, Route("{type}/$everything")]
         public Task<FhirResponse> Everything(string type)
         {
-            Key key = Key.Create(type);
+            var key = Key.Create(type);
             return _fhirService.Everything(key);
         }
 
         [HttpPost, HttpGet, Route("Composition/{id}/$document")]
         public Task<FhirResponse> Document(string id)
         {
-            Key key = Key.Create("Composition", id);
+            var key = Key.Create("Composition", id);
             return _fhirService.Document(key);
         }
         

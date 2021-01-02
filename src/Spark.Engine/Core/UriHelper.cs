@@ -56,12 +56,12 @@ namespace Spark.Engine.Core
         {
             if (uri.IsAbsoluteUri)
             {
-                string fragment = uri.Fragment;
+                var fragment = uri.Fragment;
                 return !string.IsNullOrEmpty(fragment);
             }
             else
             {
-                string s = uri.ToString();
+                var s = uri.ToString();
                 return s.StartsWith("#");
             }
         }
@@ -79,10 +79,10 @@ namespace Spark.Engine.Core
         /// </summary>
         public static bool Bugfixed_IsBaseOf(this Uri _base, Uri uri)
         {
-            string b = _base.ToString().ToLowerInvariant();
-            string u = uri.ToString().ToLowerInvariant();
+            var b = _base.ToString().ToLowerInvariant();
+            var u = uri.ToString().ToLowerInvariant();
 
-            bool isbase = u.StartsWith(b);
+            var isbase = u.StartsWith(b);
             return isbase;
         }
 

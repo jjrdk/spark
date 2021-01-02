@@ -45,7 +45,7 @@ namespace Spark.Engine.Search.ValueExpressionTypes
         {
             if (text == null) throw Error.ArgumentNull("text");
 
-            string[] triple = text.SplitNotEscaped('|');
+            var triple = text.SplitNotEscaped('|');
 
             if (triple.Length != 3)
                 throw Error.Argument("text", "Quantity needs to have three parts separated by '|'");

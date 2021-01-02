@@ -17,13 +17,13 @@ namespace Spark.Web.Utilities
 			if (SerializationUtil.ProbeIsJson(data))
 			{
 				// TODO read config to determine if PermissiveParsing should be on 
-				FhirJsonParser parser = new FhirJsonParser(new ParserSettings { PermissiveParsing = true });
+				var parser = new FhirJsonParser(new ParserSettings { PermissiveParsing = true });
 				return parser.Parse<Resource>(data);
 			}
 			else if (SerializationUtil.ProbeIsXml(data))
 			{
 				// TODO read config to determine if PermissiveParsing should be on 
-				FhirXmlParser parser = new FhirXmlParser(new ParserSettings { PermissiveParsing = true });
+				var parser = new FhirXmlParser(new ParserSettings { PermissiveParsing = true });
 				return parser.Parse<Resource>(data);
 			}
 			else
@@ -34,10 +34,10 @@ namespace Spark.Web.Utilities
 
 		public static IEnumerable<Resource> ImportData(string data)
 		{
-			Resource resource = ParseResource(data);
+			var resource = ParseResource(data);
 			if (resource is Bundle)
 			{
-				Bundle bundle = (resource as Bundle);
+				var bundle = (resource as Bundle);
 				return bundle.GetResources();
 			}
 			else
@@ -48,19 +48,19 @@ namespace Spark.Web.Utilities
 
 		public static IEnumerable<Resource> ImportFile(string filename)
 		{
-			string data = File.ReadAllText(filename);
+			var data = File.ReadAllText(filename);
 			return ImportData(data);
 		}
 
 		public static IEnumerable<string> ExtractZipEntries(this byte[] buffer)
 		{
 			using (Stream stream = new MemoryStream(buffer))
-			using (ZipArchive archive = new ZipArchive(stream, ZipArchiveMode.Read))
+			using (var archive = new ZipArchive(stream, ZipArchiveMode.Read))
 			{
-				foreach (ZipArchiveEntry entry in archive.Entries)
+				foreach (var entry in archive.Entries)
 				{
-					StreamReader reader = new StreamReader(entry.Open());
-					string data = reader.ReadToEnd();
+					var reader = new StreamReader(entry.Open());
+					var data = reader.ReadToEnd();
 					yield return data;
 				}
 			}
@@ -88,8 +88,8 @@ namespace Spark.Web.Utilities
 
 		public static Bundle ToBundle(this IEnumerable<Resource> resources, Uri _base)
 		{
-			Bundle bundle = new Bundle();
-			foreach (Resource resource in resources)
+			var bundle = new Bundle();
+			foreach (var resource in resources)
 			{
 				// Make sure that resources without id's are posted.
 				if (resource.Id != null)

@@ -26,7 +26,7 @@ namespace Spark.Engine.Core
 
         public static FhirResponse WithError(HttpStatusCode code, string message, params object[] args)
         {
-            OperationOutcome outcome = new OperationOutcome();
+            var outcome = new OperationOutcome();
             outcome.AddError(string.Format(message, args));
             return new FhirResponse(code, outcome);
         }
@@ -71,14 +71,14 @@ namespace Spark.Engine.Core
 
         public static FhirResponse WithBundle(IEnumerable<Entry> entries, Uri serviceBase)
         {
-            Bundle bundle = new Bundle();
+            var bundle = new Bundle();
             bundle.Append(entries);
             return WithBundle(bundle);
         }
 
         public static FhirResponse WithMeta(Meta meta)
         {
-            Parameters parameters = new Parameters();
+            var parameters = new Parameters();
             parameters.Add(typeof(Meta).Name, meta);
             return Respond.WithResource(parameters);
         }

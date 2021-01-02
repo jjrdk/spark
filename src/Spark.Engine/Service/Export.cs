@@ -43,7 +43,7 @@ namespace Spark.Engine.Service
 
         public void Add(IEnumerable<Entry> set)
         {
-            foreach (Entry interaction in set)
+            foreach (var interaction in set)
             {
                 Add(interaction);
             }
@@ -58,7 +58,7 @@ namespace Spark.Engine.Service
 
         private void ExternalizeState()
         {
-            foreach (Entry entry in this.entries)
+            foreach (var entry in this.entries)
             {
                 entry.State = EntryState.External;
             }
@@ -66,7 +66,7 @@ namespace Spark.Engine.Service
 
         private void ExternalizeKeys()
         {
-            foreach(Entry entry in this.entries)
+            foreach(var entry in this.entries)
             {
                 ExternalizeKey(entry);
             }
@@ -74,7 +74,7 @@ namespace Spark.Engine.Service
 
         private void ExternalizeReferences()
         {
-            foreach(Entry entry in this.entries)
+            foreach(var entry in this.entries)
             {
                 if (entry.Resource != null)
                 {
@@ -96,19 +96,19 @@ namespace Spark.Engine.Service
 
                 if (element is ResourceReference)
                 {
-                    ResourceReference reference = (ResourceReference)element;
+                    var reference = (ResourceReference)element;
                     if (reference.Url != null)
                         reference.Url = new Uri(ExternalizeReference(reference.Url.ToString()), UriKind.RelativeOrAbsolute);
                 }
                 else if (element is FhirUri)
                 {
-                    FhirUri uri = (FhirUri)element;
+                    var uri = (FhirUri)element;
                     uri.Value = ExternalizeReference(uri.Value);
                     //((FhirUri)element).Value = LocalizeReference(new Uri(((FhirUri)element).Value, UriKind.RelativeOrAbsolute)).ToString();
                 }
                 else if (element is Narrative)
                 {
-                    Narrative n = (Narrative)element;
+                    var n = (Narrative)element;
                     n.Div = FixXhtmlDiv(n.Div);
                 }
 
@@ -148,7 +148,7 @@ namespace Spark.Engine.Service
         {
             if (string.IsNullOrWhiteSpace(uristring)) return uristring;
 
-            Uri uri = new Uri(uristring, UriKind.RelativeOrAbsolute);
+            var uri = new Uri(uristring, UriKind.RelativeOrAbsolute);
 
             if (!uri.IsAbsoluteUri && exportSettings.ExternalizeFhirUri)
             {
@@ -172,7 +172,7 @@ namespace Spark.Engine.Service
         {
             try
             {
-                XDocument xdoc = XDocument.Parse(div);
+                var xdoc = XDocument.Parse(div);
                 xdoc.VisitAttributes("img", "src", (n) => n.Value = ExternalizeReference(n.Value));
                 xdoc.VisitAttributes("a", "href", (n) => n.Value = ExternalizeReference(n.Value));
                 return xdoc.ToString();

@@ -36,14 +36,14 @@ namespace Spark.Engine.Core
 
         public static string GetContentTypeHeaderValue(this HttpRequestMessage request)
         {
-            MediaTypeHeaderValue headervalue = request.Content.Headers.ContentType;
+            var headervalue = request.Content.Headers.ContentType;
             return headervalue?.MediaType;
         }
 
         public static MediaTypeHeaderValue GetMediaTypeHeaderValue(Type type, ResourceFormat format)
         {
-            string mediatype = FhirMediaType.GetContentType(type, format);
-            MediaTypeHeaderValue header = new MediaTypeHeaderValue(mediatype) { CharSet = Encoding.UTF8.WebName };
+            var mediatype = FhirMediaType.GetContentType(type, format);
+            var header = new MediaTypeHeaderValue(mediatype) { CharSet = Encoding.UTF8.WebName };
             return header;
         }
     }

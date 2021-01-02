@@ -50,8 +50,8 @@ namespace Spark.Engine.Extensions
 
         public static Entry ToInteraction(this ILocalhost localhost, Bundle.EntryComponent bundleEntry)
         {
-            Key key = localhost.ExtractKey(bundleEntry);
-            Bundle.HTTPVerb method = localhost.ExtrapolateMethod(bundleEntry, key);
+            var key = localhost.ExtractKey(bundleEntry);
+            var method = localhost.ExtrapolateMethod(bundleEntry, key);
 
             if (key != null)
             {
@@ -130,7 +130,7 @@ namespace Spark.Engine.Extensions
 
         public static void Append(this IList<Entry> list, IList<Entry> appendage)
         {
-            foreach(Entry entry in appendage)
+            foreach(var entry in appendage)
             {
                 list.Add(entry);
             }
@@ -138,13 +138,13 @@ namespace Spark.Engine.Extensions
 
         public static bool Contains(this IList<Entry> list, Entry item)
         {
-            IKey key = item.Key;
+            var key = item.Key;
             return list.FirstOrDefault(i => i.Key.EqualTo(item.Key)) != null;
         }
 
         public static void AppendDistinct(this IList<Entry> list, IList<Entry> appendage)
         {
-            foreach(Entry item in appendage)
+            foreach(var item in appendage)
             {
                 if (!list.Contains(item))
                 {
@@ -160,7 +160,7 @@ namespace Spark.Engine.Extensions
 
         private static bool isValidResourcePath(string path, Resource resource)
         {
-            string name = path.Split('.').FirstOrDefault();
+            var name = path.Split('.').FirstOrDefault();
             return resource.TypeName == name;
         }
 
@@ -168,14 +168,14 @@ namespace Spark.Engine.Extensions
         {
             if (!isValidResourcePath(path, resource)) return Enumerable.Empty<string>();
 
-            ElementQuery query = new ElementQuery(path);
+            var query = new ElementQuery(path);
             var list = new List<string>();
 
             query.Visit(resource, element =>
                 {
                     if (element is ResourceReference)
                     {
-                        string reference = (element as ResourceReference).Reference;
+                        var reference = (element as ResourceReference).Reference;
                         if (reference != null)
                         {
                             list.Add(reference);
@@ -235,7 +235,7 @@ namespace Spark.Engine.Extensions
         // If an interaction has no base, you should be able to supplement it (from the containing bundle for example)
         public static void SupplementBase(this Entry entry, string _base)
         {
-            Key key = entry.Key.Clone();
+            var key = entry.Key.Clone();
             if (!key.HasBase())
             {
                 key.Base = _base;

@@ -18,7 +18,7 @@ namespace Spark.Engine.Extensions
         /// <returns>Returns true if the search parameter is of type Number, Date or Quanity, otherwise false.</returns>
         internal static bool CanHaveOperatorPrefix(this List<SearchParamDefinition> searchParamDefinitions, string name)
         {
-            SearchParamDefinition searchParamDefinition = searchParamDefinitions.Find(p => p.Name == name);
+            var searchParamDefinition = searchParamDefinitions.Find(p => p.Name == name);
             return searchParamDefinition != null && (searchParamDefinition.Type == SearchParamType.Number
                 || searchParamDefinition.Type == SearchParamType.Date
                 || searchParamDefinition.Type == SearchParamType.Quantity);

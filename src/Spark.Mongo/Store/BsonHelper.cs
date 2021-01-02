@@ -14,7 +14,7 @@
         {
             if (resource != null)
             {
-                FhirJsonSerializer serializer = new FhirJsonSerializer();
+                var serializer = new FhirJsonSerializer();
                 return BsonDocument.Parse(serializer.SerializeToString(resource));
             }
             else
@@ -30,7 +30,7 @@
 
         public static BsonDocument ToBsonDocument(this Entry entry)
         {
-            BsonDocument document = CreateDocument(entry.Resource);
+            var document = CreateDocument(entry.Resource);
             AddMetaData(document, entry);
             return document;
         }
@@ -38,16 +38,16 @@
         public static Resource ParseResource(BsonDocument document)
         {
             RemoveMetadata(document);
-            string json = document.ToJson();
-            FhirJsonParser parser = new FhirJsonParser();
+            var json = document.ToJson();
+            var parser = new FhirJsonParser();
             return parser.Parse<Resource>(json);
         }
 
         public static Entry ExtractMetadata(BsonDocument document)
         {
-            DateTime when = GetVersionDate(document);
-            IKey key = GetKey(document);
-            Bundle.HTTPVerb method = (Bundle.HTTPVerb)(int)document[Field.METHOD];
+            var when = GetVersionDate(document);
+            var key = GetKey(document);
+            var method = (Bundle.HTTPVerb)(int)document[Field.METHOD];
 
             RemoveMetadata(document);
             return  Entry.Create(method, key, when);
@@ -59,7 +59,7 @@
 
             try
             {
-                Entry entry = ExtractMetadata(document);
+                var entry = ExtractMetadata(document);
                 if (entry.IsPresent)
                 {
                     entry.Resource = ParseResource(document);
@@ -74,16 +74,16 @@
 
         public static IEnumerable<Entry> ToEntries(this IEnumerable<BsonDocument> cursor)
         {
-            foreach (BsonDocument document in cursor)
+            foreach (var document in cursor)
             {
-                Entry entry = SparkBsonHelper.ToEntry(document);
+                var entry = SparkBsonHelper.ToEntry(document);
                 yield return entry;
             }
         }
 
         public static DateTime GetVersionDate(BsonDocument document)
         {
-            BsonValue value = document[Field.WHEN];
+            var value = document[Field.WHEN];
             return value.ToUniversalTime();
         }
 
@@ -125,7 +125,7 @@
 
         private static void AssertKeyIsValid(IKey key)
         {
-            bool valid = (key.Base == null) && (key.TypeName != null) && (key.ResourceId != null) && (key.VersionId != null);
+            var valid = (key.Base == null) && (key.TypeName != null) && (key.ResourceId != null) && (key.VersionId != null);
             if (!valid)
             {
                 throw new Exception("This key is not valid for storage: " + key.ToString());
@@ -146,7 +146,7 @@
 
         public static IKey GetKey(BsonDocument document)
         {
-            Key key = new Key();
+            var key = new Key();
             key.TypeName = (string)document[Field.TYPENAME];
             key.ResourceId = (string)document[Field.RESOURCEID];
             key.VersionId = (string)document[Field.VERSIONID];

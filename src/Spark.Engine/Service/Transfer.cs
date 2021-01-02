@@ -44,14 +44,14 @@
 
         public void Externalize(Entry interaction)
         {
-            Export export = new Export(this.localhost, this.sparkSettings?.ExportSettings ?? new ExportSettings());
+            var export = new Export(this.localhost, this.sparkSettings?.ExportSettings ?? new ExportSettings());
             export.Add(interaction);
             export.Externalize();
         }
 
         public void Externalize(IEnumerable<Entry> interactions)
         {
-            Export export = new Export(this.localhost, this.sparkSettings?.ExportSettings ?? new ExportSettings());
+            var export = new Export(this.localhost, this.sparkSettings?.ExportSettings ?? new ExportSettings());
             export.Add(interactions);
             export.Externalize();
         }

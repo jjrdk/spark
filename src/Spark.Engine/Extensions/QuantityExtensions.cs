@@ -16,13 +16,13 @@ namespace Spark.Engine.Extensions
 
         public static Quantity ToUnitsOfMeasureQuantity(this FM.Quantity input)
         {
-            Metric metric = (input.Code != null) ? System.Metric(input.Code) : new Metric(new List<Metric.Axis>());
+            var metric = (input.Code != null) ? System.Metric(input.Code) : new Metric(new List<Metric.Axis>());
             Exponential value = input.Value ?? 1; //todo: is this assumption correct?
             return new Quantity(value, metric);
         }
         public static FM.Quantity ToFhirModelQuantity(this Quantity input)
         {
-            FM.Quantity output = new FM.Quantity();
+            var output = new FM.Quantity();
             output.Value = (decimal)input.Value;
             output.Code = input.Metric.ToString();
             output.Unit = output.Code;
@@ -33,7 +33,7 @@ namespace Spark.Engine.Extensions
         public static Expression ToExpression(this Quantity quantity)
         {
             quantity = quantity.Canonical();
-            string searchable = quantity.LeftSearchableString();
+            var searchable = quantity.LeftSearchableString();
 
             var values = new List<ValueExpression>();
             values.Add(new IndexValue("system", new StringValue(UcumUriString)));
@@ -66,7 +66,7 @@ namespace Spark.Engine.Extensions
         {
             if (quantity.IsUcum())
             {
-                Quantity q = quantity.ToUnitsOfMeasureQuantity();
+                var q = quantity.ToUnitsOfMeasureQuantity();
                 return q.ToExpression();
             }
             else return quantity.NonUcumIndexedExpression();
@@ -102,7 +102,7 @@ namespace Spark.Engine.Extensions
         {
             if (IsUcum(input))
             {
-                Quantity quantity = input.ToUnitsOfMeasureQuantity();
+                var quantity = input.ToUnitsOfMeasureQuantity();
                 quantity = quantity.Canonical();
                 return quantity.ToFhirModelQuantity();
             }
@@ -111,7 +111,7 @@ namespace Spark.Engine.Extensions
 
         public static string ValueAsSearchableString(this FM.Quantity quantity)
         {
-            Quantity q = quantity.ToUnitsOfMeasureQuantity();
+            var q = quantity.ToUnitsOfMeasureQuantity();
             return q.LeftSearchableString();
         }
 

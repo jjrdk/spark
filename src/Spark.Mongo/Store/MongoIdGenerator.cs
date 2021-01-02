@@ -19,7 +19,7 @@ namespace Spark.Mongo.Store
         }
         async Task<string> IGenerator.NextResourceId(Resource resource)
         {
-            string id = await Next(resource.TypeName).ConfigureAwait(false);
+            var id = await Next(resource.TypeName).ConfigureAwait(false);
             return string.Format(Format.RESOURCEID, id);
         }
 
@@ -30,8 +30,8 @@ namespace Spark.Mongo.Store
 
         async Task<string> IGenerator.NextVersionId(string resourceType, string resourceIdentifier)
         {
-            string name = resourceType + "_history_" + resourceIdentifier;
-            string versionId = await Next(name).ConfigureAwait(false);
+            var name = resourceType + "_history_" + resourceIdentifier;
+            var versionId = await Next(name).ConfigureAwait(false);
             return string.Format(Format.VERSIONID, versionId);
         }
 
@@ -49,7 +49,7 @@ namespace Spark.Mongo.Store
             };
             var document = await collection.FindOneAndUpdateAsync(query, update, options).ConfigureAwait(false);
 
-            string value = document[Field.COUNTERVALUE].AsInt32.ToString();
+            var value = document[Field.COUNTERVALUE].AsInt32.ToString();
             return value;
         }
 

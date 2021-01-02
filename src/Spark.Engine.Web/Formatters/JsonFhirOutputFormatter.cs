@@ -44,23 +44,23 @@
         {
             await using var bodyWriter = context.WriterFactory(context.HttpContext.Response.Body, selectedEncoding);
             using JsonWriter writer = new JsonTextWriter(bodyWriter);
-            SummaryType summary = context.HttpContext.Request.RequestSummary();
+            var summary = context.HttpContext.Request.RequestSummary();
 
             var type = context.ObjectType;
             var value = context.Object;
             if (type == typeof(OperationOutcome))
             {
-                Resource resource = (Resource)value;
+                var resource = (Resource)value;
                 _serializer.Serialize(resource, writer, summary);
             }
             else if (typeof(Resource).IsAssignableFrom(type))
             {
-                Resource resource = (Resource)value;
+                var resource = (Resource)value;
                 _serializer.Serialize(resource, writer, summary);
             }
             else if (typeof(FhirResponse).IsAssignableFrom(type))
             {
-                FhirResponse response = (value as FhirResponse);
+                var response = (value as FhirResponse);
                 if (response.HasBody)
                 {
                     _serializer.Serialize(response.Resource, writer, summary);

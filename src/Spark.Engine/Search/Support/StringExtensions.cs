@@ -25,11 +25,11 @@ namespace Spark.Engine.Search.Support
 
         public static string[] SplitNotEscaped(this string value, char separator)
         {
-            string word = string.Empty;
-            List<string> result = new List<string>();
-            bool seenEscape = false;
+            var word = string.Empty;
+            var result = new List<string>();
+            var seenEscape = false;
 
-            for (int i = 0; i < value.Length; i++)
+            for (var i = 0; i < value.Length; i++)
             {
                 if (value[i] == '\\')
                 {

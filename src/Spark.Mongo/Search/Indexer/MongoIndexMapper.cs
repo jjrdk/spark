@@ -32,13 +32,13 @@ namespace Spark.Mongo.Search.Indexer
         private void EntryToDocument(IndexValue indexValue, int level, List<BsonDocument> result)
         {
             //Add the real values (not contained) to a document and add that to the result.
-            List<IndexValue> notNestedValues = indexValue.Values.Where(exp => (exp is IndexValue) && ((IndexValue)exp).Name != "contained").Select(exp => (IndexValue)exp).ToList();
+            var notNestedValues = indexValue.Values.Where(exp => (exp is IndexValue) && ((IndexValue)exp).Name != "contained").Select(exp => (IndexValue)exp).ToList();
             var doc = new BsonDocument(new BsonElement(InternalField.LEVEL, level));
             doc.AddRange(notNestedValues.Select(iv => IndexValueToElement(iv)));
             result.Add(doc);
 
             //Then do that recursively for all contained indexed resources.
-            List<IndexValue> containedValues = indexValue.Values.Where(exp => (exp is IndexValue) && ((IndexValue)exp).Name == "contained").Select(exp => (IndexValue)exp).ToList();
+            var containedValues = indexValue.Values.Where(exp => (exp is IndexValue) && ((IndexValue)exp).Name == "contained").Select(exp => (IndexValue)exp).ToList();
             foreach (var contained in containedValues)
             {
                 EntryToDocument(contained, level + 1, result);
@@ -73,7 +73,7 @@ namespace Spark.Mongo.Search.Indexer
             {
                 return new BsonElement(indexValue.Name, Map(indexValue.Values[0]));
             }
-            BsonArray values = new BsonArray();
+            var values = new BsonArray();
             foreach (var value in indexValue.Values)
             {
                 values.Add(Map(value));
@@ -83,7 +83,7 @@ namespace Spark.Mongo.Search.Indexer
 
         private BsonValue MapExpression(CompositeValue composite)
         {
-            BsonDocument compositeDocument = new BsonDocument();
+            var compositeDocument = new BsonDocument();
             foreach (var component in composite.Components)
             {
                 if (component is IndexValue)

@@ -70,8 +70,8 @@ namespace Spark.Engine.FhirResponseFactory
 
         public FhirResponse GetFhirResponse(IEnumerable<Tuple<Entry, FhirResponse>> responses, Bundle.BundleType bundleType)
         {
-            Bundle bundle = localhost.CreateBundle(bundleType);
-            foreach (Tuple<Entry, FhirResponse> response in responses)
+            var bundle = localhost.CreateBundle(bundleType);
+            foreach (var response in responses)
             {
                 bundle.Append(response.Item1, response.Item2);
             }

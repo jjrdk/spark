@@ -12,7 +12,7 @@ namespace Spark.Engine.Utility
 
         public static int? ParseIntParameter(this string value)
         {
-            return (int.TryParse(value, out int n)) ? n : default(int?);
+            return (int.TryParse(value, out var n)) ? n : default(int?);
         }
 
         public static bool? ParseBoolParameter(this string value)

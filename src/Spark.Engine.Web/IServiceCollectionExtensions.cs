@@ -74,7 +74,7 @@
 
             services.TryAddSingleton<IFhirService, FhirService>();
 
-            IMvcCoreBuilder builder = services.AddFhirFormatters(settings, setupAction);
+            var builder = services.AddFhirFormatters(settings, setupAction);
 
             //services.RemoveAll<OutputFormatterSelector>();
             //services.TryAddSingleton<OutputFormatterSelector, FhirOutputFormatterSelector>();
