@@ -67,7 +67,7 @@ namespace Spark.Engine.Search.Support
             else
             {
                 var key = text.Substring(0, pos);
-                var value = text.Substring(pos + 1);
+                var value = text[(pos + 1)..];
 
                 return Tuple.Create(key, value);
             }
