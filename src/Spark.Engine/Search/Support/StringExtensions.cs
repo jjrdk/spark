@@ -20,7 +20,7 @@ namespace Spark.Engine.Search.Support
             var parts = Regex.Split(value, separator + "(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)")
                                 .Select(s => s.Trim());
                                
-            return parts.ToArray<string>();
+            return parts.ToArray();
         }
 
         public static string[] SplitNotEscaped(this string value, char separator)

@@ -12,6 +12,15 @@
 
     public class XmlFhirOutputFormatter : TextOutputFormatter
     {
+        public static readonly string[] XmlMediaTypes =
+        {
+            "application/xml",
+            "application/fhir+xml",
+            "application/xml+fhir",
+            "text/xml",
+            "text/xml+fhir"
+        };
+
         private readonly FhirXmlSerializer _serializer;
 
         public XmlFhirOutputFormatter(FhirXmlSerializer serializer)

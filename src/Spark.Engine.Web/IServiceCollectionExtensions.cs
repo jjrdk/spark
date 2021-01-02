@@ -24,7 +24,7 @@
 
             services.AddFhirHttpSearchParameters();
 
-            services.TryAddSingleton<SparkSettings>(settings);
+            services.TryAddSingleton(settings);
             services.TryAddTransient<ElementIndexer>();
 
 
