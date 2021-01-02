@@ -1,5 +1,4 @@
-﻿#if NETSTANDARD2_0
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 
 namespace Spark.Engine.Maintenance
@@ -24,4 +23,3 @@ namespace Spark.Engine.Maintenance
         }
     }
 }
-#endif

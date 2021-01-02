@@ -9,14 +9,7 @@
 
     public class FormatTypeHandler
     {
-        private readonly RequestDelegate _next;
-
-        public FormatTypeHandler(RequestDelegate next)
-        {
-            _next = next;
-        }
-
-        public async Task InvokeAsync(HttpContext context)
+        public async Task InvokeAsync(HttpContext context, RequestDelegate next)
         {
             string format = context.Request.GetParameter("_format");
             if (!string.IsNullOrEmpty(format))
@@ -25,16 +18,17 @@
                 if (accepted != ResourceFormat.Unknown)
                 {
                     if (context.Request.Headers.ContainsKey("Accept")) context.Request.Headers.Remove("Accept");
-                    if (accepted == ResourceFormat.Json)
-                        context.Request.Headers.Add("Accept", new StringValues(ContentType.JSON_CONTENT_HEADER));
-                    else
-                        context.Request.Headers.Add("Accept", new StringValues(ContentType.XML_CONTENT_HEADER));
+                    context.Request.Headers.Add(
+                        "Accept",
+                        accepted == ResourceFormat.Json
+                            ? new StringValues(ContentType.JSON_CONTENT_HEADER)
+                            : new StringValues(ContentType.XML_CONTENT_HEADER));
                 }
             }
 
             if (context.Request.IsRawBinaryPostOrPutRequest())
             {
-                if (!HttpRequestExtensions.IsContentTypeHeaderFhirMediaType(context.Request.ContentType))
+                if (!context.Request.ContentType.IsContentTypeHeaderFhirMediaType())
                 {
                     string contentType = context.Request.ContentType;
                     context.Request.Headers.Add("X-Content-Type", contentType);
@@ -47,7 +41,7 @@
             //    context.Request.Headers.Add("Accept", new StringValues(FhirMediaType.OCTET_STREAM_CONTENT_HEADER));
             //}
 
-            await _next(context).ConfigureAwait(false);
+            await next(context).ConfigureAwait(false);
         }
     }
 }

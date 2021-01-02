@@ -1,7 +1,7 @@
-﻿/* 
+﻿/*
  * Copyright (c) 2014, Furore (info@furore.com) and contributors
  * See the file CONTRIBUTORS for details.
- * 
+ *
  * This file is licensed under the BSD 3-Clause license
  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
  */
@@ -17,9 +17,6 @@ using Spark.Engine.Core;
 using System.Diagnostics;
 using System.Linq;
 using Spark.Engine.Utility;
-#if NETSTANDARD2_0
-using Microsoft.AspNetCore.Mvc;
-#endif
 
 namespace Spark.Engine.Extensions
 {
@@ -27,34 +24,32 @@ namespace Spark.Engine.Extensions
     {
         internal static Func<string, string> pascalToCamelCase = (pascalCase) => $"{char.ToLower(pascalCase[0])}{pascalCase.Substring(1)}";
 
-#if NETSTANDARD2_0
-        public static OperationOutcome AddValidationProblems(this OperationOutcome outcome, Type resourceType, HttpStatusCode code, ValidationProblemDetails validationProblems)
-        {
-            if (resourceType == null) throw new ArgumentNullException(nameof(resourceType));
-            if (validationProblems == null) throw new ArgumentNullException(nameof(ValidationProblemDetails));
+        //public static OperationOutcome AddValidationProblems(this OperationOutcome outcome, Type resourceType, HttpStatusCode code, ValidationProblemDetails validationProblems)
+        //{
+        //    if (resourceType == null) throw new ArgumentNullException(nameof(resourceType));
+        //    if (validationProblems == null) throw new ArgumentNullException(nameof(ValidationProblemDetails));
 
-            OperationOutcome.IssueSeverity severity = IssueSeverityOf(code);
-            foreach (var error in validationProblems.Errors)
-            {
-                var expression = FhirPathUtil.ResolveToFhirPathExpression(resourceType, error.Key);
-                outcome.Issue.Add(new OperationOutcome.IssueComponent
-                {
-                    Severity = severity,
-                    Code = OperationOutcome.IssueType.Required,
-                    Diagnostics = error.Value.FirstOrDefault(),
-                    Expression = new[] { expression },
-                    Location = new[] { FhirPathUtil.ConvertToXPathExpression(expression) }
-                });
-            }
+        //    OperationOutcome.IssueSeverity severity = IssueSeverityOf(code);
+        //    foreach (var error in validationProblems.Errors)
+        //    {
+        //        var expression = FhirPathUtil.ResolveToFhirPathExpression(resourceType, error.Key);
+        //        outcome.Issue.Add(new OperationOutcome.IssueComponent
+        //        {
+        //            Severity = severity,
+        //            Code = OperationOutcome.IssueType.Required,
+        //            Diagnostics = error.Value.FirstOrDefault(),
+        //            Expression = new[] { expression },
+        //            Location = new[] { FhirPathUtil.ConvertToXPathExpression(expression) }
+        //        });
+        //    }
 
-            return outcome;
-        }
-#endif
+        //    return outcome;
+        //}
 
         internal static OperationOutcome.IssueSeverity IssueSeverityOf(HttpStatusCode code)
         {
             int range = ((int)code / 100);
-            switch(range)
+            switch (range)
             {
                 case 1:
                 case 2: return OperationOutcome.IssueSeverity.Information;
@@ -64,7 +59,7 @@ namespace Spark.Engine.Extensions
                 default: return OperationOutcome.IssueSeverity.Information;
             }
         }
-        
+
         private static void SetContentHeaders(HttpResponseMessage response, ResourceFormat format)
         {
             response.Content.Headers.ContentType = FhirMediaType.GetMediaTypeHeaderValue(typeof(Resource), format);
@@ -110,7 +105,7 @@ namespace Spark.Engine.Extensions
             while (exception.InnerException != null)
             {
                 exception = exception.InnerException;
-                AddError(outcome, exception);                
+                AddError(outcome, exception);
             }
 
             return outcome;
@@ -142,12 +137,6 @@ namespace Spark.Engine.Extensions
             };
             outcome.Issue.Add(item);
             return outcome;
-        }
-
-        [Obsolete("Use method with signature HttpResponseMessage ToHttpResponseMessage(this OperationOutcome, ResourceFormat) instead.")]
-        public static HttpResponseMessage ToHttpResponseMessage(this OperationOutcome outcome, ResourceFormat target, HttpRequestMessage request)
-        {
-            return ToHttpResponseMessage(outcome, target);
         }
 
         public static HttpResponseMessage ToHttpResponseMessage(this OperationOutcome outcome, ResourceFormat target)

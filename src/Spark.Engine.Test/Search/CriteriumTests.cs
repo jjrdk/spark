@@ -55,7 +55,7 @@ namespace Spark.Search
         /// In DSTU2, prefixes have changed from > to gt, < to lt etc.
         /// </summary>
         [Fact]
-        public void ParseCriteriumDSTU2()
+        public void ParseCriteriumDstu2()
         {
             var crit = Criterium.Parse("birthdate=2018-01-01");
             Assert.Equal("birthdate", crit.ParamName);

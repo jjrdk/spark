@@ -14,7 +14,9 @@ namespace Spark.Engine.Web.Extensions
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Net;
     using System.Net.Http;
+    using System.Net.Http.Headers;
     using Hl7.Fhir.Model;
     using Hl7.Fhir.Rest;
     using Hl7.Fhir.Utility;
@@ -35,7 +37,7 @@ namespace Spark.Engine.Web.Extensions
         /// <summary>
         /// Transfers the id to the <see cref="Hl7.Fhir.Model.Resource"/>.
         /// </summary>
-        /// <param name="request">An instance of <see cref="Microsoft.AspNetCore.Http.HttpRequest"/>.</param>
+        /// <param name="request">An instance of <see cref="WebRequestMethods.Http.HttpRequest"/>.</param>
         /// <param name="resource">An instance of <see cref="Hl7.Fhir.Model.Resource"/>.</param>
         /// <param name="id">A <see cref="string"/> containing the id to transfer to Resource.Id.</param>
         public static void TransferResourceIdIfRawBinary(this HttpRequest request, Resource resource, string id)
@@ -57,55 +59,6 @@ namespace Spark.Engine.Web.Extensions
             return ifNoneExist;
         }
 
-        //internal static void AcquireHeaders(this HttpResponseMessage response, FhirResponse fhirResponse)
-        //{
-        //    if (fhirResponse.Key != null)
-        //    {
-        //        response.Headers.ETag = ETag.Create(fhirResponse.Key.VersionId);
-
-        //        Uri location = fhirResponse.Key.ToUri();
-        //        response.Headers.Location = location;
-
-        //        if (response.Content != null)
-        //        {
-        //            response.Content.Headers.ContentLocation = location;
-        //            if (fhirResponse.Resource != null && fhirResponse.Resource.Meta != null)
-        //            {
-        //                response.Content.Headers.LastModified = fhirResponse.Resource.Meta.LastUpdated;
-        //            }
-        //        }
-        //    }
-        //}
-
-        //private static HttpResponseMessage CreateBareFhirResponse(this HttpRequestMessage request, FhirResponse fhir)
-        //{
-        //    bool includebody = request.PreferRepresentation();
-
-        //    if (fhir.Resource != null)
-        //    {
-        //        if (includebody)
-        //        {
-        //            if (fhir.Resource is Binary binary && request.IsRawBinaryRequest(typeof(Binary)))
-        //            {
-        //                return request.CreateResponse(fhir.StatusCode, binary, new BinaryFhirOutputFormatter(), binary.ContentType);
-        //            }
-
-        //            return request.CreateResponse(new FhirResponse(fhir.StatusCode, fhir.Resource));
-        //        }
-
-        //        return request.CreateResponse(new FhirResponse(fhir.StatusCode));
-        //    }
-
-        //    return request.CreateResponse(new FhirResponse(fhir.StatusCode));
-        //}
-
-        //private static HttpResponseMessage CreateResponse(this HttpRequestMessage request, FhirResponse fhir)
-        //{
-        //    HttpResponseMessage message = request.CreateBareFhirResponse(fhir);
-        //    message.AcquireHeaders(fhir);
-        //    return message;
-        //}
-
         public static List<Tuple<string, string>> TupledParameters(this HttpRequest request)
         {
             var list = new List<Tuple<string, string>>();
@@ -117,33 +70,9 @@ namespace Spark.Engine.Web.Extensions
             return list;
         }
 
-        //private static string GetValue(this HttpRequestMessage request, string key)
-        //{
-        //    if (request.Headers.Count() > 0)
-        //    {
-        //        if (request.Headers.TryGetValues(key, out IEnumerable<string> values))
-        //        {
-        //            string value = values.FirstOrDefault();
-        //            return value;
-        //        }
-        //        return null;
-        //    }
-        //    else return null;
-        //}
-
-        //private static bool PreferRepresentation(this HttpRequestMessage request)
-        //{
-        //    string value = request.GetValue("Prefer");
-        //    return (value == "return=representation" || value == null);
-        //}
-
         private static SummaryType GetSummary(string summary)
         {
-            SummaryType? summaryType;
-            if (string.IsNullOrWhiteSpace(summary))
-                summaryType = SummaryType.False;
-            else
-                summaryType = EnumUtility.ParseLiteral<SummaryType>(summary, true);
+            var summaryType = string.IsNullOrWhiteSpace(summary) ? SummaryType.False : EnumUtility.ParseLiteral<SummaryType>(summary, true);
 
             return summaryType ?? SummaryType.False;
         }

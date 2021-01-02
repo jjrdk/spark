@@ -1,26 +1,24 @@
-﻿#if NETSTANDARD2_0
-using Hl7.Fhir.Model;
+﻿using Hl7.Fhir.Model;
 using Hl7.Fhir.Serialization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Spark.Engine.Core;
 using Spark.Engine.FhirResponseFactory;
-using Spark.Engine.Formatters;
 using Spark.Engine.Interfaces;
 using Spark.Engine.Search;
 using Spark.Engine.Service;
 using Spark.Engine.Service.FhirServiceExtensions;
 using Spark.Service;
 using System;
-using System.Buffers;
 using System.Collections.Generic;
-using System.Net.Http.Formatting;
-using Spark.Engine.Search;
 
 namespace Spark.Engine.Extensions
 {
+    using Formatters;
+    using Store.Interfaces;
+    using Web.Formatters;
+
     public static class IServiceCollectionExtensions
     {
         public static IMvcCoreBuilder AddFhir(this IServiceCollection services, SparkSettings settings, Action<MvcOptions> setupAction = null)
@@ -36,8 +34,8 @@ namespace Spark.Engine.Extensions
             services.TryAddTransient<IReferenceNormalizationService, ReferenceNormalizationService>();
 
             services.TryAddTransient<IIndexService, IndexService>();
-            services.TryAddTransient<ILocalhost>((provider) => new Localhost(settings.Endpoint));
-            services.TryAddTransient<IFhirModel>((provider) => new FhirModel(ModelInfo.SearchParameters));
+            services.AddSingleton<ILocalhost>(new Localhost(settings.Endpoint));
+            services.AddSingleton<IFhirModel>(new FhirModel(ModelInfo.SearchParameters));
             services.TryAddTransient((provider) => new FhirPropertyIndex(provider.GetRequiredService<IFhirModel>()));
             services.TryAddTransient<ITransfer, Transfer>();
             services.TryAddTransient<ConditionalHeaderFhirResponseInterceptor>();
@@ -52,21 +50,21 @@ namespace Spark.Engine.Extensions
             services.TryAddTransient((provider) => new IServiceListener[] { provider.GetRequiredService<IServiceListener>() });
             services.TryAddTransient<SearchService>();                     // search
             services.TryAddTransient<TransactionService>();                // transaction
-            services.TryAddTransient<HistoryService>();                    // history
+            //services.TryAddTransient<HistoryService>();                    // history
             services.TryAddTransient<PagingService>();                     // paging
             services.TryAddTransient<ResourceStorageService>();            // storage
             services.TryAddTransient<CapabilityStatementService>();        // conformance
             services.TryAddTransient<ICompositeServiceListener, ServiceListener>();
-            services.TryAddTransient<ResourceJsonInputFormatter>();
-            services.TryAddTransient<ResourceJsonOutputFormatter>();
-            services.TryAddTransient<ResourceXmlInputFormatter>();
-            services.TryAddTransient<ResourceXmlOutputFormatter>();
+            services.TryAddTransient<JsonFhirInputFormatter>();
+            services.TryAddTransient<JsonFhirOutputFormatter>();
+            services.TryAddTransient<XmlFhirInputFormatter>();
+            services.TryAddTransient<XmlFhirOutputFormatter>();
 
-            services.AddTransient((provider) => new IFhirServiceExtension[] 
+            services.AddTransient((provider) => new IFhirServiceExtension[]
             {
                 provider.GetRequiredService<SearchService>(),
                 provider.GetRequiredService<TransactionService>(),
-                provider.GetRequiredService<HistoryService>(),
+                provider.GetRequiredService<IHistoryStore>(),
                 provider.GetRequiredService<PagingService>(),
                 provider.GetRequiredService<ResourceStorageService>(),
                 provider.GetRequiredService<CapabilityStatementService>(),
@@ -81,11 +79,11 @@ namespace Spark.Engine.Extensions
 
             IMvcCoreBuilder builder = services.AddFhirFormatters(settings, setupAction);
 
-            services.RemoveAll<OutputFormatterSelector>();
-            services.TryAddSingleton<OutputFormatterSelector, FhirOutputFormatterSelector>();
+            //services.RemoveAll<OutputFormatterSelector>();
+            //services.TryAddSingleton<OutputFormatterSelector, FhirOutputFormatterSelector>();
 
-            services.RemoveAll<OutputFormatterSelector>();
-            services.TryAddSingleton<OutputFormatterSelector, FhirOutputFormatterSelector>();
+            //services.RemoveAll<OutputFormatterSelector>();
+            //services.TryAddSingleton<OutputFormatterSelector, FhirOutputFormatterSelector>();
 
             return builder;
         }
@@ -96,30 +94,12 @@ namespace Spark.Engine.Extensions
 
             return services.AddMvcCore(options =>
             {
-                options.InputFormatters.Add(new ResourceJsonInputFormatter(new FhirJsonParser(settings.ParserSettings), ArrayPool<char>.Shared));
-                options.InputFormatters.Add(new ResourceXmlInputFormatter(new FhirXmlParser(settings.ParserSettings)));
-                options.InputFormatters.Add(new BinaryInputFormatter());
-                options.OutputFormatters.Add(new ResourceJsonOutputFormatter());
-                options.OutputFormatters.Add(new ResourceXmlOutputFormatter());
-                options.OutputFormatters.Add(new BinaryOutputFormatter());
-
-                options.RespectBrowserAcceptHeader = true;
-
-                setupAction?.Invoke(options);
-            });
-        }
-
-        [Obsolete("This method is obsolete and will be removed in a future version.")]
-        public static IMvcCoreBuilder AddFhirFormatters(this IServiceCollection services, Action<MvcOptions> setupAction = null)
-        {
-            return services.AddMvcCore(options =>
-            {
-                options.InputFormatters.Add(new ResourceJsonInputFormatter());
-                options.InputFormatters.Add(new ResourceXmlInputFormatter());
-                options.InputFormatters.Add(new BinaryInputFormatter());
-                options.OutputFormatters.Add(new ResourceJsonOutputFormatter());
-                options.OutputFormatters.Add(new ResourceXmlOutputFormatter());
-                options.OutputFormatters.Add(new BinaryOutputFormatter());
+                options.InputFormatters.Add(new JsonFhirInputFormatter(new FhirJsonParser(settings.ParserSettings)));
+                options.InputFormatters.Add(new XmlFhirInputFormatter(new FhirXmlParser(settings.ParserSettings)));
+                options.InputFormatters.Add(new BinaryFhirInputFormatter());
+                options.OutputFormatters.Add(new JsonFhirOutputFormatter(new FhirJsonSerializer(settings.SerializerSettings)));
+                options.OutputFormatters.Add(new XmlFhirOutputFormatter(new FhirXmlSerializer(settings.SerializerSettings)));
+                options.OutputFormatters.Add(new BinaryFhirOutputFormatter());
 
                 options.RespectBrowserAcceptHeader = true;
 
@@ -146,4 +126,3 @@ namespace Spark.Engine.Extensions
         }
     }
 }
-#endif

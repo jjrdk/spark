@@ -36,8 +36,8 @@ namespace Spark.Engine.Test.Core
 
             sut.Visit(testPatient, fd => result.Add(fd));
 
-            Assert.Equal(testPatient.Name.Count, result.Where(ob => ob != null).Count());
-            Assert.True(result.Contains(hn));
+            Assert.Equal(testPatient.Name.Count, result.Count(ob => ob != null));
+            Assert.Contains(hn, result);
         }
 
         [Fact]
@@ -55,8 +55,8 @@ namespace Spark.Engine.Test.Core
             sut.Visit(testPatient, fd => result.Add(fd));
 
             Assert.Equal(testPatient.Name.Count, result.Where(ob => ob != null).Count());
-            Assert.True(result.Contains(hn1));
-            Assert.True(result.Contains(hn2));
+            Assert.Contains(hn1, result);
+            Assert.Contains(hn2, result);
         }
     }
 }

@@ -12,12 +12,10 @@
 
     public class XmlFhirOutputFormatter : TextOutputFormatter
     {
-        private readonly FhirXmlParser _parser;
         private readonly FhirXmlSerializer _serializer;
 
-        public XmlFhirOutputFormatter(FhirXmlParser parser, FhirXmlSerializer serializer) : base()
+        public XmlFhirOutputFormatter(FhirXmlSerializer serializer)
         {
-            _parser = parser ?? throw new ArgumentNullException(nameof(parser));
             _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
 
             foreach (var mediaType in ContentType.XML_CONTENT_HEADERS)

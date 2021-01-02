@@ -23,7 +23,7 @@ namespace Spark.Engine.Web.Formatters
     {
         private readonly FhirXmlParser _parser;
 
-        public XmlFhirInputFormatter(FhirXmlParser parser) : base()
+        public XmlFhirInputFormatter(FhirXmlParser parser)
         {
             _parser = parser ?? throw new ArgumentNullException(nameof(parser));
 

@@ -27,7 +27,7 @@ namespace Spark.Formatters
     {
         private readonly FhirJsonParser _parser;
 
-        public JsonFhirInputFormatter(FhirJsonParser parser) : base()
+        public JsonFhirInputFormatter(FhirJsonParser parser)
         {
             _parser = parser ?? throw new ArgumentNullException(nameof(parser));
 
@@ -65,7 +65,7 @@ namespace Spark.Formatters
     {
         private readonly FhirJsonSerializer _serializer;
 
-        public JsonFhirOutputFormatter(FhirJsonSerializer serializer) : base()
+        public JsonFhirOutputFormatter(FhirJsonSerializer serializer)
         {
             _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
 

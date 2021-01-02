@@ -29,7 +29,7 @@ namespace Spark.Engine.Web.Formatters
     {
         private readonly FhirXmlSerializer _serializer;
 
-        public HtmlFhirFormatter(FhirXmlSerializer serializer) : base()
+        public HtmlFhirFormatter(FhirXmlSerializer serializer)
         {
             _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
             SupportedMediaTypes.Add(new Microsoft.Net.Http.Headers.MediaTypeHeaderValue("text/html"));
@@ -111,7 +111,7 @@ namespace Spark.Engine.Web.Formatters
 
                     // Write the other Bundle Header data
                     await writer.WriteLineAsync(
-                        $"<span style=\"word-wrap: break-word; display:block;\">Type: {resource1.Type.ToString()}, {resource1.Entry.Count} of {resource1.Total}</span>").ConfigureAwait(false);
+                        $"<span style=\"word-wrap: break-word; display:block;\">Type: {resource1.Type}, {resource1.Entry.Count} of {resource1.Total}</span>").ConfigureAwait(false);
 
                     foreach (var item in resource1.Entry)
                     {
@@ -136,7 +136,7 @@ namespace Spark.Engine.Web.Formatters
                                 $"<a style=\"word-wrap: break-word; display:block;\" href=\"{realurl}\">{visualurl}</a>").ConfigureAwait(false);
                             if (item.Resource.Meta != null && item.Resource.Meta.LastUpdated.HasValue)
                                 await writer.WriteLineAsync(
-                                    $"<i>Modified: {item.Resource.Meta.LastUpdated.Value.ToString()}</i><br/>").ConfigureAwait(false);
+                                    $"<i>Modified: {item.Resource.Meta.LastUpdated.Value}</i><br/>").ConfigureAwait(false);
                             await writer.WriteLineAsync("<hr/>").ConfigureAwait(false);
 
                             if (item.Resource is DomainResource)

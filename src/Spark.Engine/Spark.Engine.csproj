@@ -20,8 +20,4 @@
         <None Include="..\..\LICENSE" Pack="true" Visible="false" PackagePath="" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Handlers\NetCore\" />
-    </ItemGroup>
-
 </Project>

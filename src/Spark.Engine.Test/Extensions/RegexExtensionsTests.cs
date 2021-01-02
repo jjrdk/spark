@@ -7,13 +7,13 @@ namespace Spark.Engine.Test.Extensions
 
     public class RegexExtensionsTests
     {
-        public static Regex sut = new Regex(@"[^a]*(?<alpha>a)[^a]*");
+        public static readonly Regex Sut = new Regex(@"[^a]*(?<alpha>a)[^a]*");
 
         [Fact]
         public void TestReplaceNamedGroupNoSuchGroup()
         {
             var input = @"bababa";
-            var result = sut.ReplaceGroup(input, "blabla", "c");
+            var result = Sut.ReplaceGroup(input, "blabla", "c");
             Assert.Equal(@"bababa", result);
         }
 
@@ -21,7 +21,7 @@ namespace Spark.Engine.Test.Extensions
         public void TestReplaceNamedGroupNoCaptures()
         {
             var input = @"bbbbbb";
-            var result = sut.ReplaceGroup(input, "alpha", "c");
+            var result = Sut.ReplaceGroup(input, "alpha", "c");
             Assert.Equal(@"bbbbbb", result);
         }
 
@@ -29,7 +29,7 @@ namespace Spark.Engine.Test.Extensions
         public void TestReplaceNamedGroupSingleCapture()
         {
             var input = @"babbbb";
-            var result = sut.ReplaceGroup(input, "alpha", "c");
+            var result = Sut.ReplaceGroup(input, "alpha", "c");
             Assert.Equal(@"bcbbbb", result);
         }
 
@@ -37,7 +37,7 @@ namespace Spark.Engine.Test.Extensions
         public void TestReplaceNamedGroupMultipleCaptures()
         {
             var input = @"bababa";
-            var result = sut.ReplaceGroup(input, "alpha", "c");
+            var result = Sut.ReplaceGroup(input, "alpha", "c");
             Assert.Equal(@"bcbcbc", result);
         }
     }

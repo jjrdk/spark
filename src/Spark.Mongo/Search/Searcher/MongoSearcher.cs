@@ -76,7 +76,7 @@ namespace Spark.Search.Mongo
         {
             var results = new SearchResults();
 
-            if (keys.Count() > 0)
+            if (keys.Any())
             {
                 var cursor = _collection.Find(Builders<BsonDocument>.Filter.In(InternalField.ID, keys))
                     .Project(Builders<BsonDocument>.Projection.Include(InternalField.SELFLINK))
@@ -89,7 +89,7 @@ namespace Spark.Search.Mongo
                     results.Add(id);
                 }
 
-                results.MatchCount = results.Count();
+                results.MatchCount = results.Count;
             }
 
             return results;
@@ -156,11 +156,11 @@ namespace Spark.Search.Mongo
             }
             return sortDefinition;
 
-            return sortItems.Aggregate(
-                sortDefinition,
-                (current, sortItem) => sortItem.Item2 == SortOrder.Ascending
-                    ? current.Ascending(sortItem.Item1)
-                    : current.Descending(sortItem.Item1));
+            //return sortItems.Aggregate(
+            //    sortDefinition,
+            //    (current, sortItem) => sortItem.Item2 == SortOrder.Ascending
+            //        ? current.Ascending(sortItem.Item1)
+            //        : current.Descending(sortItem.Item1));
         }
 
         private static FilterDefinition<BsonDocument> CreateMongoQuery(
@@ -170,7 +170,7 @@ namespace Spark.Search.Mongo
             Dictionary<Criterium, Criterium> closedCriteria)
         {
             FilterDefinition<BsonDocument> resultQuery = CriteriaMongoExtensions.ResourceFilter(resourceType, level);
-            if (closedCriteria.Count() > 0)
+            if (closedCriteria.Count > 0)
             {
                 var criteriaQueries = new List<FilterDefinition<BsonDocument>>();
                 foreach (var crit in closedCriteria)
@@ -268,7 +268,7 @@ namespace Spark.Search.Mongo
                 }
             }
 
-            if (errors.Count == targeted.Count())
+            if (errors.Count == targeted.Count)
             {
                 //It is possible that some of the targets don't support the current parameter. But if none do, there is a serious problem.
                 throw new ArgumentException(
@@ -446,7 +446,7 @@ namespace Spark.Search.Mongo
 
             SearchResults results = new SearchResults();
 
-            var criteria = parseCriteria(searchCommand, results);
+            var criteria = ParseCriteria(searchCommand, results);
 
             if (!results.HasErrors)
             {
@@ -627,7 +627,7 @@ namespace Spark.Search.Mongo
         }
         */
 
-        private List<Criterium> parseCriteria(SearchParams searchCommand, SearchResults results)
+        private static List<Criterium> ParseCriteria(SearchParams searchCommand, SearchResults results)
         {
             var result = new List<Criterium>();
             foreach (var c in searchCommand.Parameters)

@@ -19,7 +19,7 @@ namespace Spark.Engine.Web.Formatters
 
     public class BinaryFhirInputFormatter : InputFormatter
     {
-        public BinaryFhirInputFormatter() : base()
+        public BinaryFhirInputFormatter()
         {
             SupportedMediaTypes.Add(new Microsoft.Net.Http.Headers.MediaTypeHeaderValue(FhirMediaType.OCTET_STREAM_CONTENT_HEADER));
         }

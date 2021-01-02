@@ -8,17 +8,17 @@ namespace Spark.Engine.Test.Core
 
     public class FhirModelTests
     {
-        private static FhirModel sut;
+        private static FhirModel _sut;
 
         public FhirModelTests()
         {
-            sut = new FhirModel();
+            _sut = new FhirModel();
         }
 
         [Fact]
         public void TestCompartments()
         {
-            var actual = sut.FindCompartmentInfo(ResourceType.Patient);
+            var actual = _sut.FindCompartmentInfo(ResourceType.Patient);
 
             Assert.NotNull(actual);
             Assert.True(actual.ReverseIncludes.Any());
