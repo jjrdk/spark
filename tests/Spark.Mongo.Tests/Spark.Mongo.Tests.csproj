@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Spark.Mongo\Spark.Mongo.csproj" />
+    <ProjectReference Include="..\..\src\Spark.Mongo\Spark.Mongo.csproj" />
   </ItemGroup>
 
 </Project>

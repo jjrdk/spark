@@ -7,16 +7,14 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Spark.Engine", "src\Spark.E
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Spark.Mongo", "src\Spark.Mongo\Spark.Mongo.csproj", "{5F0EAEA9-5226-46FF-A915-4DE9B3BA6ADD}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Spark.Engine.Test", "src\Spark.Engine.Test\Spark.Engine.Test.csproj", "{5CA90A21-AC2E-4C30-B618-A459A1E5B04F}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Spark.Mongo.Tests", "src\Spark.Mongo.Tests\Spark.Mongo.Tests.csproj", "{3D3C588D-6BB5-46CD-B844-61136D30A1FB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Spark.Engine.Test", "tests\Spark.Engine.Test\Spark.Engine.Test.csproj", "{5CA90A21-AC2E-4C30-B618-A459A1E5B04F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{073444E3-56AE-4904-8EBD-DED0F9B54499}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Spark.IntegrationTest", "src\Spark.IntegrationTest\Spark.IntegrationTest.csproj", "{49FB5DBC-8F10-49C2-B358-84EEF9B12F83}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Spark.IntegrationTest", "tests\Spark.IntegrationTest\Spark.IntegrationTest.csproj", "{49FB5DBC-8F10-49C2-B358-84EEF9B12F83}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".docker", ".docker", "{40662456-0D34-4F03-8568-A10372856F88}"
 	ProjectSection(SolutionItems) = preProject
@@ -53,6 +51,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Spark.Engine.Web.Tests", "t
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Spark.Web", "src\Spark.Web\Spark.Web.csproj", "{8351B87E-8C90-4244-8568-905D660D9192}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Spark.Mongo.Tests", "tests\Spark.Mongo.Tests\Spark.Mongo.Tests.csproj", "{FD611B5E-74F8-4D95-963B-0F921DEE3AF2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -71,10 +71,6 @@ Global
 		{5CA90A21-AC2E-4C30-B618-A459A1E5B04F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5CA90A21-AC2E-4C30-B618-A459A1E5B04F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5CA90A21-AC2E-4C30-B618-A459A1E5B04F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3D3C588D-6BB5-46CD-B844-61136D30A1FB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3D3C588D-6BB5-46CD-B844-61136D30A1FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3D3C588D-6BB5-46CD-B844-61136D30A1FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3D3C588D-6BB5-46CD-B844-61136D30A1FB}.Release|Any CPU.Build.0 = Release|Any CPU
 		{49FB5DBC-8F10-49C2-B358-84EEF9B12F83}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{49FB5DBC-8F10-49C2-B358-84EEF9B12F83}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{49FB5DBC-8F10-49C2-B358-84EEF9B12F83}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -91,6 +87,10 @@ Global
 		{8351B87E-8C90-4244-8568-905D660D9192}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8351B87E-8C90-4244-8568-905D660D9192}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8351B87E-8C90-4244-8568-905D660D9192}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FD611B5E-74F8-4D95-963B-0F921DEE3AF2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FD611B5E-74F8-4D95-963B-0F921DEE3AF2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FD611B5E-74F8-4D95-963B-0F921DEE3AF2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FD611B5E-74F8-4D95-963B-0F921DEE3AF2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
