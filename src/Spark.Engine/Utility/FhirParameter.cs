@@ -1,5 +1,4 @@
-﻿using Hl7.Fhir.Serialization;
-using System;
+﻿using System;
 
 namespace Spark.Engine.Utility
 {

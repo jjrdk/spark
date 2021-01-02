@@ -7,11 +7,11 @@ using MongoDB.Driver;
 using Spark.Engine.Auxiliary;
 using Spark.Engine.Core;
 using Spark.Engine.Store.Interfaces;
-using Spark.Store.Mongo;
 
 namespace Spark.Mongo.Store.Extensions
 {
     using System.Threading.Tasks;
+    using Search.Infrastructure;
 
     public class HistoryStore : IHistoryStore
     {

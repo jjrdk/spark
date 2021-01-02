@@ -9,13 +9,14 @@
 using Hl7.Fhir.Model;
 using Hl7.Fhir.Utility;
 using MongoDB.Bson;
-using Spark.Search;
-using Spark.Search.Mongo;
 using System.Linq;
 using Xunit;
 
 namespace Spark.Mongo.Tests.Search
 {
+    using Engine.Search.ValueExpressionTypes;
+    using Mongo.Search.Searcher;
+
     public class CriteriumStringSearchParameterTests
     {
         [Fact]

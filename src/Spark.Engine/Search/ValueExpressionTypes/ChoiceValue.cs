@@ -6,13 +6,12 @@
  * available at https://raw.githubusercontent.com/ewoutkramer/fhir-net-api/master/LICENSE
  */
 
-using Spark.Search.Support;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace Spark.Search
+namespace Spark.Engine.Search.ValueExpressionTypes
 {
+    using System.Collections.Generic;
+    using System.Linq;
+    using Support;
+
     public class ChoiceValue : ValueExpression
     {
         private const char VALUESEPARATOR = ',';

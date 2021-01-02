@@ -4,6 +4,8 @@ using System;
 
 namespace Spark.Engine.Core
 {
+    using Extensions;
+
     public static class ILocalhostExtensions
     {
         public static bool IsLocal(this ILocalhost localhost, IKey key)

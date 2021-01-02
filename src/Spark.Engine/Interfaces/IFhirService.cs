@@ -1,4 +1,4 @@
-﻿namespace Spark.Core.Interfaces
+﻿namespace Spark.Engine.Interfaces
 {
     /*
     public enum FhirEvent { Create, Read, Update, Delete }

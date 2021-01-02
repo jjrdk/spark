@@ -2,11 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Hl7.Fhir.Model;
-using Spark.Core;
 using Spark.Engine.Core;
 using Spark.Engine.Extensions;
 using Spark.Engine.Store.Interfaces;
-using Spark.Service;
 
 namespace Spark.Engine.Service.FhirServiceExtensions
 {

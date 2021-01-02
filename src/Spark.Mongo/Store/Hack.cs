@@ -1,8 +1,8 @@
-﻿using Hl7.Fhir.Model;
-using Spark.Engine.Auxiliary;
-
-namespace Spark.Store.Mongo
+﻿namespace Spark.Mongo.Store
 {
+    using Engine.Auxiliary;
+    using Hl7.Fhir.Model;
+
     public static class Hack
     {
         // HACK: json extensions

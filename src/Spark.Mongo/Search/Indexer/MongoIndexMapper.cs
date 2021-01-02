@@ -1,13 +1,14 @@
 ﻿using MongoDB.Bson;
 using Spark.Engine.Model;
 using Spark.Mongo.Search.Common;
-using Spark.Search;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace Spark.Mongo.Search.Indexer
 {
+    using Engine.Search.ValueExpressionTypes;
+
     //Maps IndexValue elements to BsonElements.
     public class MongoIndexMapper
     {

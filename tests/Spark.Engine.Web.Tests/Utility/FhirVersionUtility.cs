@@ -1,10 +1,9 @@
-﻿using Hl7.Fhir.Model;
-using Hl7.Fhir.Utility;
-using System.Collections.Generic;
-
-namespace Spark.Engine.Test.Utility
+﻿namespace Spark.Engine.Web.Tests.Utility
 {
     using System;
+    using System.Collections.Generic;
+    using Hl7.Fhir.Model;
+    using Hl7.Fhir.Utility;
 
     internal class FhirVersionUtility
     {

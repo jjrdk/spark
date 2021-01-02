@@ -2,13 +2,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Spark.Core;
 using Spark.Engine.Core;
 using Spark.Engine.Store.Interfaces;
-using Spark.Service;
 
 namespace Spark.Engine.Service.FhirServiceExtensions
 {
+    using Interfaces;
+
     public class FhirExtensionsBuilder : IFhirExtensionsBuilder
     {
         private readonly IStorageBuilder fhirStoreBuilder;

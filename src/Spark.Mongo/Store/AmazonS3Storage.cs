@@ -7,7 +7,7 @@
  */
 
 
-namespace Spark.Store.Mongo.AmazonS3
+namespace Spark.Mongo.Store
 {
     //    public sealed class AmazonS3Storage : IBlobStorage
     //    {

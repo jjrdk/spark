@@ -1,8 +1,8 @@
-﻿using Hl7.Fhir.Model;
-using System.Collections.Generic;
-
-namespace Spark.Core.Interfaces
+﻿namespace Spark.Engine.Interfaces
 {
+    using System.Collections.Generic;
+    using Hl7.Fhir.Model;
+
     internal interface IResourceValidator
     {
         IEnumerable<OperationOutcome> Validate(Resource resource);

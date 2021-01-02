@@ -6,12 +6,12 @@
  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
  */
 
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-
-namespace Spark.Search.Mongo
+namespace Spark.Mongo.Search.Utils
 {
+    using System.Linq;
+    using System.Text;
+    using System.Text.RegularExpressions;
+
     public static class Soundex
     {
         public static string For(string word)

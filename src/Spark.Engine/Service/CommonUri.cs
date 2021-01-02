@@ -6,10 +6,10 @@
  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
  */
 
-using System;
-
-namespace Spark.Service
+namespace Spark.Engine.Service
 {
+    using System;
+
     public static class CommonUri
     {
         public static Uri HL7Fhir = new Uri("http://hl7.org/fhir/");

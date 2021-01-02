@@ -1,14 +1,14 @@
-﻿using Hl7.Fhir.Model;
-using Spark.Engine.Core;
-using Spark.Engine.Model;
-using Spark.Search;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace Spark.Engine.Search.Tests
+﻿namespace Spark.Engine.Test.Search
 {
+    using System.Collections.Generic;
+    using System.Linq;
+    using Engine.Core;
+    using Engine.Search;
+    using Engine.Search.ValueExpressionTypes;
+    using Hl7.Fhir.Model;
+    using Model;
     using Xunit;
+    using Expression = Engine.Search.ValueExpressionTypes.Expression;
 
     public class ElementIndexerTests
     {
@@ -73,7 +73,7 @@ namespace Spark.Engine.Search.Tests
             Assert.Equal(1081.54M, ((NumberValue)result.First()).Value);
         }
 
-        private static void CheckPeriod(List<Spark.Search.Expression> result, string start, string end)
+        private static void CheckPeriod(List<Expression> result, string start, string end)
         {
             var nrOfComponents = 0;
             if (!string.IsNullOrWhiteSpace(start)) nrOfComponents++;
@@ -372,7 +372,7 @@ namespace Spark.Engine.Search.Tests
             Assert.Single(result.Where(r => (r as StringValue).Value == "Pietje"));
         }
 
-        private static void CheckQuantity(List<Spark.Search.Expression> result, decimal? value, string unit, string system, string decimals)
+        private static void CheckQuantity(List<Expression> result, decimal? value, string unit, string system, string decimals)
         {
             var nrOfElements = (value.HasValue ? 1 : 0) + new List<string> { unit, system, decimals }.Count(s => s != null);
 

@@ -6,18 +6,17 @@
  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
  */
 
-using Hl7.Fhir.Model;
-using System;
-using System.Collections.Generic;
-using Spark.Core;
-using System.Xml.Linq;
-using Spark.Engine;
-using Spark.Engine.Core;
-using Spark.Engine.Extensions;
-using Spark.Engine.Auxiliary;
-
-namespace Spark.Service
+namespace Spark.Engine.Service
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Xml.Linq;
+    using Auxiliary;
+    using Core;
+    using Engine;
+    using Extensions;
+    using Hl7.Fhir.Model;
+
     /// <summary>
     /// Import can map id's and references  that are local to the Spark Server to absolute id's and references in outgoing Interactions.
     /// </summary>

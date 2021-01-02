@@ -1,18 +1,17 @@
 ﻿using FhirModel = Hl7.Fhir.Model;
-using Hl7.Fhir.Serialization;
-using Microsoft.AspNetCore.Http;
-using Spark.Engine.Core;
-using System.Buffers;
-using System.IO;
-using System.Net;
-using System.Text;
-using System.Threading.Tasks;
-using Xunit;
 
-namespace Spark.Engine.Test.Formatters
+namespace Spark.Engine.Web.Tests.Formatters
 {
-    using Spark.Formatters;
+    using System.IO;
+    using System.Net;
+    using System.Text;
+    using Core;
+    using Hl7.Fhir.Serialization;
+    using Microsoft.AspNetCore.Http;
     using Utility;
+    using Web.Formatters;
+    using Xunit;
+    using Task = System.Threading.Tasks.Task;
 
     public class ResourceJsonInputFormatterTests : FormatterTestBase
     {
@@ -43,7 +42,7 @@ namespace Spark.Engine.Test.Formatters
             var contentBytes = Encoding.UTF8.GetBytes("{ \"resourceType\": \"Patient\", \"id\": \"example\", \"active\": true }");
             var httpContext = GetHttpContext(contentBytes, contentType);
 
-            var formatterContext = CreateInputFormatterContext(typeof(FhirModel.Resource), httpContext);
+            var formatterContext = CreateInputFormatterContext(typeof(Hl7.Fhir.Model.Resource), httpContext);
 
             var result = formatter.CanRead(formatterContext);
 
@@ -72,13 +71,13 @@ namespace Spark.Engine.Test.Formatters
             httpContext.Request.ContentType = DEFAULT_CONTENT_TYPE;
             httpContext.Request.Body = new NonSeekableReadStream(contentBytes);
 
-            var formatterContext = CreateInputFormatterContext(typeof(FhirModel.Resource), httpContext);
+            var formatterContext = CreateInputFormatterContext(typeof(Hl7.Fhir.Model.Resource), httpContext);
 
             var result = await formatter.ReadAsync(formatterContext).ConfigureAwait(false);
 
             Assert.False(result.HasError);
 
-            var patient = Assert.IsType<FhirModel.Patient>(result.Model);
+            var patient = Assert.IsType<Hl7.Fhir.Model.Patient>(result.Model);
             Assert.Equal("example", patient.Id);
             Assert.Equal(true, patient.Active);
 
@@ -91,7 +90,7 @@ namespace Spark.Engine.Test.Formatters
 
             Assert.False(result.HasError);
 
-            patient = Assert.IsType<FhirModel.Patient>(result.Model);
+            patient = Assert.IsType<Hl7.Fhir.Model.Patient>(result.Model);
             Assert.Equal("example", patient.Id);
             Assert.Equal(true, patient.Active);
         }
@@ -106,7 +105,7 @@ namespace Spark.Engine.Test.Formatters
 
             var httpContext = GetHttpContext(contentBytes, DEFAULT_CONTENT_TYPE);
 
-            var formatterContext = CreateInputFormatterContext(typeof(FhirModel.Resource), httpContext);
+            var formatterContext = CreateInputFormatterContext(typeof(Hl7.Fhir.Model.Resource), httpContext);
 
             SparkException exception = await Assert.ThrowsAsync<SparkException>(() => formatter.ReadAsync(formatterContext)).ConfigureAwait(false);
             Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);

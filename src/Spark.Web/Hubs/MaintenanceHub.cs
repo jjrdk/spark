@@ -1,7 +1,5 @@
 using Hl7.Fhir.Model;
-using Spark.Core;
 using Spark.Engine.Core;
-using Spark.Service;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,7 +15,8 @@ using Spark.Engine.Service.FhirServiceExtensions;
 
 namespace Spark.Web.Hubs
 {
-    using Task = System.Threading.Tasks.Task;
+    using Engine.Extensions;
+    using Engine.Service;
 
     //[Authorize(Policy = "RequireAdministratorRole")]
     public class MaintenanceHub : Hub

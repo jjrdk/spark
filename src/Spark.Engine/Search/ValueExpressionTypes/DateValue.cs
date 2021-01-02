@@ -6,12 +6,12 @@
  * available at https://raw.githubusercontent.com/ewoutkramer/fhir-net-api/master/LICENSE
  */
 
-using Hl7.Fhir.Model;
-using Spark.Search.Support;
-using System;
-
-namespace Spark.Search
+namespace Spark.Engine.Search.ValueExpressionTypes
 {
+    using System;
+    using Hl7.Fhir.Model;
+    using Support;
+
     public class DateValue : ValueExpression
     {
         public string Value { get; private set; }

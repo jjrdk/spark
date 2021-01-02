@@ -1,9 +1,8 @@
-﻿using Hl7.Fhir.Model;
-using System;
-
-namespace Spark.Engine.Test.Utility
+﻿namespace Spark.Engine.Web.Tests.Utility
 {
+    using System;
     using Engine.Utility;
+    using Hl7.Fhir.Model;
     using Xunit;
 
     public class FhirPathUtilTests

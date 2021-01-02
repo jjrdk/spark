@@ -8,10 +8,11 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
-using Spark.Core;
 
 namespace Spark.Engine.Auxiliary
 {
+    using Core;
+
     // Intermediate solution. Eventually replace with real resolver.
 
     public delegate object Instantiator();

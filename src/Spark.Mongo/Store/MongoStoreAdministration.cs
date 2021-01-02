@@ -2,11 +2,11 @@
 using MongoDB.Bson;
 using MongoDB.Driver;
 using Spark.Engine.Interfaces;
-using Spark.Store.Mongo;
 
 namespace Spark.Mongo.Store
 {
     using System.Threading.Tasks;
+    using Search.Infrastructure;
 
     public class MongoStoreAdministration : IFhirStoreAdministration
     {

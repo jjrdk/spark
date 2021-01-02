@@ -3,17 +3,15 @@ using System.Collections.Generic;
 using System.Net;
 using Hl7.Fhir.Model;
 using Hl7.Fhir.Rest;
-using Spark.Core;
 using Spark.Engine.Core;
 using Spark.Engine.Extensions;
 using Spark.Engine.FhirResponseFactory;
 using Spark.Engine.Service.FhirServiceExtensions;
-using Spark.Engine.Storage;
-using Spark.Service;
 
 namespace Spark.Engine.Service
 {
     using System.Threading.Tasks;
+    using Store;
     using Store.Interfaces;
 
     public class FhirService : ExtendableWith<IFhirServiceExtension>, IFhirService, IInteractionHandler

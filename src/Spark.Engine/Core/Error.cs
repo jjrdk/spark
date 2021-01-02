@@ -1,10 +1,9 @@
-﻿using System.Collections.Generic;
-using System.Net;
-using Hl7.Fhir.Model;
-using Spark.Engine.Core;
-
-namespace Spark.Core
+﻿namespace Spark.Engine.Core
 {
+    using System.Collections.Generic;
+    using System.Net;
+    using Hl7.Fhir.Model;
+
     public static class Error
     {
         public static SparkException Create(HttpStatusCode code, string message, params object[] values)

@@ -6,16 +6,16 @@
  * available at https://raw.githubusercontent.com/ewoutkramer/fhir-net-api/master/LICENSE
  */
 
-using Spark.Search.Support;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using Hl7.Fhir.Rest;
-using Hl7.Fhir.Model;
-using Spark.Engine.Extensions;
-
-namespace Spark.Search
+namespace Spark.Engine.Search.ValueExpressionTypes
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using Extensions;
+    using Hl7.Fhir.Model;
+    using Hl7.Fhir.Rest;
+    using Support;
+
     public class Criterium : Expression, ICloneable
     {
         public const string MISSINGMODIF = "missing";

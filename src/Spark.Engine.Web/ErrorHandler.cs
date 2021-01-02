@@ -1,14 +1,13 @@
-﻿using FhirModel = Hl7.Fhir.Model;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.Formatters;
-using Spark.Engine.Core;
-using Spark.Engine.Extensions;
-using System;
-using System.Net;
-using System.Threading.Tasks;
-
-namespace Spark.Engine.ExceptionHandling
+﻿namespace Spark.Engine.Web
 {
+    using System;
+    using System.Net;
+    using Core;
+    using Engine.Extensions;
+    using Microsoft.AspNetCore.Http;
+    using Microsoft.AspNetCore.Mvc.Formatters;
+    using Task = System.Threading.Tasks.Task;
+
     // https://stackoverflow.com/a/38935583
     public class ErrorHandler
     {
@@ -27,7 +26,7 @@ namespace Spark.Engine.ExceptionHandling
         private async Task HandleExceptionAsync(HttpContext context, Exception exception)
         {
             HttpStatusCode code = HttpStatusCode.InternalServerError;
-            FhirModel.OperationOutcome outcome;
+            Hl7.Fhir.Model.OperationOutcome outcome;
             if (exception is SparkException ex1)
             {
                 code = ex1.StatusCode;
@@ -46,15 +45,15 @@ namespace Spark.Engine.ExceptionHandling
             await formatter.WriteAsync(writeContext).ConfigureAwait(false);
         }
 
-        private FhirModel.OperationOutcome GetOperationOutcome(SparkException exception)
+        private Hl7.Fhir.Model.OperationOutcome GetOperationOutcome(SparkException exception)
         {
             if (exception == null) return null;
-            return (exception.Outcome ?? new FhirModel.OperationOutcome()).AddAllInnerErrors(exception);
+            return (exception.Outcome ?? new Hl7.Fhir.Model.OperationOutcome()).AddAllInnerErrors(exception);
         }
 
-        private FhirModel.OperationOutcome GetOperationOutcome(Exception exception)
+        private Hl7.Fhir.Model.OperationOutcome GetOperationOutcome(Exception exception)
         {
-            return exception == null ? null : new FhirModel.OperationOutcome().AddAllInnerErrors(exception);
+            return exception == null ? null : new Hl7.Fhir.Model.OperationOutcome().AddAllInnerErrors(exception);
         }
     }
 }

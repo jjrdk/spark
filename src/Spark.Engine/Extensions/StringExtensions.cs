@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Spark.Engine.Extensions
+﻿namespace Spark.Engine.Extensions
 {
     public static class StringExtensions
     {

@@ -1,10 +1,9 @@
-﻿using Hl7.Fhir.Model;
-using Spark.Engine.Core;
-using System;
-using System.Collections.Generic;
-
-namespace Spark.Engine.Test.Search
+﻿namespace Spark.Engine.Test.Core
 {
+    using System;
+    using System.Collections.Generic;
+    using Engine.Core;
+    using Hl7.Fhir.Model;
     using Xunit;
 
     public class FhirPropertyIndexTests

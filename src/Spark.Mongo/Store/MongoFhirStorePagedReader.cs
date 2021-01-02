@@ -2,11 +2,12 @@
 using MongoDB.Driver;
 using Spark.Engine.Core;
 using Spark.Engine.Store.Interfaces;
-using Spark.Store.Mongo;
 using System.Threading.Tasks;
 
 namespace Spark.Mongo.Store
 {
+    using Search.Infrastructure;
+
     public class MongoFhirStorePagedReader : IFhirStorePagedReader
     {
         private readonly IMongoCollection<BsonDocument> _collection;

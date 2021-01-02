@@ -6,16 +6,16 @@
  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
  */
 
-using System;
-using System.Linq;
-using System.Collections.Generic;
-using System.Net;
-using Spark.Core;
-using Hl7.Fhir.Model;
-using Spark.Engine.Core;
-
-namespace Spark.Service
+namespace Spark.Engine.Service
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Net;
+    using Core;
+    using Extensions;
+    using Hl7.Fhir.Model;
+
     public static class Validate
     {
         public static void TypeName(string name)

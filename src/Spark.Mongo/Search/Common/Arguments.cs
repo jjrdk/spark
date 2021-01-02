@@ -8,10 +8,12 @@
 
 using System.Text.RegularExpressions;
 using F = Hl7.Fhir.Model;
-using Spark.Search.Mongo;
 
 namespace Spark.Mongo.Search.Common
 {
+    using Searcher;
+    using Utils;
+
     public class Argument
     {
         public virtual string GroomElement(string value)

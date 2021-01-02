@@ -1,11 +1,10 @@
-﻿using Spark.Core;
-using System.Collections.Generic;
-using Spark.Engine;
-using Spark.Engine.Core;
-
-namespace Spark.Service
+﻿namespace Spark.Engine.Service
 {
+    using System.Collections.Generic;
     using System.Threading.Tasks;
+    using Core;
+    using Engine;
+    using Interfaces;
 
     /// <summary>
     /// Transfer maps between local id's and references and absolute id's and references upon incoming or outgoing Interactions.

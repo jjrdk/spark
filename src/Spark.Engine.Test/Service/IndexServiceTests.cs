@@ -6,7 +6,6 @@ using Spark.Engine.Model;
 using Spark.Engine.Search;
 using Spark.Engine.Service.FhirServiceExtensions;
 using Spark.Engine.Store.Interfaces;
-using Spark.Search;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -16,6 +15,7 @@ using static Hl7.Fhir.Model.ModelInfo;
 namespace Spark.Engine.Test.Service
 {
     using System.Threading.Tasks;
+    using Engine.Search.ValueExpressionTypes;
     using Xunit;
 
     public class IndexServiceTests

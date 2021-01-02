@@ -13,11 +13,11 @@ namespace Spark.Engine.Web.Formatters
     using System;
     using System.Text;
     using Auxiliary;
+    using Core;
     using Hl7.Fhir.Model;
     using Hl7.Fhir.Rest;
     using Hl7.Fhir.Serialization;
     using Microsoft.AspNetCore.Mvc.Formatters;
-    using Spark.Core;
 
     public class XmlFhirInputFormatter : TextInputFormatter
     {

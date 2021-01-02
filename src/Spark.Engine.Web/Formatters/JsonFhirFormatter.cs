@@ -6,20 +6,18 @@
  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
  */
 
-using System;
-using System.Threading.Tasks;
-using Hl7.Fhir.Model;
-using Hl7.Fhir.Serialization;
-using Newtonsoft.Json;
-using Hl7.Fhir.Rest;
-using Spark.Core;
-using Spark.Engine.Core;
-
-namespace Spark.Formatters
+namespace Spark.Engine.Web.Formatters
 {
+    using System;
     using System.Text;
-    using Engine.Web.Extensions;
+    using System.Threading.Tasks;
+    using Core;
+    using Extensions;
+    using Hl7.Fhir.Model;
+    using Hl7.Fhir.Rest;
+    using Hl7.Fhir.Serialization;
     using Microsoft.AspNetCore.Mvc.Formatters;
+    using Newtonsoft.Json;
     using Resource = Hl7.Fhir.Model.Resource;
     using Task = System.Threading.Tasks.Task;
 

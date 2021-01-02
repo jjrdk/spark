@@ -1,4 +1,4 @@
-﻿namespace Spark.Store.Mongo
+﻿namespace Spark.Mongo.Store
 {
 
     public static class Collection

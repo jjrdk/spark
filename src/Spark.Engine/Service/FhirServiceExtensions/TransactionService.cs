@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using Hl7.Fhir.Model;
 using Spark.Engine.Core;
-using Spark.Service;
 
 namespace Spark.Engine.Service.FhirServiceExtensions
 {
     using System.Threading.Tasks;
+    using Extensions;
 
     public class TransactionService : ITransactionService
     {

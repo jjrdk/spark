@@ -4,14 +4,13 @@ using System.Linq;
 using System.Net;
 using Hl7.Fhir.Model;
 using Hl7.Fhir.Rest;
-using Spark.Core;
 using Spark.Engine.Core;
 using Spark.Engine.Extensions;
-using Spark.Service;
 
 namespace Spark.Engine.Service.FhirServiceExtensions
 {
     using System.Threading.Tasks;
+    using Interfaces;
 
     public class SearchService : ISearchService, IServiceListener
     {

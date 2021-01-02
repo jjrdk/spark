@@ -15,8 +15,6 @@ using System.Net;
 using System.Net.Http;
 using Spark.Engine.Core;
 using System.Diagnostics;
-using System.Linq;
-using Spark.Engine.Utility;
 
 namespace Spark.Engine.Extensions
 {

@@ -3,6 +3,8 @@ using System;
 
 namespace Spark.Engine.Core
 {
+    using Extensions;
+
     public enum EntryState { Internal, Undefined, External }
 
     public class    Entry 

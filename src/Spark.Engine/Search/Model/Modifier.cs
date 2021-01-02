@@ -1,11 +1,12 @@
 ﻿using Hl7.Fhir.Model;
-using Spark.Search.Support;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace Spark.Engine.Search.Model
 {
+    using Support;
+
     public enum Modifier
     {
         UNKNOWN = 0,

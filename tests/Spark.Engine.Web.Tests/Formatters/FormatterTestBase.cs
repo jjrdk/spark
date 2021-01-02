@@ -1,11 +1,11 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.Formatters;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
-using System;
-using System.IO;
-
-namespace Spark.Engine.Test.Formatters
+﻿namespace Spark.Engine.Web.Tests.Formatters
 {
+    using System;
+    using System.IO;
+    using Microsoft.AspNetCore.Http;
+    using Microsoft.AspNetCore.Mvc.Formatters;
+    using Microsoft.AspNetCore.Mvc.ModelBinding;
+
     public class FormatterTestBase
     {
         protected string GetResourceFromFileAsString(string path)

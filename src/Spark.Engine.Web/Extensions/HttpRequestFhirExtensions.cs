@@ -16,7 +16,6 @@ namespace Spark.Engine.Web.Extensions
     using System.Linq;
     using System.Net;
     using System.Net.Http;
-    using System.Net.Http.Headers;
     using Hl7.Fhir.Model;
     using Hl7.Fhir.Rest;
     using Hl7.Fhir.Utility;

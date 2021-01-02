@@ -6,13 +6,12 @@
  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
  */
 
-using System.Collections.Generic;
-using Hl7.Fhir.Rest;
-using Spark.Engine.Core;
-
-namespace Spark.Core
+namespace Spark.Engine.Interfaces
 {
+    using System.Collections.Generic;
     using System.Threading.Tasks;
+    using Core;
+    using Hl7.Fhir.Rest;
 
     public interface IFhirIndex
     {

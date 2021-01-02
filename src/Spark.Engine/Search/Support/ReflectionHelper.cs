@@ -6,14 +6,14 @@
  * available at https://raw.githubusercontent.com/ewoutkramer/fhir-net-api/master/LICENSE
  */
 
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-
-namespace Spark.Search.Support
+namespace Spark.Engine.Search.Support
 {
+    using System;
+    using System.Collections;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Reflection;
+
     internal static class ReflectionHelper
     {
         public static bool CanBeTreatedAsType(this Type CurrentType, Type TypeToCompareWith)

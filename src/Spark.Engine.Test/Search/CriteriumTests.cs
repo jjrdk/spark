@@ -6,12 +6,12 @@
  * available at https://raw.githubusercontent.com/ewoutkramer/fhir-net-api/master/LICENSE
  */
 
-using System;
-using Hl7.Fhir.Model;
-using Spark.Search.Support;
-
-namespace Spark.Search
+namespace Spark.Engine.Test.Search
 {
+    using System;
+    using Engine.Search.Support;
+    using Engine.Search.ValueExpressionTypes;
+    using Hl7.Fhir.Model;
     using Xunit;
 
     public class CriteriumTests

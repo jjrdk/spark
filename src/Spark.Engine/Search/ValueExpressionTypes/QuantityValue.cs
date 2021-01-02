@@ -6,12 +6,12 @@
  * available at https://raw.githubusercontent.com/ewoutkramer/fhir-net-api/master/LICENSE
  */
 
-using Spark.Search.Support;
-using Hl7.Fhir.Serialization;
-using System;
-
-namespace Spark.Search
+namespace Spark.Engine.Search.ValueExpressionTypes
 {
+    using System;
+    using Hl7.Fhir.Serialization;
+    using Support;
+
     public class QuantityValue : ValueExpression
     {
         public decimal Number { get; private set; }

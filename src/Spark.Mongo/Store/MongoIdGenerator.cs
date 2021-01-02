@@ -2,12 +2,12 @@
 using Hl7.Fhir.Model;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using Spark.Core;
-using Spark.Store.Mongo;
 
 namespace Spark.Mongo.Store
 {
     using System.Threading.Tasks;
+    using Engine.Interfaces;
+    using Search.Infrastructure;
 
     public class MongoIdGenerator : IGenerator
     {

@@ -1,12 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using MongoDB.Bson;
-using Hl7.Fhir.Serialization;
-using Hl7.Fhir.Model;
-using Spark.Engine.Core;
-
-namespace Spark.Store.Mongo
+﻿namespace Spark.Mongo.Store
 {
+    using System;
+    using System.Collections.Generic;
+    using Engine.Core;
+    using Engine.Extensions;
+    using Hl7.Fhir.Model;
+    using Hl7.Fhir.Serialization;
+    using MongoDB.Bson;
+
     public static class SparkBsonHelper
     {
         public static BsonDocument CreateDocument(Resource resource)

@@ -6,10 +6,10 @@
  * available at https://raw.githubusercontent.com/ewoutkramer/fhir-net-api/master/LICENSE
  */
 
-using System.Xml.Linq;
-
-namespace Spark.Search.Support
+namespace Spark.Engine.Search.Support
 {
+    using System.Xml.Linq;
+
     public static class XmlNs
     {
         public const string FHIR = "http://hl7.org/fhir";

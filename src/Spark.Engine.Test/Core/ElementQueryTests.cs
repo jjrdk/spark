@@ -1,5 +1,4 @@
-﻿using System;
-using Spark.Engine.Core;
+﻿using Spark.Engine.Core;
 using Hl7.Fhir.Model;
 using System.Collections.Generic;
 using System.Linq;

@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace Spark.Engine.Storage
+﻿namespace Spark.Engine.Store
 {
+    using System;
+    using System.Collections;
+    using System.Collections.Generic;
+    using System.Linq;
+
     public abstract class ExtendableWith<T> : IEnumerable<T>
     {
         private readonly Dictionary<Type, T> extensions = new Dictionary<Type, T>();

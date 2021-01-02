@@ -1,10 +1,10 @@
 ﻿using Hl7.Fhir.Model;
 using Spark.Engine.Core;
-using Spark.Core;
 
 namespace Spark.Engine.Extensions
 {
     using System.Threading.Tasks;
+    using Interfaces;
 
     public static class GeneratorKeyExtensions
     {

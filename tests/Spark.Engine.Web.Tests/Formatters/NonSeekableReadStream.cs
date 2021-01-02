@@ -1,10 +1,10 @@
-﻿using System;
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace Spark.Engine.Test.Formatters
+﻿namespace Spark.Engine.Web.Tests.Formatters
 {
+    using System;
+    using System.IO;
+    using System.Threading;
+    using System.Threading.Tasks;
+
     internal class NonSeekableReadStream : Stream
     {
         private readonly Stream _inner;

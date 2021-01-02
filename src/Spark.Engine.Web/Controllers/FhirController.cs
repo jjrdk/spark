@@ -8,6 +8,7 @@
     using System.Threading.Tasks;
     using System.Web;
     using Engine.Core;
+    using Engine.Extensions;
     using Extensions;
     using Hl7.Fhir.Model;
     using Hl7.Fhir.Rest;
@@ -15,7 +16,7 @@
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Net.Http.Headers;
-    using Spark.Service;
+    using Service;
     using Utility;
 
     [Route("fhir"), ApiController, EnableCors]

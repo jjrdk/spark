@@ -6,13 +6,16 @@
  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
  */
 
-using Fhir.Metrics;
-using MongoDB.Bson;
 using FM = Hl7.Fhir.Model;
-using Spark.Engine.Extensions;
 
-namespace Spark.Search.Mongo
+namespace Spark.Mongo.Search.Utils
 {
+    using Engine.Extensions;
+    using Engine.Search.ValueExpressionTypes;
+    using Fhir.Metrics;
+    using MongoDB.Bson;
+    using Quantity = Fhir.Metrics.Quantity;
+
     public static class UnitsOfMeasureHelper
     {
         public static BsonDocument ToBson(this Quantity quantity)
@@ -49,7 +52,7 @@ namespace Spark.Search.Mongo
             if (quantity.IsUcum())
             {
                 Quantity q = quantity.ToUnitsOfMeasureQuantity();
-                return q.ToBson();
+                return ToBson(q);
             }
             else return quantity.NonUcumIndexed();
         }

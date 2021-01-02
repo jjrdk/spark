@@ -4,14 +4,14 @@ using Spark.Engine.Core;
 using Spark.Engine.Extensions;
 using Spark.Engine.Logging;
 using Spark.Engine.Model;
-using Spark.Search;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Expression = Spark.Search.Expression;
 
 namespace Spark.Engine.Search
 {
+    using ValueExpressionTypes;
+
     //This class is not static because it needs a IFhirModel to do some of the indexing (especially enums).
     public class ElementIndexer
     {
@@ -101,7 +101,7 @@ namespace Spark.Engine.Search
         {
             if (element == null || element.Repeat == null || element.Repeat.Bounds == null)
                 return null;
-            
+
             // TODO: Should I handle Duration?
             return ToExpressions(element.Repeat.Bounds as Period);
         }

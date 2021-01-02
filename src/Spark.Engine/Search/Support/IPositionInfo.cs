@@ -8,7 +8,7 @@
 
 
 
-namespace Spark.Search.Support
+namespace Spark.Engine.Search.Support
 {
     public interface IPostitionInfo
     {

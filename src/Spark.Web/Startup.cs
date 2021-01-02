@@ -8,7 +8,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 using Spark.Engine;
-using Spark.Engine.Extensions;
 using Spark.Mongo.Extensions;
 using Spark.Web.Data;
 using Spark.Web.Models.Config;
@@ -22,6 +21,8 @@ using Microsoft.Extensions.Hosting;
 
 namespace Spark.Web
 {
+    using Engine.Web;
+
     public class Startup
     {
         private ILogger<Startup> _logger;

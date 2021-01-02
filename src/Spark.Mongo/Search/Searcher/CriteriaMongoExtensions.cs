@@ -1,25 +1,27 @@
-﻿/* 
+﻿/*
  * Copyright (c) 2014, Furore (info@furore.com) and contributors
  * See the file CONTRIBUTORS for details.
- * 
+ *
  * This file is licensed under the BSD 3-Clause license
  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
  */
 
-using Hl7.Fhir.Model;
-using MongoDB.Driver;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using MongoDB.Bson;
-using System.Text.RegularExpressions;
-using System.Reflection;
-using Spark.Mongo.Search.Common;
-using Spark.Engine.Extensions;
-using Hl7.Fhir.Utility;
-
-namespace Spark.Search.Mongo
+namespace Spark.Mongo.Search.Searcher
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Reflection;
+    using System.Text.RegularExpressions;
+    using Common;
+    using Engine.Extensions;
+    using Engine.Search.ValueExpressionTypes;
+    using Hl7.Fhir.Model;
+    using Hl7.Fhir.Utility;
+    using MongoDB.Bson;
+    using MongoDB.Driver;
+    using Utils;
+    using Expression = Engine.Search.ValueExpressionTypes.Expression;
 
     // todo: DSTU2 - NonExistent classes: Operator, Expression, ValueExpression
 

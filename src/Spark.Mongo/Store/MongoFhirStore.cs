@@ -6,19 +6,18 @@
  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
  */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
-using MongoDB.Bson;
-using MongoDB.Driver;
-using Spark.Engine.Core;
-using Spark.Engine.Store.Interfaces;
-
-
-namespace Spark.Store.Mongo
+namespace Spark.Mongo.Store
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
+    using Engine.Core;
+    using Engine.Extensions;
+    using Engine.Store.Interfaces;
+    using MongoDB.Bson;
+    using MongoDB.Driver;
+    using Search.Infrastructure;
 
     public class MongoFhirStore : IFhirStore
     {
@@ -33,7 +32,7 @@ namespace Spark.Store.Mongo
 
         public async Task Add(Entry entry)
         {
-            BsonDocument document = entry.ToBsonDocument();
+            BsonDocument document = SparkBsonHelper.ToBsonDocument(entry);
             await Supercede(entry.Key).ConfigureAwait(false);
             await collection.InsertOneAsync(document).ConfigureAwait(false);
         }

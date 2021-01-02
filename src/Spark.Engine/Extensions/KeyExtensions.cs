@@ -6,14 +6,16 @@
  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
  */
 
-using Hl7.Fhir.Model;
-using Hl7.Fhir.Rest;
-using System;
-using System.Collections.Generic;
+
 
 // mh: KeyExtensions terugverplaatst naar Spark.Engine.Core omdat ze in dezelfde namespace moeten zitten als Key.
-namespace Spark.Engine.Core
+namespace Spark.Engine.Extensions
 {
+    using System;
+    using System.Collections.Generic;
+    using Core;
+    using Hl7.Fhir.Model;
+    using Hl7.Fhir.Rest;
 
     public static class KeyExtensions
     {

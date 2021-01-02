@@ -6,11 +6,11 @@
  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
  */
 
-using System;
-using System.Collections.Generic;
-
-namespace Spark.Service
+namespace Spark.Engine.Service
 {
+    using System;
+    using System.Collections.Generic;
+
     public class Mapper<TKEY, TVALUE>
     {
         private readonly Dictionary<TKEY, TVALUE> mapping = new Dictionary<TKEY, TVALUE>();

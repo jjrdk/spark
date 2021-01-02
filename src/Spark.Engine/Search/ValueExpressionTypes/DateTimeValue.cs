@@ -6,12 +6,12 @@
  * available at https://raw.githubusercontent.com/ewoutkramer/fhir-net-api/master/LICENSE
  */
 
-using Hl7.Fhir.Model;
-using Spark.Search.Support;
-using System;
-
-namespace Spark.Search
+namespace Spark.Engine.Search.ValueExpressionTypes
 {
+    using System;
+    using Hl7.Fhir.Model;
+    using Support;
+
     /// <summary>
     /// DateTimeValue is allways specified up to the second.
     /// Spark uses it for the boundaries of a period. So fuzzy dates as in FhirDateTime (just year + month for example) get translated in an upper- and lowerbound in DateTimeValues.

@@ -1,8 +1,7 @@
-﻿using Hl7.Fhir.Utility;
-using Spark.Engine.Test.Utility;
-
-namespace Spark.Engine.Test
+﻿namespace Spark.Engine.Web.Tests.Utility
 {
+    using Hl7.Fhir.Utility;
+
     public enum FhirVersionMoniker
     {
         [EnumLiteral("")]

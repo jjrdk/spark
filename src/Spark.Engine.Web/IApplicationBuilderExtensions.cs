@@ -1,12 +1,9 @@
-﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Routing;
-using Spark.Engine.ExceptionHandling;
-using System;
-using Spark.Engine.Maintenance;
-
-namespace Spark.Engine.Extensions
+﻿namespace Spark.Engine.Web
 {
-    using Web.Handlers;
+    using System;
+    using Handlers;
+    using Microsoft.AspNetCore.Builder;
+    using Microsoft.AspNetCore.Routing;
 
     public static class IApplicationBuilderExtensions
     {

@@ -3,11 +3,12 @@ using FM = Hl7.Fhir.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Spark.Search;
 using Spark.Engine.Model;
 
 namespace Spark.Engine.Extensions
 {
+    using Search.ValueExpressionTypes;
+
     public static class QuantityExtensions
     {
         public static string UcumUriString = "http://unitsofmeasure.org";

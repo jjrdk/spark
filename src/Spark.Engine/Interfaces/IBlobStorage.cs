@@ -6,12 +6,12 @@
  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
  */
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-
-namespace Spark.Core
+namespace Spark.Engine.Interfaces
 {
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+
     public interface IBlobStorage : IDisposable
     {
         void Open();

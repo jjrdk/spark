@@ -1,9 +1,9 @@
-﻿using System;
-using System.Xml.Linq;
-using Spark.Engine.Core;
-
-namespace Spark.Core
+﻿namespace Spark.Engine.Service
 {
+    using System;
+    using System.Xml.Linq;
+    using Core;
+
     public static class XDocumentExtensions
     {
         public static void VisitAttributes(this XDocument document, string tagname, string attrName, Action<XAttribute> action)

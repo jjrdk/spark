@@ -7,7 +7,7 @@
  */
 
 
-namespace Spark.Core
+namespace Spark.Engine.Interfaces
 {
     // DSTU2: tags
     /*

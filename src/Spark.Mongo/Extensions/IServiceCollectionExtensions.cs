@@ -1,7 +1,6 @@
 ﻿using Hl7.Fhir.Model;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Spark.Core;
 using Spark.Engine;
 using Spark.Engine.Interfaces;
 using Spark.Engine.Store.Interfaces;
@@ -9,11 +8,12 @@ using Spark.Mongo.Search.Common;
 using Spark.Mongo.Search.Indexer;
 using Spark.Mongo.Store;
 using Spark.Mongo.Store.Extensions;
-using Spark.Search.Mongo;
-using Spark.Store.Mongo;
 
 namespace Spark.Mongo.Extensions
 {
+    using Search.Infrastructure;
+    using Search.Searcher;
+
     public static class IServiceCollectionExtensions
     {
         public static void AddMongoFhirStore(this IServiceCollection services, StoreSettings settings)

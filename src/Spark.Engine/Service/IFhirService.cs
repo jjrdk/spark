@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using Hl7.Fhir.Model;
-using Hl7.Fhir.Rest;
-using Spark.Engine.Core;
-
-namespace Spark.Service
+﻿namespace Spark.Engine.Service
 {
+    using System;
+    using System.Collections.Generic;
     using System.Threading.Tasks;
+    using Core;
+    using Hl7.Fhir.Model;
+    using Hl7.Fhir.Rest;
 
     public interface IFhirService
     {

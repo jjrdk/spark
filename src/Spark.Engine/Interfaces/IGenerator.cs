@@ -7,11 +7,10 @@
  */
 
 
-using Hl7.Fhir.Model;
-
-namespace Spark.Core
+namespace Spark.Engine.Interfaces
 {
     using System.Threading.Tasks;
+    using Hl7.Fhir.Model;
 
     public interface IGenerator
     {

@@ -1,15 +1,15 @@
 ﻿using FhirModel = Hl7.Fhir.Model;
-using Hl7.Fhir.Serialization;
-using Microsoft.AspNetCore.Http;
-using Spark.Engine.Test.Utility;
-using System.IO;
-using System.Text;
-using System.Threading.Tasks;
-using Xunit;
 
-namespace Spark.Engine.Test.Formatters
+namespace Spark.Engine.Web.Tests.Formatters
 {
+    using System.IO;
+    using System.Text;
+    using Hl7.Fhir.Serialization;
+    using Microsoft.AspNetCore.Http;
+    using Utility;
     using Web.Formatters;
+    using Xunit;
+    using Task = System.Threading.Tasks.Task;
 
     public class ResourceXmlInputFormatterTests : FormatterTestBase
     {

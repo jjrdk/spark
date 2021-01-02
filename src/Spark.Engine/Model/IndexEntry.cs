@@ -1,9 +1,10 @@
-﻿using Spark.Search;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace Spark.Engine.Model
 {
+    using Search.ValueExpressionTypes;
+
     public class IndexValue : ValueExpression
     {
         public IndexValue()

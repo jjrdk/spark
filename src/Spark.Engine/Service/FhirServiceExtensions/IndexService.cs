@@ -16,12 +16,12 @@ using Spark.Engine.Model;
 using Spark.Engine.Search;
 using Spark.Engine.Search.Model;
 using Spark.Engine.Store.Interfaces;
-using Spark.Search;
 
 namespace Spark.Engine.Service.FhirServiceExtensions
 {
     using System.Threading.Tasks;
     using Hl7.Fhir.FhirPath;
+    using Search.ValueExpressionTypes;
 
     /// <summary>
     /// IndexEntry is the collection of indexed values for a resource.

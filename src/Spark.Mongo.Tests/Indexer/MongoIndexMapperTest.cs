@@ -1,10 +1,11 @@
-﻿using Spark.Search;
-using Spark.Mongo.Search.Indexer;
+﻿using Spark.Mongo.Search.Indexer;
 using Spark.Engine.Model;
 using Xunit;
 
 namespace Spark.Mongo.Tests.Indexer
 {
+    using Engine.Search.ValueExpressionTypes;
+
     /// <summary>
     /// Summary description for MongoIndexMapperTest
     /// </summary>

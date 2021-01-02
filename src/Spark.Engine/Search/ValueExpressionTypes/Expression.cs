@@ -7,7 +7,7 @@
  */
 
 
-namespace Spark.Search
+namespace Spark.Engine.Search.ValueExpressionTypes
 {
     public abstract class Expression
     {

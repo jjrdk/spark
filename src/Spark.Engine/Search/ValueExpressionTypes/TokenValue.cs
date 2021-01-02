@@ -6,11 +6,11 @@
  * available at https://raw.githubusercontent.com/ewoutkramer/fhir-net-api/master/LICENSE
  */
 
-using Spark.Search.Support;
-using System;
-
-namespace Spark.Search
+namespace Spark.Engine.Search.ValueExpressionTypes
 {
+    using System;
+    using Support;
+
     public class TokenValue : ValueExpression
     {
         public string Namespace { get; private set; }

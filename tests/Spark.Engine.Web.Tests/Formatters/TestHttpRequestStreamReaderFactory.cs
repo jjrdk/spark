@@ -1,10 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc.Infrastructure;
-using Microsoft.AspNetCore.WebUtilities;
-using System.IO;
-using System.Text;
-
-namespace Spark.Engine.Test.Formatters
+﻿namespace Spark.Engine.Web.Tests.Formatters
 {
+    using System.IO;
+    using System.Text;
+    using Microsoft.AspNetCore.Mvc.Infrastructure;
+    using Microsoft.AspNetCore.WebUtilities;
+
     public class TestHttpRequestStreamReaderFactory : IHttpRequestStreamReaderFactory
     {
         public TextReader CreateReader(Stream stream, Encoding encoding)

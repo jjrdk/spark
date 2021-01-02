@@ -7,7 +7,7 @@
  */
 
 
-namespace Spark.Configuration
+namespace Spark.Engine.Service
 {
     public static class Const
     {

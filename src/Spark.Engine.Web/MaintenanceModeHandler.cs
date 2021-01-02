@@ -1,8 +1,9 @@
-﻿using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-
-namespace Spark.Engine.Maintenance
+﻿namespace Spark.Engine.Web
 {
+    using System.Threading.Tasks;
+    using Maintenance;
+    using Microsoft.AspNetCore.Http;
+
     public class MaintenanceModeHandler
     {
         private readonly RequestDelegate _next;

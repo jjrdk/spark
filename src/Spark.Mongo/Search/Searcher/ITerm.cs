@@ -6,10 +6,10 @@
  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
  */
 
-using Spark.Mongo.Search.Common;
-
-namespace Spark.Search.Mongo
+namespace Spark.Mongo.Search.Searcher
 {
+    using Common;
+
     public interface ITerm
     {
         string Resource { get; set; }

@@ -6,20 +6,18 @@
  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
  */
 
-using System;
-using System.Collections.Generic;
-using System.Xml.Linq;
-
-using Hl7.Fhir.Model;
-
-using Spark.Core;
-using System.Net;
-using Spark.Engine.Core;
-using Spark.Engine.Extensions;
-
-namespace Spark.Service
+namespace Spark.Engine.Service
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Net;
     using System.Threading.Tasks;
+    using System.Xml.Linq;
+    using Core;
+    using Extensions;
+    using Hl7.Fhir.Model;
+    using Interfaces;
+    using Task = System.Threading.Tasks.Task;
 
     /// <summary>
     /// Import can map id's and references in incoming entries to id's and references that are local to the Spark Server.

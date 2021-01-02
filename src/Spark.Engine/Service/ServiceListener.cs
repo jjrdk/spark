@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Spark.Engine.Core;
-using Spark.Engine.Service;
-
-namespace Spark.Service
+﻿namespace Spark.Engine.Service
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
+    using Core;
 
     public class ServiceListener : IServiceListener, ICompositeServiceListener
     {

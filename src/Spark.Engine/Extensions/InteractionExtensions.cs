@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Spark.Engine.Core;
-using Spark.Core;
 
 namespace Spark.Engine.Extensions
 {

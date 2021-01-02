@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using Spark.Engine.Store.Interfaces;
-using Spark.Store.Mongo;
 
 namespace Spark.Mongo.Store
 {

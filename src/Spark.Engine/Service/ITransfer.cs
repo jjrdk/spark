@@ -1,9 +1,8 @@
-﻿using System.Collections.Generic;
-using Spark.Engine.Core;
-
-namespace Spark.Service
+﻿namespace Spark.Engine.Service
 {
+    using System.Collections.Generic;
     using System.Threading.Tasks;
+    using Core;
 
     public interface ITransfer
     {

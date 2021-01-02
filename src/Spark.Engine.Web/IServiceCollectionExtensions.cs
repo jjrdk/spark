@@ -1,23 +1,20 @@
-﻿using Hl7.Fhir.Model;
-using Hl7.Fhir.Serialization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using Spark.Engine.Core;
-using Spark.Engine.FhirResponseFactory;
-using Spark.Engine.Interfaces;
-using Spark.Engine.Search;
-using Spark.Engine.Service;
-using Spark.Engine.Service.FhirServiceExtensions;
-using Spark.Service;
-using System;
-using System.Collections.Generic;
-
-namespace Spark.Engine.Extensions
+﻿namespace Spark.Engine.Web
 {
+    using System;
+    using System.Collections.Generic;
+    using Core;
+    using FhirResponseFactory;
     using Formatters;
+    using Hl7.Fhir.Model;
+    using Hl7.Fhir.Serialization;
+    using Interfaces;
+    using Microsoft.AspNetCore.Mvc;
+    using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.DependencyInjection.Extensions;
+    using Search;
+    using Service;
+    using Service.FhirServiceExtensions;
     using Store.Interfaces;
-    using Web.Formatters;
 
     public static class IServiceCollectionExtensions
     {
@@ -41,7 +38,7 @@ namespace Spark.Engine.Extensions
             services.TryAddTransient<ConditionalHeaderFhirResponseInterceptor>();
             services.TryAddTransient((provider) => new IFhirResponseInterceptor[] { provider.GetRequiredService<ConditionalHeaderFhirResponseInterceptor>() });
             services.TryAddTransient<IFhirResponseInterceptorRunner, FhirResponseInterceptorRunner>();
-            services.TryAddTransient<IFhirResponseFactory, FhirResponseFactory.FhirResponseFactory>();
+            services.TryAddTransient<IFhirResponseFactory, Engine.FhirResponseFactory.FhirResponseFactory>();
             services.TryAddTransient<IIndexRebuildService, IndexRebuildService>();
             services.TryAddTransient<ISearchService, SearchService>();
             services.TryAddTransient<ISnapshotPaginationProvider, SnapshotPaginationProvider>();
