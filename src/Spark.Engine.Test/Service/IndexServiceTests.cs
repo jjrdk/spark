@@ -1,6 +1,5 @@
 ﻿using Hl7.Fhir.Model;
 using Hl7.Fhir.Serialization;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Spark.Engine.Core;
 using Spark.Engine.Model;
@@ -54,7 +53,7 @@ namespace Spark.Engine.Test.Service
             };
             var searchParameters = new List<SearchParamDefinition> { spPatientName, spMiddleName };
             var resources = new Dictionary<Type, string> { { typeof(Patient), "Patient" }, { typeof(HumanName), "HumanName" } };
-            
+
             // For this test setup we want a limited available types and search parameters.
             IFhirModel limitedFhirModel = new FhirModel(resources, searchParameters);
             ElementIndexer limitedElementIndexer = new ElementIndexer(limitedFhirModel);
@@ -65,7 +64,7 @@ namespace Spark.Engine.Test.Service
             ElementIndexer fullElementIndexer = new ElementIndexer(fullFhirModel);
             _fullIndexService = new IndexService(fullFhirModel, indexStoreMock.Object, fullElementIndexer);
         }
-        
+
         [Fact]
         public async Task TestIndexCustomSearchParameter()
         {
@@ -78,10 +77,10 @@ namespace Spark.Engine.Test.Service
             IndexValue result = await _limitedIndexService.IndexResource(patient, patientKey).ConfigureAwait(false);
 
             var middleName = result.NonInternalValues().Skip(1).First();
-            Assert.AreEqual("middlename", middleName.Name);
-            Assert.AreEqual(1, middleName.Values.Count());
-            Assert.IsInstanceOfType(middleName.Values[0], typeof(StringValue));
-            Assert.AreEqual("Michel", middleName.Values[0].ToString());
+            Assert.Equal("middlename", middleName.Name);
+            Assert.Single(middleName.Values);
+            Assert.IsType<StringValue>(middleName.Values[0]);
+            Assert.Equal("Michel", middleName.Values[0].ToString());
         }
 
         [Fact]
@@ -159,15 +158,15 @@ namespace Spark.Engine.Test.Service
         [Fact]
         public async Task TestMultiValueIndexCanIndexFhirDateTimeAsync()
         {
-            Condition cd = new Condition {Onset = new FhirDateTime(2015, 6, 15)};
+            Condition cd = new Condition { Onset = new FhirDateTime(2015, 6, 15) };
 
             IKey cdKey = new Key("http://localhost/", "Condition", "test", null);
 
             IndexValue result = await _fullIndexService.IndexResource(cd, cdKey).ConfigureAwait(false);
 
-            Assert.IsNotNull(result);
+            Assert.NotNull(result);
             IndexValue onsetIndex = result.Values.SingleOrDefault(iv => (iv as IndexValue).Name == "onset-date") as IndexValue;
-            Assert.IsNotNull(onsetIndex);
+            Assert.NotNull(onsetIndex);
         }
 
         [Fact]
@@ -183,12 +182,12 @@ namespace Spark.Engine.Test.Service
 
             IndexValue result = await _fullIndexService.IndexResource(cd, cdKey).ConfigureAwait(false);
 
-            Assert.IsNotNull(result);
+            Assert.NotNull(result);
             IndexValue onsetIndex = result.Values.SingleOrDefault(iv => (iv as IndexValue).Name == "onset-info") as IndexValue;
-            Assert.IsNotNull(onsetIndex);
-            Assert.IsTrue(onsetIndex.Values.Count == 1);
-            Assert.IsTrue(onsetIndex.Values.First() is StringValue);
-            Assert.AreEqual(onsetInfo, ((StringValue)onsetIndex.Values.First()).Value);
+            Assert.NotNull(onsetIndex);
+            Assert.True(onsetIndex.Values.Count == 1);
+            Assert.True(onsetIndex.Values.First() is StringValue);
+            Assert.Equal(onsetInfo, ((StringValue)onsetIndex.Values.First()).Value);
         }
 
         [Fact]
@@ -209,13 +208,13 @@ namespace Spark.Engine.Test.Service
 
             IndexValue result = await _fullIndexService.IndexResource(cd, cdKey).ConfigureAwait(false);
 
-            Assert.IsNotNull(result);
-            IndexValue onsetIndex = result.Values.Where(iv => (iv as IndexValue).Name == "onset-age").Single() as IndexValue;
-            Assert.IsNotNull(onsetIndex);
-            Assert.IsTrue(onsetIndex.Values.First() is CompositeValue);
+            Assert.NotNull(result);
+            IndexValue onsetIndex = result.Values.OfType<IndexValue>().Single(iv => iv.Name == "onset-age");
+            Assert.NotNull(onsetIndex);
+            Assert.True(onsetIndex.Values.First() is CompositeValue);
             CompositeValue composite = onsetIndex.Values.First() as CompositeValue;
-            Assert.IsTrue(composite.Components.Cast<IndexValue>().First(c => c.Name == "value").Values.First() is NumberValue);
-            NumberValue value = composite.Components.Cast<IndexValue>().First(c => c.Name == "value").Values.First() as NumberValue;
+            Assert.True(composite.Components.Cast<IndexValue>().First(c => c.Name == "value").Values.First() is NumberValue);
+            //NumberValue value = composite.Components.Cast<IndexValue>().First(c => c.Name == "value").Values.First() as NumberValue;
 
             // TODO: Need to convert back to years for this to work, base unit of time is seconds if I am not mistaken.
             //Assert.AreEqual(onsetAge, value.Value);

@@ -12,12 +12,12 @@ namespace Spark.Engine.Web.Formatters
 {
     using System;
     using System.IO;
-    using System.Net.Http;
+    using System.Linq;
     using Core;
     using Hl7.Fhir.Model;
     using Microsoft.AspNetCore.Mvc.Formatters;
 
-    public class BinaryFhirInputFormatter : FhirInputFormatter
+    public class BinaryFhirInputFormatter : InputFormatter
     {
         public BinaryFhirInputFormatter() : base()
         {
@@ -29,12 +29,8 @@ namespace Spark.Engine.Web.Formatters
             return type == typeof(Resource);
         }
 
-        public override bool CanWriteType(Type type)
-        {
-            return type == typeof(Binary)  || type == typeof(FhirResponse);
-        }
-
-        public override Tasks.Task<object> ReadFromStreamAsync(Type type, Stream readStream, HttpContent content, IFormatterLogger formatterLogger)
+        /// <inheritdoc />
+        public override async Tasks.Task<InputFormatterResult> ReadRequestBodyAsync(InputFormatterContext context)
         {
             var success = context.HttpContext.Request.Headers.ContainsKey("X-Content-Type");
             if (!success)
@@ -52,18 +48,18 @@ namespace Spark.Engine.Web.Formatters
                 ContentType = contentType
             };
 
-            return Tasks.Task.FromResult((object)binary);
+            return await InputFormatterResult.SuccessAsync(binary).ConfigureAwait(false);
         }
 
-        public override Tasks.Task WriteToStreamAsync(Type type, object value, Stream writeStream, HttpContent content, System.Net.TransportContext transportContext)
-        {
-            Binary binary = (Binary)value;
-            var stream = new MemoryStream(binary.Data);
-            content.Headers.ContentType = new MediaTypeHeaderValue(binary.ContentType);
-            stream.CopyTo(writeStream);
-            stream.Flush();
+        //public override Tasks.Task WriteToStreamAsync(Type type, object value, Stream writeStream, HttpContent content, System.Net.TransportContext transportContext)
+        //{
+        //    Binary binary = (Binary)value;
+        //    var stream = new MemoryStream(binary.Data);
+        //    content.Headers.ContentType = new MediaTypeHeaderValue(binary.ContentType);
+        //    stream.CopyTo(writeStream);
+        //    stream.Flush();
 
-            return Tasks.Task.CompletedTask;
-        }
+        //    return Tasks.Task.CompletedTask;
+        //}
     }
 }

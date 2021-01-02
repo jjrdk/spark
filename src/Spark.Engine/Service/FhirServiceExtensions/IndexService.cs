@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (c) 2014, Furore (info@furore.com) and contributors
  * See the file CONTRIBUTORS for details.
  *
@@ -21,6 +21,7 @@ using Spark.Search;
 namespace Spark.Engine.Service.FhirServiceExtensions
 {
     using System.Threading.Tasks;
+    using Hl7.Fhir.FhirPath;
 
     /// <summary>
     /// IndexEntry is the collection of indexed values for a resource.
@@ -72,6 +73,8 @@ namespace Spark.Engine.Service.FhirServiceExtensions
             var rootIndexValue = new IndexValue(rootPartName);
             AddMetaParts(resource, key, rootIndexValue);
 
+            ElementNavFhirExtensions.PrepareFhirSymbolTableFunctions();
+
             foreach (var searchParameter in searchParameters)
             {
                 if (string.IsNullOrWhiteSpace(searchParameter.Expression)) continue;
@@ -83,8 +86,15 @@ namespace Spark.Engine.Service.FhirServiceExtensions
                 var indexValue = new IndexValue(searchParameter.Code);
                 IEnumerable<Base> resolvedValues;
                 // HACK: Ignoring search parameter expressions which the FhirPath engine does not yet have support for
-                try { resolvedValues = resource.SelectNew(searchParameter.Expression); }
-                catch { resolvedValues = new List<Base>(); }
+                try
+                {
+                    resolvedValues = resource.SelectNew(searchParameter.Expression);
+                }
+                catch (Exception e)
+                {
+                    // TODO: log error!
+                    resolvedValues = new List<Base>();
+                }
                 foreach (var element in resolvedValues.OfType<Element>())
                 {
                     indexValue.Values.AddRange(_elementIndexer.Map(element));

@@ -15,14 +15,14 @@ namespace Spark.Engine.Web.Extensions
     using System.Collections.Generic;
     using System.Linq;
     using System.Net.Http;
-    using Core;
     using Hl7.Fhir.Model;
     using Hl7.Fhir.Rest;
     using Hl7.Fhir.Utility;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Http.Headers;
     using Microsoft.Extensions.Primitives;
-    using Model;
+    using Microsoft.Net.Http.Headers;
+    using MediaTypeHeaderValue = Microsoft.Net.Http.Headers.MediaTypeHeaderValue;
 
     public static class HttpRequestFhirExtensions
     {
@@ -42,7 +42,7 @@ namespace Spark.Engine.Web.Extensions
         {
             if (request.Headers.TryGetValue("Content-Type", out StringValues value))
             {
-                string contentType = Enumerable.FirstOrDefault(value);
+                string contentType = value.FirstOrDefault();
                 TransferResourceIdIfRawBinary(contentType, resource, id);
             }
         }
@@ -52,7 +52,7 @@ namespace Spark.Engine.Web.Extensions
             string ifNoneExist = null;
             if (headers.Headers.TryGetValue(FhirHttpHeaders.IF_NONE_EXIST, out StringValues values))
             {
-                ifNoneExist = Enumerable.FirstOrDefault(values);
+                ifNoneExist = values.FirstOrDefault();
             }
             return ifNoneExist;
         }
@@ -105,7 +105,7 @@ namespace Spark.Engine.Web.Extensions
         //    message.AcquireHeaders(fhir);
         //    return message;
         //}
-        
+
         public static List<Tuple<string, string>> TupledParameters(this HttpRequest request)
         {
             var list = new List<Tuple<string, string>>();
@@ -152,50 +152,66 @@ namespace Spark.Engine.Web.Extensions
         {
             if (!string.IsNullOrEmpty(contentType) && resource is Binary && resource.Id == null && id != null)
             {
-                if (!Enumerable.Contains(ContentType.XML_CONTENT_HEADERS, contentType) && !Enumerable.Contains(ContentType.JSON_CONTENT_HEADERS, contentType))
+                if (!ContentType.XML_CONTENT_HEADERS.Contains(contentType) && !ContentType.JSON_CONTENT_HEADERS.Contains(contentType))
                     resource.Id = id;
             }
         }
 
-        /// <summary>
-        /// Returns true if the Accept header matches any of the FHIR supported Xml or Json MIME types, otherwise false.
-        /// </summary>
-        /// <param name="content">An instance of <see cref="HttpRequestMessage"/>.</param>
-        /// <returns>Returns true if the Accept header matches any of the FHIR supported Xml or Json MIME types, otherwise false.</returns>
-        private static bool IsAcceptHeaderFhirMediaType(this HttpRequestMessage request)
+        public static string GetAcceptHeaderValue(this HttpRequest request)
         {
-            string accept = request.GetAcceptHeaderValue();
-            return Enumerable.Contains(ContentType.XML_CONTENT_HEADERS, accept)
-                || Enumerable.Contains(ContentType.JSON_CONTENT_HEADERS, accept);
+            var headers =
+                MediaTypeHeaderValue.ParseList(request.Headers[HeaderNames.Accept]);
+            return headers.FirstOrDefault()?.MediaType.Value;
         }
 
-        internal static bool IsRawBinaryRequest(this HttpRequestMessage request, Type type)
+        ///// <summary>
+        ///// Returns true if the Accept header matches any of the FHIR supported Xml or Json MIME types, otherwise false.
+        ///// </summary>
+        ///// <param name="content">An instance of <see cref="HttpRequestMessage"/>.</param>
+        ///// <returns>Returns true if the Accept header matches any of the FHIR supported Xml or Json MIME types, otherwise false.</returns>
+        //private static bool IsAcceptHeaderFhirMediaType(this HttpRequest request)
+        //{
+        //    string accept = request.GetAcceptHeaderValue();
+        //    return ContentType.XML_CONTENT_HEADERS.Contains(accept)
+        //        || ContentType.JSON_CONTENT_HEADERS.Contains(accept);
+        //}
+
+        //internal static bool IsRawBinaryRequest(this HttpRequest request, Type type)
+        //{
+        //    if (type == typeof(Binary) || type == typeof(FhirResponse))
+        //    {
+        //        bool isFhirMediaType = false;
+        //        if (request.Method == HttpMethod.Get.Method)
+        //        {
+        //            isFhirMediaType = request.IsAcceptHeaderFhirMediaType();
+        //        }
+        //        else if (request.Method == HttpMethod.Post.Method || request.Method == HttpMethod.Put.Method)
+        //        {
+        //            isFhirMediaType = request.ContentType.IsContentTypeHeaderFhirMediaType();
+        //        }
+
+        //        var ub = new UriBuilder(request.RequestUri);
+        //        // TODO: KM: Path matching is not optimal should be replaced by a more solid solution.
+        //        return ub.Path.Contains("Binary")
+        //            && !isFhirMediaType;
+        //    }
+        //    else
+        //        return false;
+        //}
+
+        internal static bool IsRawBinaryPostOrPutRequest(this HttpRequest request)
         {
-            if (type == typeof(Binary) || type == typeof(FhirResponse))
+            var pathValue = request.Path.Value;
+            if (pathValue == null)
             {
-                bool isFhirMediaType = false;
-                if (request.Method == HttpMethod.Get)
-                    isFhirMediaType = request.IsAcceptHeaderFhirMediaType();
-                else if (request.Method == HttpMethod.Post || request.Method == HttpMethod.Put)
-                    isFhirMediaType = request.Content.IsContentTypeHeaderFhirMediaType();
-
-                var ub = new UriBuilder(request.RequestUri);
-                // TODO: KM: Path matching is not optimal should be replaced by a more solid solution.
-                return ub.Path.Contains("Binary")
-                    && !isFhirMediaType;
-            }
-            else
                 return false;
-        }
-
-        internal static bool IsRawBinaryPostOrPutRequest(this HttpRequestMessage request)
-        {
-            var ub = new UriBuilder(request.RequestUri);
+            }
+            //var ub = new UriBuilder(request.RequestUri);
             // TODO: KM: Path matching is not optimal should be replaced by a more solid solution.
-            return ub.Path.Contains("Binary")
-                && !ub.Path.EndsWith("_search")
-                && !request.Content.IsContentTypeHeaderFhirMediaType()
-                && (request.Method == HttpMethod.Post || request.Method == HttpMethod.Put);
+            return pathValue.Contains("Binary")
+                && !pathValue.EndsWith("_search")
+                && !request.ContentType.IsContentTypeHeaderFhirMediaType()
+                && (request.Method == HttpMethod.Post.Method || request.Method == HttpMethod.Put.Method);
         }
     }
 }

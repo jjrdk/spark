@@ -1,37 +1,35 @@
 ﻿using FhirModel = Hl7.Fhir.Model;
 using Hl7.Fhir.Serialization;
 using Microsoft.AspNetCore.Http;
-using Spark.Engine.Core;
-using Spark.Engine.Formatters;
 using Spark.Engine.Test.Utility;
-using System.Buffers;
 using System.IO;
-using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 
 namespace Spark.Engine.Test.Formatters
 {
-    public class ResourceJsonInputFormatterTests : FormatterTestBase
+    using Web.Formatters;
+
+    public class ResourceXmlInputFormatterTests : FormatterTestBase
     {
-        private const string DEFAULT_CONTENT_TYPE = "application/json";
+        private const string DEFAULT_CONTENT_TYPE = "application/xml";
 
         [Theory]
-        [InlineData("application/fhir+json", true)]
-        [InlineData("application/json+fhir", true)]
-        [InlineData("application/json", true)]
+        [InlineData("application/fhir+xml", true)]
+        [InlineData("application/xml+fhir", true)]
+        [InlineData("application/xml", true)]
         [InlineData("application/*", false)]
         [InlineData("*/*", false)]
-        [InlineData("text/json", true)]
+        [InlineData("text/xml", true)]
         [InlineData("text/*", false)]
-        [InlineData("text/xml", false)]
-        [InlineData("application/xml", false)]
-        [InlineData("application/some.entity+json", false)]
-        [InlineData("application/some.entity+json;v=2", false)]
+        [InlineData("text/json", false)]
+        [InlineData("application/json", false)]
         [InlineData("application/some.entity+xml", false)]
+        [InlineData("application/some.entity+xml;v=2", false)]
+        [InlineData("application/some.entity+json", false)]
         [InlineData("application/some.entity+*", false)]
-        [InlineData("text/some.entity+json", false)]
+        [InlineData("text/some.entity+xml", false)]
         [InlineData("", false)]
         [InlineData(null, false)]
         [InlineData("invalid", false)]
@@ -56,7 +54,7 @@ namespace Spark.Engine.Test.Formatters
 
             var mediaType = formatter.SupportedMediaTypes[0];
 
-            Assert.Equal("application/json", mediaType.ToString());
+            Assert.Equal("application/xml", mediaType.ToString());
         }
 
         [Fact]
@@ -65,7 +63,7 @@ namespace Spark.Engine.Test.Formatters
             var formatter = GetInputFormatter();
 
             var fhirVersionMoniker = FhirVersionUtility.GetFhirVersionMoniker();
-            var content = GetResourceFromFileAsString(Path.Combine("TestData", fhirVersionMoniker.ToString(), "patient-example.json"));
+            var content = GetResourceFromFileAsString(Path.Combine("TestData", fhirVersionMoniker.ToString(), "patient-example.xml"));
             var contentBytes = Encoding.UTF8.GetBytes(content);
             var httpContext = new DefaultHttpContext();
             httpContext.Request.ContentType = DEFAULT_CONTENT_TYPE;
@@ -95,28 +93,10 @@ namespace Spark.Engine.Test.Formatters
             Assert.Equal(true, patient.Active);
         }
 
-        [Fact]
-        public async Task ReadAsync_ThrowsSparkException_BadRequest_OnNonUtf8Content()
+        protected static XmlFhirInputFormatter GetInputFormatter(ParserSettings parserSettings = null)
         {
-            var formatter = GetInputFormatter();
-
-            var content = "ɊɋɌɍɎɏ";
-            var contentBytes = Encoding.Unicode.GetBytes(content);
-
-            var httpContext = GetHttpContext(contentBytes, DEFAULT_CONTENT_TYPE);
-
-            var formatterContext = CreateInputFormatterContext(typeof(FhirModel.Resource), httpContext);
-
-            SparkException exception = await Assert.ThrowsAsync<SparkException>(() => formatter.ReadAsync(formatterContext)).ConfigureAwait(false);
-            Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
-        }
-
-        protected static ResourceJsonInputFormatter GetInputFormatter(ParserSettings parserSettings = null)
-        {
-            if (parserSettings == null) parserSettings = new ParserSettings { PermissiveParsing = false };
-            return new ResourceJsonInputFormatter(
-                new FhirJsonParser(parserSettings),
-                ArrayPool<char>.Shared);
+            parserSettings ??= new ParserSettings {PermissiveParsing = false};
+            return new XmlFhirInputFormatter(new FhirXmlParser(parserSettings));
         }
     }
 }

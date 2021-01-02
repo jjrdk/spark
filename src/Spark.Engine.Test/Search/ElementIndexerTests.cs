@@ -54,7 +54,7 @@ namespace Spark.Engine.Search.Tests
             Assert.IsType<ElementIndexer>(sut);
         }
 
-        [TestMethod()]
+        [Fact]
         public void ElementMapTest()
         {
             var input = new Annotation();
@@ -62,7 +62,7 @@ namespace Spark.Engine.Search.Tests
             var result = sut.Map(input);
 
         //    Assert.Equal(2, lastLogEntry.EventId); //EventId 2 is related to Unsupported  features.
-        //}
+        }
 
         [Fact]
         public void FhirDecimalMapTest()

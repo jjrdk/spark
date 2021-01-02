@@ -2,7 +2,10 @@
 {
     using System.Threading.Tasks;
     using Core;
+    using Extensions;
     using Hl7.Fhir.Rest;
+    using Microsoft.AspNetCore.Http;
+    using Microsoft.Extensions.Primitives;
 
     public class FormatTypeHandler
     {

@@ -14,15 +14,15 @@ namespace Spark.Engine.Web.Formatters
     using System.Collections.Specialized;
     using System.IO;
     using System.Linq;
-    using System.Net;
-    using System.Net.Http;
     using System.Text;
     using Core;
+    using Engine.Extensions;
+    using Extensions;
     using Hl7.Fhir.Model;
     using Hl7.Fhir.Rest;
     using Hl7.Fhir.Serialization;
     using Microsoft.AspNetCore.Mvc.Formatters;
-    using Spark.Core;
+    using Microsoft.Net.Http.Headers;
     using Task = Tasks.Task;
 
     public class HtmlFhirFormatter : TextOutputFormatter
@@ -41,43 +41,40 @@ namespace Spark.Engine.Web.Formatters
             context.ContentType = new MediaTypeHeaderValue("text/html").ToString();
         }
 
-        public override Tasks.Task<object> ReadFromStreamAsync(Type type, Stream readStream, HttpContent content, IFormatterLogger formatterLogger)
-        {
-            try
-            {
-                throw new NotSupportedException(string.Format((string) "Cannot read unsupported type {0} from body", (object?) type.Name));
-            }
-            catch (FormatException exc)
-            {
-                throw Error.BadRequest("Body parsing failed: " + exc.Message);
-            }
-        }
+        //public override Tasks.Task<object> ReadFromStreamAsync(Type type, Stream readStream, HttpContent content, IFormatterLogger formatterLogger)
+        //{
+        //    try
+        //    {
+        //        throw new NotSupportedException(string.Format((string) "Cannot read unsupported type {0} from body", (object?) type.Name));
+        //    }
+        //    catch (FormatException exc)
+        //    {
+        //        throw Error.BadRequest("Body parsing failed: " + exc.Message);
+        //    }
+        //}
 
-        public override Tasks.Task WriteToStreamAsync(Type type, object value, Stream writeStream, HttpContent content, TransportContext transportContext)
+        /// <inheritdoc />
+        public override async Task WriteResponseBodyAsync(OutputFormatterWriteContext context, Encoding selectedEncoding)
         {
-           return WriteHTMLOutputAsync(type, value, writeStream);
-        }
+            var type = context.ObjectType;
+            var value = context.Object;
 
-        private async Task WriteHTMLOutputAsync(Type type, object value, Stream writeStream)
-        {
-            StreamWriter writer = new StreamWriter(writeStream, Encoding.UTF8);
-            writer.WriteLine("<html>");
-            writer.WriteLine("<head>");
-            writer.WriteLine("  <link rel=\"icon\" href=\"/Content/Fire.png\"></link>");
-            writer.WriteLine("  <link rel=\"icon\" href=\"/Content/css/fhir-html.css\"></link>");
-            writer.WriteLine("</head>");
-            writer.WriteLine("<body>");
+            var writer = context.WriterFactory(context.HttpContext.Response.Body, selectedEncoding);
+            await writer.WriteLineAsync("<html>").ConfigureAwait(false);
+            await writer.WriteLineAsync("<head>").ConfigureAwait(false);
+            await writer.WriteLineAsync("  <link rel=\"icon\" href=\"/Content/Fire.png\"></link>").ConfigureAwait(false);
+            await writer.WriteLineAsync("  <link rel=\"icon\" href=\"/Content/css/fhir-html.css\"></link>").ConfigureAwait(false);
+            await writer.WriteLineAsync("</head>").ConfigureAwait(false);
+            await writer.WriteLineAsync("<body>").ConfigureAwait(false);
             if (type == typeof(Resource) || type == typeof(OperationOutcome))
             {
-                if (value is Bundle)
+                if (value is Bundle resource1)
                 {
-                    Bundle resource = (Bundle)value;
-
-                    if (resource.SelfLink != null)
+                    if (resource1.SelfLink != null)
                     {
-                        await writer.WriteLineAsync($"Searching: {resource.SelfLink.OriginalString}<br/>").ConfigureAwait(false);
+                        await writer.WriteLineAsync($"Searching: {resource1.SelfLink.OriginalString}<br/>").ConfigureAwait(false);
 
-                        NameValueCollection ps = resource.SelfLink.ParseQueryString();
+                        NameValueCollection ps = ParseQueryString(resource1.SelfLink);
                         if (ps.AllKeys.Contains(FhirParameter.SORT))
                             await writer.WriteLineAsync($"    Sort by: {ps[FhirParameter.SORT]}<br/>").ConfigureAwait(false);
                         if (ps.AllKeys.Contains(FhirParameter.SUMMARY))
@@ -103,20 +100,20 @@ namespace Spark.Engine.Web.Formatters
                         }
                     }
 
-                    if (resource.FirstLink != null)
-                        await writer.WriteLineAsync($"First Link: {resource.FirstLink.OriginalString}<br/>").ConfigureAwait(false);
-                    if (resource.PreviousLink != null)
-                        await writer.WriteLineAsync($"Previous Link: {resource.PreviousLink.OriginalString}<br/>").ConfigureAwait(false);
-                    if (resource.NextLink != null)
-                        await writer.WriteLineAsync($"Next Link: {resource.NextLink.OriginalString}<br/>").ConfigureAwait(false);
-                    if (resource.LastLink != null)
-                        await writer.WriteLineAsync($"Last Link: {resource.LastLink.OriginalString}<br/>").ConfigureAwait(false);
+                    if (resource1.FirstLink != null)
+                        await writer.WriteLineAsync($"First Link: {resource1.FirstLink.OriginalString}<br/>").ConfigureAwait(false);
+                    if (resource1.PreviousLink != null)
+                        await writer.WriteLineAsync($"Previous Link: {resource1.PreviousLink.OriginalString}<br/>").ConfigureAwait(false);
+                    if (resource1.NextLink != null)
+                        await writer.WriteLineAsync($"Next Link: {resource1.NextLink.OriginalString}<br/>").ConfigureAwait(false);
+                    if (resource1.LastLink != null)
+                        await writer.WriteLineAsync($"Last Link: {resource1.LastLink.OriginalString}<br/>").ConfigureAwait(false);
 
                     // Write the other Bundle Header data
                     await writer.WriteLineAsync(
-                        $"<span style=\"word-wrap: break-word; display:block;\">Type: {resource.Type.ToString()}, {resource.Entry.Count} of {resource.Total}</span>").ConfigureAwait(false);
+                        $"<span style=\"word-wrap: break-word; display:block;\">Type: {resource1.Type.ToString()}, {resource1.Entry.Count} of {resource1.Total}</span>").ConfigureAwait(false);
 
-                    foreach (var item in resource.Entry)
+                    foreach (var item in resource1.Entry)
                     {
                         await writer.WriteLineAsync("<div class=\"item-tile\">").ConfigureAwait(false);
                         if (item.IsDeleted())
@@ -145,7 +142,7 @@ namespace Spark.Engine.Web.Formatters
                             if (item.Resource is DomainResource)
                             {
                                 if ((item.Resource as DomainResource).Text != null && !string.IsNullOrEmpty((item.Resource as DomainResource).Text.Div))
-                                    writer.Write((item.Resource as DomainResource).Text.Div);
+                                    await writer.WriteAsync((item.Resource as DomainResource).Text.Div).ConfigureAwait(false);
                                 else
                                     await writer.WriteLineAsync($"Blank Text: {item.Resource.ExtractKey().ToUriString()}<br/>").ConfigureAwait(false);
                             }
@@ -162,13 +159,13 @@ namespace Spark.Engine.Web.Formatters
                 {
                     DomainResource resource = (DomainResource)value;
                     string org = resource.ResourceBase + "/" + resource.TypeName + "/" + resource.Id;
-                    writer.WriteLine(string.Format("Retrieved: {0}<hr/>", org));
+                    await writer.WriteLineAsync($"Retrieved: {org}<hr/>").ConfigureAwait(false);
 
                     string text = resource.Text?.Div;
-                    writer.Write(text);
+                    await writer.WriteAsync(text).ConfigureAwait(false);
                     await writer.WriteLineAsync("<hr/>").ConfigureAwait(false);
 
-                    SummaryType summary = requestMessage.RequestSummary();
+                    SummaryType summary = context.HttpContext.Request.RequestSummary();
 
                     string xml = _serializer.SerializeToString(resource, summary);
                     System.Xml.XPath.XPathDocument xmlDoc = new System.Xml.XPath.XPathDocument(new StringReader(xml));
@@ -189,7 +186,20 @@ namespace Spark.Engine.Web.Formatters
             }
             await writer.WriteLineAsync("</body>").ConfigureAwait(false);
             await writer.WriteLineAsync("</html>").ConfigureAwait(false);
-            writer.Flush();
+            await writer.FlushAsync().ConfigureAwait(false);
+        }
+
+
+        private static NameValueCollection ParseQueryString(Uri searchUri)
+        {
+            var keysCollection = searchUri.SplitParams();
+            var response = new NameValueCollection();
+            foreach (var (key, value) in keysCollection)
+            {
+                response.Add(key, value);
+            }
+
+            return response;
         }
     }
 }

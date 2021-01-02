@@ -41,12 +41,6 @@ namespace Spark.Engine.Core
             return headervalue?.MediaType;
         }
 
-        public static string GetAcceptHeaderValue(this HttpRequestMessage request)
-        {
-            HttpHeaderValueCollection<MediaTypeWithQualityHeaderValue> headers = request.Headers.Accept;
-            return headers.FirstOrDefault()?.MediaType;
-        }
-
         public static MediaTypeHeaderValue GetMediaTypeHeaderValue(Type type, ResourceFormat format)
         {
             string mediatype = FhirMediaType.GetContentType(type, format);

@@ -1,7 +1,7 @@
-﻿/* 
+﻿/*
  * Copyright (c) 2014, Furore (info@furore.com) and contributors
  * See the file CONTRIBUTORS for details.
- * 
+ *
  * This file is licensed under the BSD 3-Clause license
  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
  */
@@ -21,7 +21,7 @@ namespace Spark.Engine.Web.Extensions
     {
         internal static void Replace(this HttpHeaders headers, string header, string value)
         {
-            //if (headers.Exists(header)) 
+            //if (headers.Exists(header))
             headers.Remove(header);
             headers.Add(header, value);
         }
@@ -35,11 +35,12 @@ namespace Spark.Engine.Web.Extensions
         {
             return IsContentTypeHeaderFhirMediaType(content.Headers.ContentType?.MediaType);
         }
-        public static bool IsContentTypeHeaderFhirMediaType(string contentType)
+
+        public static bool IsContentTypeHeaderFhirMediaType(this string contentType)
         {
             if (string.IsNullOrEmpty(contentType)) return false;
-            return Enumerable.Contains(ContentType.XML_CONTENT_HEADERS, contentType)
-                || Enumerable.Contains(ContentType.JSON_CONTENT_HEADERS, contentType);
+            return ContentType.XML_CONTENT_HEADERS.Contains(contentType)
+                || ContentType.JSON_CONTENT_HEADERS.Contains(contentType);
         }
 
         public static string GetParameter(this HttpRequest request, string key)
@@ -63,7 +64,7 @@ namespace Spark.Engine.Web.Extensions
 
             return request.GetSearchParams().AddAll(list);
         }
-        
+
         //public static SearchParams GetSearchParamsFromBody(this HttpRequestMessage request)
         //{
         //    var list = new List<Tuple<string, string>>();
