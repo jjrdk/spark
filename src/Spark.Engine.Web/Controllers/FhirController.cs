@@ -7,7 +7,7 @@
     using System.Net;
     using System.Threading.Tasks;
     using System.Web;
-    using Engine.Core;
+    using Core;
     using Engine.Extensions;
     using Extensions;
     using Hl7.Fhir.Model;
@@ -23,12 +23,10 @@
     public class FhirController : ControllerBase
     {
         private readonly IFhirService _fhirService;
-        private readonly SparkSettings _settings;
 
-        public FhirController(IFhirService fhirService, SparkSettings settings)
+        public FhirController(IFhirService fhirService)
         {
             _fhirService = fhirService ?? throw new ArgumentNullException(nameof(fhirService));
-            _settings = settings ?? throw new ArgumentNullException(nameof(settings));
         }
 
         [HttpGet("{type}/{id}")]
@@ -165,13 +163,13 @@
         [HttpGet, Route("metadata")]
         public FhirResponse Metadata()
         {
-            return _fhirService.CapabilityStatement(_settings.Version);
+            return _fhirService.CapabilityStatement(SparkSettings.Version);
         }
 
         [HttpOptions, Route("")]
         public FhirResponse Options()
         {
-            return _fhirService.CapabilityStatement(_settings.Version);
+            return _fhirService.CapabilityStatement(SparkSettings.Version);
         }
 
         [HttpPost, Route("")]
@@ -249,7 +247,7 @@
             var key = Key.Create("Composition", id);
             return _fhirService.Document(key);
         }
-        
+
         private HistoryParameters GetHistoryParameters(HttpRequest request)
         {
             var count = FhirParameterParser.ParseIntParameter(request.GetParameter(FhirParameter.COUNT));

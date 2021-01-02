@@ -82,7 +82,7 @@ namespace Spark.Engine.Extensions
         public static void AffixTags(this Resource target, Parameters parameters)
         {
             if (target.Meta == null) target.Meta = new Meta();
-            Meta meta = parameters.ExtractMeta().FirstOrDefault();
+            var meta = parameters.ExtractMeta().FirstOrDefault();
             if (meta != null)
             {
                 target.Meta.Tag = AffixTags(target.Meta, meta).ToList();

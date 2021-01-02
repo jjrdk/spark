@@ -8,7 +8,7 @@ namespace Spark.Engine.Core
 
         public static string CreateCID()
         {
-            return string.Format("{0}:{1}", CID, Guid.NewGuid());
+            return $"{CID}:{Guid.NewGuid()}";
         }
 
         public static Uri CreateUrn()

@@ -47,19 +47,19 @@ namespace Spark.Engine.Core
 
         private void LoadSearchParameters(IEnumerable<SearchParamDefinition> searchParameters)
         {
-            _searchParameters = searchParameters.Select(sp => createSearchParameterFromSearchParamDefinition(sp)).ToList();
+            _searchParameters = searchParameters.Select(sp => CreateSearchParameterFromSearchParamDefinition(sp)).ToList();
             LoadGenericSearchParameters();
         }
 
         private void LoadGenericSearchParameters()
         {
-            var genericSearchParamDefinitions = new List<ModelInfo.SearchParamDefinition>
+            var genericSearchParamDefinitions = new List<SearchParamDefinition>
             {
-                new ModelInfo.SearchParamDefinition { Resource = "Resource", Name = "_id", Type = SearchParamType.String, Expression = "Resource.id", Path = new string[] { "Resource.id" } }
-                , new ModelInfo.SearchParamDefinition { Resource = "Resource", Name = "_lastUpdated", Type = SearchParamType.Date, Expression = "Resource.meta.lastUpdated", Path = new string[] { "Resource.meta.lastUpdated" } }
-                , new ModelInfo.SearchParamDefinition { Resource = "Resource", Name = "_profile", Type = SearchParamType.Uri, Expression = "Resource.meta.profile", Path = new string[] { "Resource.meta.profile" } }
-                , new ModelInfo.SearchParamDefinition { Resource = "Resource", Name = "_security", Type = SearchParamType.Token, Expression = "Resource.meta.security", Path = new string[] { "Resource.meta.security" } }
-                , new ModelInfo.SearchParamDefinition { Resource = "Resource", Name = "_tag", Type = SearchParamType.Token, Expression = "Resource.meta.tag", Path = new string[] { "Resource.meta.tag" } }
+                new SearchParamDefinition { Resource = "Resource", Name = "_id", Type = SearchParamType.String, Expression = "Resource.id", Path = new string[] { "Resource.id" } }
+                , new SearchParamDefinition { Resource = "Resource", Name = "_lastUpdated", Type = SearchParamType.Date, Expression = "Resource.meta.lastUpdated", Path = new string[] { "Resource.meta.lastUpdated" } }
+                , new SearchParamDefinition { Resource = "Resource", Name = "_profile", Type = SearchParamType.Uri, Expression = "Resource.meta.profile", Path = new string[] { "Resource.meta.profile" } }
+                , new SearchParamDefinition { Resource = "Resource", Name = "_security", Type = SearchParamType.Token, Expression = "Resource.meta.security", Path = new string[] { "Resource.meta.security" } }
+                , new SearchParamDefinition { Resource = "Resource", Name = "_tag", Type = SearchParamType.Token, Expression = "Resource.meta.tag", Path = new string[] { "Resource.meta.tag" } }
             };
 
             //CK: Below is how it should be, once SearchParameter has proper support for Composite parameters.
@@ -73,23 +73,26 @@ namespace Spark.Engine.Core
             //};
             //Not implemented (yet): _query, _text, _content
 
-            var genericSearchParameters = genericSearchParamDefinitions.Select(spd => createSearchParameterFromSearchParamDefinition(spd));
+            var genericSearchParameters = genericSearchParamDefinitions.Select(spd => CreateSearchParameterFromSearchParamDefinition(spd));
 
             _searchParameters.AddRange(genericSearchParameters.Except(_searchParameters));
             //We have no control over the incoming list of searchParameters (in the constructor), so these generic parameters may or may not be in there.
             //So we apply the Except operation to make sure these parameters are not added twice.
         }
 
-        private SearchParameter createSearchParameterFromSearchParamDefinition(SearchParamDefinition def)
+        private SearchParameter CreateSearchParameterFromSearchParamDefinition(SearchParamDefinition def)
         {
-            var result = new ComparableSearchParameter();
-            result.Name = def.Name;
-            result.Code = def.Name; //CK: SearchParamDefinition has no Code, but in all current SearchParameter resources, name and code are equal.
-            result.Base = new List<ResourceType?> { GetResourceTypeForResourceName(def.Resource) };
-            result.Type = def.Type;
-            result.Target = def.Target != null ? def.Target.ToList().Cast<ResourceType?>() : new List<ResourceType?>();
-            result.Description = def.Description;
-            result.Expression = def.Expression;
+            var result = new ComparableSearchParameter
+            {
+                Name = def.Name,
+                Code = def.Name,
+                Base = new List<ResourceType?> {GetResourceTypeForResourceName(def.Resource)},
+                Type = def.Type,
+                Target = def.Target != null ? def.Target.ToList().Cast<ResourceType?>() : new List<ResourceType?>(),
+                Description = def.Description,
+                Expression = def.Expression
+            };
+            //CK: SearchParamDefinition has no Code, but in all current SearchParameter resources, name and code are equal.
             //Strip off the [x], for example in Condition.onset[x].
             result.SetPropertyPath(def.Path?.Select(p => p.Replace("[x]", "")).ToArray());
             
@@ -110,18 +113,17 @@ namespace Spark.Engine.Core
             {
                 return string.Equals(Name, other.Name) &&
                     string.Equals(Code, other.Code) &&
-                    object.Equals(Base, other.Base) &&
-                    object.Equals(Type, other.Type) &&
-                    string.Equals(Description, other.Description) &&
+                    Equals(Base, other.Base) &&
+                    Equals(Type, other.Type) &&
+                    Equals(Description, other.Description) &&
                     string.Equals(Xpath, other.Xpath);
             }
 
             public override bool Equals(object obj)
             {
-                if (ReferenceEquals(null, obj)) return false;
+                if (obj is null) return false;
                 if (ReferenceEquals(this, obj)) return true;
-                if (obj.GetType() != this.GetType()) return false;
-                return Equals((ComparableSearchParameter)obj);
+                return obj.GetType() == this.GetType() && Equals((ComparableSearchParameter)obj);
             }
 
             public override int GetHashCode()
@@ -150,13 +152,13 @@ namespace Spark.Engine.Core
             {
                 return _csTypeToFhirTypeName[type];
             }
-            return ModelInfo.GetFhirTypeNameForType(type);
+            return GetFhirTypeNameForType(type);
 
         }
 
         public Type GetTypeForResourceName(string name)
         {
-            return ModelInfo.GetTypeForFhirType(name);
+            return GetTypeForFhirType(name);
         }
 
         public ResourceType GetResourceTypeForResourceName(string name)
@@ -196,7 +198,7 @@ namespace Spark.Engine.Core
 
         public SearchParameter FindSearchParameter(string resourceName, string parameterName)
         {
-            return FindSearchParameters(resourceName).Where(sp => sp.Name == parameterName).FirstOrDefault();
+            return FindSearchParameters(resourceName).FirstOrDefault(sp => sp.Name == parameterName);
         }
 
         public string GetLiteralForEnum(Enum value)
@@ -204,7 +206,7 @@ namespace Spark.Engine.Core
             return value.GetLiteral();
         }
 
-        private readonly List<CompartmentInfo> compartments = new List<CompartmentInfo>();
+        private readonly List<CompartmentInfo> _compartments = new List<CompartmentInfo>();
         private void LoadCompartments()
         {
             //TODO, CK: You would want to read this with an ArtifactResolver, but since the Hl7.Fhir api doesn't know about CompartmentDefinition yet, that is not possible.
@@ -300,12 +302,12 @@ namespace Spark.Engine.Core
                 ,"SupplyRequest.patient"
                 ,"VisionPrescription.patient"
             });
-            compartments.Add(patientCompartmentInfo);
+            _compartments.Add(patientCompartmentInfo);
         }
 
         public CompartmentInfo FindCompartmentInfo(ResourceType resourceType)
         {
-            return compartments.Where(ci => ci.ResourceType == resourceType).FirstOrDefault();
+            return _compartments.Where(ci => ci.ResourceType == resourceType).FirstOrDefault();
         }
 
         public CompartmentInfo FindCompartmentInfo(string resourceType)

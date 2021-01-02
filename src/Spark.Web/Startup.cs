@@ -9,12 +9,12 @@
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.OpenApi.Models;
-    using Spark.Engine;
-    using Spark.Mongo.Extensions;
-    using Spark.Web.Data;
-    using Spark.Web.Models.Config;
-    using Spark.Web.Services;
-    using Spark.Web.Hubs;
+    using Engine;
+    using Mongo.Extensions;
+    using Data;
+    using Models.Config;
+    using Services;
+    using Hubs;
     using Microsoft.AspNetCore.ResponseCompression;
     using System.Linq;
     using Microsoft.AspNetCore.Mvc.Formatters;
@@ -36,7 +36,7 @@
         {
             // Bind to Spark and store settings from appSettings.json
             var sparkSettings = new SparkSettings();
-            Configuration.Bind("SparkSettings", sparkSettings);
+            Configuration.Bind("Settings", sparkSettings);
             services.AddSingleton(sparkSettings);
 
             var storeSettings = new StoreSettings();

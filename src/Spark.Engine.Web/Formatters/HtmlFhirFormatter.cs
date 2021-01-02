@@ -32,7 +32,7 @@ namespace Spark.Engine.Web.Formatters
         public HtmlFhirFormatter(FhirXmlSerializer serializer)
         {
             _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
-            SupportedMediaTypes.Add(new Microsoft.Net.Http.Headers.MediaTypeHeaderValue("text/html"));
+            SupportedMediaTypes.Add(new MediaTypeHeaderValue("text/html"));
         }
 
         /// <inheritdoc />
@@ -74,7 +74,7 @@ namespace Spark.Engine.Web.Formatters
                     {
                         await writer.WriteLineAsync($"Searching: {resource1.SelfLink.OriginalString}<br/>").ConfigureAwait(false);
 
-                        NameValueCollection ps = ParseQueryString(resource1.SelfLink);
+                        var ps = ParseQueryString(resource1.SelfLink);
                         if (ps.AllKeys.Contains(FhirParameter.SORT))
                             await writer.WriteLineAsync($"    Sort by: {ps[FhirParameter.SORT]}<br/>").ConfigureAwait(false);
                         if (ps.AllKeys.Contains(FhirParameter.SUMMARY))
@@ -120,7 +120,7 @@ namespace Spark.Engine.Web.Formatters
                         {
                             if (item.Request != null)
                             {
-                                string id = item.Request.Url;
+                                var id = item.Request.Url;
                                 await writer.WriteLineAsync($"<span style=\"word-wrap: break-word; display:block;\">{id}</span>").ConfigureAwait(false);
                             }
                             await writer.WriteLineAsync("<hr/>").ConfigureAwait(false);
@@ -128,13 +128,13 @@ namespace Spark.Engine.Web.Formatters
                         }
                         else if (item.Resource != null)
                         {
-                            Key key = item.Resource.ExtractKey();
-                            string visualurl = key.WithoutBase().ToUriString();
-                            string realurl = key.ToUriString() + "?_format=html";
+                            var key = item.Resource.ExtractKey();
+                            var visualurl = key.WithoutBase().ToUriString();
+                            var realurl = key.ToUriString() + "?_format=html";
 
                             await writer.WriteLineAsync(
                                 $"<a style=\"word-wrap: break-word; display:block;\" href=\"{realurl}\">{visualurl}</a>").ConfigureAwait(false);
-                            if (item.Resource.Meta != null && item.Resource.Meta.LastUpdated.HasValue)
+                            if (item.Resource.Meta?.LastUpdated != null)
                                 await writer.WriteLineAsync(
                                     $"<i>Modified: {item.Resource.Meta.LastUpdated.Value}</i><br/>").ConfigureAwait(false);
                             await writer.WriteLineAsync("<hr/>").ConfigureAwait(false);
@@ -157,27 +157,27 @@ namespace Spark.Engine.Web.Formatters
                 }
                 else
                 {
-                    DomainResource resource = (DomainResource)value;
-                    string org = resource.ResourceBase + "/" + resource.TypeName + "/" + resource.Id;
+                    var resource = (DomainResource)value;
+                    var org = resource.ResourceBase + "/" + resource.TypeName + "/" + resource.Id;
                     await writer.WriteLineAsync($"Retrieved: {org}<hr/>").ConfigureAwait(false);
 
-                    string text = resource.Text?.Div;
+                    var text = resource.Text?.Div;
                     await writer.WriteAsync(text).ConfigureAwait(false);
                     await writer.WriteLineAsync("<hr/>").ConfigureAwait(false);
 
-                    SummaryType summary = context.HttpContext.Request.RequestSummary();
+                    var summary = context.HttpContext.Request.RequestSummary();
 
-                    string xml = _serializer.SerializeToString(resource, summary);
-                    System.Xml.XPath.XPathDocument xmlDoc = new System.Xml.XPath.XPathDocument(new StringReader(xml));
+                    var xml = _serializer.SerializeToString(resource, summary);
+                    var xmlDoc = new System.Xml.XPath.XPathDocument(new StringReader(xml));
 
                     // And we also need an output writer
-                    System.IO.TextWriter output = new System.IO.StringWriter(new System.Text.StringBuilder());
+                    TextWriter output = new StringWriter(new StringBuilder());
 
                     // Now for a little magic
                     // Create XML Reader with style-sheet
-                    System.Xml.XmlReader stylesheetReader = System.Xml.XmlReader.Create(new StringReader(Resources.Resources.RenderXMLasHTML));
+                    var stylesheetReader = System.Xml.XmlReader.Create(new StringReader(Resources.Resources.RenderXMLasHTML));
 
-                    System.Xml.Xsl.XslCompiledTransform xslTransform = new System.Xml.Xsl.XslCompiledTransform();
+                    var xslTransform = new System.Xml.Xsl.XslCompiledTransform();
                     xslTransform.Load(stylesheetReader);
                     xslTransform.Transform(xmlDoc, null, output);
 

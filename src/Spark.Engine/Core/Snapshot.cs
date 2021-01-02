@@ -33,19 +33,21 @@ namespace Spark.Engine.Core
 
         public static Snapshot Create(Bundle.BundleType type, Uri selflink, IEnumerable<string> keys, string sortby, int? count, IList<string> includes, IList<string> reverseIncludes)
         {
-            var snapshot = new Snapshot();
-            snapshot.Type = type;
-            snapshot.Id = Snapshot.CreateKey();
-            snapshot.WhenCreated = DateTimeOffset.UtcNow;
-            snapshot.FeedSelfLink = selflink.ToString();
+            var snapshot = new Snapshot
+            {
+                Type = type,
+                Id = CreateKey(),
+                WhenCreated = DateTimeOffset.UtcNow,
+                FeedSelfLink = selflink.ToString(),
+                Includes = includes,
+                ReverseIncludes = reverseIncludes,
+                Keys = keys,
+                Count = keys.Count(),
+                CountParam = NormalizeCount(count),
+                SortBy = sortby
+            };
 
-            snapshot.Includes = includes;
-            snapshot.ReverseIncludes = reverseIncludes;
-            snapshot.Keys = keys;
-            snapshot.Count = keys.Count();
-            snapshot.CountParam = NormalizeCount(count);
 
-            snapshot.SortBy = sortby;
             return snapshot;
         }
 
@@ -66,7 +68,7 @@ namespace Spark.Engine.Core
 
         public bool InRange(int index)
         {
-            if (index == 0 && Keys.Count() == 0)
+            if (index == 0 && !Keys.Any())
                 return true;
 
             var last = Keys.Count()-1;

@@ -5,7 +5,7 @@ namespace Spark.Engine.Search.Model
 {
     public class ReverseInclude
     {
-        private static readonly Regex pattern = new Regex(@"(?<resourcetype>[^\.]+)\.(?<searchpath>.*)");
+        private static readonly Regex _pattern = new Regex(@"(?<resourcetype>[^\.]+)\.(?<searchpath>.*)");
 
         public string ResourceType { get; set; }
         public string SearchPath { get; set; }
@@ -21,13 +21,14 @@ namespace Spark.Engine.Search.Model
             //so we simply split in on the first dot.
             if (reverseInclude == null)
             {
-                throw new ArgumentNullException("reverseInclude cannot be null");
+                throw new ArgumentNullException(nameof(reverseInclude), "reverseInclude cannot be null");
             }
             var result = new ReverseInclude();
-            var match = pattern.Match(reverseInclude);
+            var match = _pattern.Match(reverseInclude);
             if (match.Groups.Count < 2)
             {
-                throw new ArgumentException(string.Format("reverseInclude '{0}' does not adhere to the format 'ResourceType.searchParameter[.searchParameter]*'", reverseInclude));
+                throw new ArgumentException(
+                    $"reverseInclude '{reverseInclude}' does not adhere to the format 'ResourceType.searchParameter[.searchParameter]*'");
             }
 
             result.ResourceType = match.Groups["resourcetype"].Captures[0].Value;

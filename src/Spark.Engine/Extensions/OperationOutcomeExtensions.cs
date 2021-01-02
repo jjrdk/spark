@@ -5,22 +5,22 @@
  * This file is licensed under the BSD 3-Clause license
  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
  */
-
-using Hl7.Fhir.Model;
-using Hl7.Fhir.Rest;
-using Hl7.Fhir.Serialization;
-using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Net.Http;
-using Spark.Engine.Core;
-using System.Diagnostics;
-
 namespace Spark.Engine.Extensions
 {
+    using Hl7.Fhir.Model;
+    using Hl7.Fhir.Rest;
+    using Hl7.Fhir.Serialization;
+    using System;
+    using System.Collections.Generic;
+    using System.Net;
+    using System.Net.Http;
+    using Spark.Engine.Core;
+    using System.Diagnostics;
+
+
     public static class OperationOutcomeExtensions
     {
-        internal static Func<string, string> pascalToCamelCase = (pascalCase) => $"{char.ToLower(pascalCase[0])}{pascalCase.Substring(1)}";
+        //internal static Func<string, string> pascalToCamelCase = (pascalCase) => $"{char.ToLower(pascalCase[0])}{pascalCase[1..]}";
 
         //public static OperationOutcome AddValidationProblems(this OperationOutcome outcome, Type resourceType, HttpStatusCode code, ValidationProblemDetails validationProblems)
         //{
@@ -47,15 +47,15 @@ namespace Spark.Engine.Extensions
         internal static OperationOutcome.IssueSeverity IssueSeverityOf(HttpStatusCode code)
         {
             var range = ((int)code / 100);
-            switch (range)
+            return range switch
             {
-                case 1:
-                case 2: return OperationOutcome.IssueSeverity.Information;
-                case 3: return OperationOutcome.IssueSeverity.Warning;
-                case 4: return OperationOutcome.IssueSeverity.Error;
-                case 5: return OperationOutcome.IssueSeverity.Fatal;
-                default: return OperationOutcome.IssueSeverity.Information;
-            }
+                1 => OperationOutcome.IssueSeverity.Information,
+                2 => OperationOutcome.IssueSeverity.Information,
+                3 => OperationOutcome.IssueSeverity.Warning,
+                4 => OperationOutcome.IssueSeverity.Error,
+                5 => OperationOutcome.IssueSeverity.Fatal,
+                _ => OperationOutcome.IssueSeverity.Information
+            };
         }
 
         private static void SetContentHeaders(HttpResponseMessage response, ResourceFormat format)
@@ -79,7 +79,7 @@ namespace Spark.Engine.Extensions
             if (exception is SparkException)
                 message = exception.Message;
             else
-                message = string.Format("{0}: {1}", exception.GetType().Name, exception.Message);
+                message = $"{exception.GetType().Name}: {exception.Message}";
 
             outcome.AddError(message);
 

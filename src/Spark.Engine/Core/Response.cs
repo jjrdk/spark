@@ -60,9 +60,9 @@ namespace Spark.Engine.Core
 
         public override string ToString()
         {
-            var details = (Resource != null) ? string.Format("({0})", Resource.TypeName) : null;
+            var details = (Resource != null) ? $"({Resource.TypeName})" : null;
             var location = Key?.ToString();
-            return string.Format("{0}: {1} {2} ({3})", (int)StatusCode, StatusCode.ToString(), details, location);
+            return $"{(int) StatusCode}: {StatusCode} {details} ({location})";
         }
     }
 

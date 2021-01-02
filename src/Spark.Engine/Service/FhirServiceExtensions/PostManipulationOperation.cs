@@ -21,7 +21,7 @@ namespace Spark.Engine.Service.FhirServiceExtensions
             {
                 if (string.IsNullOrEmpty(entry.Request?.IfNoneExist) == false)
                 {
-                    return new Uri(string.Format("{0}?{1}", entry.Resource.TypeName, entry.Request.IfNoneExist), UriKind.Relative);
+                    return new Uri($"{entry.Resource.TypeName}?{entry.Request.IfNoneExist}", UriKind.Relative);
                 }
                 return null;
             }
@@ -32,18 +32,17 @@ namespace Spark.Engine.Service.FhirServiceExtensions
                 if (SearchResults != null)
                 {
                     if (SearchResults.Count > 1)
-                        throw new SparkException(HttpStatusCode.PreconditionFailed, 
-                           string.Format( "Multiple matches found when trying to resolve conditional create. Client's criteria were not selective enough.{0}", 
-                           GetSearchInformation()));
+                        throw new SparkException(HttpStatusCode.PreconditionFailed,
+                            $"Multiple matches found when trying to resolve conditional create. Client's criteria were not selective enough.{GetSearchInformation()}");
                     var localKeyValue = SearchResults.SingleOrDefault();
                     //throw exception. probably we should manually throw this in order to add fhir specific details
                     if (string.IsNullOrEmpty(localKeyValue) == false)
                     {
-                        var localKey = Core.Key.ParseOperationPath(localKeyValue);
+                        var localKey = Key.ParseOperationPath(localKeyValue);
                         postEntry = Entry.Create(Bundle.HTTPVerb.GET, localKey, null);
                     }
                 }
-                postEntry = postEntry ?? Entry.POST(OperationKey, Resource);
+                postEntry ??= Entry.POST(OperationKey, Resource);
 
                 yield return postEntry;
             }

@@ -11,7 +11,7 @@ namespace Spark.Engine.Search.Support
         internal static void Info(string messageFormat, params object[] messageArgs)
         {
 #if DEBUG
-            Debug.WriteLine(Error.formatMessage(messageFormat,messageArgs));
+            Debug.WriteLine(Error.FormatMessage(messageFormat,messageArgs));
 #endif
         }
     }
@@ -28,7 +28,7 @@ namespace Spark.Engine.Search.Support
         /// <param name="format">A composite format string.</param>
         /// <param name="args">An object array that contains zero or more objects to format.</param>
         /// <returns>The formatted string.</returns>
-        internal static string formatMessage(string format, params object[] args)
+        internal static string FormatMessage(string format, params object[] args)
         {
             return string.Format(CultureInfo.CurrentCulture, format, args);
         }
@@ -39,10 +39,9 @@ namespace Spark.Engine.Search.Support
         /// <param name="messageFormat">A composite format string explaining the reason for the exception.</param>
         /// <param name="messageArgs">An object array that contains zero or more objects to format.</param>
         /// <returns>The logged <see cref="Exception"/>.</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification="Utility method that might become useful for future usecases")]
         internal static ArgumentException Argument(string messageFormat, params object[] messageArgs)
         {
-            return new ArgumentException(Error.formatMessage(messageFormat, messageArgs));
+            return new ArgumentException(FormatMessage(messageFormat, messageArgs));
         }
 
         /// <summary>
@@ -52,10 +51,9 @@ namespace Spark.Engine.Search.Support
         /// <param name="messageFormat">A composite format string explaining the reason for the exception.</param>
         /// <param name="messageArgs">An object array that contains zero or more objects to format.</param>
         /// <returns>The logged <see cref="Exception"/>.</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Utility method that might become useful for future usecases")]
         internal static ArgumentException Argument(string parameterName, string messageFormat, params object[] messageArgs)
         {
-            return new ArgumentException(Error.formatMessage(messageFormat, messageArgs), parameterName);
+            return new ArgumentException(FormatMessage(messageFormat, messageArgs), parameterName);
         }
 
         /// <summary>
@@ -75,10 +73,9 @@ namespace Spark.Engine.Search.Support
         /// <param name="messageFormat">A composite format string explaining the reason for the exception.</param>
         /// <param name="messageArgs">An object array that contains zero or more objects to format.</param>
         /// <returns>The logged <see cref="Exception"/>.</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Utility method that might become useful for future usecases")]
         internal static ArgumentNullException ArgumentNull(string parameterName, string messageFormat, params object[] messageArgs)
         {
-            return new ArgumentNullException(parameterName, Error.formatMessage(messageFormat, messageArgs));
+            return new ArgumentNullException(parameterName, FormatMessage(messageFormat, messageArgs));
         }
 
         /// <summary>
@@ -86,10 +83,9 @@ namespace Spark.Engine.Search.Support
         /// </summary>
         /// <param name="parameterName">The name of the parameter that caused the current exception.</param>
         /// <returns>The logged <see cref="Exception"/>.</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Utility method that might become useful for future usecases")]
         internal static ArgumentException ArgumentNullOrEmpty(string parameterName)
         {
-            return Error.Argument(parameterName, "The argument '{0}' is null or empty.", parameterName);
+            return Argument(parameterName, "The argument '{0}' is null or empty.", parameterName);
         }
 
 
@@ -101,7 +97,7 @@ namespace Spark.Engine.Search.Support
         /// <returns>The logged <see cref="Exception"/>.</returns>
         internal static InvalidOperationException InvalidOperation(string messageFormat, params object[] messageArgs)
         {
-            return new InvalidOperationException(Error.formatMessage(messageFormat, messageArgs));
+            return new InvalidOperationException(FormatMessage(messageFormat, messageArgs));
         }
 
         /// <summary>
@@ -111,10 +107,9 @@ namespace Spark.Engine.Search.Support
         /// <param name="messageFormat">A composite format string explaining the reason for the exception.</param>
         /// <param name="messageArgs">An object array that contains zero or more objects to format.</param>
         /// <returns>The logged <see cref="Exception"/>.</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Utility method that might become useful for future usecases")]
         internal static InvalidOperationException InvalidOperation(Exception innerException, string messageFormat, params object[] messageArgs)
         {
-            return new InvalidOperationException(Error.formatMessage(messageFormat, messageArgs), innerException);
+            return new InvalidOperationException(FormatMessage(messageFormat, messageArgs), innerException);
         }
 
         /// <summary>
@@ -123,10 +118,9 @@ namespace Spark.Engine.Search.Support
         /// <param name="messageFormat">A composite format string explaining the reason for the exception.</param>
         /// <param name="messageArgs">An object array that contains zero or more objects to format.</param>
         /// <returns>The logged <see cref="Exception"/>.</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Utility method that might become useful for future usecases")]
         internal static NotSupportedException NotSupported(string messageFormat, params object[] messageArgs)
         {
-            return new NotSupportedException(Error.formatMessage(messageFormat, messageArgs));
+            return new NotSupportedException(FormatMessage(messageFormat, messageArgs));
         }
 
         /// <summary>
@@ -136,18 +130,17 @@ namespace Spark.Engine.Search.Support
         /// <param name="pos">Optional line position information for the message</param>
         /// <param name="messageArgs">An object array that contains zero or more objects to format.</param>
         /// <returns>The logged <see cref="Exception"/>.</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Utility method that might become useful for future usecases")]
         internal static FormatException Format(string messageFormat, IPostitionInfo pos, params object[] messageArgs)
         {
             string message;
 
             if (pos != null)
             {
-                message = string.Format("At line {0}, pos {1}: {2}", pos.LineNumber, pos.LinePosition,
-                        Error.formatMessage(messageFormat, messageArgs));
+                message =
+                    $"At line {pos.LineNumber}, pos {pos.LinePosition}: {FormatMessage(messageFormat, messageArgs)}";
             }
             else
-                message = Error.formatMessage(messageFormat, messageArgs);
+                message = FormatMessage(messageFormat, messageArgs);
 
             return new FormatException(message);
         }
@@ -160,7 +153,7 @@ namespace Spark.Engine.Search.Support
         /// <returns>The logged <see cref="Exception"/>.</returns>
         internal static NotImplementedException NotImplemented(string messageFormat, params object[] messageArgs)
         {
-            return new NotImplementedException(Error.formatMessage(messageFormat, messageArgs));
+            return new NotImplementedException(FormatMessage(messageFormat, messageArgs));
         }
 
         /// <summary>

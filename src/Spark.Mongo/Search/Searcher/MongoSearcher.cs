@@ -188,10 +188,7 @@ namespace Spark.Mongo.Search.Searcher
                         {
                             if (results == null) throw; //The exception *will* be caught on the highest level.
                             results.AddIssue(
-                                string.Format(
-                                    "Parameter [{0}] was ignored for the reason: {1}.",
-                                    crit.Key.ToString(),
-                                    ex.Message),
+                                $"Parameter [{crit.Key}] was ignored for the reason: {ex.Message}.",
                                 OperationOutcome.IssueSeverity.Warning);
                             results.UsedCriteria.Remove(crit.Key);
                         }
@@ -275,9 +272,7 @@ namespace Spark.Mongo.Search.Searcher
             {
                 //It is possible that some of the targets don't support the current parameter. But if none do, there is a serious problem.
                 throw new ArgumentException(
-                    string.Format(
-                        "None of the possible target resources support querying for parameter {0}",
-                        crit.ParamName));
+                    $"None of the possible target resources support querying for parameter {crit.ParamName}");
             }
 
             crit.Operator = Operator.IN;
@@ -592,10 +587,7 @@ namespace Spark.Mongo.Search.Searcher
                 {
                     notUsed.Add(crit);
                     results.AddIssue(
-                        string.Format(
-                            "Parameter with name {0} is not supported for resource type {1}.",
-                            crit.ParamName,
-                            resourceType),
+                        $"Parameter with name {crit.ParamName} is not supported for resource type {resourceType}.",
                         OperationOutcome.IssueSeverity.Warning);
                 }
             }

@@ -15,13 +15,13 @@ namespace Spark.Engine
         public IndexSettings IndexSettings { get; set; }
         public SearchSettings Search { get; set; }
         public string FhirRelease { get; set; }
-        public string Version
+        public static string Version
         {
             get
             {
                 var asm = Assembly.GetExecutingAssembly();
                 var version = FileVersionInfo.GetVersionInfo(asm.Location);
-                return string.Format("{0}.{1}", version.ProductMajorPart, version.ProductMinorPart);
+                return $"{version.ProductMajorPart}.{version.ProductMinorPart}";
             }
         }
     }

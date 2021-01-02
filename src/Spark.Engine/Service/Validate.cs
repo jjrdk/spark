@@ -1,7 +1,7 @@
-﻿/* 
+﻿/*
  * Copyright (c) 2014, Furore (info@furore.com) and contributors
  * See the file CONTRIBUTORS for details.
- * 
+ *
  * This file is licensed under the BSD 3-Clause license
  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
  */
@@ -54,15 +54,15 @@ namespace Spark.Engine.Service
         {
             if (key.HasResourceId())
             {
-                Validate.ResourceId(key.ResourceId);
+                ResourceId(key.ResourceId);
             }
             if (key.HasVersionId())
             {
-                Validate.VersionId(key.VersionId);
+                VersionId(key.VersionId);
             }
             if (!string.IsNullOrEmpty(key.TypeName))
             {
-                Validate.TypeName(key.TypeName);
+                TypeName(key.TypeName);
             }
         }
 
@@ -78,7 +78,7 @@ namespace Spark.Engine.Service
         {
             if (key.HasResourceId())
             {
-                Validate.ResourceId(key.ResourceId);
+                ResourceId(key.ResourceId);
             }
             else
             {
@@ -106,9 +106,9 @@ namespace Spark.Engine.Service
         {
             if (key.HasVersionId())
             {
-                Validate.VersionId(key.VersionId);
+                VersionId(key.VersionId);
             }
-            else 
+            else
             {
                 throw Error.BadRequest("The request should contain a version id.");
             }
@@ -146,11 +146,11 @@ namespace Spark.Engine.Service
             }
             else if (!Id.IsValidValue(resourceId))
             {
-                throw Error.BadRequest(string.Format("{0} is not a valid value for an id", resourceId));
+                throw Error.BadRequest($"{resourceId} is not a valid value for an id");
             }
             else if (resourceId.Length > 64)
             {
-                    throw Error.BadRequest("Logical ID is too long.");
+                throw Error.BadRequest("Logical ID is too long.");
 
             }
         }
@@ -163,7 +163,7 @@ namespace Spark.Engine.Service
                 throw Error.Create(HttpStatusCode.Conflict, "The current resource on this server '{0}' doesn't match the required version '{1}'", orignal, replacement);
             }
 
-        
+
         }
 
         public static OperationOutcome AgainstModel(Resource resource)
@@ -176,29 +176,28 @@ namespace Spark.Engine.Service
                 foreach (var vresult in vresults)
                     result.Issue.Add(createValidationResult("[.NET validation] " + vresult.ErrorMessage, vresult.MemberNames));
             }
-            //doc.Validate(SchemaCollection.ValidationSchemaSet, 
-            //    (source, args) => result.Issue.Add( createValidationResult("[XSD validation] " + args.Message,null)) 
+            //doc.Validate(SchemaCollection.ValidationSchemaSet,
+            //    (source, args) => result.Issue.Add( createValidationResult("[XSD validation] " + args.Message,null))
             //);
-            
+
             */
             throw new NotImplementedException();
         }
 
         public static OperationOutcome AgainstSchema(Resource resource)
         {
-            var result = new OperationOutcome();
-            result.Issue = new List<OperationOutcome.IssueComponent>();
-            
+            //var result = new OperationOutcome {Issue = new List<OperationOutcome.IssueComponent>()};
+
             throw new NotImplementedException();
-            
+
             //ICollection<ValidationResult> vresults = new List<ValidationResult>();
 
             // DSTU2: validation
             // Phase 2, validate against the XML schema
-            
+
             //var xml = FhirSerializer.SerializeResourceToXml(resource);
             //var doc = XDocument.Parse(xml);
-           
+
         }
 
         public static OperationOutcome AgainstProfile(Resource resource)
@@ -209,7 +208,7 @@ namespace Spark.Engine.Service
             // Phase 3, validate against a profile, if present
             var profileTags = entry.GetAssertedProfiles();
             if (profileTags.Count() == 0)
-            { 
+            {
                 // If there's no profile specified, at least compare it to the "base" profile
                 string baseProfile = CoreZipArtifactSource.CORE_SPEC_PROFILE_URI_PREFIX + entry.Resource.GetCollectionName();
                 profileTags = new Uri[] { new Uri(baseProfile, UriKind.Absolute) };
@@ -253,21 +252,21 @@ namespace Spark.Engine.Service
             ValidateAllKeysUnique(interactions);
         }
 
-        // The list of id's that have been reassigned. Maps from original id -> new id.
-        private static IEnumerable<Uri> DoubleEntries(IEnumerable<Entry> entries)
-        {
-            // DSTU2: validation
-            // moved from Importer
+        //// The list of id's that have been reassigned. Maps from original id -> new id.
+        //private static IEnumerable<Uri> DoubleEntries(IEnumerable<Entry> entries)
+        //{
+        //    // DSTU2: validation
+        //    // moved from Importer
 
-            // var keys = queue.Select(ent => ent.Key.ResourceId);
-            //var selflinks = queue.Where(e => e.SelfLink != null).Select(e => e.SelfLink);
-            //var all = keys.Concat(selflinks);
+        //    // var keys = queue.Select(ent => ent.Key.ResourceId);
+        //    //var selflinks = queue.Where(e => e.SelfLink != null).Select(e => e.SelfLink);
+        //    //var all = keys.Concat(selflinks);
 
-            //IEnumerable<Uri> doubles = all.GroupBy(u => u.ToString()).Where(g => g.Count() > 1).Select(g => g.First());
+        //    //IEnumerable<Uri> doubles = all.GroupBy(u => u.ToString()).Where(g => g.Count() > 1).Select(g => g.First());
 
-            //return doubles; 
-            throw new NotImplementedException();
-        }
+        //    //return doubles;
+        //    throw new NotImplementedException();
+        //}
 
         public static void ValidateAllKeysUnique(IList<Entry> interactions)
         {

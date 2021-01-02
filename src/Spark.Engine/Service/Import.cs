@@ -24,24 +24,24 @@ namespace Spark.Engine.Service
     /// </summary>
     internal class Import
     {
-        private readonly Mapper<string, IKey> mapper;
-        private readonly List<Entry> entries;
-        private readonly ILocalhost localhost;
-        private readonly IGenerator generator;
+        private readonly Mapper<string, IKey> _mapper;
+        private readonly List<Entry> _entries;
+        private readonly ILocalhost _localhost;
+        private readonly IGenerator _generator;
 
         public Import(ILocalhost localhost, IGenerator generator)
         {
-            this.localhost = localhost;
-            this.generator = generator;
-            mapper = new Mapper<string, IKey>();
-            entries = new List<Entry>();
+            this._localhost = localhost;
+            this._generator = generator;
+            _mapper = new Mapper<string, IKey>();
+            _entries = new List<Entry>();
         }
 
         public void Add(Entry interaction)
         {
             if (interaction != null && interaction.State == EntryState.Undefined)
             {
-                entries.Add(interaction);
+                _entries.Add(interaction);
             }
             else
             {
@@ -52,7 +52,7 @@ namespace Spark.Engine.Service
 
         public void AddMappings(Mapper<string, IKey> mappings)
         {
-            mapper.Merge(mappings);
+            _mapper.Merge(mappings);
         }
         public void Add(IEnumerable<Entry> interactions)
         {
@@ -71,7 +71,7 @@ namespace Spark.Engine.Service
 
         private void InternalizeState()
         {
-            foreach (var interaction in this.entries.Transferable())
+            foreach (var interaction in this._entries.Transferable())
             {
                 interaction.State = EntryState.Internal;
             }
@@ -79,7 +79,7 @@ namespace Spark.Engine.Service
 
         private async Task InternalizeKeys()
         {
-            foreach (var interaction in this.entries.Transferable())
+            foreach (var interaction in this._entries.Transferable())
             {
                 await InternalizeKey(interaction).ConfigureAwait(false);
             }
@@ -87,7 +87,7 @@ namespace Spark.Engine.Service
 
         private void InternalizeReferences()
         {
-            foreach (var entry in entries.Transferable())
+            foreach (var entry in _entries.Transferable())
             {
                 InternalizeReferences(entry.Resource);
             }
@@ -95,27 +95,27 @@ namespace Spark.Engine.Service
 
         private async Task<IKey> Remap(Resource resource)
         {
-            var newKey = await generator.NextKey(resource).ConfigureAwait(false);
+            var newKey = await _generator.NextKey(resource).ConfigureAwait(false);
             AddKeyToInternalMapping(resource.ExtractKey(), newKey.WithoutBase());
             return newKey;
         }
 
         private async Task<IKey> RemapHistoryOnly(IKey key)
         {
-            IKey newKey = await generator.NextHistoryKey(key).ConfigureAwait(false);
+            IKey newKey = await _generator.NextHistoryKey(key).ConfigureAwait(false);
             AddKeyToInternalMapping(key, newKey.WithoutBase());
             return newKey;
         }
 
         private void AddKeyToInternalMapping(IKey localKey, IKey generatedKey)
         {
-            if (localhost.GetKeyKind(localKey) == KeyKind.Temporary)
+            if (_localhost.GetKeyKind(localKey) == KeyKind.Temporary)
             {
-                mapper.Remap(localKey.ResourceId, generatedKey.WithoutVersion());
+                _mapper.Remap(localKey.ResourceId, generatedKey.WithoutVersion());
             }
             else
             {
-                mapper.Remap(localKey.ToString(), generatedKey.WithoutVersion());
+                _mapper.Remap(localKey.ToString(), generatedKey.WithoutVersion());
             }
         }
 
@@ -123,7 +123,7 @@ namespace Spark.Engine.Service
         {
             var key = entry.Key;
 
-            switch (localhost.GetKeyKind(key))
+            switch (_localhost.GetKeyKind(key))
             {
                 case KeyKind.Foreign:
                     {
@@ -179,12 +179,12 @@ namespace Spark.Engine.Service
 
             Type[] types = { typeof(ResourceReference), typeof(FhirUri), typeof(Narrative) };
 
-            Engine.Auxiliary.ResourceVisitor.VisitByType(resource, Visitor, types);
+            Auxiliary.ResourceVisitor.VisitByType(resource, Visitor, types);
         }
 
         private IKey InternalizeReference(IKey localkey)
         {
-            var triage = (localhost.GetKeyKind(localkey));
+            var triage = (_localhost.GetKeyKind(localkey));
             if (triage == KeyKind.Foreign) throw new ArgumentException("Cannot internalize foreign reference");
 
             if (triage == KeyKind.Temporary)
@@ -205,16 +205,16 @@ namespace Spark.Engine.Service
         {
             var replacement = localkey;
             //CCR: To check if this is still needed. Since we don't store the version in the mapper, do we ever need to replace the key multiple times?
-            while (mapper.Exists(replacement.ResourceId))
+            while (_mapper.Exists(replacement.ResourceId))
             {
-                var triage = (localhost.GetKeyKind(localkey));
+                var triage = (_localhost.GetKeyKind(localkey));
                 if (triage == KeyKind.Temporary)
                 {
-                    replacement = mapper.TryGet(replacement.ResourceId);
+                    replacement = _mapper.TryGet(replacement.ResourceId);
                 }
                 else
                 {
-                    replacement = mapper.TryGet(replacement.ToString());
+                    replacement = _mapper.TryGet(replacement.ToString());
                 }
             }
 
@@ -238,9 +238,9 @@ namespace Spark.Engine.Service
             // BALLOT: this seems very... ad hoc.
             if (uri.HasFragment()) return uristring;
 
-            if (uri.IsTemporaryUri() || localhost.IsBaseOf(uri))
+            if (uri.IsTemporaryUri() || _localhost.IsBaseOf(uri))
             {
-                IKey key = localhost.UriToKey(uri);
+                IKey key = _localhost.UriToKey(uri);
                 return InternalizeReference(key).ToUri().ToString();
             }
             else

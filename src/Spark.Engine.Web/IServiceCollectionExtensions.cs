@@ -38,7 +38,7 @@
             services.TryAddTransient<ConditionalHeaderFhirResponseInterceptor>();
             services.TryAddTransient((provider) => new IFhirResponseInterceptor[] { provider.GetRequiredService<ConditionalHeaderFhirResponseInterceptor>() });
             services.TryAddTransient<IFhirResponseInterceptorRunner, FhirResponseInterceptorRunner>();
-            services.TryAddTransient<IFhirResponseFactory, Engine.FhirResponseFactory.FhirResponseFactory>();
+            services.TryAddTransient<IFhirResponseFactory, FhirResponseFactory>();
             services.TryAddTransient<IIndexRebuildService, IndexRebuildService>();
             services.TryAddTransient<ISearchService, SearchService>();
             services.TryAddTransient<ISnapshotPaginationProvider, SnapshotPaginationProvider>();
@@ -104,13 +104,13 @@
             });
         }
 
-        public static void AddCustomSearchParameters(this IServiceCollection services, IEnumerable<ModelInfo.SearchParamDefinition> searchParameters)
+        public static void AddCustomSearchParameters(this IServiceCollection _, IEnumerable<ModelInfo.SearchParamDefinition> searchParameters)
         {
             // Add any user-supplied SearchParameters
             ModelInfo.SearchParameters.AddRange(searchParameters);
         }
 
-        private static void AddFhirHttpSearchParameters(this IServiceCollection services)
+        private static void AddFhirHttpSearchParameters(this IServiceCollection _)
         {
             ModelInfo.SearchParameters.AddRange(new[]
             {

@@ -7,9 +7,10 @@ namespace Spark.Engine.Core
 
     public enum EntryState { Internal, Undefined, External }
 
-    public class    Entry 
+    public class Entry
     {
-        public IKey Key {
+        public IKey Key
+        {
             get
             {
                 if (Resource != null)
@@ -31,17 +32,17 @@ namespace Spark.Engine.Core
                 {
                     _key = value;
                 }
-            } 
+            }
         }
 
         public Resource Resource { get; set; }
-        public Bundle.HTTPVerb Method { get; set; } 
+        public Bundle.HTTPVerb Method { get; set; }
         // API: HttpVerb should not be in Bundle.
-        public DateTimeOffset? When 
+        public DateTimeOffset? When
         {
             get
             {
-                if (Resource != null && Resource.Meta != null)
+                if (Resource?.Meta != null)
                 {
                     return Resource.Meta.LastUpdated;
                 }
@@ -99,22 +100,22 @@ namespace Spark.Engine.Core
         {
             return new Entry(method, key, when, null);
         }
-        
+
         /// <summary>
-        ///  Creates a deleted entry 
+        ///  Creates a deleted entry
         /// </summary>
         public static Entry DELETE(IKey key, DateTimeOffset? when)
         {
-            return Entry.Create(Bundle.HTTPVerb.DELETE, key, DateTimeOffset.UtcNow);
+            return Create(Bundle.HTTPVerb.DELETE, key, when ?? DateTimeOffset.UtcNow);
         }
-        
-        public bool IsDelete 
+
+        public bool IsDelete
         {
             get
             {
                 return Method == Bundle.HTTPVerb.DELETE;
             }
-            set 
+            set
             {
                 Method = Bundle.HTTPVerb.DELETE;
                 Resource = null;
@@ -132,17 +133,17 @@ namespace Spark.Engine.Core
 
         public static Entry POST(IKey key, Resource resource)
         {
-            return Entry.Create(Bundle.HTTPVerb.POST, key, resource);
+            return Create(Bundle.HTTPVerb.POST, key, resource);
         }
 
         public static Entry POST(Resource resource)
         {
-            return Entry.Create(Bundle.HTTPVerb.POST, resource);
+            return Create(Bundle.HTTPVerb.POST, resource);
         }
 
         public static Entry PUT(IKey key, Resource resource)
         {
-            return Entry.Create(Bundle.HTTPVerb.PUT, key, resource);
+            return Create(Bundle.HTTPVerb.PUT, key, resource);
         }
 
         //public static Interaction GET(IKey key)
@@ -152,7 +153,7 @@ namespace Spark.Engine.Core
 
         public override string ToString()
         {
-            return string.Format("{0} {1}", this.Method, this.Key);
+            return $"{this.Method} {this.Key}";
         }
     }
 

@@ -21,34 +21,33 @@ namespace Spark.Engine.Extensions
     {
         public static Key ExtractKey(this Resource resource)
         {
-            var _base = (resource.ResourceBase != null) ? resource.ResourceBase.ToString() : null;
+            var _base = resource.ResourceBase?.ToString();
             var key = new Key(_base, resource.TypeName, resource.Id, resource.VersionId);
             return key;
         }
 
         public static Key ExtractKey(Uri uri)
         {
-            
             var identity = new ResourceIdentity(uri);
-            
+
             var _base = (identity.HasBaseUri) ? identity.BaseUri.ToString() : null;
             var key = new Key(_base, identity.ResourceType, identity.Id, identity.VersionId);
             return key;
         }
 
-        public static Key ExtractKey(this Localhost localhost, Bundle.EntryComponent entry)
-        {
-            var uri = new Uri(entry.Request.Url, UriKind.RelativeOrAbsolute);
-            var compare = ExtractKey(uri); // This fails!! ResourceIdentity does not work in this case.
-            return localhost.LocalUriToKey(uri);   
-            
-        }
-                
+        //public static Key ExtractKey(this Localhost localhost, Bundle.EntryComponent entry)
+        //{
+        //    var uri = new Uri(entry.Request.Url, UriKind.RelativeOrAbsolute);
+        //    var compare = ExtractKey(uri); // This fails!! ResourceIdentity does not work in this case.
+        //    return localhost.LocalUriToKey(uri);
+
+        //}
+
         public static void ApplyTo(this IKey key, Resource resource)
         {
-            resource.ResourceBase = key.HasBase() ?  new Uri(key.Base) : null;
+            resource.ResourceBase = key.HasBase() ? new Uri(key.Base) : null;
             resource.Id = key.ResourceId;
-            resource.VersionId = key.VersionId; 
+            resource.VersionId = key.VersionId;
         }
 
         public static Key Clone(this IKey self)
@@ -64,21 +63,21 @@ namespace Spark.Engine.Extensions
 
         public static Key WithBase(this IKey self, string _base)
         {
-            Key key = self.Clone();
+            var key = self.Clone();
             key.Base = _base;
             return key;
         }
 
         public static Key WithoutBase(this IKey self)
         {
-            Key key = self.Clone();
+            var key = self.Clone();
             key.Base = null;
             return key;
         }
-        
+
         public static Key WithoutVersion(this IKey self)
         {
-            Key key = self.Clone();
+            var key = self.Clone();
             key.VersionId = null;
             return key;
         }
@@ -142,7 +141,7 @@ namespace Spark.Engine.Extensions
 
         public static string ToOperationPath(this IKey self)
         {
-            Key key = self.WithoutBase();
+            var key = self.WithoutBase();
             return key.ToUriString();
         }
 
@@ -174,7 +173,7 @@ namespace Spark.Engine.Extensions
 
         public static Uri ToRelativeUri(this IKey key)
         {
-            string path = key.ToOperationPath();
+            var path = key.ToOperationPath();
             return new Uri(path, UriKind.Relative);
         }
 
@@ -186,7 +185,7 @@ namespace Spark.Engine.Extensions
         public static Uri ToUri(this IKey key, Uri endpoint)
         {
             var _base = endpoint.ToString().TrimEnd('/');
-            var s = string.Format("{0}/{1}", _base, key);
+            var s = $"{_base}/{key}";
             return new Uri(s);
         }
 

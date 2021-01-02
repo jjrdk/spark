@@ -50,7 +50,7 @@
             var method = (Bundle.HTTPVerb)(int)document[Field.METHOD];
 
             RemoveMetadata(document);
-            return  Entry.Create(method, key, when);
+            return Entry.Create(method, key, when);
         }
 
         public static Entry ToEntry(this BsonDocument document)
@@ -76,7 +76,7 @@
         {
             foreach (var document in cursor)
             {
-                var entry = SparkBsonHelper.ToEntry(document);
+                var entry = ToEntry(document);
                 yield return entry;
             }
         }
@@ -134,22 +134,24 @@
 
         public static void AddMetaData(BsonDocument document, IKey key, Resource resource)
         {
-            AssertKeyIsValid(key); 
+            AssertKeyIsValid(key);
             document[Field.TYPENAME] = key.TypeName;
             document[Field.RESOURCEID] = key.ResourceId;
             document[Field.VERSIONID] = key.VersionId;
 
-            document[Field.WHEN] = (resource!= null && resource.Meta!= null && resource.Meta.LastUpdated.HasValue)? 
+            document[Field.WHEN] = (resource?.Meta?.LastUpdated != null) ?
                 resource.Meta.LastUpdated.Value.UtcDateTime : DateTime.UtcNow;
             document[Field.STATE] = Value.CURRENT;
         }
 
         public static IKey GetKey(BsonDocument document)
         {
-            var key = new Key();
-            key.TypeName = (string)document[Field.TYPENAME];
-            key.ResourceId = (string)document[Field.RESOURCEID];
-            key.VersionId = (string)document[Field.VERSIONID];
+            var key = new Key
+            {
+                TypeName = (string)document[Field.TYPENAME],
+                ResourceId = (string)document[Field.RESOURCEID],
+                VersionId = (string)document[Field.VERSIONID]
+            };
 
             return key;
         }
