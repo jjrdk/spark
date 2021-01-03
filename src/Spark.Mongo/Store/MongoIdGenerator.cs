@@ -20,7 +20,7 @@ namespace Spark.Mongo.Store
         async Task<string> IGenerator.NextResourceId(Resource resource)
         {
             var id = await Next(resource.TypeName).ConfigureAwait(false);
-            return string.Format(Format.RESOURCEID, id);
+            return id;
         }
 
         Task<string> IGenerator.NextVersionId(string resourceIdentifier)
@@ -32,7 +32,7 @@ namespace Spark.Mongo.Store
         {
             var name = resourceType + "_history_" + resourceIdentifier;
             var versionId = await Next(name).ConfigureAwait(false);
-            return string.Format(Format.VERSIONID, versionId);
+            return versionId;
         }
 
         private async Task<string> Next(string name)
@@ -51,12 +51,6 @@ namespace Spark.Mongo.Store
 
             var value = document[Field.COUNTERVALUE].AsInt32.ToString();
             return value;
-        }
-
-        public static class Format
-        {
-            public static string RESOURCEID = "{0}";
-            public static string VERSIONID = "{0}";
         }
     }
 }

@@ -20,7 +20,7 @@ namespace Spark.Mongo.Store
 
         public async Task<IPageResult<Entry>> ReadAsync(FhirStorePageReaderOptions options)
         {
-            options = options ?? new FhirStorePageReaderOptions();
+            options ??= new FhirStorePageReaderOptions();
 
             var filter = Builders<BsonDocument>.Filter.Empty;
 

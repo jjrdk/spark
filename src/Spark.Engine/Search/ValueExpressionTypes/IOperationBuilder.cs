@@ -31,29 +31,4 @@ namespace Spark.Engine.Search.ValueExpressionTypes
 
         ICriteriumBuilder IsMissing { get; }
     }
-
-    public interface IReferenceBuilder
-    {
-    }
-
-    public interface IValueBuilder
-    {
-    }
-
-    public interface ICriteriumBuilder
-    {
-        IOperationBuilder And(string paramName);
-    }
-
-    public interface ITokenModifier : ICriteriumBuilder
-    {
-        ICriteriumBuilder In(string ns);
-        ICriteriumBuilder In(Uri ns);
-
-    }
-
-    public interface IStringModifier : ICriteriumBuilder
-    {
-        ICriteriumBuilder Exactly { get; }
-    }
 }

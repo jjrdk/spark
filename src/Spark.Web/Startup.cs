@@ -10,7 +10,6 @@
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.OpenApi.Models;
     using Engine;
-    using Mongo.Extensions;
     using Data;
     using Models.Config;
     using Services;
@@ -21,6 +20,7 @@
     using Microsoft.Extensions.Hosting;
     using Engine.Web;
     using Engine.Web.Formatters;
+    using Postgres;
 
     public class Startup
     {
@@ -90,8 +90,8 @@
                     }));
 
             // Sets up the MongoDB store
-            services.AddMongoFhirStore(storeSettings);
-
+            //services.AddMongoFhirStore(storeSettings);
+            services.AddPostgresFhirStore(storeSettings);
             // AddFhir also calls AddMvcCore
             services.AddFhir(sparkSettings);
 

@@ -1,18 +1,7 @@
-﻿using Hl7.Fhir.Model;
-using System.Net;
-using System.Net.Http;
-
-namespace Spark.Engine.Core
+﻿namespace Spark.Engine.Core
 {
-    // THe response class is an abstraction of the Fhir REST responses
-    // This way, it's easier to implement multiple WebApi controllers
-    // without having to implement functionality twice.
-    // The FhirService always responds with a "Response"
-
-    public class RespTest : HttpResponseMessage
-    {
-
-    }
+    using System.Net;
+    using Hl7.Fhir.Model;
 
     public class FhirResponse
     {
@@ -65,6 +54,4 @@ namespace Spark.Engine.Core
             return $"{(int) StatusCode}: {StatusCode} {details} ({location})";
         }
     }
-
-    
 }

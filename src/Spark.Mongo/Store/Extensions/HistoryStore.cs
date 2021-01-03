@@ -15,12 +15,12 @@ namespace Spark.Mongo.Store.Extensions
 
     public class HistoryStore : IHistoryStore
     {
-        private readonly IMongoDatabase database;
-        private readonly IMongoCollection<BsonDocument> collection;
+        private readonly IMongoDatabase _database;
+        private readonly IMongoCollection<BsonDocument> _collection;
         public HistoryStore(string mongoUrl)
         {
-            this.database = MongoDatabaseFactory.GetMongoDatabase(mongoUrl);
-            this.collection = database.GetCollection<BsonDocument>(Collection.RESOURCE);
+            _database = MongoDatabaseFactory.GetMongoDatabase(mongoUrl);
+            _collection = _database.GetCollection<BsonDocument>(Collection.RESOURCE);
         }
 
         public async Task<Snapshot> History(string resource, HistoryParameters parameters)
@@ -62,7 +62,7 @@ namespace Spark.Mongo.Store.Extensions
 
         public async Task<IList<string>> FetchPrimaryKeys(FilterDefinition<BsonDocument> query)
         {
-            var result = await collection.FindAsync(query, new FindOptions<BsonDocument> { Sort = Builders<BsonDocument>.Sort.Descending(Field.WHEN), Projection = Builders<BsonDocument>.Projection.Include(Field.PRIMARYKEY) }).ConfigureAwait(false);
+            var result = await _collection.FindAsync(query, new FindOptions<BsonDocument> { Sort = Builders<BsonDocument>.Sort.Descending(Field.WHEN), Projection = Builders<BsonDocument>.Projection.Include(Field.PRIMARYKEY) }).ConfigureAwait(false);
             return result.ToEnumerable()
              .Select(doc => doc.GetValue(Field.PRIMARYKEY).AsString).ToList();
         }
@@ -73,7 +73,7 @@ namespace Spark.Mongo.Store.Extensions
             return FetchPrimaryKeys(query);
         }
 
-        private Snapshot CreateSnapshot(IEnumerable<string> keys, int? count = null, IList<string> includes = null, IList<string> reverseIncludes = null)
+        private Snapshot CreateSnapshot(IList<string> keys, int? count = null, IList<string> includes = null, IList<string> reverseIncludes = null)
         {
             var link = new Uri(RestOperation.HISTORY, UriKind.Relative);
             var snapshot = Snapshot.Create(Bundle.BundleType.History, link, keys, "history", count, includes, reverseIncludes);

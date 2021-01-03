@@ -15,8 +15,6 @@ namespace Spark.Engine.Auxiliary
 
     // Intermediate solution. Eventually replace with real resolver.
 
-    public delegate object Instantiator();
-
     public static class DependencyCoupler
     {
         private static readonly Dictionary<Type, object> instances = new Dictionary<Type, object>();

@@ -1,0 +1,21 @@
+﻿namespace Spark.Mongo.Search.Common
+{
+    public static class InternalField
+    {
+        public const string
+            // Internally stored search fields 
+            ID = "internal_id",
+            JUSTID = "internal_justid",
+            SELFLINK = "internal_selflink",
+            CONTAINER = "internal_container",
+            RESOURCE = "internal_resource",
+            LEVEL = "internal_level",
+            TAG = "internal_tag",
+            TAGSCHEME = "scheme",
+            TAGTERM = "term",
+            TAGLABEL = "label",
+            LASTUPDATED = "lastupdated";
+
+        public static string[] All = { ID, JUSTID, SELFLINK, CONTAINER, RESOURCE, LEVEL, TAG, LASTUPDATED };
+    }
+}

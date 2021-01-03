@@ -11,10 +11,10 @@ namespace Spark.Mongo.Tests.Indexer
     /// </summary>
     public class MongoIndexMapperTest
     {
-        private readonly MongoIndexMapper sut;
+        private readonly MongoIndexMapper _sut;
         public MongoIndexMapperTest()
         {
-            sut = new MongoIndexMapper();
+            _sut = new MongoIndexMapper();
         }
 
         #region Additional test attributes
@@ -29,7 +29,7 @@ namespace Spark.Mongo.Tests.Indexer
         // [ClassCleanup()]
         // public static void MyClassCleanup() { }
         //
-        // Use TestInitialize to run code before running each test 
+        // Use TestInitialize to run code before running each test
         // [TestInitialize()]
         // public void MyTestInitialize() { }
         //
@@ -46,7 +46,7 @@ namespace Spark.Mongo.Tests.Indexer
             var iv = new IndexValue("root");
             iv.Values.Add(new IndexValue("internal_resource", new StringValue("Patient")));
 
-            var results = sut.MapEntry(iv);
+            var results = _sut.MapEntry(iv);
             Assert.Single(results);
             var result = results[0];
             Assert.True(result.IsBsonDocument);

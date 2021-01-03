@@ -41,7 +41,7 @@ namespace Spark.Engine.Service.FhirServiceExtensions
             builder.Query = results.UsedParameters;
             var link = builder.Uri;
 
-            var snapshot = CreateSnapshot(link, results, searchCommand);
+            var snapshot = CreateSnapshot(link, results.ToArray(), searchCommand);
             return snapshot;
         }
 
@@ -64,7 +64,7 @@ namespace Spark.Engine.Service.FhirServiceExtensions
             return GetSnapshot(key.TypeName, searchCommand);
         }
 
-        private Snapshot CreateSnapshot(Uri selflink, IEnumerable<string> keys, SearchParams searchCommand)
+        private Snapshot CreateSnapshot(Uri selflink, string[] keys, SearchParams searchCommand)
         {
             var sort = GetFirstSort(searchCommand);
 

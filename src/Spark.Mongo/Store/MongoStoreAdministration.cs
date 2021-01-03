@@ -10,13 +10,13 @@ namespace Spark.Mongo.Store
 
     public class MongoStoreAdministration : IFhirStoreAdministration
     {
-        private readonly IMongoDatabase database;
-        private readonly IMongoCollection<BsonDocument> collection;
+        private readonly IMongoDatabase _database;
+        private readonly IMongoCollection<BsonDocument> _collection;
 
         public MongoStoreAdministration(string mongoUrl)
         {
-            this.database = MongoDatabaseFactory.GetMongoDatabase(mongoUrl);
-            this.collection = database.GetCollection<BsonDocument>(Collection.RESOURCE);
+            this._database = MongoDatabaseFactory.GetMongoDatabase(mongoUrl);
+            this._collection = _database.GetCollection<BsonDocument>(Collection.RESOURCE);
         }
         public async Task Clean()
         {
@@ -48,14 +48,14 @@ namespace Spark.Mongo.Store
                 new CreateIndexModel<BsonDocument>(Builders<BsonDocument>.IndexKeys.Ascending(Field.PRIMARYKEY).Ascending(Field.STATE)),
                 new CreateIndexModel<BsonDocument>(Builders<BsonDocument>.IndexKeys.Descending(Field.WHEN).Ascending(Field.TYPENAME)),
             };
-            return collection.Indexes.CreateManyAsync(indices);
+            return _collection.Indexes.CreateManyAsync(indices);
         }
 
         private Task TryDropCollection(string name)
         {
             try
             {
-                return database.DropCollectionAsync(name);
+                return _database.DropCollectionAsync(name);
             }
             catch
             {

@@ -1,13 +1,5 @@
 ﻿namespace Spark.Mongo.Store
 {
-
-    public static class Collection
-    {
-        public const string RESOURCE = "resources";
-        public const string COUNTERS = "counters";
-        public const string SNAPSHOT = "snapshots";
-    }
-
     public static class Field
     {
         // The id field is an actual field in the resource, so this const can't be changed.
@@ -32,14 +24,4 @@
         internal const string TRANSACTION = "@transaction";
         //internal const string TransactionState = "@transstate";
     }
-
-    public static class Value
-    {
-        public const string CURRENT = "current";
-        public const string SUPERCEDED = "superceded";
-        internal const string QUEUED = "queued";
-        public const string IDPREFIX = "nl.furore.spark.";
-        public const string VIDPREFIX = "h";
-    }
-
 }

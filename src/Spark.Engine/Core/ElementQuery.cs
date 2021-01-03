@@ -392,12 +392,4 @@ namespace Spark.Engine.Core
             return string.Join(", ", chains.Select(chain => string.Join(".", chain)));
         }
     }
-
-    public static class ChainExtensions
-    {
-        public static bool IsEmpty(this IEnumerable<ElementQuery.Segment> chain)
-        {
-            return chain.Count() == 0;
-        }
-    }
 }

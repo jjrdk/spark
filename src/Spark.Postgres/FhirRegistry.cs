@@ -10,6 +10,8 @@
                 .Duplicate(x => x.ResourceType)
                 .Duplicate(x => x.Resource.Id)
                 .Duplicate(x => x.Resource.VersionId)
+                .Duplicate(x => x.Method)
+                .Duplicate(x => x.State)
                 .Index(x => x.When)
                 .GinIndexJsonData();
             For<IndexEntry>().Identity(x => x.Id).GinIndexJsonData();

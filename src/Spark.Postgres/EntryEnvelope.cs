@@ -6,14 +6,14 @@
 
     public class EntryEnvelope
     {
-        public string Id { get; set; }
+        public string Id { get; init; }
 
-        public string ResourceType { get; set; }
+        public string ResourceType { get; init; }
 
-        public EntryState State { get; set; }
-        public IKey Key { get; set; }
-        public Bundle.HTTPVerb Method { get; set; }
-        public DateTimeOffset? When { get; set; }
-        public Resource Resource { get; set; }
+        public EntryState State { get; init; }
+        public IKey Key { get; init; }
+        public Bundle.HTTPVerb Method { get; init; }
+        public DateTimeOffset? When { get; init; }
+        public Resource Resource { get; init; }
     }
 }

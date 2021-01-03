@@ -1,7 +1,7 @@
-﻿/* 
+﻿/*
  * Copyright (c) 2014, Furore (info@furore.com) and contributors
  * See the file CONTRIBUTORS for details.
- * 
+ *
  * This file is licensed under the BSD 3-Clause license
  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
  */
@@ -31,7 +31,7 @@ namespace Spark.Engine.Core
         public ICollection<string> Includes;
         public ICollection<string> ReverseIncludes;
 
-        public static Snapshot Create(Bundle.BundleType type, Uri selflink, IEnumerable<string> keys, string sortby, int? count, IList<string> includes, IList<string> reverseIncludes)
+        public static Snapshot Create(Bundle.BundleType type, Uri selflink, IList<string> keys, string sortby, int? count, IList<string> includes, IList<string> reverseIncludes)
         {
             var snapshot = new Snapshot
             {
@@ -42,7 +42,7 @@ namespace Spark.Engine.Core
                 Includes = includes,
                 ReverseIncludes = reverseIncludes,
                 Keys = keys,
-                Count = keys.Count(),
+                Count = keys.Count,
                 CountParam = NormalizeCount(count),
                 SortBy = sortby
             };
@@ -53,11 +53,7 @@ namespace Spark.Engine.Core
 
         private static int? NormalizeCount(int? count)
         {
-            if (count.HasValue)
-            {
-                return Math.Min(count.Value, MAX_PAGE_SIZE);
-            }
-            return count;
+            return count.HasValue ? Math.Min(count.Value, MAX_PAGE_SIZE) : count;
         }
 
 
@@ -71,24 +67,8 @@ namespace Spark.Engine.Core
             if (index == 0 && !Keys.Any())
                 return true;
 
-            var last = Keys.Count()-1;
+            var last = Keys.Count() - 1;
             return (index > 0 || index <= last);
         }
-    }
-
-    public static class SnapshotExtensions 
-    {
-        public static IEnumerable<string> Keys(this Bundle bundle)
-        {
-            return bundle.GetResources().Keys();
-        }
-
-        public static IEnumerable<string> Keys(this IEnumerable<Resource> resources)
-        {
-            return resources.Select(e => e.VersionId);
-        }
-
-       
-
     }
 }

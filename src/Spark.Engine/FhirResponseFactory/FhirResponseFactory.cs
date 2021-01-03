@@ -8,15 +8,6 @@ using Spark.Engine.Interfaces;
 
 namespace Spark.Engine.FhirResponseFactory
 {
-    public interface IFhirResponseFactory
-    {
-        FhirResponse GetFhirResponse(Entry entry, IKey key = null, IEnumerable<object> parameters = null);
-        FhirResponse GetFhirResponse(Entry entry, IKey key = null, params object[] parameters);
-        FhirResponse GetMetadataResponse(Entry entry, IKey key = null);
-        FhirResponse GetFhirResponse(Bundle bundle);
-        FhirResponse GetFhirResponse(IEnumerable<Tuple<Entry, FhirResponse>> responses, Bundle.BundleType bundleType);
-    }
-
     public class FhirResponseFactory : IFhirResponseFactory
     {
         private readonly IFhirResponseInterceptorRunner interceptorRunner;

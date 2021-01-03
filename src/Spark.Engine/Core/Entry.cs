@@ -5,23 +5,11 @@ namespace Spark.Engine.Core
 {
     using Extensions;
 
-    public enum EntryState { Internal, Undefined, External }
-
     public class Entry
     {
         public IKey Key
         {
-            get
-            {
-                if (Resource != null)
-                {
-                    return Resource.ExtractKey();
-                }
-                else
-                {
-                    return _key;
-                }
-            }
+            get => Resource != null ? Resource.ExtractKey() : _key;
             set
             {
                 if (Resource != null)
@@ -40,22 +28,12 @@ namespace Spark.Engine.Core
         // API: HttpVerb should not be in Bundle.
         public DateTimeOffset? When
         {
-            get
-            {
-                if (Resource?.Meta != null)
-                {
-                    return Resource.Meta.LastUpdated;
-                }
-                else
-                {
-                    return _when;
-                }
-            }
+            get => Resource?.Meta != null ? Resource.Meta.LastUpdated : _when;
             set
             {
                 if (Resource != null)
                 {
-                    if (Resource.Meta == null) Resource.Meta = new Meta();
+                    Resource.Meta ??= new Meta();
                     Resource.Meta.LastUpdated = value;
                 }
                 else
@@ -111,10 +89,7 @@ namespace Spark.Engine.Core
 
         public bool IsDelete
         {
-            get
-            {
-                return Method == Bundle.HTTPVerb.DELETE;
-            }
+            get => Method == Bundle.HTTPVerb.DELETE;
             set
             {
                 Method = Bundle.HTTPVerb.DELETE;

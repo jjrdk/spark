@@ -7,8 +7,6 @@
  */
 
 using System.Collections.Generic;
-using Hl7.Fhir.Model;
-using Spark.Engine.Core;
 
 namespace Spark.Mongo.Search.Common
 {
@@ -17,21 +15,6 @@ namespace Spark.Mongo.Search.Common
     omdat Definition onafhankelijk van Spark zou moeten kunnen bestaan.
     Er komt dus een converter voor in de plaats. -mh
     */
-
-    public class Definition
-    {
-        public Argument Argument { get; set; }
-        public string Resource { get; set; }
-        public string ParamName { get; set; }
-        public string Description { get; set; }
-        public SearchParamType ParamType { get; set; }
-        public ElementQuery Query { get; set; }
-
-        public override string ToString()
-        {
-            return $"{Resource.ToLower()}.{ParamName.ToLower()}->{Query}";
-        }
-    }
 
     public class Definitions
     {

@@ -13,8 +13,6 @@ using System.Reflection;
 
 namespace Spark.Engine.Auxiliary
 {
-    public delegate void Visitor(Element element, string path);
-    
     public static class ResourceVisitor
     {
         public static void VisitByType(object item, Visitor action, params Type[] filter)

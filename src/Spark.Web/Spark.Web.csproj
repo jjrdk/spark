@@ -16,7 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Spark.Engine.Web\Spark.Engine.Web.csproj" />
-    <ProjectReference Include="..\Spark.Mongo\Spark.Mongo.csproj" />
+    <ProjectReference Include="..\Spark.Postgres\Spark.Postgres.csproj" />
   </ItemGroup>
 
 </Project>

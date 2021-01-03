@@ -9,23 +9,6 @@ using Spark.Engine.Model;
 
 namespace Spark.Engine.Core
 {
-
-    public static class Hacky
-    {
-        // This is a class without context, and is more useful when static. --mh
-        // But does this method not already exist in ModelInfo????
-        public static ResourceType GetResourceTypeForResourceName(string name)
-        {
-            return (ResourceType)Enum.Parse(typeof(ResourceType), name, true);
-        }
-
-        public static string GetResourceNameForResourceType(ResourceType type)
-        {
-            return Enum.GetName(typeof(ResourceType), type);
-        }
-
-    }
-
     public class FhirModel : IFhirModel
     {
         public FhirModel(Dictionary<Type, string> csTypeToFhirTypeNameMapping, IEnumerable<SearchParamDefinition> searchParameters)
