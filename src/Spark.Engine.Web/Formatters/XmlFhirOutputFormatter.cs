@@ -34,6 +34,18 @@
         }
 
         /// <inheritdoc />
+        public override bool CanWriteResult(OutputFormatterCanWriteContext context)
+        {
+            return SupportedMediaTypes.Contains(context.ContentType.Value) && base.CanWriteResult(context);
+        }
+
+        /// <inheritdoc />
+        protected override bool CanWriteType(Type type)
+        {
+            return typeof(Resource).IsAssignableFrom(type);
+        }
+
+        /// <inheritdoc />
         public override void WriteResponseHeaders(OutputFormatterWriteContext context)
         {
             context.HttpContext.Response.ContentType = FhirMediaType.GetMediaTypeHeaderValue(context.ObjectType, ResourceFormat.Xml).ToString();

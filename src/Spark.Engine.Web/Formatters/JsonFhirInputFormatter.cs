@@ -15,6 +15,7 @@ namespace Spark.Engine.Web.Formatters
     using Hl7.Fhir.Rest;
     using Hl7.Fhir.Serialization;
     using Microsoft.AspNetCore.Mvc.Formatters;
+    using Microsoft.Net.Http.Headers;
     using Resource = Hl7.Fhir.Model.Resource;
 
     public class JsonFhirInputFormatter : TextInputFormatter
@@ -23,12 +24,20 @@ namespace Spark.Engine.Web.Formatters
 
         public JsonFhirInputFormatter(FhirJsonParser parser)
         {
+            SupportedEncodings.Add(Encoding.UTF8);
             _parser = parser ?? throw new ArgumentNullException(nameof(parser));
 
             foreach (var mediaType in ContentType.JSON_CONTENT_HEADERS)
             {
-                SupportedMediaTypes.Add(new Microsoft.Net.Http.Headers.MediaTypeHeaderValue(mediaType));
+                SupportedMediaTypes.Add(new MediaTypeHeaderValue(mediaType));
             }
+        }
+        
+        /// <inheritdoc />
+        public override bool CanRead(InputFormatterContext context)
+        {
+            var contentType = context.HttpContext.Request.ContentType;
+            return SupportedMediaTypes.Contains(contentType) && base.CanRead(context);
         }
 
         /// <inheritdoc />

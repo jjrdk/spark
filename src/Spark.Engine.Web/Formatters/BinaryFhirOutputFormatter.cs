@@ -12,11 +12,17 @@
         {
             SupportedMediaTypes.Add(new MediaTypeHeaderValue(FhirMediaType.OCTET_STREAM_CONTENT_HEADER));
         }
+        
+        /// <inheritdoc />
+        public override bool CanWriteResult(OutputFormatterCanWriteContext context)
+        {
+            return SupportedMediaTypes.Contains(context.ContentType.Value) && base.CanWriteResult(context);
+        }
 
         /// <inheritdoc />
         protected override bool CanWriteType(Type type)
         {
-            return type == typeof(Resource);
+            return typeof(Resource).IsAssignableFrom(type);
         }
 
         /// <inheritdoc />

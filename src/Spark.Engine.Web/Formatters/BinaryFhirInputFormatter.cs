@@ -23,10 +23,18 @@ namespace Spark.Engine.Web.Formatters
         {
             SupportedMediaTypes.Add(new Microsoft.Net.Http.Headers.MediaTypeHeaderValue(FhirMediaType.OCTET_STREAM_CONTENT_HEADER));
         }
+        
+        /// <inheritdoc />
+        public override bool CanRead(InputFormatterContext context)
+        {
+            var contentType = context.HttpContext.Request.ContentType;
+            return SupportedMediaTypes.Contains(contentType) && base.CanRead(context);
+        }
 
+        /// <inheritdoc />
         protected override bool CanReadType(Type type)
         {
-            return type == typeof(Resource);
+            return typeof(Resource).IsAssignableFrom(type);
         }
 
         /// <inheritdoc />

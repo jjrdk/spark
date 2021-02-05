@@ -48,13 +48,13 @@ namespace Spark.Engine.Web.Tests.Formatters
         }
 
         [Fact]
-        public void SupportedMediaTypes_DefaultMediaType_ReturnsApplicationJson()
+        public void SupportedMediaTypes_DefaultMediaType_ReturnsApplicationFhirXml()
         {
             var formatter = GetInputFormatter();
 
             var mediaType = formatter.SupportedMediaTypes[0];
 
-            Assert.Equal("application/xml", mediaType.ToString());
+            Assert.Equal("application/fhir+xml", mediaType);
         }
 
         [Fact]
