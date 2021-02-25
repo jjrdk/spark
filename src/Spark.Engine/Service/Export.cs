@@ -139,8 +139,8 @@ namespace Spark.Engine.Service
             try
             {
                 var xdoc = XDocument.Parse(div);
-                xdoc.VisitAttributes("img", "src", (n) => n.Value = ExternalizeReference(n.Value));
-                xdoc.VisitAttributes("a", "href", (n) => n.Value = ExternalizeReference(n.Value));
+                xdoc.VisitAttributes("img", "src", n => n.Value = ExternalizeReference(n.Value));
+                xdoc.VisitAttributes("a", "href", n => n.Value = ExternalizeReference(n.Value));
                 return xdoc.ToString();
 
             }

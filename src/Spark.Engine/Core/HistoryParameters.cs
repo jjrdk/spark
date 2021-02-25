@@ -1,7 +1,7 @@
-﻿using System;
-
-namespace Spark.Engine.Core
+﻿namespace Spark.Engine.Core
 {
+    using System;
+
     public class HistoryParameters
     {
         public HistoryParameters(int? count, DateTimeOffset? since, string sortBy, string format = null)

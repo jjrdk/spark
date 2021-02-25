@@ -1,13 +1,13 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using Spark.Engine.Core;
-using Spark.Engine.Store.Interfaces;
-
-namespace Spark.Engine.Service.FhirServiceExtensions
+﻿namespace Spark.Engine.Service.FhirServiceExtensions
 {
+    using System;
+    using System.Collections;
+    using System.Collections.Generic;
+    using System.Linq;
+    using Spark.Engine.Core;
+    using Spark.Engine.Store.Interfaces;
     using Interfaces;
+    using Spark.Core;
 
     public class FhirExtensionsBuilder : IFhirExtensionsBuilder
     {

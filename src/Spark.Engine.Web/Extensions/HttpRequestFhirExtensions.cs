@@ -16,6 +16,7 @@ namespace Spark.Engine.Web.Extensions
     using System.Linq;
     using System.Net;
     using System.Net.Http;
+    using Core;
     using Hl7.Fhir.Model;
     using Hl7.Fhir.Rest;
     using Hl7.Fhir.Utility;
@@ -23,10 +24,19 @@ namespace Spark.Engine.Web.Extensions
     using Microsoft.AspNetCore.Http.Headers;
     using Microsoft.Extensions.Primitives;
     using Microsoft.Net.Http.Headers;
+    using Utility;
     using MediaTypeHeaderValue = Microsoft.Net.Http.Headers.MediaTypeHeaderValue;
 
     public static class HttpRequestFhirExtensions
     {
+        public static HistoryParameters ToHistoryParameters(this HttpRequest request)
+        {
+            return new HistoryParameters(
+                request.GetParameter("_count").ParseIntParameter(),
+                request.GetParameter("_since").ParseDateParameter(),
+                request.GetParameter("_sort"));
+        }
+
         internal static SummaryType RequestSummary(this HttpRequest request)
         {
             request.Query.TryGetValue("_summary", out var stringValues);
@@ -36,7 +46,7 @@ namespace Spark.Engine.Web.Extensions
         /// <summary>
         /// Transfers the id to the <see cref="Hl7.Fhir.Model.Resource"/>.
         /// </summary>
-        /// <param name="request">An instance of <see cref="WebRequestMethods.Http.HttpRequest"/>.</param>
+        /// <param name="request">An instance of <see cref="HttpRequest"/>.</param>
         /// <param name="resource">An instance of <see cref="Hl7.Fhir.Model.Resource"/>.</param>
         /// <param name="id">A <see cref="string"/> containing the id to transfer to Resource.Id.</param>
         public static void TransferResourceIdIfRawBinary(this HttpRequest request, Resource resource, string id)
@@ -51,12 +61,21 @@ namespace Spark.Engine.Web.Extensions
         public static string IfNoneExist(this RequestHeaders headers)
         {
             string ifNoneExist = null;
-            if (headers.Headers.TryGetValue(FhirHttpHeaders.IF_NONE_EXIST, out var values))
+            if (headers.Headers.TryGetValue(FhirHttpHeaders.IfNoneExist, out var values))
             {
                 ifNoneExist = values.FirstOrDefault();
             }
             return ifNoneExist;
         }
+
+        public static DateTimeOffset? IfModifiedSince(this HttpRequest request)
+        {
+            var success = DateTimeOffset.TryParse(request.Headers[HeaderNames.IfModifiedSince], out var result);
+            return success ? result : DateTimeOffset.UnixEpoch;
+        }
+
+        public static IEnumerable<string> IfNoneMatch(this HttpRequest request) =>
+            request.Headers[HeaderNames.IfNoneMatch].Select(h => EntityTagHeaderValue.Parse(h).Tag.Value);
 
         public static List<Tuple<string, string>> TupledParameters(this HttpRequest request)
         {

@@ -201,7 +201,7 @@ namespace Spark.Engine.Core
                 var filterValue = match.Groups["filterValue"].Value;
 
                 Predicate<object> result =
-                    (obj) => GetPredicateForPropertyAndFilter(propertyName, filterValue, obj);
+                    obj => GetPredicateForPropertyAndFilter(propertyName, filterValue, obj);
 
                 return result;
             }

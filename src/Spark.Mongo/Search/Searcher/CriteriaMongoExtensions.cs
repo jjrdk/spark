@@ -148,7 +148,7 @@ namespace Spark.Mongo.Search.Searcher
 
         private static List<string> GetTargetedReferenceTypes(ModelInfo.SearchParamDefinition parameter, string modifier)
         {
-            var allowedResourceTypes = parameter.Target.Select(t => EnumUtility.GetLiteral(t)).ToList();// ModelInfo.SupportedResources; //TODO: restrict to parameter.ReferencedResources. This means not making this static, because you want to use IFhirModel.
+            var allowedResourceTypes = parameter.Target.Select(t => t.GetLiteral()).ToList();// ModelInfo.SupportedResources; //TODO: restrict to parameter.ReferencedResources. This means not making this static, because you want to use IFhirModel.
             var searchResourceTypes = new List<string>();
             if (string.IsNullOrEmpty(modifier))
                 searchResourceTypes.AddRange(allowedResourceTypes);

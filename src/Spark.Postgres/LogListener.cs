@@ -3,8 +3,8 @@
     using System;
     using System.Threading.Tasks;
     using Engine.Core;
-    using Engine.Service;
     using Microsoft.Extensions.Logging;
+    using Service;
 
     public class LogListener : IServiceListener
     {
@@ -18,7 +18,9 @@
         /// <inheritdoc />
         public Task Inform(Uri location, Entry interaction)
         {
-            _logger.LogDebug($"{location} -> {interaction.Key}");
+            _logger.LogDebug(
+                $"{interaction.When} - {location} -> {interaction.Key}, {interaction.Method}, Is Delete: {interaction.IsDelete}, Is Present: {interaction.IsPresent}");
+
             return Task.CompletedTask;
         }
     }

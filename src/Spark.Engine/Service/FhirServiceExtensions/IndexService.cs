@@ -1,14 +1,4 @@
-﻿/*
- * Copyright (c) 2014, Furore (info@furore.com) and contributors
- * See the file CONTRIBUTORS for details.
- *
- * This file is licensed under the BSD 3-Clause license
- * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
- */
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Hl7.Fhir.FhirPath;
 using Hl7.Fhir.Model;
 using Spark.Engine.Core;
 using Spark.Engine.Extensions;
@@ -16,22 +6,21 @@ using Spark.Engine.Model;
 using Spark.Engine.Search;
 using Spark.Engine.Search.Model;
 using Spark.Engine.Store.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Task = System.Threading.Tasks.Task;
 
 namespace Spark.Engine.Service.FhirServiceExtensions
 {
-    using System.Threading.Tasks;
-    using Hl7.Fhir.FhirPath;
     using Search.ValueExpressionTypes;
 
-    /// <summary>
-    /// IndexEntry is the collection of indexed values for a resource.
-    /// IndexPart is
-    /// </summary>
     public class IndexService : IIndexService
     {
         private readonly IFhirModel _fhirModel;
-        private readonly ElementIndexer _elementIndexer;
         private readonly IIndexStore _indexStore;
+        private readonly ElementIndexer _elementIndexer;
 
         public IndexService(IFhirModel fhirModel, IIndexStore indexStore, ElementIndexer elementIndexer)
         {
@@ -59,12 +48,12 @@ namespace Spark.Engine.Service.FhirServiceExtensions
         public async Task<IndexValue> IndexResource(Resource resource, IKey key)
         {
             var resourceToIndex = MakeContainedReferencesUnique(resource);
-            var indexValue = await IndexResourceRecursively(resourceToIndex, key).ConfigureAwait(false);
+            var indexValue = IndexResourceRecursively(resourceToIndex, key);
             await _indexStore.Save(indexValue).ConfigureAwait(false);
             return indexValue;
         }
 
-        private async Task<IndexValue> IndexResourceRecursively(Resource resource, IKey key, string rootPartName = "root")
+        private IndexValue IndexResourceRecursively(Resource resource, IKey key, string rootPartName = "root")
         {
             var searchParameters = _fhirModel.FindSearchParameters(resource.GetType());
 
@@ -90,26 +79,24 @@ namespace Spark.Engine.Service.FhirServiceExtensions
                 {
                     resolvedValues = resource.SelectNew(searchParameter.Expression);
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
                     // TODO: log error!
                     resolvedValues = new List<Base>();
                 }
-                foreach (var element in resolvedValues.OfType<Element>())
+                foreach (var value in resolvedValues)
                 {
+                    var element = value as Element;
+                    if (element == null) continue;
+
                     indexValue.Values.AddRange(_elementIndexer.Map(element));
                 }
-
                 if (indexValue.Values.Any())
-                {
                     rootIndexValue.Values.Add(indexValue);
-                }
             }
 
-            if (resource is DomainResource domainResource)
-            {
-                await AddContainedResources(domainResource, rootIndexValue).ConfigureAwait(false);
-            }
+            if (resource is DomainResource)
+                AddContainedResources((DomainResource)resource, rootIndexValue);
 
             return rootIndexValue;
         }
@@ -122,7 +109,7 @@ namespace Spark.Engine.Service.FhirServiceExtensions
         /// </summary>
         /// <param name="resource"></param>
         /// <returns>A copy of resource, with id's of contained resources and references in resource adjusted to unique values.</returns>
-        private static Resource MakeContainedReferencesUnique(Resource resource)
+        private Resource MakeContainedReferencesUnique(Resource resource)
         {
             //We may change id's of contained resources, and don't want that to influence other code. So we make a copy for our own needs.
             Resource result = (dynamic)resource.DeepCopy();
@@ -146,8 +133,7 @@ namespace Spark.Engine.Service.FhirServiceExtensions
                     // Replace references to these contained resources with the newly created id's.
                     Auxiliary.ResourceVisitor.VisitByType(
                         domainResource,
-                         (el, path) =>
-                         {
+                         (el, path) => {
                              var currentRefence = (el as ResourceReference);
                              if (!string.IsNullOrEmpty(currentRefence.Reference))
                              {
@@ -162,62 +148,25 @@ namespace Spark.Engine.Service.FhirServiceExtensions
             return result;
         }
 
-        //private IndexValue IndexResourceRecursively(Resource resource, IKey key, string rootPartName = "root")
-        //{
-        //    var searchParametersForResource = _fhirModel.FindSearchParameters(resource.GetType());
+        private void AddContainedResources(DomainResource resource, IndexValue parent)
+        {
+            parent.Values.AddRange(
+                resource.Contained.Where(c => c is DomainResource)
+                .Select(c =>
+                {
+                    IKey containedKey = c.ExtractKey();
+                    return IndexResourceRecursively((c as DomainResource), containedKey, "contained");
+                })
+            );
+        }
 
-        //    if (searchParametersForResource != null)
-        //    {
-        //        var result = new IndexValue(rootPartName);
-
-        //        AddMetaParts(resource, key, result);
-
-        //        foreach (var par in searchParametersForResource)
-        //        {
-        //            var newIndexPart = new IndexValue(par.Code);
-        //            foreach (var path in par.GetPropertyPath())
-        //                _resourceVisitor.VisitByPath(resource,
-        //                    obj =>
-        //                    {
-        //                        if (obj is Element element)
-        //                        {
-        //                            newIndexPart.Values.AddRange(_elementIndexer.Map(element));
-        //                        }
-        //                    }
-        //                    , path);
-        //            if (newIndexPart.Values.Any())
-        //            {
-        //                result.Values.Add(newIndexPart);
-        //            }
-        //        }
-
-        //        if (resource is DomainResource)
-        //            AddContainedResources((DomainResource)resource, result);
-
-        //        return result;
-        //    }
-        //    return null;
-        //}
-
-        private static void AddMetaParts(Resource resource, IKey key, IndexValue entry)
+        private void AddMetaParts(Resource resource, IKey key, IndexValue entry)
         {
             entry.Values.Add(new IndexValue("internal_forResource", new StringValue(key.ToUriString())));
             entry.Values.Add(new IndexValue(IndexFieldNames.RESOURCE, new StringValue(resource.TypeName)));
             entry.Values.Add(new IndexValue(IndexFieldNames.ID, new StringValue(resource.TypeName + "/" + key.ResourceId)));
             entry.Values.Add(new IndexValue(IndexFieldNames.JUSTID, new StringValue(resource.Id)));
             entry.Values.Add(new IndexValue(IndexFieldNames.SELFLINK, new StringValue(key.ToUriString()))); //CK TODO: This is actually Mongo-specific. Move it to Spark.Mongo, but then you will have to communicate the key to the MongoIndexMapper.
-        }
-
-        private async Task AddContainedResources(DomainResource resource, IndexValue parent)
-        {
-            foreach (var domainResource in resource.Contained.OfType<DomainResource>())
-            {
-                IKey containedKey = domainResource.ExtractKey();
-                //containedKey.ResourceId = key.ResourceId + "#" + c.Id;
-                var value = await IndexResourceRecursively(domainResource, containedKey, "contained")
-                    .ConfigureAwait(false);
-                parent.Values.Add(value);
-            }
         }
     }
 }

@@ -19,7 +19,7 @@ namespace Spark.Engine.Search.Support
         {
             var parts = Regex.Split(value, separator + "(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)")
                                 .Select(s => s.Trim());
-                               
+
             return parts.ToArray();
         }
 
@@ -36,7 +36,7 @@ namespace Spark.Engine.Search.Support
                     seenEscape = true;
                     continue;
                 }
-               
+
                 if (value[i] == separator && !seenEscape)
                 {
                     result.Add(word);
@@ -58,7 +58,7 @@ namespace Spark.Engine.Search.Support
             return result.ToArray<string>();
         }
 
-        public static Tuple<string,string> SplitLeft(this string text, char separator)
+        public static Tuple<string, string> SplitLeft(this string text, char separator)
         {
             var pos = text.IndexOf(separator);
 

@@ -66,7 +66,7 @@ namespace Spark.Engine.FhirResponseFactory
             {
                 bundle.Append(response.Item1, response.Item2);
             }
-      
+
             return Respond.WithBundle(bundle);
         }
 

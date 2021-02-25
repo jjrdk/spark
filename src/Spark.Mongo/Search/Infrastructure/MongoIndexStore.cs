@@ -1,14 +1,17 @@
-﻿namespace Spark.Mongo.Search.Infrastructure
+﻿using System;
+using MongoDB.Bson;
+using MongoDB.Driver;
+using Spark.Engine.Core;
+using System.Threading.Tasks;
+using Spark.Store.Mongo;
+using Spark.Engine.Model;
+using Spark.Mongo.Search.Indexer;
+using Spark.Engine.Store.Interfaces;
+
+namespace Spark.Mongo.Search.Common
 {
-    using System.Threading.Tasks;
-    using Common;
-    using Engine.Core;
     using Engine.Extensions;
-    using Engine.Model;
-    using Engine.Store.Interfaces;
-    using Indexer;
-    using MongoDB.Bson;
-    using MongoDB.Driver;
+    using Infrastructure;
 
     public class MongoIndexStore : IIndexStore
     {
@@ -36,24 +39,23 @@
         public async Task Save(BsonDocument document)
         {
             var keyvalue = document.GetValue(InternalField.ID).ToString();
-                var query = Builders<BsonDocument>.Filter.Eq(InternalField.ID, keyvalue);
+            var query = Builders<BsonDocument>.Filter.Eq(InternalField.ID, keyvalue);
 
-                // todo: should use Update: collection.Update();
-                _ = await Collection.DeleteManyAsync(query).ConfigureAwait(false);
-                await Collection.InsertOneAsync(document).ConfigureAwait(false);
+            // todo: should use Update: collection.Update();
+            await Collection.DeleteManyAsync(query).ConfigureAwait(false);
+            await Collection.InsertOneAsync(document).ConfigureAwait(false);
         }
 
-        public Task Delete(Entry entry)
+        public async Task Delete(Entry entry)
         {
-            var id = entry.Key.WithoutVersion().ToOperationPath();
+            string id = entry.Key.WithoutVersion().ToOperationPath();
             var query = Builders<BsonDocument>.Filter.Eq(InternalField.ID, id);
-            return Collection.DeleteManyAsync(query);
+            await Collection.DeleteManyAsync(query).ConfigureAwait(false);
         }
 
-        public Task Clean()
+        public async Task Clean()
         {
-            return Collection.DeleteManyAsync(Builders<BsonDocument>.Filter.Empty);
+            await Collection.DeleteManyAsync(Builders<BsonDocument>.Filter.Empty).ConfigureAwait(false);
         }
-
     }
 }

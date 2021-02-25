@@ -28,11 +28,11 @@
         }
 
         /// <inheritdoc />
-        public async Task<Snapshot> GetSnapshot(string snapshotid)
+        public async Task<Snapshot> GetSnapshot(string snapshotId)
         {
-            _logger.LogDebug("Returned snapshot " + snapshotid);
+            _logger.LogDebug("Returned snapshot " + snapshotId);
             using var session = _sessionFunc();
-            var snapshot = await session.LoadAsync<Snapshot>(snapshotid).ConfigureAwait(false);
+            var snapshot = await session.LoadAsync<Snapshot>(snapshotId).ConfigureAwait(false);
 
             return snapshot;
         }

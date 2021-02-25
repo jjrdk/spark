@@ -5,29 +5,51 @@
 
     public class IndexEntry : IEquatable<IndexEntry>
     {
-        public IndexEntry(string id, Dictionary<string, object> values)
+        public IndexEntry(string id, string canonicalId, string resourceType, Dictionary<string, object> values)
         {
             Id = id;
+            CanonicalId = canonicalId;
+            ResourceType = resourceType;
             Values = values;
         }
 
         public string Id { get; }
+
+        public string CanonicalId { get; }
+
+        public string ResourceType { get; }
 
         public Dictionary<string, object> Values { get; }
 
         /// <inheritdoc />
         public bool Equals(IndexEntry other)
         {
-            if (other is null) return false;
-            if (ReferenceEquals(this, other)) return true;
+            if (other is null)
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, other))
+            {
+                return true;
+            }
+
             return Id == other.Id && Equals(Values, other.Values);
         }
 
         /// <inheritdoc />
         public override bool Equals(object obj)
         {
-            if (obj is null) return false;
-            if (ReferenceEquals(this, obj)) return true;
+            if (obj is null)
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+
             return obj.GetType() == this.GetType() && Equals((IndexEntry)obj);
         }
 

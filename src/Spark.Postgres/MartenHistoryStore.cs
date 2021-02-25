@@ -10,7 +10,6 @@
     using Engine.Store.Interfaces;
     using Hl7.Fhir.Model;
     using Marten;
-    using Expression = System.Linq.Expressions.Expression;
 
     public class MartenHistoryStore : IHistoryStore
     {
@@ -21,100 +20,95 @@
             _sessionFunc = sessionFunc;
         }
 
-        public async Task<Snapshot> History(string resource, HistoryParameters parameters)
+        /// <inheritdoc />
+        public async Task<Snapshot> History(string typename, HistoryParameters parameters)
         {
             using var session = _sessionFunc();
-            var entryEnvelopes = session.Query<EntryEnvelope>()
-                .Where(e => e.ResourceType == resource);
+            var query = session.Query<EntryEnvelope>().Where(e => e.ResourceType == typename);
             if (parameters.Since.HasValue)
             {
-                entryEnvelopes = entryEnvelopes.Where(e => e.When > parameters.Since.Value);
+                query = query.Where(x => x.When > parameters.Since.Value);
             }
+
+            // TODO: Handle sort
+
             if (parameters.Count.HasValue)
             {
-                entryEnvelopes = entryEnvelopes.Take(parameters.Count.Value);
+                query = query.Take(parameters.Count.Value);
             }
 
-            if (parameters.SortBy != null)
-            {
-                var parameter = Expression.Parameter(typeof(EntryEnvelope), "x");
-                entryEnvelopes = entryEnvelopes.OrderBy(
-                    Expression.Lambda<Func<EntryEnvelope, object>>(
-                        Expression.Property(parameter, parameters.SortBy),
-                        parameter));
-            }
-            var keys = await entryEnvelopes
-                .Select(e => e.Key)
+            var result = await query.Select(x => new { x.Key.TypeName, x.Key.Base, x.Key.ResourceId, x.Key.VersionId })
                 .ToListAsync()
                 .ConfigureAwait(false);
-            var primaryKeys = keys.Select(k => k.ToStorageKey()).ToArray();
-            return CreateSnapshot(primaryKeys, parameters.Count);
+            var keys = result.Select(x => new Key(x.Base, x.TypeName, x.ResourceId, x.VersionId).ToString()).ToList();
+            return CreateSnapshot(keys, result.Count);
         }
 
+        /// <inheritdoc />
         public async Task<Snapshot> History(IKey key, HistoryParameters parameters)
         {
+            var storageKey = key.ToStorageKey();
             using var session = _sessionFunc();
-            var entryEnvelopes = session.Query<EntryEnvelope>()
-                .Where(e => e.Key.ResourceId == key.ResourceId && e.Key.TypeName == key.TypeName);
+            var query = session.Query<EntryEnvelope>().Where(e => e.ResourceKey == storageKey);
             if (parameters.Since.HasValue)
             {
-                entryEnvelopes = entryEnvelopes.Where(e => e.When > parameters.Since.Value);
+                query = query.Where(x => x.When > parameters.Since.Value);
             }
+
+            // TODO: Handle sort
+
             if (parameters.Count.HasValue)
             {
-                entryEnvelopes = entryEnvelopes.Take(parameters.Count.Value);
+                query = query.Take(parameters.Count.Value);
             }
 
-            if (parameters.SortBy != null)
-            {
-                var parameter = Expression.Parameter(typeof(EntryEnvelope), "x");
-                entryEnvelopes = entryEnvelopes.OrderBy(
-                    Expression.Lambda<Func<EntryEnvelope, object>>(
-                        Expression.Property(parameter, parameters.SortBy),
-                        parameter));
-            }
-            var keys = await entryEnvelopes
-                .Select(e => e.Key)
+            var result = await query.Select(x => new { x.Key.TypeName, x.Key.Base, x.Key.ResourceId, x.Key.VersionId })
                 .ToListAsync()
                 .ConfigureAwait(false);
-            var primaryKeys = keys.Select(k => k.ToStorageKey()).ToArray();
-            return CreateSnapshot(primaryKeys, parameters.Count);
+            return CreateSnapshot(
+                result.Select(x => new Key(x.Base, x.TypeName, x.ResourceId, x.VersionId).ToString()).ToList(),
+                result.Count);
         }
 
+        /// <inheritdoc />
         public async Task<Snapshot> History(HistoryParameters parameters)
         {
             using var session = _sessionFunc();
-            IQueryable<EntryEnvelope> entryEnvelopes = session.Query<EntryEnvelope>();
+            IQueryable<EntryEnvelope> query = session.Query<EntryEnvelope>();
             if (parameters.Since.HasValue)
             {
-                entryEnvelopes = entryEnvelopes.Where(e => e.When > parameters.Since.Value);
+                query = query.Where(x => x.When > parameters.Since.Value);
             }
+
+            // TODO: Handle sort
+
             if (parameters.Count.HasValue)
             {
-                entryEnvelopes = entryEnvelopes.Take(parameters.Count.Value);
+                query = query.Take(parameters.Count.Value);
             }
 
-            if (parameters.SortBy != null)
-            {
-                var parameter = Expression.Parameter(typeof(EntryEnvelope), "x");
-                entryEnvelopes = entryEnvelopes.OrderBy(
-                    Expression.Lambda<Func<EntryEnvelope, object>>(
-                        Expression.Property(parameter, parameters.SortBy),
-                        parameter));
-            }
-            var keys = await entryEnvelopes
-                .Select(e => e.Key)
+            var result = await query.Select(x => new { x.Key.TypeName, x.Key.Base, x.Key.ResourceId, x.Key.VersionId })
                 .ToListAsync()
                 .ConfigureAwait(false);
-            var primaryKeys = keys.Select(k => k.ToStorageKey()).ToArray();
-            return CreateSnapshot(primaryKeys, parameters.Count);
+            return CreateSnapshot(
+                result.Select(x => new Key(x.Base, x.TypeName, x.ResourceId, x.VersionId).ToString()).ToList(),
+                result.Count);
         }
 
-        private static Snapshot CreateSnapshot(string[] keys, int? count = null, IList<string> includes = null, IList<string> reverseIncludes = null)
+        private static Snapshot CreateSnapshot(
+            IList<string> keys,
+            int? count = null,
+            IList<string> includes = null,
+            IList<string> reverseIncludes = null)
         {
-            var link = new Uri(RestOperation.HISTORY, UriKind.Relative);
-            var snapshot = Snapshot.Create(Bundle.BundleType.History, link, keys, "history", count, includes, reverseIncludes);
-            return snapshot;
+            return Snapshot.Create(
+                Bundle.BundleType.History,
+                new Uri(RestOperation.HISTORY, UriKind.Relative),
+                keys,
+                "history",
+                count,
+                includes,
+                reverseIncludes);
         }
     }
 }

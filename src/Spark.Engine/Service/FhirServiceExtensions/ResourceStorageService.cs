@@ -1,11 +1,10 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Spark.Engine.Core;
-using Spark.Engine.Store.Interfaces;
-
-namespace Spark.Engine.Service.FhirServiceExtensions
+﻿namespace Spark.Engine.Service.FhirServiceExtensions
 {
+    using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
+    using Spark.Engine.Core;
+    using Spark.Engine.Store.Interfaces;
 
     public class ResourceStorageService : IResourceStorageService
     {
@@ -26,6 +25,7 @@ namespace Spark.Engine.Service.FhirServiceExtensions
             {
                 transfer.Externalize(entry);
             }
+
             return entry;
         }
 
@@ -46,6 +46,7 @@ namespace Spark.Engine.Service.FhirServiceExtensions
             {
                 result = await fhirStore.Get(entry.Key).ConfigureAwait(false);
             }
+
             transfer.Externalize(result);
 
             return result;
@@ -53,10 +54,10 @@ namespace Spark.Engine.Service.FhirServiceExtensions
 
         public async Task<IList<Entry>> Get(IEnumerable<string> localIdentifiers, string sortby = null)
         {
-            var results = await fhirStore.Get(localIdentifiers.Select(k => (IKey)Key.ParseOperationPath(k))).ConfigureAwait(false);
+            var results = await fhirStore.Get(localIdentifiers.Select(k => (IKey)Key.ParseOperationPath(k)))
+                .ConfigureAwait(false);
             transfer.Externalize(results);
             return results;
-
         }
     }
 }

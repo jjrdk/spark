@@ -1,8 +1,7 @@
-﻿using Spark.Engine.Core;
-
-namespace Spark.Engine.Service.FhirServiceExtensions
+﻿namespace Spark.Engine.Service.FhirServiceExtensions
 {
     using System.Threading.Tasks;
+    using Core;
 
     public interface IInteractionHandler
     {

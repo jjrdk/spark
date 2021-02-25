@@ -1,16 +1,17 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using Hl7.Fhir.Model;
-using Hl7.Fhir.Rest;
-using Spark.Engine.Core;
-using Spark.Engine.Extensions;
-
 namespace Spark.Engine.Service.FhirServiceExtensions
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Net;
     using System.Threading.Tasks;
-    using Interfaces;
+    using Hl7.Fhir.Model;
+    using Hl7.Fhir.Rest;
+    using Spark.Core;
+    using Spark.Engine.Core;
+    using Spark.Engine.Extensions;
+    using Spark.Service;
+    using Task = System.Threading.Tasks.Task;
 
     public class SearchService : ISearchService, IServiceListener
     {
@@ -41,11 +42,10 @@ namespace Spark.Engine.Service.FhirServiceExtensions
             builder.Query = results.UsedParameters;
             var link = builder.Uri;
 
-            var snapshot = CreateSnapshot(link, results.ToArray(), searchCommand);
-            return snapshot;
+            return CreateSnapshot(link, results, searchCommand);
         }
 
-        public Task<Snapshot> GetSnapshotForEverything(IKey key)
+        public async Task<Snapshot> GetSnapshotForEverything(IKey key)
         {
             var searchCommand = new SearchParams();
             if (string.IsNullOrEmpty(key.ResourceId) == false)
@@ -61,10 +61,10 @@ namespace Spark.Engine.Service.FhirServiceExtensions
                 }
             }
 
-            return GetSnapshot(key.TypeName, searchCommand);
+            return await GetSnapshot(key.TypeName, searchCommand).ConfigureAwait(false);
         }
 
-        private Snapshot CreateSnapshot(Uri selflink, string[] keys, SearchParams searchCommand)
+        private Snapshot CreateSnapshot(Uri selflink, IList<string> keys, SearchParams searchCommand)
         {
             var sort = GetFirstSort(searchCommand);
 
@@ -78,10 +78,10 @@ namespace Spark.Engine.Service.FhirServiceExtensions
 
             if (searchCommand.Sort.Any())
             {
-                foreach (var (s, sortOrder) in searchCommand.Sort)
+                foreach (var (item1, sortOrder) in searchCommand.Sort)
                 {
                     selflink = selflink.AddParam(SearchParams.SEARCH_PARAM_SORT,
-                        $"{s}:{(sortOrder == SortOrder.Ascending ? "asc" : "desc")}");
+                        $"{item1}:{(sortOrder == SortOrder.Ascending ? "asc" : "desc")}");
                 }
             }
 
@@ -111,14 +111,12 @@ namespace Spark.Engine.Service.FhirServiceExtensions
 
         public async Task<IKey> FindSingle(string type, SearchParams searchCommand)
         {
-            var searchResults = await GetSearchResults(type, searchCommand).ConfigureAwait(false);
-            return Key.ParseOperationPath(searchResults.Single());
+            return Key.ParseOperationPath((await GetSearchResults(type, searchCommand).ConfigureAwait(false)).Single());
         }
 
         public async Task<IKey> FindSingleOrDefault(string type, SearchParams searchCommand)
         {
-            var searchResults = await GetSearchResults(type, searchCommand).ConfigureAwait(false);
-            var value = searchResults.SingleOrDefault();
+            var value = (await GetSearchResults(type, searchCommand).ConfigureAwait(false)).SingleOrDefault();
             return value != null ? Key.ParseOperationPath(value) : null;
         }
 

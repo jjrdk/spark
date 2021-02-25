@@ -1,4 +1,5 @@
 using Hl7.Fhir.Model;
+using Spark.Core;
 using Spark.Engine.Core;
 using System;
 using System.Collections.Generic;
@@ -9,20 +10,21 @@ using Microsoft.AspNetCore.SignalR;
 using Spark.Web.Models.Config;
 using Spark.Web.Utilities;
 using System.IO;
+using Tasks = System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using Spark.Engine.Service;
 using Spark.Engine.Service.FhirServiceExtensions;
 
 namespace Spark.Web.Hubs
 {
     using Engine.Extensions;
-    using Engine.Service;
 
     //[Authorize(Policy = "RequireAdministratorRole")]
     public class MaintenanceHub : Hub
     {
         private List<Resource> _resources = null;
 
-        private readonly IFhirService _fhirService;
+        private readonly IAsyncFhirService _fhirService;
         private readonly ILocalhost _localhost;
         private readonly IFhirStoreAdministration _fhirStoreAdministration;
         private readonly IFhirIndex _fhirIndex;
@@ -34,7 +36,7 @@ namespace Spark.Web.Hubs
         private int _resourceCount;
 
         public MaintenanceHub(
-            IFhirService fhirService,
+            IAsyncFhirService fhirService,
             ILocalhost localhost,
             IFhirStoreAdministration fhirStoreAdministration,
             IFhirIndex fhirIndex,
@@ -118,7 +120,7 @@ namespace Spark.Web.Hubs
             }
         }
 
-        public async void LoadExamplesToStore()
+        public async Tasks.Task LoadExamplesToStore()
         {
             var messages = new StringBuilder();
             var notifier = new HubContextProgressNotifier(_hubContext, _logger);
@@ -128,7 +130,7 @@ namespace Spark.Web.Hubs
                 _resources = GetExampleData();
 
                 var resarray = _resources.ToArray();
-                _resourceCount = resarray.Count();
+                _resourceCount = resarray.Length;
 
                 for (var x = 0; x <= _resourceCount - 1; x++)
                 {
@@ -157,6 +159,8 @@ namespace Spark.Web.Hubs
                         await Clients.All.SendAsync("Error", msg).ConfigureAwait(false);
                         messages.AppendLine(msgError.Message + ": " + e.Message);
                     }
+
+
                 }
 
                 await notifier.SendProgressUpdate(100, messages.ToString()).ConfigureAwait(false);

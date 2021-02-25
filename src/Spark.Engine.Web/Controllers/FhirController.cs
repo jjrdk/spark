@@ -17,14 +17,15 @@
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Net.Http.Headers;
     using Service;
+    using Spark.Service;
     using Utility;
 
     [Route("fhir"), ApiController, EnableCors]
     public class FhirController : ControllerBase
     {
-        private readonly IFhirService _fhirService;
+        private readonly IAsyncFhirService _fhirService;
 
-        public FhirController(IFhirService fhirService)
+        public FhirController(IAsyncFhirService fhirService)
         {
             _fhirService = fhirService ?? throw new ArgumentNullException(nameof(fhirService));
         }
@@ -77,7 +78,7 @@
         {
             var key = Key.Create(type, resource?.Id);
 
-            if (Request.Headers.ContainsKey(FhirHttpHeaders.IF_NONE_EXIST))
+            if (Request.Headers.ContainsKey(FhirHttpHeaders.IfNoneExist))
             {
                 var searchQueryString = HttpUtility.ParseQueryString(Request.GetTypedHeaders().IfNoneExist());
                 var searchValues =
@@ -115,14 +116,14 @@
         // ============= Validate
 
         [HttpPost("{type}/{id}/$validate")]
-        public FhirResponse Validate(string type, string id, Resource resource)
+        public Task<FhirResponse> Validate(string type, string id, Resource resource)
         {
             var key = Key.Create(type, id);
             return _fhirService.ValidateOperation(key, resource);
         }
 
         [HttpPost("{type}/$validate")]
-        public FhirResponse Validate(string type, Resource resource)
+        public Task<FhirResponse> Validate(string type, Resource resource)
         {
             var key = Key.Create(type);
             return _fhirService.ValidateOperation(key, resource);
@@ -133,7 +134,7 @@
         [HttpGet("{type}")]
         public Task<FhirResponse> Search(string type)
         {
-            var start = FhirParameterParser.ParseIntParameter(Request.GetParameter(FhirParameter.SNAPSHOT_INDEX)) ?? 0;
+            var start = Request.GetParameter(FhirParameter.SNAPSHOT_INDEX).ParseIntParameter() ?? 0;
             var searchparams = Request.GetSearchParams();
             //int pagesize = Request.GetIntParameter(FhirParameter.COUNT) ?? Const.DEFAULT_PAGE_SIZE;
             //string sortby = Request.GetParameter(FhirParameter.SORT);
@@ -145,7 +146,7 @@
         public Task<FhirResponse> SearchWithOperator(string type)
         {
             // TODO: start index should be retrieved from the body.
-            var start = FhirParameterParser.ParseIntParameter(Request.GetParameter(FhirParameter.SNAPSHOT_INDEX)) ?? 0;
+            var start = Request.GetParameter(FhirParameter.SNAPSHOT_INDEX).ParseIntParameter() ?? 0;
             var searchparams = Request.GetSearchParamsFromBody();
 
             return _fhirService.Search(type, searchparams, start);
@@ -161,13 +162,13 @@
         // ============= Whole System Interactions
 
         [HttpGet, Route("metadata")]
-        public FhirResponse Metadata()
+        public Task<FhirResponse> Metadata()
         {
             return _fhirService.CapabilityStatement(SparkSettings.Version);
         }
 
         [HttpOptions, Route("")]
-        public FhirResponse Options()
+        public Task<FhirResponse> Options()
         {
             return _fhirService.CapabilityStatement(SparkSettings.Version);
         }
@@ -196,7 +197,7 @@
         public Task<FhirResponse> Snapshot()
         {
             var snapshot = Request.GetParameter(FhirParameter.SNAPSHOT_ID);
-            var start = FhirParameterParser.ParseIntParameter(Request.GetParameter(FhirParameter.SNAPSHOT_INDEX)) ?? 0;
+            var start = Request.GetParameter(FhirParameter.SNAPSHOT_INDEX).ParseIntParameter() ?? 0;
             return _fhirService.GetPage(snapshot, start);
         }
 
@@ -228,7 +229,7 @@
         }
 
         [HttpPost, HttpGet, Route("{type}/{id}/$everything")]
-        public Task<FhirResponse> Everything(string type, string id = null)
+        public Task<FhirResponse> Everything(string type, string id)
         {
             var key = Key.Create(type, id);
             return _fhirService.Everything(key);
@@ -250,8 +251,8 @@
 
         private HistoryParameters GetHistoryParameters(HttpRequest request)
         {
-            var count = FhirParameterParser.ParseIntParameter(request.GetParameter(FhirParameter.COUNT));
-            var since = FhirParameterParser.ParseDateParameter(request.GetParameter(FhirParameter.SINCE));
+            var count = request.GetParameter(FhirParameter.COUNT).ParseIntParameter();
+            var since = request.GetParameter(FhirParameter.SINCE).ParseDateParameter();
             var sortBy = Request.GetParameter(FhirParameter.SORT);
             return new HistoryParameters(count, since, sortBy);
         }

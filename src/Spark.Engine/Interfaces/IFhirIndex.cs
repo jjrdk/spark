@@ -6,20 +6,21 @@
  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
  */
 
-namespace Spark.Engine.Interfaces
+namespace Spark.Core
 {
+    using Spark.Engine.Core;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using Core;
     using Hl7.Fhir.Rest;
 
     public interface IFhirIndex
     {
         Task Clean();
+
         Task<SearchResults> Search(string resource, SearchParams searchCommand);
+
         Task<Key> FindSingle(string resource, SearchParams searchCommand);
+
         Task<SearchResults> GetReverseIncludes(IList<IKey> keys, IList<string> revIncludes);
-
     }
-
 }

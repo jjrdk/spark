@@ -1,11 +1,11 @@
-﻿using Spark.Engine.Core;
-using Spark.Engine.Maintenance;
-using Spark.Engine.Store.Interfaces;
-using System;
-using System.Threading.Tasks;
-
-namespace Spark.Engine.Service.FhirServiceExtensions
+﻿namespace Spark.Engine.Service.FhirServiceExtensions
 {
+    using Spark.Engine.Core;
+    using Spark.Engine.Maintenance;
+    using Spark.Engine.Store.Interfaces;
+    using System;
+    using System.Threading.Tasks;
+
     public class IndexRebuildService : IIndexRebuildService
     {
         private readonly IIndexStore _indexStore;
@@ -54,7 +54,6 @@ namespace Spark.Engine.Service.FhirServiceExtensions
                     foreach (var entry in entries)
                     {
                         // TODO: use BulkWrite operation for this
-                        // TODO: use async API
                         try
                         {
                             await _indexService.Process(entry).ConfigureAwait(false);

@@ -3,7 +3,7 @@
     using System;
     using System.Threading.Tasks;
     using Engine.Core;
-    using Engine.Service;
+    using Service;
 
     public class IndexListener : IServiceListener
     {
@@ -15,9 +15,6 @@
         }
 
         /// <inheritdoc />
-        public Task Inform(Uri location, Entry interaction)
-        {
-            return _index.Process(interaction);
-        }
+        public Task Inform(Uri location, Entry interaction) => _index.Process(interaction);
     }
 }

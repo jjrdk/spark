@@ -1,12 +1,11 @@
-﻿namespace Spark.Engine.Service
+﻿namespace Spark.Service
 {
     using System;
     using System.Threading.Tasks;
-    using Core;
+    using Spark.Engine.Core;
 
     public interface IServiceListener
     {
         Task Inform(Uri location, Entry interaction);
     }
-
 }

@@ -14,6 +14,7 @@
     using Search;
     using Service;
     using Service.FhirServiceExtensions;
+    using Spark.Service;
     using Store.Interfaces;
 
     public static class IServiceCollectionExtensions
@@ -33,10 +34,10 @@
             services.TryAddTransient<IIndexService, IndexService>();
             services.AddSingleton<ILocalhost>(new Localhost(settings.Endpoint));
             services.AddSingleton<IFhirModel>(new FhirModel(ModelInfo.SearchParameters));
-            services.TryAddTransient((provider) => new FhirPropertyIndex(provider.GetRequiredService<IFhirModel>()));
+            services.TryAddTransient(provider => new FhirPropertyIndex(provider.GetRequiredService<IFhirModel>()));
             services.TryAddTransient<ITransfer, Transfer>();
             services.TryAddTransient<ConditionalHeaderFhirResponseInterceptor>();
-            services.TryAddTransient((provider) => new IFhirResponseInterceptor[] { provider.GetRequiredService<ConditionalHeaderFhirResponseInterceptor>() });
+            services.TryAddTransient(provider => new IFhirResponseInterceptor[] { provider.GetRequiredService<ConditionalHeaderFhirResponseInterceptor>() });
             services.TryAddTransient<IFhirResponseInterceptorRunner, FhirResponseInterceptorRunner>();
             services.TryAddTransient<IFhirResponseFactory, FhirResponseFactory>();
             services.TryAddTransient<IIndexRebuildService, IndexRebuildService>();
@@ -44,7 +45,7 @@
             services.TryAddTransient<ISnapshotPaginationProvider, SnapshotPaginationProvider>();
             services.TryAddTransient<ISnapshotPaginationCalculator, SnapshotPaginationCalculator>();
             services.TryAddTransient<IServiceListener, SearchService>();   // searchListener
-            services.TryAddTransient((provider) => new IServiceListener[] { provider.GetRequiredService<IServiceListener>() });
+            services.TryAddTransient(provider => new IServiceListener[] { provider.GetRequiredService<IServiceListener>() });
             services.TryAddTransient<SearchService>();                     // search
             services.TryAddTransient<TransactionService>();                // transaction
             //services.TryAddTransient<HistoryService>();                    // history
@@ -57,7 +58,7 @@
             services.TryAddTransient<XmlFhirInputFormatter>();
             services.TryAddTransient<XmlFhirOutputFormatter>();
 
-            services.AddTransient((provider) => new IFhirServiceExtension[]
+            services.AddTransient(provider => new IFhirServiceExtension[]
             {
                 provider.GetRequiredService<SearchService>(),
                 provider.GetRequiredService<TransactionService>(),
@@ -67,20 +68,14 @@
                 provider.GetRequiredService<CapabilityStatementService>(),
             });
 
-            services.TryAddSingleton((provider) => new FhirJsonParser(settings.ParserSettings));
-            services.TryAddSingleton((provider) => new FhirXmlParser(settings.ParserSettings));
-            services.TryAddSingleton((provder) => new FhirJsonSerializer(settings.SerializerSettings));
-            services.TryAddSingleton((provder) => new FhirXmlSerializer(settings.SerializerSettings));
+            services.TryAddSingleton(_ => new FhirJsonParser(settings.ParserSettings));
+            services.TryAddSingleton(_ => new FhirXmlParser(settings.ParserSettings));
+            services.TryAddSingleton(_ => new FhirJsonSerializer(settings.SerializerSettings));
+            services.TryAddSingleton(_ => new FhirXmlSerializer(settings.SerializerSettings));
 
-            services.TryAddSingleton<IFhirService, FhirService>();
+            services.TryAddSingleton<IAsyncFhirService, AsyncFhirService>();
 
             var builder = services.AddFhirFormatters(settings, setupAction);
-
-            //services.RemoveAll<OutputFormatterSelector>();
-            //services.TryAddSingleton<OutputFormatterSelector, FhirOutputFormatterSelector>();
-
-            //services.RemoveAll<OutputFormatterSelector>();
-            //services.TryAddSingleton<OutputFormatterSelector, FhirOutputFormatterSelector>();
 
             return builder;
         }

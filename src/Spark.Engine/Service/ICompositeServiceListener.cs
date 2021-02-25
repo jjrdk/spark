@@ -1,8 +1,8 @@
-﻿using Spark.Engine.Core;
-
-namespace Spark.Engine.Service
+﻿namespace Spark.Engine.Service
 {
     using System.Threading.Tasks;
+    using Core;
+    using Spark.Service;
 
     public interface ICompositeServiceListener : IServiceListener
     {
