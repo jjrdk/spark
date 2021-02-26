@@ -11,33 +11,24 @@ namespace Spark.Engine.Search.Support
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Text.RegularExpressions;
 
     public static class StringExtensions
     {
-        public static string[] SplitNotInQuotes(this string value, char separator)
-        {
-            var parts = Regex.Split(value, separator + "(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)")
-                                .Select(s => s.Trim());
-
-            return parts.ToArray();
-        }
-
         public static string[] SplitNotEscaped(this string value, char separator)
         {
             var word = string.Empty;
             var result = new List<string>();
             var seenEscape = false;
 
-            for (var i = 0; i < value.Length; i++)
+            foreach (var t in value)
             {
-                if (value[i] == '\\')
+                if (t == '\\')
                 {
                     seenEscape = true;
                     continue;
                 }
 
-                if (value[i] == separator && !seenEscape)
+                if (t == separator && !seenEscape)
                 {
                     result.Add(word);
                     word = string.Empty;
@@ -50,7 +41,7 @@ namespace Spark.Engine.Search.Support
                     seenEscape = false;
                 }
 
-                word += value[i];
+                word += t;
             }
 
             result.Add(word);
@@ -66,13 +57,11 @@ namespace Spark.Engine.Search.Support
             {
                 return Tuple.Create(text, (string)null);     // Nothing to split
             }
-            else
-            {
-                var key = text.Substring(0, pos);
-                var value = text[(pos + 1)..];
 
-                return Tuple.Create(key, value);
-            }
+            var key = text.Substring(0, pos);
+            var value = text[(pos + 1)..];
+
+            return Tuple.Create(key, value);
         }
     }
 }

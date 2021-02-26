@@ -47,23 +47,19 @@ namespace Spark.Engine.Extensions
                 //Path is like "Patient.birthdate", but "Patient." is superfluous. Ignore it.
                 return path.Remove(0, resourceName.Length + 1);
             }
-            else
-            {
-                return path;
-            }
+
+            return path;
         }
 
         public static string[] GetPropertyPath(this SearchParameter searchParameter)
         {
             if (searchParameter.Xpath != null)
             {
-                var xpaths = searchParameter.Xpath.Split(new string[] { " | " }, StringSplitOptions.None);
+                var xpaths = searchParameter.Xpath.Split(new[] { " | " }, StringSplitOptions.None);
                 return xpaths.Select(xp => XpathPattern.ReplaceGroups(xp, new Dictionary<string, string>{ { "separator", PATH_SEPARATOR},{ "root", string.Empty} })).ToArray();
             }
-            else
-            {
-                return Array.Empty<string>();
-            }
+
+            return Array.Empty<string>();
         }
 
         public static ModelInfo.SearchParamDefinition GetOriginalDefinition(this SearchParameter searchParameter)

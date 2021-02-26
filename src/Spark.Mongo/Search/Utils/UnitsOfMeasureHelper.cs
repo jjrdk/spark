@@ -35,8 +35,8 @@ namespace Spark.Mongo.Search.Utils
 
         public static BsonDocument NonUcumIndexed(this FM.Quantity quantity)
         {
-            var system = (quantity.System != null) ? (BsonValue)quantity.System : BsonNull.Value;
-            var code = (quantity.Code != null) ? (BsonValue)quantity.Code : BsonNull.Value;
+            var system = quantity.System != null ? (BsonValue)quantity.System : BsonNull.Value;
+            var code = quantity.Code != null ? (BsonValue)quantity.Code : BsonNull.Value;
 
             var block = new BsonDocument
             {
@@ -54,10 +54,8 @@ namespace Spark.Mongo.Search.Utils
                 var q = quantity.ToUnitsOfMeasureQuantity();
                 return ToBson(q);
             }
-            else
-            {
-                return quantity.NonUcumIndexed();
-            }
+
+            return quantity.NonUcumIndexed();
         }
 
 

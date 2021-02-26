@@ -75,7 +75,7 @@ namespace Spark.Engine.Service.FhirServiceExtensions
             {
                 //TODO: should we change count?
                 //count = Math.Min(searchCommand.Count.Value, MAX_PAGE_SIZE);
-                selflink = selflink.AddParam(SearchParams.SEARCH_PARAM_COUNT, new string[] { count.ToString() });
+                selflink = selflink.AddParam(SearchParams.SEARCH_PARAM_COUNT, new[] { count.ToString() });
             }
 
             if (searchCommand.Sort.Any())

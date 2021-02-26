@@ -69,7 +69,7 @@ namespace Spark.Engine.Search
 
         private static List<Expression> ToExpressions(Location.PositionComponent element)
         {
-            if (element == null || (element.Latitude == null && element.Longitude == null))
+            if (element == null || element.Latitude == null && element.Longitude == null)
             {
                 return null;
             }
@@ -209,7 +209,7 @@ namespace Spark.Engine.Search
 
         private static List<Expression> ToExpressions(Period element)
         {
-            if (element == null || (element.StartElement == null && element.EndElement == null))
+            if (element == null || element.StartElement == null && element.EndElement == null)
             {
                 return null;
             }
@@ -309,7 +309,7 @@ namespace Spark.Engine.Search
             var result = new List<Expression>();
             if (element.Coding != null && element.Coding.Any())
             {
-                result.AddRange(element.Coding.SelectMany(c => ToExpressions(c)));
+                result.AddRange(element.Coding.SelectMany(ToExpressions));
             }
             if (element.Text != null)
             {
@@ -479,7 +479,7 @@ namespace Spark.Engine.Search
 
         private List<Expression> ToExpressions(IEnumerable<Element> elements)
         {
-            return elements == null ? null : elements.SelectMany(el => Map(el)).ToList();
+            return elements?.SelectMany(Map).ToList();
         }
 
         private List<Expression> ToExpressions<T>(Code<T> element) where T : struct
@@ -490,7 +490,7 @@ namespace Spark.Engine.Search
                 {
                     new IndexValue(
                         "code",
-                        new StringValue(_fhirModel.GetLiteralForEnum((element.Value.Value as Enum))))
+                        new StringValue(_fhirModel.GetLiteralForEnum(element.Value.Value as Enum)))
                 };
                 return ListOf(new CompositeValue(values));
             }

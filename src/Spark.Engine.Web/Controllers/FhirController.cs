@@ -1,8 +1,6 @@
 ﻿namespace Spark.Engine.Web.Controllers
 {
     using System;
-    using System.Collections.Generic;
-    using System.Collections.Specialized;
     using System.Linq;
     using System.Net;
     using System.Threading.Tasks;
@@ -17,7 +15,6 @@
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Net.Http.Headers;
     using Service;
-    using Spark.Service;
     using Utility;
 
     [Route("fhir"), ApiController, EnableCors]

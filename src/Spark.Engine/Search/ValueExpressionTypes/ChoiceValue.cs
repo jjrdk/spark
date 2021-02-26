@@ -16,7 +16,7 @@ namespace Spark.Engine.Search.ValueExpressionTypes
     {
         private const char VALUESEPARATOR = ',';
 
-        public ValueExpression[]  Choices { get; private set; }
+        public ValueExpression[]  Choices { get; }
 
         public ChoiceValue(ValueExpression[] choices)
         {
@@ -53,7 +53,7 @@ namespace Spark.Engine.Search.ValueExpressionTypes
 
             var values = text.SplitNotEscaped(VALUESEPARATOR);
 
-            return new ChoiceValue(values.Select(v => SplitIntoComposite(v)));
+            return new ChoiceValue(values.Select(SplitIntoComposite));
         }
 
         private static ValueExpression SplitIntoComposite(string text)

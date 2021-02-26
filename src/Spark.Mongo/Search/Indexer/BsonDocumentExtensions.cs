@@ -32,7 +32,7 @@ namespace Spark.Mongo.Search.Indexer
             }
             // todo: make sure the search query builder also picks up this name change.
 
-            var forcearray = (value.BsonType == BsonType.Document);
+            var forcearray = value.BsonType == BsonType.Document;
             // anders kan er op zo'n document geen $elemMatch gedaan worden.
 
             BsonElement element;

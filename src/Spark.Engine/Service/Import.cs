@@ -43,11 +43,6 @@ namespace Spark.Engine.Service
             {
                 _entries.Add(interaction);
             }
-            else
-            {
-                // no need to import again.
-                // interaction.State.Assert(InteractionState.Undefined);
-            }
         }
 
         public void AddMappings(Mapper<string, IKey> mappings)
@@ -190,7 +185,7 @@ namespace Spark.Engine.Service
 
         private IKey InternalizeReference(IKey localkey)
         {
-            var triage = (_localhost.GetKeyKind(localkey));
+            var triage = _localhost.GetKeyKind(localkey);
             if (triage == KeyKind.Foreign)
             {
                 throw new ArgumentException("Cannot internalize foreign reference");
@@ -200,10 +195,8 @@ namespace Spark.Engine.Service
             {
                 return GetReplacement(localkey);
             }
-            else
-            {
-                return triage == KeyKind.Local ? localkey.WithoutBase() : localkey;
-            }
+
+            return triage == KeyKind.Local ? localkey.WithoutBase() : localkey;
         }
 
         private IKey GetReplacement(IKey localkey)
@@ -212,7 +205,7 @@ namespace Spark.Engine.Service
             //CCR: To check if this is still needed. Since we don't store the version in the mapper, do we ever need to replace the key multiple times?
             while (_mapper.Exists(replacement.ResourceId))
             {
-                var triage = (_localhost.GetKeyKind(localkey));
+                var triage = _localhost.GetKeyKind(localkey);
                 if (triage == KeyKind.Temporary)
                 {
                     replacement = _mapper.TryGet(replacement.ResourceId);
@@ -223,9 +216,7 @@ namespace Spark.Engine.Service
                 }
             }
 
-            return replacement != null
-                ? replacement
-                : throw Error.Create(HttpStatusCode.Conflict, "This reference does not point to a resource in the server or the current transaction: {0}", localkey);
+            return replacement ?? throw Error.Create(HttpStatusCode.Conflict, "This reference does not point to a resource in the server or the current transaction: {0}", localkey);
         }
 
         private string InternalizeReference(string uristring)
@@ -249,10 +240,8 @@ namespace Spark.Engine.Service
                 IKey key = _localhost.UriToKey(uri);
                 return InternalizeReference(key).ToUri().ToString();
             }
-            else
-            {
-                return uristring;
-            }
+
+            return uristring;
         }
 
         private string FixXhtmlDiv(string div)

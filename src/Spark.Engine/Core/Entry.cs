@@ -44,8 +44,8 @@ namespace Spark.Engine.Core
         }
         public EntryState State { get; set; }
 
-        private IKey _key = null;
-        private DateTimeOffset? _when = null;
+        private IKey _key;
+        private DateTimeOffset? _when;
 
         protected Entry(Bundle.HTTPVerb method, IKey key, DateTimeOffset? when, Resource resource)
         {
@@ -87,16 +87,7 @@ namespace Spark.Engine.Core
             return Create(Bundle.HTTPVerb.DELETE, key, when ?? DateTimeOffset.UtcNow);
         }
 
-        public bool IsDelete
-        {
-            get => Method == Bundle.HTTPVerb.DELETE;
-            set
-            {
-                Method = Bundle.HTTPVerb.DELETE;
-                Resource = null;
-
-            }
-        }
+        public bool IsDelete => Method == Bundle.HTTPVerb.DELETE;
 
         public bool IsPresent => Method != Bundle.HTTPVerb.DELETE;
 

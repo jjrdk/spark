@@ -5,20 +5,20 @@ namespace Spark.Engine.Auxiliary
 {
     public class LimitedStream : Stream
     {
-        private readonly Stream _innerStream = null;
+        private readonly Stream _innerStream;
 
         /// <summary>
         /// Creates a write limit on the underlying <paramref name="stream"/> of <paramref name="sizeLimitInBytes"/>, which has a default of 2048 (2kB).
         /// </summary>
         /// <param name="stream"></param>
-        /// <param name="SizeLimitInBytes"></param>
+        /// <param name="sizeLimitInBytes"></param>
         public LimitedStream (Stream stream, long sizeLimitInBytes = 2048)
         {
             _innerStream = stream ?? throw new ArgumentNullException("stream cannot be null");
             SizeLimitInBytes = sizeLimitInBytes;
         }
 
-        public long SizeLimitInBytes { get; private set; }
+        public long SizeLimitInBytes { get; }
 
         public override bool CanRead => _innerStream.CanRead;
 
@@ -60,7 +60,7 @@ namespace Spark.Engine.Auxiliary
             var bytesToBeAdded = Math.Min(buffer.Length - offset, count);
             if (Length + bytesToBeAdded > SizeLimitInBytes)
             {
-                throw new ArgumentOutOfRangeException("buffer", $"Adding {bytesToBeAdded} bytes to the stream would exceed the size limit of {SizeLimitInBytes} bytes.");
+                throw new ArgumentOutOfRangeException(nameof(buffer), $"Adding {bytesToBeAdded} bytes to the stream would exceed the size limit of {SizeLimitInBytes} bytes.");
             }
 
             _innerStream.Write(buffer, offset, count);

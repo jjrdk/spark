@@ -13,38 +13,34 @@ namespace Spark.Web.Utilities
 	internal static class FhirFileImport
 	{
 		private static Resource ParseResource(string data)
-		{
-			if (SerializationUtil.ProbeIsJson(data))
+        {
+            if (SerializationUtil.ProbeIsJson(data))
 			{
 				// TODO read config to determine if PermissiveParsing should be on 
 				var parser = new FhirJsonParser(new ParserSettings { PermissiveParsing = true });
 				return parser.Parse<Resource>(data);
 			}
-			else if (SerializationUtil.ProbeIsXml(data))
-			{
-				// TODO read config to determine if PermissiveParsing should be on 
-				var parser = new FhirXmlParser(new ParserSettings { PermissiveParsing = true });
-				return parser.Parse<Resource>(data);
-			}
-			else
-			{
-				throw new FormatException("Data is neither Json nor Xml");
-			}
-		}
+
+            if (SerializationUtil.ProbeIsXml(data))
+            {
+                // TODO read config to determine if PermissiveParsing should be on 
+                var parser = new FhirXmlParser(new ParserSettings { PermissiveParsing = true });
+                return parser.Parse<Resource>(data);
+            }
+            throw new FormatException("Data is neither Json nor Xml");
+        }
 
 		public static IEnumerable<Resource> ImportData(string data)
 		{
 			var resource = ParseResource(data);
 			if (resource is Bundle)
 			{
-				var bundle = (resource as Bundle);
+				var bundle = resource as Bundle;
 				return bundle.GetResources();
 			}
-			else
-			{
-				return new Resource[] { resource };
-			}
-		}
+
+            return new[] { resource };
+        }
 
 		public static IEnumerable<Resource> ImportFile(string filename)
 		{

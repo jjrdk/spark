@@ -1,7 +1,7 @@
-﻿/* 
+﻿/*
  * Copyright (c) 2014, Furore (info@furore.com) and contributors
  * See the file CONTRIBUTORS for details.
- * 
+ *
  * This file is licensed under the BSD 3-Clause license
  * available at https://raw.githubusercontent.com/ewoutkramer/fhir-net-api/master/LICENSE
  */
@@ -16,16 +16,11 @@ namespace Spark.Engine.Search.ValueExpressionTypes
     {
         private const char TUPLESEPARATOR = '$';
 
-        public ValueExpression[] Components { get; private set; }
+        public ValueExpression[] Components { get; }
 
         public CompositeValue(ValueExpression[] components)
         {
-            if (components == null)
-            {
-                throw Error.ArgumentNull("components");
-            }
-
-            Components = components;
+            Components = components ?? throw Error.ArgumentNull("components");
         }
 
         public CompositeValue(IEnumerable<ValueExpression> components)
@@ -41,7 +36,7 @@ namespace Spark.Engine.Search.ValueExpressionTypes
         public override string ToString()
         {
             var values = Components.Select(v => v.ToString());
-            return string.Join(TUPLESEPARATOR.ToString(),values);
+            return string.Join(TUPLESEPARATOR.ToString(), values);
         }
 
 

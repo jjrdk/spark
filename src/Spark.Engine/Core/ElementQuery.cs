@@ -1,7 +1,7 @@
-﻿/* 
+﻿/*
  * Copyright (c) 2014, Furore (info@furore.com) and contributors
  * See the file CONTRIBUTORS for details.
- * 
+ *
  * This file is licensed under the BSD 3-Clause license
  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
  */
@@ -20,10 +20,12 @@ namespace Spark.Engine.Core
     public class ElementQuery
     {
         private readonly List<Chain> _chains = new List<Chain>();
+
         public void Add(string path)
         {
             _chains.Add(new Chain(path));
         }
+
         public ElementQuery(params string[] paths)
         {
             foreach (var path in paths)
@@ -31,6 +33,7 @@ namespace Spark.Engine.Core
                 this.Add(path);
             }
         }
+
         public ElementQuery(string path)
         {
             this.Add(path);
@@ -50,7 +53,6 @@ namespace Spark.Engine.Core
         // Segment Chain : List<Segment> Chain;
         public class Segment
         {
-            public Type FhirType;
             public string Name;
             public PropertyInfo Property;
             public Type AllowedType;
@@ -64,7 +66,7 @@ namespace Spark.Engine.Core
 
         public class Chain
         {
-            private readonly List<Segment> _segments = new List<Segment>();
+            private readonly List<Segment> _segments;
 
             public Chain(string path)
             {
@@ -88,7 +90,7 @@ namespace Spark.Engine.Core
                 // todo: This whole function can probably be replaced by a single RegExp. --MH
                 //var path = path.Replace("[x]", ""); // we won't remove this, and start treating it as a predicate.
 
-                path = Regex.Replace((string)path, @"\b(\w)", match => match.Value.ToUpper());
+                path = Regex.Replace(path, @"\b(\w)", match => match.Value.ToUpper());
                 var chain = new List<string>();
 
                 // Split on the dots, except when the dot is inside square brackets, because then it is part of a predicate value.
@@ -98,14 +100,19 @@ namespace Spark.Engine.Core
                     var firstDot = path.IndexOf('.');
                     if (firstDot == -1)
                     {
-                        chain.Add((string)path);
+                        chain.Add(path);
                         break;
                     }
+
                     if (firstBracket > -1 && firstBracket < firstDot)
                     {
                         var endBracket = path.IndexOf(']');
                         chain.Add(path.Substring(0, endBracket + 1)); //+1 to include the bracket itself.
-                        path = path.Remove(0, Math.Min(path.Length, endBracket + 2)); //+2 for the bracket itself and the dot after the bracket
+                        path = path.Remove(
+                            0,
+                            Math.Min(
+                                path.Length,
+                                endBracket + 2)); //+2 for the bracket itself and the dot after the bracket
                     }
                     else
                     {
@@ -113,6 +120,7 @@ namespace Spark.Engine.Core
                         path = path.Remove(0, firstDot + 1); //+1 to remove the dot itself.
                     }
                 }
+
                 return chain;
             }
 
@@ -123,10 +131,7 @@ namespace Spark.Engine.Core
                 var baseType = ModelInfo.FhirTypeToCsType[classname];
                 foreach (var linkString in chain)
                 {
-                    var segment = new Segment
-                    {
-                        FhirType = baseType
-                    };
+                    var segment = new Segment();
                     var predicateRegex = new Regex(@"(?<propname>[^\[]*)(\[(?<predicate>.*)\])?");
                     var match = predicateRegex.Match(linkString);
                     var predicate = match.Groups["predicate"].Value;
@@ -134,7 +139,11 @@ namespace Spark.Engine.Core
 
                     segment.Filter = ParsePredicate(predicate);
 
-                    var matchingFhirElements = baseType.FindMembers(MemberTypes.Property, BindingFlags.Instance | BindingFlags.Public, new MemberFilter(IsFhirElement), segment.Name);
+                    var matchingFhirElements = baseType.FindMembers(
+                        MemberTypes.Property,
+                        BindingFlags.Instance | BindingFlags.Public,
+                        IsFhirElement,
+                        segment.Name);
                     if (matchingFhirElements.Any())
                     {
                         segment.Property = baseType.GetProperty(matchingFhirElements.First().Name);
@@ -166,6 +175,7 @@ namespace Spark.Engine.Core
                     {
                         segment.Property = baseType.GetProperty(segment.Name);
                     }
+
                     if (segment.Property == null)
                     {
                         break;
@@ -205,8 +215,7 @@ namespace Spark.Engine.Core
                 var propertyName = match.Groups["propname"].Value;
                 var filterValue = match.Groups["filterValue"].Value;
 
-                Predicate<object> result =
-                    obj => GetPredicateForPropertyAndFilter(propertyName, filterValue, obj);
+                Predicate<object> result = obj => GetPredicateForPropertyAndFilter(propertyName, filterValue, obj);
 
                 return result;
             }
@@ -237,6 +246,7 @@ namespace Spark.Engine.Core
                     {
                         return true;
                     }
+
                     if (fhirElementName.StartsWith(feAtt.Name, StringComparison.InvariantCultureIgnoreCase))
                     {
                         if (feAtt.Choice == ChoiceType.DatatypeChoice || feAtt.Choice == ChoiceType.ResourceChoice)
@@ -253,6 +263,7 @@ namespace Spark.Engine.Core
                                     {
                                         return true;
                                     }
+
                                     //if (fhirElementName.Equals(feAtt.Name + ModelInfo.FhirCsTypeToString[allowedType], StringComparison.InvariantCultureIgnoreCase))
                                     //    return true;
                                 }
@@ -260,6 +271,7 @@ namespace Spark.Engine.Core
                         }
                     }
                 }
+
                 //if it has no FhirElementAttribute, it is not a FhirElement...
                 return false;
             }
@@ -276,10 +288,11 @@ namespace Spark.Engine.Core
             {
                 if (type == null)
                 {
-                    throw new ArgumentNullException("type");
+                    throw new ArgumentNullException(nameof(type));
                 }
 
-                var interfaceTest = new Predicate<Type>(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IList<>));
+                var interfaceTest = new Predicate<Type>(
+                    i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IList<>));
 
                 return interfaceTest(type) || type.GetInterfaces().Any(i => interfaceTest(i));
             }
@@ -288,21 +301,24 @@ namespace Spark.Engine.Core
             {
                 if (type == null)
                 {
-                    throw new ArgumentNullException("type");
+                    throw new ArgumentNullException(nameof(type));
                 }
 
                 var codedEnum = type.GenericTypeArguments?.FirstOrDefault()?.IsEnum;
                 return codedEnum.HasValue && codedEnum.Value;
             }
 
-            private void Visit(object field, IEnumerable<Segment> chain, Action<object> action, Predicate<object> predicate)
+            private void Visit(
+                object field,
+                IEnumerable<Segment> chain,
+                Action<object> action,
+                Predicate<object> predicate)
             {
                 var type = field.GetType();
 
                 if (TestIfGenericList(type))
                 {
-                    var list = field as IEnumerable<object>;
-                    if ((list != null) && (list.Count() > 0))
+                    if (field is IEnumerable<object> list && list.Any())
                     {
                         foreach (var subfield in list)
                         {
@@ -316,13 +332,15 @@ namespace Spark.Engine.Core
                     Visit(field.GetType().GetProperty("Value").GetValue(field), chain, action, predicate);
                 }
                 else //single value
-                { 
+                {
                     //Patient.address.city, current field is address
                     if (predicate == null || predicate(field))
                     {
-                        if ((chain != null) && (chain.Count() > 0)) //not at the end of the chain, follow the next link in the chain
+                        if (chain != null && chain.Any()
+                        ) //not at the end of the chain, follow the next link in the chain
                         {
-                            var next = chain.First(); //{ FhirString, "city", (propertyInfo of city), AllowedTypes = null, Filter = null }
+                            var next = chain
+                                .First(); //{ FhirString, "city", (propertyInfo of city), AllowedTypes = null, Filter = null }
                             var subchain = chain.Skip(1); //subpath = <empty> (city is the last item)
 
                             //if (field.GetType().GetProperty(next.Name) == null)
@@ -330,7 +348,9 @@ namespace Spark.Engine.Core
                             // resolved this issue by using next.GetValue() which may return null -- MH
 
                             var subfield = next.GetValue(field); //value of city
-                            if (subfield != null && next != null && next.Property != null && (next.AllowedType == null || next.AllowedType.IsAssignableFrom(subfield.GetType())))
+                            if (subfield != null
+                                && next.Property != null
+                                && (next.AllowedType == null || next.AllowedType.IsInstanceOfType(subfield)))
                             {
                                 Visit(subfield, subchain, action, next.Filter);
                             }

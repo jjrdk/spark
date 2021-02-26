@@ -5,33 +5,40 @@
  * This file is licensed under the BSD 3-Clause license
  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
  */
-
-using Hl7.Fhir.Model;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
 namespace Spark.Engine.Core
 {
+    using Hl7.Fhir.Model;
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+
     public class Snapshot
     {
-        public const int NOCOUNT = -1;
+        //public const int NOCOUNT = -1;
         public const int MAX_PAGE_SIZE = 100;
-
 
         public string Id { get; set; }
         public Bundle.BundleType Type { get; set; }
+
         public IEnumerable<string> Keys { get; set; }
+
         //public string FeedTitle { get; set; }
         public string FeedSelfLink { get; set; }
         public int Count { get; set; }
         public int? CountParam { get; set; }
-        public DateTimeOffset WhenCreated;
+        public DateTimeOffset WhenCreated { get; set; }
         public string SortBy { get; set; }
         public ICollection<string> Includes;
-        public ICollection<string> ReverseIncludes;
+        public ICollection<string> ReverseIncludes { get; set; }
 
-        public static Snapshot Create(Bundle.BundleType type, Uri selflink, IList<string> keys, string sortby, int? count, IList<string> includes, IList<string> reverseIncludes)
+        public static Snapshot Create(
+            Bundle.BundleType type,
+            Uri selflink,
+            IList<string> keys,
+            string sortby,
+            int? count,
+            IList<string> includes,
+            IList<string> reverseIncludes)
         {
             var snapshot = new Snapshot
             {
@@ -56,7 +63,6 @@ namespace Spark.Engine.Core
             return count.HasValue ? Math.Min(count.Value, MAX_PAGE_SIZE) : count;
         }
 
-
         public static string CreateKey()
         {
             return Guid.NewGuid().ToString();
@@ -70,7 +76,7 @@ namespace Spark.Engine.Core
             }
 
             var last = Keys.Count() - 1;
-            return (index > 0 || index <= last);
+            return index > 0 || index <= last;
         }
     }
 }

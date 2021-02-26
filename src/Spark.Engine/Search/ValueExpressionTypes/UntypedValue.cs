@@ -12,7 +12,7 @@ namespace Spark.Engine.Search.ValueExpressionTypes
 
     public class UntypedValue : ValueExpression
     {
-        public string Value { get; private set; }
+        public string Value { get; }
 
         public UntypedValue(string value)
         {

@@ -1,7 +1,7 @@
-using Spark.Engine.Core;
-
 namespace Spark.Engine.Interfaces
 {
+    using Core;
+
     public interface IFhirResponseInterceptor
     {
         FhirResponse GetFhirResponse(Entry entry, object input);

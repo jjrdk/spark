@@ -43,7 +43,7 @@
 
         public override string ToString()
         {
-            var details = (Resource != null) ? $"({Resource.TypeName})" : null;
+            var details = Resource != null ? $"({Resource.TypeName})" : null;
             var location = Key?.ToString();
             return $"{(int) StatusCode}: {StatusCode} {details} ({location})";
         }

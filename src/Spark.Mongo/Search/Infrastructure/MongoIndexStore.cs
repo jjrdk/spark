@@ -1,9 +1,7 @@
-﻿using System;
-using MongoDB.Bson;
+﻿using MongoDB.Bson;
 using MongoDB.Driver;
 using Spark.Engine.Core;
 using System.Threading.Tasks;
-using Spark.Store.Mongo;
 using Spark.Engine.Model;
 using Spark.Mongo.Search.Indexer;
 using Spark.Engine.Store.Interfaces;

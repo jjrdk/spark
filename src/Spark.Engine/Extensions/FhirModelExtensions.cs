@@ -6,27 +6,19 @@
  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
  */
 
-using Hl7.Fhir.Model;
-using System.Collections.Generic;
-using Spark.Engine.Core;
-
 namespace Spark.Engine.Extensions
 {
+    using Hl7.Fhir.Model;
+    using System.Collections.Generic;
+    using Spark.Engine.Core;
+
     public static class FhirModelExtensions
     {
-        public static void Append(this Bundle bundle, Resource resource)
-        {
-            bundle.Entry.Add(CreateEntryForResource(resource));
-        }
-
         public static void Append(this Bundle bundle, Bundle.HTTPVerb method, Resource resource)
         {
             var entry = CreateEntryForResource(resource);
 
-            if (entry.Request == null)
-            {
-                entry.Request = new Bundle.RequestComponent();
-            }
+            entry.Request ??= new Bundle.RequestComponent();
 
             entry.Request.Method = method;
             bundle.Entry.Add(entry);
@@ -43,22 +35,6 @@ namespace Spark.Engine.Extensions
             return entry;
         }
 
-        public static void Append(this Bundle bundle, IEnumerable<Resource> resources)
-        {
-            foreach (var resource in resources)
-            {
-                bundle.Append(resource);
-            }
-        }
-
-        public static void Append(this Bundle bundle, Bundle.HTTPVerb method, IEnumerable<Resource> resources)
-        {
-            foreach (var resource in resources)
-            {
-                bundle.Append(method, resource);
-            }
-        }
-
         public static Bundle Append(this Bundle bundle, Entry entry, FhirResponse response = null)
         {
             // API: The api should have a function for this. AddResourceEntry doesn't cut it.
@@ -67,12 +43,23 @@ namespace Spark.Engine.Extensions
             Bundle.EntryComponent bundleEntry;
             switch (bundle.Type)
             {
-                case Bundle.BundleType.History: bundleEntry = entry.ToTransactionEntry(); break;
-                case Bundle.BundleType.Searchset: bundleEntry = entry.TranslateToSparseEntry(); break;
-                case Bundle.BundleType.BatchResponse: bundleEntry = entry.TranslateToSparseEntry(response); break;
-                case Bundle.BundleType.TransactionResponse: bundleEntry = entry.TranslateToSparseEntry(response); break;
-                default: bundleEntry = entry.TranslateToSparseEntry(); break;
+                case Bundle.BundleType.History:
+                    bundleEntry = entry.ToTransactionEntry();
+                    break;
+                case Bundle.BundleType.Searchset:
+                    bundleEntry = entry.TranslateToSparseEntry();
+                    break;
+                case Bundle.BundleType.BatchResponse:
+                    bundleEntry = entry.TranslateToSparseEntry(response);
+                    break;
+                case Bundle.BundleType.TransactionResponse:
+                    bundleEntry = entry.TranslateToSparseEntry(response);
+                    break;
+                default:
+                    bundleEntry = entry.TranslateToSparseEntry();
+                    break;
             }
+
             bundle.Entry.Add(bundleEntry);
 
             return bundle;
@@ -91,18 +78,5 @@ namespace Spark.Engine.Extensions
 
             return bundle;
         }
-
-        public static IList<Entry> GetEntries(this ILocalhost localhost, Bundle bundle)
-        {
-            var entries = new List<Entry>();
-            foreach(var bundleEntry in bundle.Entry)
-            {
-                var entry = localhost.ToInteraction(bundleEntry);
-                entries.Add(entry);
-            }
-            return entries;
-        }
-
     }
-
 }

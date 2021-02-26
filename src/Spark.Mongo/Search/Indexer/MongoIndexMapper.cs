@@ -26,10 +26,8 @@ namespace Spark.Mongo.Search.Indexer
                 EntryToDocument(indexValue, 0, result);
                 return result;
             }
-            else
-            {
-                throw new ArgumentException("MapEntry is only meant for mapping a root IndexValue.", nameof(indexValue));
-            }
+
+            throw new ArgumentException("MapEntry is only meant for mapping a root IndexValue.", nameof(indexValue));
         }
 
         private void EntryToDocument(IndexValue indexValue, int level, List<BsonDocument> result)

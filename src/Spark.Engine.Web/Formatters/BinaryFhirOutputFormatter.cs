@@ -12,7 +12,7 @@
         {
             SupportedMediaTypes.Add(new MediaTypeHeaderValue(FhirMediaType.OCTET_STREAM_CONTENT_HEADER));
         }
-        
+
         /// <inheritdoc />
         public override bool CanWriteResult(OutputFormatterCanWriteContext context)
         {

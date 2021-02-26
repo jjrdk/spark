@@ -1,11 +1,11 @@
-﻿using Hl7.Fhir.Serialization;
-using System;
-using System.Diagnostics;
-using System.Reflection;
-using Spark.Engine.Search;
-
-namespace Spark.Engine
+﻿namespace Spark.Engine
 {
+    using Hl7.Fhir.Serialization;
+    using System;
+    using System.Diagnostics;
+    using System.Reflection;
+    using Spark.Engine.Search;
+
     public class SparkSettings
     {
         public Uri Endpoint { get; set; }

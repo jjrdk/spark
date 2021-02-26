@@ -9,7 +9,6 @@
 using Hl7.Fhir.Model;
 using Hl7.Fhir.Rest;
 using System;
-using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 
@@ -22,21 +21,15 @@ namespace Spark.Engine.Core
         public static string GetContentType(Type type, ResourceFormat format)
         {
             return typeof(Resource).IsAssignableFrom(type) || type == typeof(Resource)
-                ? (format switch
+                ? format switch
                 {
                     ResourceFormat.Json => ContentType.JSON_CONTENT_HEADER,
                     ResourceFormat.Xml => ContentType.XML_CONTENT_HEADER,
                     _ => ContentType.XML_CONTENT_HEADER
-                })
+                }
                 : "application/octet-stream";
         }
-
-        public static string GetContentTypeHeaderValue(this HttpRequestMessage request)
-        {
-            var headervalue = request.Content.Headers.ContentType;
-            return headervalue?.MediaType;
-        }
-
+        
         public static MediaTypeHeaderValue GetMediaTypeHeaderValue(Type type, ResourceFormat format)
         {
             var mediatype = GetContentType(type, format);

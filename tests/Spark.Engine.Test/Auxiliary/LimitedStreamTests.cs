@@ -14,7 +14,7 @@ namespace Spark.Engine.Test.Auxiliary
             var innerStream = new MemoryStream();
             var sut = new LimitedStream(innerStream, 10);
 
-            sut.Write(new byte[5] { (byte)1, (byte)2, (byte)3, (byte)4, (byte)5 }, 0, 5);
+            sut.Write(new byte[5] { 1, 2, 3, 4, 5 }, 0, 5);
 
             var actual = new byte[5];
             innerStream.Seek(0, SeekOrigin.Begin);
@@ -30,7 +30,7 @@ namespace Spark.Engine.Test.Auxiliary
             var innerStream = new MemoryStream();
             var sut = new LimitedStream(innerStream, 3);
 
-            Assert.Throws<ArgumentOutOfRangeException>(() => sut.Write(new byte[5] { (byte)1, (byte)2, (byte)3, (byte)4, (byte)5 }, 0, 5));
+            Assert.Throws<ArgumentOutOfRangeException>(() => sut.Write(new byte[5] { 1, 2, 3, 4, 5 }, 0, 5));
         }
 
         [Fact]
@@ -39,7 +39,7 @@ namespace Spark.Engine.Test.Auxiliary
             var innerStream = new MemoryStream();
             var sut = new LimitedStream(innerStream, 10);
 
-            sut.Write(new byte[5] { (byte)1, (byte)2, (byte)3, (byte)4, (byte)5 }, 0, 5);
+            sut.Write(new byte[5] { 1, 2, 3, 4, 5 }, 0, 5);
 
             var actual5 = new byte[5];
             innerStream.Seek(0, SeekOrigin.Begin);
@@ -48,7 +48,7 @@ namespace Spark.Engine.Test.Auxiliary
             Assert.Equal((byte)1, actual5[0]);
             Assert.Equal((byte)5, actual5[4]);
 
-            sut.Write(new byte[5] { (byte)6, (byte)7, (byte)8, (byte)9, (byte)10 }, 0, 5);
+            sut.Write(new byte[5] { 6, 7, 8, 9, 10 }, 0, 5);
 
             var actual10 = new byte[10];
             innerStream.Seek(0, SeekOrigin.Begin);
@@ -57,7 +57,7 @@ namespace Spark.Engine.Test.Auxiliary
             Assert.Equal((byte)1, actual10[0]);
             Assert.Equal((byte)10, actual10[9]);
 
-            Assert.Throws<ArgumentOutOfRangeException>(() => sut.Write(new byte[1] { (byte)11 }, 0, 1));
+            Assert.Throws<ArgumentOutOfRangeException>(() => sut.Write(new byte[1] {11}, 0, 1));
         }
 
         [Fact]
@@ -66,7 +66,7 @@ namespace Spark.Engine.Test.Auxiliary
             var innerStream = new MemoryStream();
             var sut = new LimitedStream(innerStream, 3);
 
-            sut.Write(new byte[5] { (byte)1, (byte)2, (byte)3, (byte)4, (byte)5 }, 2, 3);
+            sut.Write(new byte[5] { 1, 2, 3, 4, 5 }, 2, 3);
 
             var actual3 = new byte[3];
             innerStream.Seek(0, SeekOrigin.Begin);
@@ -82,7 +82,7 @@ namespace Spark.Engine.Test.Auxiliary
             var innerStream = new MemoryStream();
             var sut = new LimitedStream(innerStream, 3);
 
-            Assert.Throws<ArgumentOutOfRangeException>(() => sut.Write(new byte[5] { (byte)1, (byte)2, (byte)3, (byte)4, (byte)5 }, 1, 13));
+            Assert.Throws<ArgumentOutOfRangeException>(() => sut.Write(new byte[5] { 1, 2, 3, 4, 5 }, 1, 13));
         }
 
         [Fact]
@@ -91,7 +91,7 @@ namespace Spark.Engine.Test.Auxiliary
             var innerStream = new MemoryStream();
             var sut = new LimitedStream(innerStream, 5);
 
-            var sourceStream = new MemoryStream(new byte[5] { (byte)1, (byte)2, (byte)3, (byte)4, (byte)5 });
+            var sourceStream = new MemoryStream(new byte[5] { 1, 2, 3, 4, 5 });
 
             sourceStream.CopyTo(sut);
 
@@ -109,7 +109,7 @@ namespace Spark.Engine.Test.Auxiliary
             var innerStream = new MemoryStream();
             var sut = new LimitedStream(innerStream, 3);
 
-            var sourceStream = new MemoryStream(new byte[5] { (byte)1, (byte)2, (byte)3, (byte)4, (byte)5 });
+            var sourceStream = new MemoryStream(new byte[5] { 1, 2, 3, 4, 5 });
 
             Assert.Throws<ArgumentOutOfRangeException>(() => sourceStream.CopyTo(sut));
         }
@@ -120,7 +120,7 @@ namespace Spark.Engine.Test.Auxiliary
             var innerStream = new MemoryStream();
             var sut = new LimitedStream(innerStream, 3);
 
-            var sourceStream = new MemoryStream(new byte[5] { (byte)1, (byte)2, (byte)3, (byte)4, (byte)5 });
+            var sourceStream = new MemoryStream(new byte[5] { 1, 2, 3, 4, 5 });
 
             try
             {

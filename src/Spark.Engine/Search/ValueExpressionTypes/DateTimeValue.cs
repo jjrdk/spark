@@ -19,7 +19,7 @@ namespace Spark.Engine.Search.ValueExpressionTypes
     /// </summary>
     public class DateTimeValue : ValueExpression
     {
-        public DateTimeOffset Value { get; private set; }
+        public DateTimeOffset Value { get; }
 
         public DateTimeValue(DateTimeOffset value)
         {

@@ -27,7 +27,7 @@ namespace Spark.Engine.Service.FhirServiceExtensions
 
         public IEnumerable<Entry> GetEntries()
         {
-            _interactions = _interactions ?? ComputeEntries();
+            _interactions ??= ComputeEntries();
             return _interactions;
         }
 

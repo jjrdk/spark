@@ -14,12 +14,12 @@
 
         public Key() { }
 
-        public Key(string @base, string type, string resourceid, string versionid)
+        public Key(string @base, string type, string resourceId, string versionId)
         {
-            this.Base = @base != null ? @base.TrimEnd('/') : null;
+            this.Base = @base?.TrimEnd('/');
             this.TypeName = type;
-            this.ResourceId = resourceid;
-            this.VersionId = versionid;
+            this.ResourceId = resourceId;
+            this.VersionId = versionId;
         }
 
         public static Key Create(string type)
@@ -27,17 +27,17 @@
             return new Key(null, type, null, null);
         }
 
-        public static Key Create(string type, string resourceid)
+        public static Key Create(string type, string resourceId)
         {
-            return new Key(null, type, resourceid, null);
+            return new Key(null, type, resourceId, null);
         }
 
-        public static Key Create(string type, string resourceid, string versionid)
+        public static Key Create(string type, string resourceId, string versionId)
         {
-            return new Key(null, type, resourceid, versionid);
+            return new Key(null, type, resourceId, versionId);
         }
 
-        public static Key Null => default(Key);
+        public static Key Null => default;
 
         public override bool Equals(object obj)
         {

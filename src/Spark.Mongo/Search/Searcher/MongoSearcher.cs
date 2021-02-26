@@ -308,15 +308,13 @@ namespace Spark.Search.Mongo
                     string operand = null;
                     if (crit.Operand is ChoiceValue)
                     {
-                        ChoiceValue choiceOperand = (crit.Operand as ChoiceValue);
+                        ChoiceValue choiceOperand = crit.Operand as ChoiceValue;
                         if (!choiceOperand.Choices.Any())
                         {
                             continue; //Choice operator without choices: ignore it.
                         }
-                        else
-                        {
-                            operand = (choiceOperand.Choices.First() as UntypedValue).Value;
-                        }
+
+                        operand = (choiceOperand.Choices.First() as UntypedValue).Value;
                     }
                     else
                     {
@@ -368,7 +366,7 @@ namespace Spark.Search.Mongo
                                         Uri uriOperand;
                                         Uri.TryCreate((choice as UntypedValue).Value, UriKind.RelativeOrAbsolute, out uriOperand);
                                         var refUri = _localhost.RemoveBase(uriOperand); //Drop the first part if it points to our own server.
-                                        return new UntypedValue(refUri.ToString().TrimStart(new char[] { '/' }));
+                                        return new UntypedValue(refUri.ToString().TrimStart(new[] { '/' }));
                                     }));
                             }
                             else
@@ -376,7 +374,7 @@ namespace Spark.Search.Mongo
                                 Uri uriOperand;
                                 Uri.TryCreate(operand, UriKind.RelativeOrAbsolute, out uriOperand);
                                 var refUri = _localhost.RemoveBase(uriOperand); //Drop the first part if it points to our own server.
-                                subCrit.Operand = new UntypedValue(refUri.ToString().TrimStart(new char[] { '/' }));
+                                subCrit.Operand = new UntypedValue(refUri.ToString().TrimStart(new[] { '/' }));
                             }
                             break;
                     }
@@ -517,7 +515,7 @@ namespace Spark.Search.Mongo
 
             if (criterium.Operator == Operator.CHAIN)
             {
-                var subCrit = (Criterium)(criterium.Operand);
+                var subCrit = (Criterium)criterium.Operand;
                 var subCritResult = false;
                 foreach (var targetType in criterium.SearchParameters.SelectMany(spd => spd.Target))
                 {

@@ -17,10 +17,8 @@
 
                 return s;
             }
-            else
-            {
-                return null;
-            }
+
+            return null;
         }
         public override string GroomElement(string value)
         {

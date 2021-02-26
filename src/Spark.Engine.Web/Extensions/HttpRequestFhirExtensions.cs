@@ -14,7 +14,6 @@ namespace Spark.Engine.Web.Extensions
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Net;
     using System.Net.Http;
     using Core;
     using Hl7.Fhir.Model;
@@ -22,7 +21,6 @@ namespace Spark.Engine.Web.Extensions
     using Hl7.Fhir.Utility;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Http.Headers;
-    using Microsoft.Extensions.Primitives;
     using Microsoft.Net.Http.Headers;
     using Utility;
     using MediaTypeHeaderValue = Microsoft.Net.Http.Headers.MediaTypeHeaderValue;

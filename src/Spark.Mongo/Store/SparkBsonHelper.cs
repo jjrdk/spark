@@ -17,10 +17,8 @@
                 var serializer = new FhirJsonSerializer();
                 return BsonDocument.Parse(serializer.SerializeToString(resource));
             }
-            else
-            {
-                return new BsonDocument();
-            }
+
+            return new BsonDocument();
         }
 
         public static BsonValue ToBsonReferenceKey(this IKey key)
@@ -130,7 +128,7 @@
 
         private static void AssertKeyIsValid(IKey key)
         {
-            var valid = (key.Base == null) && (key.TypeName != null) && (key.ResourceId != null) && (key.VersionId != null);
+            var valid = key.Base == null && key.TypeName != null && key.ResourceId != null && key.VersionId != null;
             if (!valid)
             {
                 throw new Exception("This key is not valid for storage: " + key.ToString());
@@ -144,8 +142,7 @@
             document[Field.RESOURCEID] = key.ResourceId;
             document[Field.VERSIONID] = key.VersionId;
 
-            document[Field.WHEN] = (resource?.Meta?.LastUpdated != null) ?
-                resource.Meta.LastUpdated.Value.UtcDateTime : DateTime.UtcNow;
+            document[Field.WHEN] = resource?.Meta?.LastUpdated?.UtcDateTime ?? DateTime.UtcNow;
             document[Field.STATE] = Value.CURRENT;
         }
 

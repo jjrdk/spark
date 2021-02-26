@@ -14,19 +14,18 @@ namespace Spark.Engine.Search.ValueExpressionTypes
 
     public class ReferenceValue : ValueExpression
     {
-        public string Value { get; private set; }
-     
+        public string Value { get; }
+
         public ReferenceValue(string value)
         {
-            if (!Uri.IsWellFormedUriString(value, UriKind.Absolute) &&
-                !Id.IsValidValue(value))
+            if (!Uri.IsWellFormedUriString(value, UriKind.Absolute) && !Id.IsValidValue(value))
             {
                 throw Error.Argument("text", "Reference is not a valid Id nor a valid absolute Url");
             }
 
             Value = value;
         }
-                              
+
         public override string ToString()
         {
             return StringValue.EscapeString(Value);
@@ -35,7 +34,7 @@ namespace Spark.Engine.Search.ValueExpressionTypes
         public static ReferenceValue Parse(string text)
         {
             var value = StringValue.UnescapeString(text);
-         
+
             return new ReferenceValue(value);
         }
     }

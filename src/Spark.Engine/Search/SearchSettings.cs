@@ -47,10 +47,8 @@ namespace Spark.Engine.Search
             {
                 return true;
             }
-            return CheckReferencesFor == null
-                ? false
-                : !CheckReferencesFor.Contains(resourceType) &&
-                   !CheckReferencesFor.Contains($"{resourceType}.{paramName}");
+            return CheckReferencesFor != null && (!CheckReferencesFor.Contains(resourceType) &&
+                                                  !CheckReferencesFor.Contains($"{resourceType}.{paramName}"));
         }
     }
 }

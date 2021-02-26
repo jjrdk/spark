@@ -25,7 +25,7 @@ namespace Spark.Engine.Service
         public TValue TryGet(TKey key)
         {
             TValue value;
-            return _mapping.TryGetValue(key, out value) ? value : default(TValue);
+            return _mapping.TryGetValue(key, out value) ? value : default;
         }
 
         public bool Exists(TKey key)

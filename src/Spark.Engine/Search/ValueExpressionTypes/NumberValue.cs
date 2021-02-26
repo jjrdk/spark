@@ -12,13 +12,13 @@ namespace Spark.Engine.Search.ValueExpressionTypes
 
     public class NumberValue : ValueExpression
     {
-        public decimal Value { get; private set; }
-     
+        public decimal Value { get; }
+
         public NumberValue(decimal value)
         {
             Value = value;
         }
-                              
+
         public override string ToString()
         {
             return PrimitiveTypeConverter.ConvertTo<string>(Value);

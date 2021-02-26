@@ -81,8 +81,8 @@ namespace Spark.Engine.Test.Core
         private readonly FhirPropertyIndex _index;
         private readonly ResourceVisitor _sut;
         private readonly Patient _patient;
-        private int _expectedActionCounter = 0;
-        private int _actualActionCounter = 0;
+        private int _expectedActionCounter;
+        private int _actualActionCounter;
 
         public ResourceVisitorTests()
         {

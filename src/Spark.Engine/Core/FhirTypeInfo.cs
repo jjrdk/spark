@@ -50,11 +50,11 @@
         /// <returns>PropertyInofo for property that matches this name.</returns>
         public FhirPropertyInfo FindPropertyInfo(string propertyName)
         {
-            var result = FindPropertyInfo(new Predicate<FhirPropertyInfo>(pi => pi.PropertyName == propertyName));
+            var result = FindPropertyInfo(pi => pi.PropertyName == propertyName);
             if (result == null)
             {
                 //try it by typed name
-                result = FindPropertyInfo(new Predicate<FhirPropertyInfo>(pi => pi.TypedNames.Contains(propertyName)));
+                result = FindPropertyInfo(pi => pi.TypedNames.Contains(propertyName));
             }
             return result;
         }

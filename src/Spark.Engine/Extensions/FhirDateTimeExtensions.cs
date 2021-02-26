@@ -1,8 +1,8 @@
-﻿using Hl7.Fhir.Model;
-using System;
-
-namespace Spark.Engine.Extensions
+﻿namespace Spark.Engine.Extensions
 {
+    using Hl7.Fhir.Model;
+    using System;
+
     public static class FhirDateTimeExtensions
     {
         public enum FhirDateTimePrecision
@@ -18,30 +18,7 @@ namespace Spark.Engine.Extensions
         {
             return (FhirDateTimePrecision)Math.Min(fdt.Value.Length, 18); //Ignore timezone for stating precision.
         }
-
-
-        [Obsolete]
-        public static Period ToPeriod(this FhirDateTime fdt)
-        {
-            var result = new Period();
-            var dtoStart = fdt.ToDateTimeOffset();
-            result.StartElement = new FhirDateTime(dtoStart);
-            var dtoEnd = dtoStart;
-
-            switch (fdt.Precision())
-            {
-                case FhirDateTimePrecision.Year: dtoEnd = dtoStart.AddYears(1); break;
-                case FhirDateTimePrecision.Month: dtoEnd = dtoStart.AddMonths(1); break;
-                case FhirDateTimePrecision.Day: dtoEnd = dtoStart.AddDays(1); break;
-                case FhirDateTimePrecision.Minute: dtoEnd = dtoStart.AddMinutes(1); break;
-                case FhirDateTimePrecision.Second: dtoEnd = dtoStart.AddSeconds(1); break;
-                default: dtoEnd = dtoStart; break;
-            }
-
-            result.EndElement = new FhirDateTime(dtoEnd);
-            return result;
-        }
-
+        
         public static DateTimeOffset LowerBound(this FhirDateTime fdt)
         {
             return fdt.ToDateTimeOffset(TimeSpan.Zero);

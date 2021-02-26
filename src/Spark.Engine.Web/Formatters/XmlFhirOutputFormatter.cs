@@ -70,7 +70,7 @@
             }
             else if (context.ObjectType == typeof(FhirResponse))
             {
-                var response = (context.Object as FhirResponse);
+                var response = context.Object as FhirResponse;
                 if (response.HasBody)
                 {
                     _serializer.Serialize(response.Resource, writer, summary);

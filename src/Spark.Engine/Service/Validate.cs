@@ -32,10 +32,8 @@ namespace Spark.Engine.Service
             {
                 throw Error.NotFound("Wrong casing of collection name, try '{0}' instead", correct);
             }
-            else
-            {
-                throw Error.NotFound("Unknown resource collection '{0}'", name);
-            }
+
+            throw Error.NotFound("Unknown resource collection '{0}'", name);
         }
 
         public static void ResourceType(IKey key, Resource resource)
@@ -148,11 +146,12 @@ namespace Spark.Engine.Service
             {
                 throw Error.BadRequest("Logical ID is empty");
             }
-            else if (!Id.IsValidValue(resourceId))
+
+            if (!Id.IsValidValue(resourceId))
             {
                 throw Error.BadRequest($"{resourceId} is not a valid value for an id");
             }
-            else if (resourceId.Length > 64)
+            if (resourceId.Length > 64)
             {
                 throw Error.BadRequest("Logical ID is too long.");
 

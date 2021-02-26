@@ -5,7 +5,6 @@
     using Core;
     using Engine.Extensions;
     using Microsoft.AspNetCore.Http;
-    using Microsoft.AspNetCore.Mvc.Formatters;
     using Task = System.Threading.Tasks.Task;
 
     // https://stackoverflow.com/a/38935583

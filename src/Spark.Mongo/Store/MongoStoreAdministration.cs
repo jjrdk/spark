@@ -1,6 +1,5 @@
 ﻿namespace Spark.Mongo.Store
 {
-    using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using MongoDB.Bson;
@@ -31,7 +30,7 @@
         private async Task EraseDataAsync()
         {
             // Don't try this at home
-            var collectionsToDrop = new string[] { Collection.RESOURCE, Collection.COUNTERS, Collection.SNAPSHOT };
+            var collectionsToDrop = new[] { Collection.RESOURCE, Collection.COUNTERS, Collection.SNAPSHOT };
             await DropCollectionsAsync(collectionsToDrop).ConfigureAwait(false);
 
             /*

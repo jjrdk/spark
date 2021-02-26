@@ -1,15 +1,13 @@
-﻿using Hl7.Fhir.Model;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using Spark.Engine.Core;
-
-namespace Spark.Engine.Extensions
+﻿namespace Spark.Engine.Extensions
 {
+    using Hl7.Fhir.Model;
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using Spark.Engine.Core;
 
     public static class EntryExtensions
     {
-
         public static Key ExtractKey(this ILocalhost localhost, Bundle.EntryComponent entry)
         {
             Key key = null;
@@ -21,11 +19,15 @@ namespace Spark.Engine.Extensions
             {
                 key = entry.Resource.ExtractKey();
             }
-            if (key != null && string.IsNullOrEmpty(key.ResourceId)
-                && entry.FullUrl != null && UriHelper.IsTemporaryUri(entry.FullUrl))
+
+            if (key != null
+                && string.IsNullOrEmpty(key.ResourceId)
+                && entry.FullUrl != null
+                && UriHelper.IsTemporaryUri(entry.FullUrl))
             {
                 key.ResourceId = entry.FullUrl;
             }
+
             return key;
         }
 
@@ -46,7 +48,10 @@ namespace Spark.Engine.Extensions
             };
         }
 
-        public static Bundle.HTTPVerb ExtrapolateMethod(this ILocalhost localhost, Bundle.EntryComponent entry, IKey key)
+        public static Bundle.HTTPVerb ExtrapolateMethod(
+            this ILocalhost localhost,
+            Bundle.EntryComponent entry,
+            IKey key)
         {
             return entry.Request?.Method ?? DetermineMethod(localhost, key);
         }
@@ -56,7 +61,9 @@ namespace Spark.Engine.Extensions
             var key = localhost.ExtractKey(bundleEntry);
             var method = localhost.ExtrapolateMethod(bundleEntry, key);
 
-            return key != null ? Entry.Create(method, key, bundleEntry.Resource) : Entry.Create(method, bundleEntry.Resource);
+            return key != null
+                ? Entry.Create(method, key, bundleEntry.Resource)
+                : Entry.Create(method, bundleEntry.Resource);
 
         }
 
@@ -67,13 +74,10 @@ namespace Spark.Engine.Extensions
             {
                 bundleEntry.Response = new Bundle.ResponseComponent()
                 {
-                    Status = $"{(int) response.StatusCode} {response.StatusCode}",
+                    Status = $"{(int)response.StatusCode} {response.StatusCode}",
                     Location = response.Key?.ToString(),
                     Etag = response.Key != null ? ETag.Create(response.Key.VersionId).ToString() : null,
-                    LastModified =
-                        (entry?.Resource?.Meta != null)
-                            ? entry.Resource.Meta.LastUpdated
-                            : null
+                    LastModified = entry?.Resource?.Meta?.LastUpdated
                 };
             }
 
@@ -85,10 +89,7 @@ namespace Spark.Engine.Extensions
         {
             var bundleEntry = new Bundle.EntryComponent();
 
-            if (bundleEntry.Request == null)
-            {
-                bundleEntry.Request = new Bundle.RequestComponent();
-            }
+            bundleEntry.Request ??= new Bundle.RequestComponent();
             bundleEntry.Request.Method = entry.Method;
             bundleEntry.Request.Url = entry.Key.ToUri().ToString();
 
@@ -109,7 +110,7 @@ namespace Spark.Engine.Extensions
 
         public static bool HasResource(this Entry entry)
         {
-            return (entry.Resource != null);
+            return entry.Resource != null;
         }
 
         public static bool IsDeleted(this Entry entry)
@@ -118,29 +119,17 @@ namespace Spark.Engine.Extensions
             return entry.Method == Bundle.HTTPVerb.DELETE;
         }
 
-        public static bool Present(this Entry entry)
-        {
-            return (entry.Method == Bundle.HTTPVerb.POST) || (entry.Method == Bundle.HTTPVerb.PUT);
-        }
-
-
         public static void Append(this IList<Entry> list, IList<Entry> appendage)
         {
-            foreach(var entry in appendage)
+            foreach (var entry in appendage)
             {
                 list.Add(entry);
             }
         }
 
-        public static bool Contains(this IList<Entry> list, Entry item)
-        {
-            var key = item.Key;
-            return list.FirstOrDefault(i => i.Key.EqualTo(item.Key)) != null;
-        }
-
         public static void AppendDistinct(this IList<Entry> list, IList<Entry> appendage)
         {
-            foreach(var item in appendage)
+            foreach (var item in appendage)
             {
                 if (!list.Contains(item))
                 {
@@ -170,15 +159,19 @@ namespace Spark.Engine.Extensions
             var query = new ElementQuery(path);
             var list = new List<string>();
 
-            query.Visit(resource, element =>
+            query.Visit(
+                resource,
+                element =>
                 {
-                    if (element is ResourceReference)
+                    if (!(element is ResourceReference resourceReference))
                     {
-                        var reference = (element as ResourceReference).Reference;
-                        if (reference != null)
-                        {
-                            list.Add(reference);
-                        }
+                        return;
+                    }
+
+                    var reference = resourceReference.Reference;
+                    if (reference != null)
+                    {
+                        list.Add(reference);
                     }
                 });
             return list;
@@ -203,34 +196,6 @@ namespace Spark.Engine.Extensions
             return paths.SelectMany(i => resources.GetReferences(i));
         }
 
-
-        // BALLOT: bundle now basically has two versions. One for history (with transaction elements) and a regular one (without transaction elements) This is so ugly and so NOT FHIR
-
-        // BALLOT: The identifying elements of a resource are too spread out over the bundle
-        // It should be in the same location. Either on resource.meta or entry.meta or entry.transaction
-
-        // BALLOT: transaction/transactionResponse in bundle is named wrongly. Because the bundle is the transaction. Not the entry.
-        // better use http/rest terminology: request / response.
-
-        /*
-            bundle
-	            - base
-	            - total
-	            - entry *
-		            - request
-		            - response
-		            - resource
-			            - meta
-				            - id
-				            - versionid
-        */
-
-        public static Bundle Replace(this Bundle bundle, IEnumerable<Entry> entries)
-        {
-            bundle.Entry = entries.Select(e => e.TranslateToSparseEntry()).ToList();
-            return bundle;
-        }
-
         // If an interaction has no base, you should be able to supplement it (from the containing bundle for example)
         public static void SupplementBase(this Entry entry, string @base)
         {
@@ -250,14 +215,6 @@ namespace Spark.Engine.Extensions
         public static IEnumerable<Entry> Transferable(this IEnumerable<Entry> entries)
         {
             return entries.Where(i => i.State == EntryState.Undefined);
-        }
-
-        public static void Assert(this EntryState state, EntryState correct)
-        {
-            if (state != correct)
-            {
-                throw Error.Internal("Interaction was in an invalid state");
-            }
         }
     }
 }

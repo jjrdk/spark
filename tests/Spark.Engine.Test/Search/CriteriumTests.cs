@@ -349,31 +349,31 @@ namespace Spark.Engine.Test.Search
         public void SplitNotEscaped()
         {
             var res = "hallo".SplitNotEscaped('$');
-            Assert.Equal(res, new string[] { "hallo" });
+            Assert.Equal(res, new[] { "hallo" });
 
             res = "part1$part2".SplitNotEscaped('$');
-            Assert.Equal(res, new string[] { "part1", "part2" });
+            Assert.Equal(res, new[] { "part1", "part2" });
 
             res = "part1$".SplitNotEscaped('$');
-            Assert.Equal(res, new string[] { "part1", string.Empty });
+            Assert.Equal(res, new[] { "part1", string.Empty });
 
             res = "$part2".SplitNotEscaped('$');
-            Assert.Equal(res, new string[] { string.Empty, "part2" });
+            Assert.Equal(res, new[] { string.Empty, "part2" });
 
             res = "$".SplitNotEscaped('$');
-            Assert.Equal(res, new string[] { string.Empty, string.Empty });
+            Assert.Equal(res, new[] { string.Empty, string.Empty });
 
             res = "a$$c".SplitNotEscaped('$');
-            Assert.Equal(res, new string[] { "a", string.Empty, "c" });
+            Assert.Equal(res, new[] { "a", string.Empty, "c" });
 
             res = @"p\@rt1$p\@rt2".SplitNotEscaped('$');
-            Assert.Equal(res, new string[] { @"p\@rt1", @"p\@rt2" });
+            Assert.Equal(res, new[] { @"p\@rt1", @"p\@rt2" });
 
             res = @"mes\$age1$mes\$age2".SplitNotEscaped('$');
-            Assert.Equal(res, new string[] { @"mes\$age1", @"mes\$age2" });
+            Assert.Equal(res, new[] { @"mes\$age1", @"mes\$age2" });
 
             res = string.Empty.SplitNotEscaped('$');
-            Assert.Equal(res, new string[] { string.Empty });
+            Assert.Equal(res, new[] { string.Empty });
         }
 
 

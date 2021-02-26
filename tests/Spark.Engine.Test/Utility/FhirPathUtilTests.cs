@@ -1,6 +1,5 @@
 ﻿using Hl7.Fhir.Model;
 using Spark.Engine.Utility;
-using System;
 
 namespace Spark.Engine.Test.Utility
 {

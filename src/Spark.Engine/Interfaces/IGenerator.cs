@@ -6,7 +6,6 @@
  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
  */
 
-
 namespace Spark.Engine.Interfaces
 {
     using System.Threading.Tasks;

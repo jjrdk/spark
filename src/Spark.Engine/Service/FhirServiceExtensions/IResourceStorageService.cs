@@ -1,6 +1,5 @@
 ﻿namespace Spark.Engine.Service.FhirServiceExtensions
 {
-    using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using Spark.Engine.Core;

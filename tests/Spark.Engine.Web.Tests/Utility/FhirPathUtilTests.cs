@@ -1,6 +1,5 @@
 ﻿namespace Spark.Engine.Web.Tests.Utility
 {
-    using System;
     using Engine.Utility;
     using Hl7.Fhir.Model;
     using Xunit;

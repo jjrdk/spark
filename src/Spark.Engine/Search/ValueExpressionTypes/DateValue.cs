@@ -14,7 +14,7 @@ namespace Spark.Engine.Search.ValueExpressionTypes
 
     public class DateValue : ValueExpression
     {
-        public string Value { get; private set; }
+        public string Value { get; }
 
         public DateValue(DateTimeOffset value)
         {
@@ -34,7 +34,7 @@ namespace Spark.Engine.Search.ValueExpressionTypes
                 }
 
                 // This was a time, so we can just use the date portion of this
-                date = (new FhirDateTime(date)).ToDateTimeOffset(TimeSpan.Zero).Date.ToString("yyyy-MM-dd");
+                date = new FhirDateTime(date).ToDateTimeOffset(TimeSpan.Zero).Date.ToString("yyyy-MM-dd");
             }
             Value = date;
         }

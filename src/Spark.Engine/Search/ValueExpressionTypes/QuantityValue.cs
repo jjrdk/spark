@@ -14,11 +14,11 @@ namespace Spark.Engine.Search.ValueExpressionTypes
 
     public class QuantityValue : ValueExpression
     {
-        public decimal Number { get; private set; }
+        public decimal Number { get; }
 
-        public string Namespace { get; private set; }
+        public string Namespace { get; }
 
-        public string Unit { get; private set; }
+        public string Unit { get; }
 
         public QuantityValue(decimal number, string unit)
         {

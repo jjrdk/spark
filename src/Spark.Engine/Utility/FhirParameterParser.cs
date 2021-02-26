@@ -1,7 +1,7 @@
-﻿using System;
-
-namespace Spark.Engine.Utility
+﻿namespace Spark.Engine.Utility
 {
+    using System;
+
     public static class FhirParameterParser
     {
         public static DateTimeOffset? ParseDateParameter(this string value)
@@ -12,25 +12,7 @@ namespace Spark.Engine.Utility
 
         public static int? ParseIntParameter(this string value)
         {
-            return (int.TryParse(value, out var n)) ? n : default(int?);
-        }
-
-        public static bool? ParseBoolParameter(this string value)
-        {
-            if (value == null)
-            {
-                return null;
-            }
-
-            try
-            {
-                //bool b = PrimitiveTypeConverter.ConvertTo<bool>(value);
-                return (bool.TryParse(value, out var b)) ? b : default(bool?);
-            }
-            catch
-            {
-                return null;
-            }
+            return int.TryParse(value, out var n) ? n : default(int?);
         }
     }
 }

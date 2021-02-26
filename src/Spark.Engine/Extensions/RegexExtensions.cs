@@ -13,19 +13,14 @@ namespace Spark.Engine.Extensions
 
         public static string ReplaceGroups(this Regex regex, string input, Dictionary<string, string> replacements)
         {
-            return regex.Replace(input, m =>
-            {
-                return ReplaceNamedGroups(m, input, replacements);
-            });
+            return regex.Replace(input, m => ReplaceNamedGroups(m, replacements));
         }
 
-        private static string ReplaceNamedGroups(Match m, string input, Dictionary<string, string> replacements)
+        private static string ReplaceNamedGroups(Match m, Dictionary<string, string> replacements)
         {
             var result = m.Value;
-            foreach (var replacement in replacements)
+            foreach (var (groupName, replaceWith) in replacements)
             {
-                var groupName = replacement.Key;
-                var replaceWith = replacement.Value;
                 foreach (Capture cap in m.Groups[groupName]?.Captures)
                 {
                     result = result.Remove(cap.Index - m.Index, cap.Length);

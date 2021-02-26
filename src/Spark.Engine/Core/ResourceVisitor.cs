@@ -69,28 +69,20 @@ namespace Spark.Engine.Core
                             VisitByPath(headValue, action, tail, headPredicate);
                         }
                     }
-                    else
-                    {
-                        //TODO: Throw exception (Spark.Exception.NotSupportedException for example), to be catched higher up and then translated to the OperationOutcome.
-                    }
                 }
             }
         }
 
         private void VisitByPath(IEnumerable<object> fhirObjects, Action<object> action, string path, string predicate)
         {
-            if (fhirObjects.Any())
+            foreach (var fhirObject in fhirObjects)
             {
-                foreach (var fhirObject in fhirObjects)
-                {
-                    VisitByPath(fhirObject, action, path, predicate);
-                }
+                VisitByPath(fhirObject, action, path, predicate);
             }
-
         }
 
         /// <summary>
-        /// Matches 
+        /// Matches
         ///     value       => head     | predicate     | tail
         ///     a           => "a"      | ""            | ""
         ///     a.b.c       => "a"      | ""            | "b.c"
@@ -114,7 +106,7 @@ namespace Spark.Engine.Core
         private bool PredicateIsTrue(string predicate, object fhirObject)
         {
             var match = _predicateRegex.Match(predicate);
-            if (match == null || !match.Success)
+            if (!match.Success)
             {
                 return false;
             }
@@ -128,21 +120,16 @@ namespace Spark.Engine.Core
             VisitByPath(
                 fhirObject: fhirObject,
                 action: el =>
-                { string actualValue;
-                    if (TestIfCodedEnum(el.GetType()))
-                    {
-                        actualValue = el.GetType().GetProperty("Value").GetValue(el).ToString();
-                    }
-                    else
-                    {
-                        actualValue = el.ToString();
-                    }
+                {
+                    var actualValue = TestIfCodedEnum(el.GetType())
+                        ? el.GetType().GetProperty("Value").GetValue(el).ToString()
+                        : el.ToString();
 
                     result = filterValue.Equals(actualValue, StringComparison.InvariantCultureIgnoreCase);
                 },
                 path: propertyName,
                 predicate: null //No support for nested predicates.
-                );
+            );
 
             return result;
         }
@@ -154,7 +141,7 @@ namespace Spark.Engine.Core
         {
             if (type == null)
             {
-                throw new ArgumentNullException("type");
+                throw new ArgumentNullException(nameof(type));
             }
 
             var interfaceTest = new Predicate<Type>(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IList<>));
@@ -167,7 +154,7 @@ namespace Spark.Engine.Core
         {
             if (type == null)
             {
-                throw new ArgumentNullException("type");
+                throw new ArgumentNullException(nameof(type));
             }
 
             var codedEnum = type.GenericTypeArguments?.FirstOrDefault()?.IsEnum;

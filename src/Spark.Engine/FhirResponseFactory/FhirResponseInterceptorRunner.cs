@@ -27,16 +27,18 @@ namespace Spark.Engine.FhirResponseFactory
         public FhirResponse RunInterceptors(Entry entry, IEnumerable<object> parameters)
         {
             FhirResponse response = null;
-            parameters.FirstOrDefault(p => (response = RunInterceptors(entry, (object) p)) != null);
+            _ = parameters.FirstOrDefault(p => (response = RunInterceptors(entry, p)) != null);
             return response;
         }
 
         private FhirResponse RunInterceptors(Entry entry, object input)
         {
             FhirResponse response = null;
-            GetResponseInterceptors(input).FirstOrDefault(f => (response = f.GetFhirResponse(entry, input)) != null);
+            _ = GetResponseInterceptors(input)
+                .FirstOrDefault(f => (response = f.GetFhirResponse(entry, input)) != null);
             return response;
         }
+
         private IEnumerable<IFhirResponseInterceptor> GetResponseInterceptors(object input)
         {
             return _interceptors.Where(i => i.CanHandle(input));

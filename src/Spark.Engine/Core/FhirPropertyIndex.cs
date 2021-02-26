@@ -24,10 +24,10 @@ namespace Spark.Engine.Core
         public FhirPropertyIndex(IFhirModel fhirModel, IEnumerable<Type> supportedFhirTypes) //Hint: supply all Resource and Element types from an assembly
         {
             _fhirModel = fhirModel;
-            _fhirTypeInfoList = supportedFhirTypes?.Select(sr => CreateFhirTypeInfo(sr)).ToList();
+            _fhirTypeInfoList = supportedFhirTypes?.Select(CreateFhirTypeInfo).ToList();
             foreach (var ti in _fhirTypeInfoList)
             {
-                ti.Properties = ti.FhirType.GetProperties().Select(p => CreateFhirPropertyInfo(p)).ToList();
+                ti.Properties = ti.FhirType.GetProperties().Select(CreateFhirPropertyInfo).ToList();
             }
         }
 
@@ -83,7 +83,7 @@ namespace Spark.Engine.Core
         public FhirPropertyInfo FindPropertyInfo(string resourceTypeName, string propertyName)
         {
             return FindFhirTypeInfo(
-                new Predicate<FhirTypeInfo>(r => r.TypeName == resourceTypeName))?
+                r => r.TypeName == resourceTypeName)?
                 .FindPropertyInfo(propertyName);
         }
 
@@ -99,8 +99,7 @@ namespace Spark.Engine.Core
             FhirPropertyInfo propertyInfo = null;
             if (fhirType.IsGenericType)
             {
-                propertyInfo = FindFhirTypeInfo(new Predicate
-                    <FhirTypeInfo>(r => r.FhirType.Name == fhirType.Name))?
+                propertyInfo = FindFhirTypeInfo(r => r.FhirType.Name == fhirType.Name)?
                     .FindPropertyInfo(propertyName);
                 if (propertyInfo != null)
                 {
@@ -109,61 +108,16 @@ namespace Spark.Engine.Core
             }
             else
             {
-                propertyInfo = FindFhirTypeInfo(new Predicate
-                    <FhirTypeInfo>(r => r.FhirType == fhirType))?
+                propertyInfo = FindFhirTypeInfo(r => r.FhirType == fhirType)?
                     .FindPropertyInfo(propertyName);
             }
 
             return propertyInfo;
         }
 
-        /// <summary>
-        /// Find info about the properties in <paramref name="fhirType"/> that are of the specified <paramref name="propertyType"/>.
-        /// </summary>
-        /// <param name="fhirType">Type of resource that should contain a property with the supplied name.</param>
-        /// <param name="propertyType">Type of the properties within the resource type.</param>
-        /// <param name="includeSubclasses">If true: also search for properties that are a subtype of propertyType.</param>
-        /// <returns>List of <see cref="FhirPropertyInfo"/> for matching properties in fhirType, or Empty list.</returns>
-        public IEnumerable<FhirPropertyInfo> FindPropertyInfos(Type fhirType, Type propertyType, bool includeSubclasses = false)
-        {
-            var propertyPredicate = includeSubclasses ?
-                new Predicate<FhirPropertyInfo>(pi => pi.AllowedTypes.Any(at => at.IsAssignableFrom(propertyType))) :
-                new Predicate<FhirPropertyInfo>(pi => pi.AllowedTypes.Contains(propertyType));
-
-            return FindFhirTypeInfo(new Predicate<FhirTypeInfo>(r => r.FhirType == fhirType))
-                .FindPropertyInfos(propertyPredicate);
-        }
-
-        /// <summary>
-        /// Find info about the  properties that adhere to <paramref name="propertyPredicate"/>, in the types that adhere to <paramref name="typePredicate"/>.
-        /// This is a very generic function. Check whether a more specific function will also meet your needs.
-        /// (Thereby reducing the chance that you specify an incorrect predicate.)
-        /// </summary>
-        /// <param name="typePredicate">predicate that the type(s) must match.</param>
-        /// <param name="propertyPredicate">predicate that the properties must match.</param>
-        /// <returns></returns>
-        public IEnumerable<FhirPropertyInfo> FindPropertyInfos(Predicate<FhirTypeInfo> typePredicate, Predicate<FhirPropertyInfo> propertyPredicate)
-        {
-            return FindFhirTypeInfos(typePredicate)?.SelectMany(fti => fti.FindPropertyInfos(propertyPredicate));
-        }
-
-        /// <summary>
-        /// Find info about the first property that adheres to <paramref name="propertyPredicate"/>, in the types that adhere to <paramref name="typePredicate"/>.
-        /// This is a very generic function. Check whether a more specific function will also meet your needs.
-        /// (Thereby reducing the chance that you specify an incorrect predicate.)
-        /// If you want to get all results, use <see cref="FindPropertyInfos(System.Predicate{Spark.Engine.Core.FhirTypeInfo},System.Predicate{Spark.Engine.Core.FhirPropertyInfo})"/>.
-        /// </summary>
-        /// <param name="typePredicate">predicate that the type(s) must match.</param>
-        /// <param name="propertyPredicate">predicate that the properties must match.</param>
-        /// <returns></returns>
-        public FhirPropertyInfo FindPropertyInfo(Predicate<FhirTypeInfo> typePredicate, Predicate<FhirPropertyInfo> propertyPredicate)
-        {
-            return FindPropertyInfos(typePredicate, propertyPredicate)?.FirstOrDefault();
-        }
-
         //CK: Function to create FhirTypeInfo instead of putting this knowledge in the FhirTypeInfo constructor, 
         //because I don't want to pass an IFhirModel to all instances of FhirTypeInfo and FhirPropertyInfo.
-        internal FhirTypeInfo CreateFhirTypeInfo(Type fhirType)
+        private static FhirTypeInfo CreateFhirTypeInfo(Type fhirType)
         {
             if (fhirType == null)
             {
@@ -185,7 +139,7 @@ namespace Spark.Engine.Core
             return result;
         }
 
-        internal FhirPropertyInfo CreateFhirPropertyInfo(PropertyInfo prop)
+        private FhirPropertyInfo CreateFhirPropertyInfo(PropertyInfo prop)
         {
             var result = new FhirPropertyInfo
             {
@@ -208,14 +162,16 @@ namespace Spark.Engine.Core
             return result;
         }
 
-        private void ExtractReferenceTypes(PropertyInfo prop, FhirPropertyInfo target)
+        private void ExtractReferenceTypes(MemberInfo prop, FhirPropertyInfo target)
         {
             var attReferenceAttribute = prop.GetCustomAttribute<ReferencesAttribute>(false);
-            if (attReferenceAttribute != null)
+            if (attReferenceAttribute == null)
             {
-                target.IsReference = true;
-                target.AllowedTypes.AddRange(attReferenceAttribute.Resources.Select(r => _fhirModel.GetTypeForResourceName(r)).Where(at => at != null));
+                return;
             }
+
+            target.IsReference = true;
+            target.AllowedTypes.AddRange(attReferenceAttribute.Resources.Select(r => _fhirModel.GetTypeForResourceName(r)).Where(at => at != null));
         }
 
         private void ExtractDataChoiceTypes(PropertyInfo prop, FhirPropertyInfo target)

@@ -12,8 +12,6 @@ using Spark.Mongo.Store.Extensions;
 namespace Spark.Mongo.Extensions
 {
     using Core;
-    using Search.Infrastructure;
-    using Search.Searcher;
     using Spark.Search.Mongo;
     using Spark.Store.Mongo;
 

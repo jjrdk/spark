@@ -289,7 +289,7 @@
 
             var useIv = (IndexValue)comp.Components.Where(c => (c as IndexValue).Name == "use").FirstOrDefault();
             Assert.NotNull(codeIv); //, "Expected a component 'use'");
-            var useCode = (CompositeValue)useIv.Values.Where(c => (c is CompositeValue)).FirstOrDefault();
+            var useCode = (CompositeValue)useIv.Values.Where(c => c is CompositeValue).FirstOrDefault();
             Assert.NotNull(useCode); //, $"Expected a value of type {nameof(CompositeValue)} in the 'use' component");
             CheckCoding(useCode, "mobile", null, null);
         }

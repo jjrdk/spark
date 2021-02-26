@@ -118,17 +118,9 @@
         /// <returns>The logged <see cref="Exception"/>.</returns>
         internal static FormatException Format(string messageFormat, IPostitionInfo pos, params object[] messageArgs)
         {
-            string message;
-
-            if (pos != null)
-            {
-                message =
-                    $"At line {pos.LineNumber}, pos {pos.LinePosition}: {FormatMessage(messageFormat, messageArgs)}";
-            }
-            else
-            {
-                message = FormatMessage(messageFormat, messageArgs);
-            }
+            var message = pos != null
+                ? $"At line {pos.LineNumber}, pos {pos.LinePosition}: {FormatMessage(messageFormat, messageArgs)}"
+                : FormatMessage(messageFormat, messageArgs);
 
             return new FormatException(message);
         }

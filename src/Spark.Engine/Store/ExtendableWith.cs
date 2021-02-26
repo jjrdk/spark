@@ -21,7 +21,7 @@
         protected TV FindExtension<TV>()
             where TV : T
         {
-            return _extensions.ContainsKey(typeof(TV)) ? (TV) _extensions[typeof(TV)] : default(TV);
+            return _extensions.ContainsKey(typeof(TV)) ? (TV) _extensions[typeof(TV)] : default;
         }
 
         public IEnumerator<T> GetEnumerator()

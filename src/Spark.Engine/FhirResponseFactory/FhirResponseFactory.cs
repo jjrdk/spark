@@ -51,7 +51,8 @@ namespace Spark.Engine.FhirResponseFactory
             {
                 return Respond.NotFound(key);
             }
-            else if (entry.IsDeleted())
+
+            if (entry.IsDeleted())
             {
                 return Respond.Gone(entry);
             }

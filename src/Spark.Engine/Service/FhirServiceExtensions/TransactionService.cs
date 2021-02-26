@@ -83,7 +83,7 @@
                 throw new Exception("Incompatible responses");
             }
 
-            return (response.Key != null && previousResponse.Key == null) || (response.Key == null && previousResponse.Key != null)
+            return response.Key != null && previousResponse.Key == null || response.Key == null && previousResponse.Key != null
                 ? throw new Exception("Incompatible responses")
                 : response;
         }

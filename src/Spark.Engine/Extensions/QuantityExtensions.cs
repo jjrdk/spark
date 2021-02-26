@@ -1,12 +1,12 @@
-﻿using Fhir.Metrics;
-using FM = Hl7.Fhir.Model;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using Spark.Engine.Model;
-
-namespace Spark.Engine.Extensions
+﻿namespace Spark.Engine.Extensions
 {
+    using Fhir.Metrics;
+    using FM = Hl7.Fhir.Model;
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using Spark.Engine.Model;
+
     using Search.ValueExpressionTypes;
 
     public static class QuantityExtensions
@@ -16,7 +16,7 @@ namespace Spark.Engine.Extensions
 
         public static Quantity ToUnitsOfMeasureQuantity(this FM.Quantity input)
         {
-            var metric = (input.Code != null) ? System.Metric(input.Code) : new Metric(new List<Metric.Axis>());
+            var metric = input.Code != null ? System.Metric(input.Code) : new Metric(new List<Metric.Axis>());
             Exponential value = input.Value ?? 1; //todo: is this assumption correct?
             return new Quantity(value, metric);
         }
@@ -37,11 +37,13 @@ namespace Spark.Engine.Extensions
             quantity = quantity.Canonical();
             var searchable = quantity.LeftSearchableString();
 
-            var values = new List<ValueExpression>();
-            values.Add(new IndexValue("system", new StringValue(UcumUriString)));
-            values.Add(new IndexValue("value", new NumberValue(quantity.Value.ToDecimal())));
-            values.Add(new IndexValue("decimals", new StringValue(searchable)));
-            values.Add(new IndexValue("unit", new StringValue(quantity.Metric.ToString())));
+            var values = new List<ValueExpression>
+            {
+                new IndexValue("system", new StringValue(UcumUriString)),
+                new IndexValue("value", new NumberValue(quantity.Value.ToDecimal())),
+                new IndexValue("decimals", new StringValue(searchable)),
+                new IndexValue("unit", new StringValue(quantity.Metric.ToString()))
+            };
 
             return new CompositeValue(values);
         }
@@ -74,15 +76,13 @@ namespace Spark.Engine.Extensions
                 var q = quantity.ToUnitsOfMeasureQuantity();
                 return q.ToExpression();
             }
-            else
-            {
-                return quantity.NonUcumIndexedExpression();
-            }
+
+            return quantity.NonUcumIndexedExpression();
         }
 
         public static bool IsUcum(this FM.Quantity quantity)
         {
-            return quantity.System == null ? false : new Uri(UcumUriString).IsBaseOf(new Uri(quantity.System));
+            return quantity.System != null && new Uri(UcumUriString).IsBaseOf(new Uri(quantity.System));
         }
 
         public static Quantity Canonical(this Quantity input)
@@ -101,26 +101,6 @@ namespace Spark.Engine.Extensions
             }
 
             return output;
-        }
-
-        public static FM.Quantity Canonical(this FM.Quantity input)
-        {
-            if (IsUcum(input))
-            {
-                var quantity = input.ToUnitsOfMeasureQuantity();
-                quantity = quantity.Canonical();
-                return quantity.ToFhirModelQuantity();
-            }
-            else
-            {
-                return input;
-            }
-        }
-
-        public static string ValueAsSearchableString(this FM.Quantity quantity)
-        {
-            var q = quantity.ToUnitsOfMeasureQuantity();
-            return q.LeftSearchableString();
         }
 
         public static string SearchableString(this Quantity quantity)

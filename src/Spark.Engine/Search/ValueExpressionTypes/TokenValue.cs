@@ -13,11 +13,11 @@ namespace Spark.Engine.Search.ValueExpressionTypes
 
     public class TokenValue : ValueExpression
     {
-        public string Namespace { get; private set; }
+        public string Namespace { get; }
 
-        public string Value { get; private set; }
+        public string Value { get; }
 
-        public bool AnyNamespace { get; private set; }
+        public bool AnyNamespace { get; }
 
         public TokenValue(string value, bool matchAnyNamespace)
         {
@@ -40,10 +40,8 @@ namespace Spark.Engine.Search.ValueExpressionTypes
                 return StringValue.EscapeString(ns) + "|" +
                                     StringValue.EscapeString(Value);
             }
-            else
-            {
-                return StringValue.EscapeString(Value);
-            }
+
+            return StringValue.EscapeString(Value);
         }
 
         public static TokenValue Parse(string text)
@@ -75,10 +73,8 @@ namespace Spark.Engine.Search.ValueExpressionTypes
 
                 return pair0 == string.Empty ? new TokenValue(pair1, matchAnyNamespace: false ) : new TokenValue(pair1, pair0);
             }
-            else
-            {
-                return new TokenValue(pair0, matchAnyNamespace: true);
-            }            
+
+            return new TokenValue(pair0, matchAnyNamespace: true);
         }     
     }
 

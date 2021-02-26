@@ -3,7 +3,7 @@
     public static class IndexFieldNames
     {
         public const string
-            // Internally stored search fields 
+            // Internally stored search fields
             ID = "internal_id",
             JUSTID = "internal_justid",
             SELFLINK = "internal_selflink",

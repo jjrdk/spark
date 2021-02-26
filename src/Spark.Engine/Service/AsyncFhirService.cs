@@ -57,7 +57,7 @@
         {
             var searchStore = GetFeature<ISearchService>();
             var transactionService = GetFeature<ITransactionService>();
-            var operation = await ResourceManipulationOperationFactory.CreatePost(resource, key, searchStore, parameters).ConfigureAwait(false);
+            var operation = await resource.CreatePost(key, searchStore, parameters).ConfigureAwait(false);
             return await transactionService.HandleTransaction(operation, this).ConfigureAwait(false);
         }
 
@@ -65,7 +65,7 @@
         {
             var searchStore = GetFeature<ISearchService>();
             var transactionService = GetFeature<ITransactionService>();
-            var deleteOperation = await ResourceManipulationOperationFactory.CreateDelete(key, searchStore, SearchParams.FromUriParamList(parameters)).ConfigureAwait(false);
+            var deleteOperation = await key.CreateDelete(searchStore, SearchParams.FromUriParamList(parameters)).ConfigureAwait(false);
             return await transactionService.HandleTransaction(deleteOperation, this)
                 .ConfigureAwait(false) ?? Respond.WithCode(HttpStatusCode.NotFound);
         }
@@ -77,7 +77,7 @@
 
             // FIXME: if update receives a key with no version how do we handle concurrency?
 
-            var operation = await ResourceManipulationOperationFactory.CreatePut(resource, key, searchStore, parameters).ConfigureAwait(false);
+            var operation = await resource.CreatePut(key, searchStore, parameters).ConfigureAwait(false);
             return await transactionService.HandleTransaction(operation, this).ConfigureAwait(false);
         }
 

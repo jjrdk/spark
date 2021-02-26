@@ -8,20 +8,14 @@
     {
         public static IEnumerable<Meta> ExtractMeta(this Parameters parameters)
         {
-            foreach(var parameter in parameters.Parameter.Where(p => p.Name == "meta"))
+            foreach (var parameter in parameters.Parameter.Where(p => p.Name == "meta"))
             {
-                var meta = (parameter.Value as Meta);
-                if (meta != null)
+                if (parameter.Value is Meta meta)
                 {
                     yield return meta;
                 }
 
             }
-        }
-
-        public static IEnumerable<Coding> ExtractTags(this Parameters parameters)
-        {
-            return parameters.ExtractMeta().SelectMany(m => m.Tag);
         }
     }
 }

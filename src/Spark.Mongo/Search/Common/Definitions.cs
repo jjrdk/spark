@@ -26,7 +26,7 @@ namespace Spark.Mongo.Search.Common
         }
         public void Replace(Definition definition)
         {
-            _definitions.RemoveAll(d => (d.Resource == definition.Resource) && (d.ParamName == definition.ParamName));
+            _definitions.RemoveAll(d => d.Resource == definition.Resource && d.ParamName == definition.ParamName);
             _definitions.Add(definition);
             // for manual correction
         }

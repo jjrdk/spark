@@ -11,7 +11,6 @@ namespace Spark.Engine.Service
     using System;
     using System.Collections.Generic;
     using System.Xml.Linq;
-    using Auxiliary;
     using Core;
     using Engine;
     using Extensions;

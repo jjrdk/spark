@@ -30,7 +30,7 @@ namespace Spark.Engine.Core
 
         private void LoadSearchParameters(IEnumerable<SearchParamDefinition> searchParameters)
         {
-            _searchParameters = searchParameters.Select(sp => CreateSearchParameterFromSearchParamDefinition(sp)).ToList();
+            SearchParameters = searchParameters.Select(CreateSearchParameterFromSearchParamDefinition).ToList();
             LoadGenericSearchParameters();
         }
 
@@ -44,7 +44,7 @@ namespace Spark.Engine.Core
                     Name = "_id",
                     Type = SearchParamType.String,
                     Expression = "Resource.id",
-                    Path = new string[] {"Resource.id"}
+                    Path = new[] {"Resource.id"}
                 },
                 new SearchParamDefinition
                 {
@@ -52,7 +52,7 @@ namespace Spark.Engine.Core
                     Name = "_lastUpdated",
                     Type = SearchParamType.Date,
                     Expression = "Resource.meta.lastUpdated",
-                    Path = new string[] {"Resource.meta.lastUpdated"}
+                    Path = new[] {"Resource.meta.lastUpdated"}
                 },
                 new SearchParamDefinition
                 {
@@ -60,7 +60,7 @@ namespace Spark.Engine.Core
                     Name = "_profile",
                     Type = SearchParamType.Uri,
                     Expression = "Resource.meta.profile",
-                    Path = new string[] {"Resource.meta.profile"}
+                    Path = new[] {"Resource.meta.profile"}
                 },
                 new SearchParamDefinition
                 {
@@ -68,7 +68,7 @@ namespace Spark.Engine.Core
                     Name = "_security",
                     Type = SearchParamType.Token,
                     Expression = "Resource.meta.security",
-                    Path = new string[] {"Resource.meta.security"}
+                    Path = new[] {"Resource.meta.security"}
                 },
                 new SearchParamDefinition
                 {
@@ -76,7 +76,7 @@ namespace Spark.Engine.Core
                     Name = "_tag",
                     Type = SearchParamType.Token,
                     Expression = "Resource.meta.tag",
-                    Path = new string[] {"Resource.meta.tag"}
+                    Path = new[] {"Resource.meta.tag"}
                 }
             };
 
@@ -93,7 +93,7 @@ namespace Spark.Engine.Core
 
             var genericSearchParameters = genericSearchParamDefinitions.Select(spd => CreateSearchParameterFromSearchParamDefinition(spd));
 
-            _searchParameters.AddRange(genericSearchParameters.Except(_searchParameters));
+            SearchParameters.AddRange(genericSearchParameters.Except(SearchParameters));
             //We have no control over the incoming list of searchParameters (in the constructor), so these generic parameters may or may not be in there.
             //So we apply the Except operation to make sure these parameters are not added twice.
         }
@@ -124,8 +124,6 @@ namespace Spark.Engine.Core
         //TODO: this should be removed after IndexServiceTests are changed to used mocking instead of this for overriding the context (CCR).
         private readonly Dictionary<Type, string> _csTypeToFhirTypeName;
 
-        private List<SearchParameter> _searchParameters;
-
         private class ComparableSearchParameter : SearchParameter, IEquatable<ComparableSearchParameter>
         {
             public bool Equals(ComparableSearchParameter other)
@@ -150,7 +148,7 @@ namespace Spark.Engine.Core
 
             public override int GetHashCode()
             {
-                var hashCode = (Name != null ? Name.GetHashCode() : 0);
+                var hashCode = Name != null ? Name.GetHashCode() : 0;
                 hashCode = (hashCode * 397) ^ (Code != null ? Code.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (Base != null ? Base.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (Type != null ? Type.GetHashCode() : 0);
@@ -160,7 +158,7 @@ namespace Spark.Engine.Core
             }
         }
 
-        public List<SearchParameter> SearchParameters => _searchParameters;
+        public List<SearchParameter> SearchParameters { get; private set; }
 
         public string GetResourceNameForType(Type type)
         {

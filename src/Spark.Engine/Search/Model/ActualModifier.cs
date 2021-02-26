@@ -63,7 +63,7 @@
         private bool? TryParseMissing(string rawModifier)
         {
             var missing = _mapping.FirstOrDefault(m => m.Value == Modifier.MISSING).Key;
-            var parts = rawModifier.Split(new string[] { MISSING_SEPARATOR }, StringSplitOptions.None);
+            var parts = rawModifier.Split(new[] { MISSING_SEPARATOR }, StringSplitOptions.None);
             if (parts[0].Equals(missing, StringComparison.InvariantCultureIgnoreCase))
             {
                 if (parts.Length > 1)
@@ -72,12 +72,10 @@
                     {
                         return true;
                     }
-                    else
-                    {
-                        return parts[1].Equals(MISSINGFALSE, StringComparison.InvariantCultureIgnoreCase)
-                            ? (bool?)false
-                            : throw Error.Argument("rawModifier", "For the :missing modifier, only values '{0}' and '{1}' are allowed", MISSINGTRUE, MISSINGFALSE);
-                    }
+
+                    return parts[1].Equals(MISSINGFALSE, StringComparison.InvariantCultureIgnoreCase)
+                        ? (bool?)false
+                        : throw Error.Argument("rawModifier", "For the :missing modifier, only values '{0}' and '{1}' are allowed", MISSINGTRUE, MISSINGFALSE);
                 }
                 return true;
             }

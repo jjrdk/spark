@@ -9,10 +9,8 @@
                 //value = Regex.Replace(value, "/(?=[^@])", "/@"); // force include @ after "/", so "patient/10" becomes "patient/@10"
                 return value.Trim();
             }
-            else
-            {
-                return null;
-            }
+
+            return null;
         }
         public override string GroomElement(string value)
         {

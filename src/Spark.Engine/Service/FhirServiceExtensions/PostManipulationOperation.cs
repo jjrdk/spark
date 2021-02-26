@@ -1,13 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using Hl7.Fhir.Model;
-using Hl7.Fhir.Rest;
-using Spark.Engine.Core;
-
-namespace Spark.Engine.Service.FhirServiceExtensions
+﻿namespace Spark.Engine.Service.FhirServiceExtensions
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Net;
+    using Hl7.Fhir.Model;
+    using Hl7.Fhir.Rest;
+    using Spark.Engine.Core;
+
     public static partial class ResourceManipulationOperationFactory
     {
         private class PostManipulationOperation : ResourceManipulationOperation

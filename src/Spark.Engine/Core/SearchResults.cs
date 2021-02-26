@@ -29,15 +29,14 @@ namespace Spark.Engine.Core
         {
             UsedCriteria = new List<Criterium>();
             MatchCount = 0;
-            _outcome = new OperationOutcome
-            {
-                Issue = new List<OperationOutcome.IssueComponent>()
-            };
+            _outcome = new OperationOutcome {Issue = new List<OperationOutcome.IssueComponent>()};
         }
 
-        public void AddIssue(string errorMessage, OperationOutcome.IssueSeverity severity = OperationOutcome.IssueSeverity.Error)
+        public void AddIssue(
+            string errorMessage,
+            OperationOutcome.IssueSeverity severity = OperationOutcome.IssueSeverity.Error)
         {
-            var newIssue = new OperationOutcome.IssueComponent() { Diagnostics = errorMessage, Severity = severity };
+            var newIssue = new OperationOutcome.IssueComponent() {Diagnostics = errorMessage, Severity = severity};
             _outcome.Issue.Add(newIssue);
         }
 
@@ -60,36 +59,4 @@ namespace Spark.Engine.Core
             }
         }
     }
-
-    //public static class UriListExtentions
-    //{
-    //public static bool SameAs(this ResourceIdentity a, ResourceIdentity b)
-    //{
-    //    if (a.ResourceType == b.ResourceType && a.Id == b.Id)
-    //    {
-    //        if (a.VersionId == b.VersionId || a.VersionId == null || b.VersionId == null)
-    //            return true;
-    //    }
-    //    return false;
-    //}
-    //public static bool Has(this SearchResults list, Uri uri)
-    //{
-    //    foreach (Uri item in list)
-    //    {
-    //        //if (item.ToString() == uri.ToString())
-    //        ResourceIdentity a = new ResourceIdentity(item);
-    //        ResourceIdentity b = new ResourceIdentity(uri);
-    //        if (a.SameAs(b))
-    //            return true;
-
-    //    }
-    //    return false;
-    //}
-    //public static bool Has(this SearchResults list, string s)
-    //{
-    //    //var uri = new Uri(s, UriKind.Relative);
-    //    //var uri = new Uri(s, UriKind.RelativeOrAbsolute);
-    //    return list.Contains(s);
-    //}
-    //}
 }

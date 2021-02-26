@@ -1,11 +1,10 @@
-﻿using Hl7.Fhir.Introspection;
-using Hl7.Fhir.Model;
-using System;
-using System.Linq;
-using System.Reflection;
-
-namespace Spark.Engine.Utility
+﻿namespace Spark.Engine.Utility
 {
+    using Hl7.Fhir.Introspection;
+    using System;
+    using System.Linq;
+    using System.Reflection;
+
     internal static class FhirPathUtil
     {
         internal static string ConvertToXPathExpression(string fhirPathExpression)
@@ -77,23 +76,7 @@ namespace Spark.Engine.Utility
 
             return (elementType, fhirElementName);
         }
-
-        internal static string GetFhirElementForResource<T>(string element)
-            where T : Resource
-        {
-            var mi = typeof(T).GetMember(element).FirstOrDefault();
-            if (mi != null)
-            {
-                var fhirElement = mi.GetCustomAttribute<FhirElementAttribute>();
-                if (fhirElement != null)
-                {
-                    return fhirElement.Name;
-                }
-            }
-
-            return element;
-        }
-
+        
         internal static (string, string) GetElementSeparetedFromIndexer(string element)
         {
             var index = element.LastIndexOf("[");

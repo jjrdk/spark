@@ -11,11 +11,15 @@
 
     public static partial class ResourceManipulationOperationFactory
     {
-        private static readonly Dictionary<Bundle.HTTPVerb, Func<Resource, IKey, ISearchService, SearchParams, Task<ResourceManipulationOperation>>> _builders;
+        private static readonly
+            Dictionary<Bundle.HTTPVerb,
+                Func<Resource, IKey, ISearchService, SearchParams, Task<ResourceManipulationOperation>>> _builders;
 
         static ResourceManipulationOperationFactory()
         {
-            _builders = new Dictionary<Bundle.HTTPVerb, Func<Resource, IKey, ISearchService, SearchParams, Task<ResourceManipulationOperation>>>();
+            _builders =
+                new Dictionary<Bundle.HTTPVerb, Func<Resource, IKey, ISearchService, SearchParams,
+                    Task<ResourceManipulationOperation>>>();
             _builders.Add(Bundle.HTTPVerb.POST, CreatePost);
             _builders.Add(Bundle.HTTPVerb.PUT, CreatePut);
             _builders.Add(Bundle.HTTPVerb.DELETE, CreateDelete);
@@ -34,7 +38,10 @@
                 command);
         }
 
-        private static async Task<SearchResults> GetSearchResultAsync(IKey key, ISearchService searchService = null, SearchParams command = null)
+        private static async Task<SearchResults> GetSearchResultAsync(
+            IKey key,
+            ISearchService searchService = null,
+            SearchParams command = null)
         {
             if (command == null || command.Parameters.Count == 0)
             {
@@ -47,7 +54,7 @@
         }
 
         public static async Task<ResourceManipulationOperation> CreatePut(
-            Resource resource,
+            this Resource resource,
             IKey key,
             ISearchService service = null,
             SearchParams command = null)
@@ -60,7 +67,7 @@
         }
 
         public static async Task<ResourceManipulationOperation> CreateDelete(
-            IKey key,
+            this IKey key,
             ISearchService service = null,
             SearchParams command = null)
         {
@@ -131,6 +138,5 @@
                 .Where(x => x.Length == 2)
                 .Select(x => Tuple.Create(Uri.UnescapeDataString(x[0]), Uri.UnescapeDataString(x[1])));
         }
-
     }
 }

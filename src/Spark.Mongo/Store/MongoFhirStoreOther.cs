@@ -7,7 +7,6 @@
     using MongoDB.Bson;
     using MongoDB.Driver;
     using Spark.Engine.Core;
-    using Spark.Engine.Interfaces;
     using Spark.Engine.Store.Interfaces;
 
     using Spark.Mongo.Search.Infrastructure;
@@ -49,7 +48,7 @@
         {
             // PERF: efficiency
             var existing = await _mongoFhirStoreOther.Get(key).ConfigureAwait(false);
-            return (existing != null);
+            return existing != null;
         }
 
         //public Interaction Get(string primarykey)

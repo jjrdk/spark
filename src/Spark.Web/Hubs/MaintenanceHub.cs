@@ -22,7 +22,7 @@ namespace Spark.Web.Hubs
     //[Authorize(Policy = "RequireAdministratorRole")]
     public class MaintenanceHub : Hub
     {
-        private List<Resource> _resources = null;
+        private List<Resource> _resources;
 
         private readonly IAsyncFhirService _fhirService;
         private readonly ILocalhost _localhost;
@@ -69,7 +69,7 @@ namespace Spark.Web.Hubs
                 {
                     if (entry.Resource != null)
                     {
-                        list.Add((Resource)entry.Resource);
+                        list.Add(entry.Resource);
                     }
                 }
             }
@@ -81,7 +81,7 @@ namespace Spark.Web.Hubs
             var msg = new ImportProgressMessage
             {
                 Message = message,
-                Progress = (int)10 + (idx + 1) * 90 / _resourceCount
+                Progress = 10 + (idx + 1) * 90 / _resourceCount
             };
             return msg;
         }

@@ -72,7 +72,7 @@
             }
             else if (typeof(FhirResponse).IsAssignableFrom(type))
             {
-                var response = (value as FhirResponse);
+                var response = value as FhirResponse;
                 if (response.HasBody)
                 {
                     _serializer.Serialize(response.Resource, writer, summary);

@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Spark.Engine.Core;
-
-namespace Spark.Engine.Service.FhirServiceExtensions
+﻿namespace Spark.Engine.Service.FhirServiceExtensions
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using Spark.Engine.Core;
+
     public class SnapshotPaginationCalculator : ISnapshotPaginationCalculator
     {
         public const int DEFAULT_PAGE_SIZE = 20;
@@ -28,7 +28,7 @@ namespace Spark.Engine.Service.FhirServiceExtensions
             }
 
             var numberOfPages = snapshot.Count/countParam;
-            var lastPageIndex = (snapshot.Count%countParam == 0) ? numberOfPages - 1 : numberOfPages;
+            var lastPageIndex = snapshot.Count%countParam == 0 ? numberOfPages - 1 : numberOfPages;
             return lastPageIndex*countParam;
         }
 
@@ -36,7 +36,7 @@ namespace Spark.Engine.Service.FhirServiceExtensions
         {
             var countParam = snapshot.CountParam ?? DEFAULT_PAGE_SIZE;
 
-            return ((start ?? 0) + countParam) >= snapshot.Count ? null : (int?)((start ?? 0) + countParam);
+            return (start ?? 0) + countParam >= snapshot.Count ? null : (int?)((start ?? 0) + countParam);
         }
 
         public int? GetIndexForPreviousPage(Snapshot snapshot, int? start = null)

@@ -25,12 +25,7 @@ namespace Spark.Engine.Search.ValueExpressionTypes
 
         public string ParamName { get; set; }
 
-        private Operator _type = Operator.EQ;
-        public Operator Operator
-        {
-            get => _type;
-            set => _type = value;
-        }
+        public Operator Operator { get; set; } = Operator.EQ;
 
         public string Modifier { get; set; }
 
@@ -65,10 +60,10 @@ namespace Spark.Engine.Search.ValueExpressionTypes
             }
 
             // Split chained parts (if any) into name + modifier tuples
-            var chainPath = key.Split(new char[] { SearchParams.SEARCH_CHAINSEPARATOR }, StringSplitOptions.RemoveEmptyEntries)
-                        .Select(s => PathToKeyModifTuple(s));
+            var chainPath = key.Split(new[] {SearchParams.SEARCH_CHAINSEPARATOR}, StringSplitOptions.RemoveEmptyEntries)
+                .Select(PathToKeyModifTuple);
 
-            return chainPath.Count() == 0
+            return !chainPath.Any()
                 ? throw Error.Argument("key", "Supplied an empty search parameter name or chain")
                 : FromPathTuples(chainPath, value);
         }
@@ -98,8 +93,7 @@ namespace Spark.Engine.Search.ValueExpressionTypes
             {
                 result += SearchParams.SEARCH_MODIFIERSEPARATOR + MISSINGMODIF;
             }
-            else
-                if (!string.IsNullOrEmpty(Modifier))
+            else if (!string.IsNullOrEmpty(Modifier))
             {
                 result += SearchParams.SEARCH_MODIFIERSEPARATOR + Modifier;
             }
@@ -108,12 +102,12 @@ namespace Spark.Engine.Search.ValueExpressionTypes
             {
                 return Operand is Criterium
                     ? result + SearchParams.SEARCH_CHAINSEPARATOR + Operand.ToString()
-                    : result + SearchParams.SEARCH_CHAINSEPARATOR + " ** INVALID CHAIN OPERATION ** Chain operation must have a Criterium as operand";
+                    : result
+                      + SearchParams.SEARCH_CHAINSEPARATOR
+                      + " ** INVALID CHAIN OPERATION ** Chain operation must have a Criterium as operand";
             }
-            else
-            {
-                return result + "=" + BuildValue();
-            }
+
+            return result + "=" + BuildValue();
         }
 
         private static Tuple<string, string> PathToKeyModifTuple(string pathPart)
@@ -157,7 +151,9 @@ namespace Spark.Engine.Search.ValueExpressionTypes
                 }
                 else
                 {
-                    throw Error.Argument("value", "For the :missing modifier, only values 'true' and 'false' are allowed");
+                    throw Error.Argument(
+                        "value",
+                        "For the :missing modifier, only values 'true' and 'false' are allowed");
                 }
 
                 operand = null;
@@ -177,6 +173,7 @@ namespace Spark.Engine.Search.ValueExpressionTypes
                 {
                     throw new FormatException("Value is empty");
                 }
+
                 // Parse the value. If there's > 1, we are using the IN operator, unless
                 // the input already specifies another comparison, which would be illegal
                 var values = ChoiceValue.Parse(value);
@@ -185,7 +182,8 @@ namespace Spark.Engine.Search.ValueExpressionTypes
                 {
                     if (type != Operator.EQ)
                     {
-                        throw new InvalidOperationException("Multiple values cannot be used in combination with a comparison operator");
+                        throw new InvalidOperationException(
+                            "Multiple values cannot be used in combination with a comparison operator");
                     }
 
                     type = Operator.IN;
@@ -199,13 +197,7 @@ namespace Spark.Engine.Search.ValueExpressionTypes
             }
 
             // Construct the new criterium based on the parsed values
-            return new Criterium()
-            {
-                ParamName = name,
-                Operator = type,
-                Modifier = modifier,
-                Operand = operand
-            };
+            return new Criterium() {ParamName = name, Operator = type, Modifier = modifier, Operand = operand};
         }
 
 
@@ -234,7 +226,9 @@ namespace Spark.Engine.Search.ValueExpressionTypes
 
             var value = Operand.ToString();
 
-            return Operator == Operator.EQ ? value : _operatorMapping.FirstOrDefault(t => t.Item2 == Operator).Item1 + value;
+            return Operator == Operator.EQ
+                ? value
+                : _operatorMapping.FirstOrDefault(t => t.Item2 == Operator).Item1 + value;
         }
 
         private static Tuple<Operator, string> FindComparator(string value)
@@ -249,7 +243,7 @@ namespace Spark.Engine.Search.ValueExpressionTypes
             var result = new Criterium
             {
                 Modifier = Modifier,
-                Operand = (Operand is Criterium) ? (Operand as Criterium).Clone() : Operand,
+                Operand = Operand is Criterium ? (Operand as Criterium).Clone() : Operand,
                 Operator = Operator,
                 ParamName = ParamName
             };
@@ -263,26 +257,28 @@ namespace Spark.Engine.Search.ValueExpressionTypes
         }
 
         //CK: Order of these mappings is important for string matching. From more specific to less specific.
-        private static readonly List<Tuple<string, Operator>> _operatorMapping = new List<Tuple<string, Operator>> {
-                new Tuple<string, Operator>( "ne", Operator.NOT_EQUAL)
-                , new Tuple<string, Operator>( "ge", Operator.GTE)
-                , new Tuple<string, Operator>( "le", Operator.LTE)
-                , new Tuple<string, Operator>( "gt", Operator.GT)
-                , new Tuple<string, Operator>( "lt", Operator.LT)
-                , new Tuple<string, Operator>( "sa", Operator.STARTS_AFTER)
-                , new Tuple<string, Operator>( "eb", Operator.ENDS_BEFORE)
-                , new Tuple<string, Operator>( "ap", Operator.APPROX)
-                , new Tuple<string, Operator>( "eq", Operator.EQ)
-                
-                // This operator is not allowed on the REST interface: IN(a,b,c) should be formatted as =a,b,c. It is added to allow reporting on criteria.
-                , new Tuple<string, Operator>( "IN", Operator.IN)
-                , new Tuple<string, Operator>( "", Operator.EQ)
-                //CK: Old DSTU1 mapping, will be obsolete in the near future.
-                //, new Tuple<string, Operator>( ">=", Operator.GTE)
-                //, new Tuple<string, Operator>( "<=", Operator.LTE)
-                //, new Tuple<string, Operator>( ">", Operator.GT)
-                //, new Tuple<string, Operator>( "<", Operator.LT)
-                //, new Tuple<string, Operator>( "~", Operator.APPROX)
-            };
+        private static readonly List<Tuple<string, Operator>> _operatorMapping = new List<Tuple<string, Operator>>
+        {
+            new Tuple<string, Operator>("ne", Operator.NOT_EQUAL),
+            new Tuple<string, Operator>("ge", Operator.GTE),
+            new Tuple<string, Operator>("le", Operator.LTE),
+            new Tuple<string, Operator>("gt", Operator.GT),
+            new Tuple<string, Operator>("lt", Operator.LT),
+            new Tuple<string, Operator>("sa", Operator.STARTS_AFTER),
+            new Tuple<string, Operator>("eb", Operator.ENDS_BEFORE),
+            new Tuple<string, Operator>("ap", Operator.APPROX),
+            new Tuple<string, Operator>("eq", Operator.EQ)
+
+            // This operator is not allowed on the REST interface: IN(a,b,c) should be formatted as =a,b,c. It is added to allow reporting on criteria.
+            ,
+            new Tuple<string, Operator>("IN", Operator.IN),
+            new Tuple<string, Operator>("", Operator.EQ)
+            //CK: Old DSTU1 mapping, will be obsolete in the near future.
+            //, new Tuple<string, Operator>( ">=", Operator.GTE)
+            //, new Tuple<string, Operator>( "<=", Operator.LTE)
+            //, new Tuple<string, Operator>( ">", Operator.GT)
+            //, new Tuple<string, Operator>( "<", Operator.LT)
+            //, new Tuple<string, Operator>( "~", Operator.APPROX)
+        };
     }
 }

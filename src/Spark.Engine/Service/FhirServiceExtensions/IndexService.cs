@@ -153,7 +153,7 @@ namespace Spark.Engine.Service.FhirServiceExtensions
                     Auxiliary.ResourceVisitor.VisitByType(
                         domainResource,
                          (el, path) => {
-                             var currentRefence = (el as ResourceReference);
+                             var currentRefence = el as ResourceReference;
                              if (!string.IsNullOrEmpty(currentRefence.Reference))
                              {
                                  referenceMap.TryGetValue(currentRefence.Reference, out var replacementId);
@@ -176,7 +176,7 @@ namespace Spark.Engine.Service.FhirServiceExtensions
                 .Select(c =>
                 {
                     IKey containedKey = c.ExtractKey();
-                    return IndexResourceRecursively((c as DomainResource), containedKey, "contained");
+                    return IndexResourceRecursively(c as DomainResource, containedKey, "contained");
                 })
             );
         }

@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -57,11 +55,9 @@ namespace Spark.Web.Controllers
 
                 return new ActionResult<FhirResponse>(await _fhirService.Update(key, resource).ConfigureAwait(false));
             }
-            else
-            {
-                return new ActionResult<FhirResponse>(await _fhirService.ConditionalUpdate(key, resource,
-                    SearchParams.FromUriParamList(Request.TupledParameters())).ConfigureAwait(false));
-            }
+
+            return new ActionResult<FhirResponse>(await _fhirService.ConditionalUpdate(key, resource,
+                SearchParams.FromUriParamList(Request.TupledParameters())).ConfigureAwait(false));
         }
 
         [HttpPost("{type}")]

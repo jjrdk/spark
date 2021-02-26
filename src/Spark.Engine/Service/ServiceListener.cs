@@ -7,7 +7,7 @@
     using Spark.Engine.Core;
     using Spark.Engine.Service;
 
-    public class ServiceListener : IServiceListener, ICompositeServiceListener
+    public class ServiceListener : ICompositeServiceListener
     {
         private readonly ILocalhost _localhost;
         readonly List<IServiceListener> _listeners;

@@ -8,15 +8,11 @@
 namespace Spark.Engine.Extensions
 {
     using Hl7.Fhir.Model;
-    using Hl7.Fhir.Rest;
-    using Hl7.Fhir.Serialization;
     using System;
     using System.Collections.Generic;
     using System.Net;
-    using System.Net.Http;
     using Spark.Engine.Core;
     using System.Diagnostics;
-
 
     public static class OperationOutcomeExtensions
     {
@@ -46,7 +42,7 @@ namespace Spark.Engine.Extensions
 
         internal static OperationOutcome.IssueSeverity IssueSeverityOf(HttpStatusCode code)
         {
-            var range = ((int)code / 100);
+            var range = (int)code / 100;
             return range switch
             {
                 1 => OperationOutcome.IssueSeverity.Information,
@@ -58,17 +54,9 @@ namespace Spark.Engine.Extensions
             };
         }
 
-        private static void SetContentHeaders(HttpResponseMessage response, ResourceFormat format)
-        {
-            response.Content.Headers.ContentType = FhirMediaType.GetMediaTypeHeaderValue(typeof(Resource), format);
-        }
-
         public static OperationOutcome Init(this OperationOutcome outcome)
         {
-            if (outcome.Issue == null)
-            {
-                outcome.Issue = new List<OperationOutcome.IssueComponent>();
-            }
+            outcome.Issue ??= new List<OperationOutcome.IssueComponent>();
             return outcome;
         }
 
@@ -76,14 +64,7 @@ namespace Spark.Engine.Extensions
         {
             string message;
 
-            if (exception is SparkException)
-            {
-                message = exception.Message;
-            }
-            else
-            {
-                message = $"{exception.GetType().Name}: {exception.Message}";
-            }
+            message = exception is SparkException ? exception.Message : $"{exception.GetType().Name}: {exception.Message}";
 
             outcome.AddError(message);
 
@@ -118,16 +99,6 @@ namespace Spark.Engine.Extensions
             return outcome.AddIssue(OperationOutcome.IssueSeverity.Error, message);
         }
 
-        public static OperationOutcome AddMessage(this OperationOutcome outcome, string message)
-        {
-            return outcome.AddIssue(OperationOutcome.IssueSeverity.Information, message);
-        }
-
-        public static OperationOutcome AddMessage(this OperationOutcome outcome, HttpStatusCode code, string message)
-        {
-            return outcome.AddIssue(IssueSeverityOf(code), message);
-        }
-
         private static OperationOutcome AddIssue(this OperationOutcome outcome, OperationOutcome.IssueSeverity severity, string message)
         {
             if (outcome.Issue == null)
@@ -142,29 +113,6 @@ namespace Spark.Engine.Extensions
             };
             outcome.Issue.Add(item);
             return outcome;
-        }
-
-        public static HttpResponseMessage ToHttpResponseMessage(this OperationOutcome outcome, ResourceFormat target)
-        {
-            // TODO: Remove this method is seems to not be in use.
-            byte[] data = null;
-            if (target == ResourceFormat.Xml)
-            {
-                var serializer = new FhirXmlSerializer();
-                data = serializer.SerializeToBytes(outcome);
-            }
-            else if (target == ResourceFormat.Json)
-            {
-                var serializer = new FhirJsonSerializer();
-                data = serializer.SerializeToBytes(outcome);
-            }
-            var response = new HttpResponseMessage
-            {
-                Content = new ByteArrayContent(data)
-            };
-            SetContentHeaders(response, target);
-
-            return response;
         }
     }
 }

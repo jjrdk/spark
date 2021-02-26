@@ -1,7 +1,4 @@
-﻿//using Hl7.Fhir.Model;
-//using Spark.Engine.Core;
-
-namespace Spark.Engine.Service.FhirServiceExtensions
+﻿namespace Spark.Engine.Service.FhirServiceExtensions
 {
     using Core;
     using Hl7.Fhir.Model;

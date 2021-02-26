@@ -1,6 +1,5 @@
 ﻿using Hl7.Fhir.Model;
 using Spark.Engine.Extensions;
-using System.Linq;
 
 namespace Spark.Engine.Test.Extensions
 {
@@ -14,7 +13,7 @@ namespace Spark.Engine.Test.Extensions
         {
             var sut = new SearchParameter { Base = new List<ResourceType?> { ResourceType.Appointment } };
 
-            sut.SetPropertyPath(new string[] { "Appointment.participant.actor" });
+            sut.SetPropertyPath(new[] { "Appointment.participant.actor" });
 
             Assert.Equal("//participant/actor", sut.Xpath);
         }
@@ -23,7 +22,7 @@ namespace Spark.Engine.Test.Extensions
         public void TestSetPropertyPathWithMultiplePath()
         {
             var sut = new SearchParameter { Base = new List<ResourceType?> { ResourceType.AuditEvent } };
-            sut.SetPropertyPath(new string[] { "AuditEvent.participant.reference", "AuditEvent.object.reference" });
+            sut.SetPropertyPath(new[] { "AuditEvent.participant.reference", "AuditEvent.object.reference" });
 
             Assert.Equal("//participant/reference | //object/reference", sut.Xpath);
         }
@@ -53,7 +52,7 @@ namespace Spark.Engine.Test.Extensions
         public void TestSetPropertyPathWithPredicate()
         {
             var sut = new SearchParameter { Base = new List<ResourceType?> { ResourceType.Slot } };
-            sut.SetPropertyPath(new string[] { "Slot.extension(url=http://foo.com/myextension).valueReference" });
+            sut.SetPropertyPath(new[] { "Slot.extension(url=http://foo.com/myextension).valueReference" });
 
             Assert.Equal("//extension(url=http://foo.com/myextension)/valueReference", sut.Xpath);
         }

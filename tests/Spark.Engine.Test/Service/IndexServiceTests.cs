@@ -39,7 +39,7 @@
                 Name = "name",
                 Description = new Markdown(@"A portion of either family or given name of the patient"),
                 Type = SearchParamType.String,
-                Path = new string[] { "Patient.name" },
+                Path = new[] { "Patient.name" },
                 Expression = "Patient.name"
             };
             var spMiddleName = new SearchParamDefinition
@@ -47,7 +47,7 @@
                 Resource = "Patient",
                 Name = "middlename",
                 Type = SearchParamType.String,
-                Path = new string[] { "Patient.name.extension.where(url='http://hl7.no/fhir/StructureDefinition/no-basis-middlename')" },
+                Path = new[] { "Patient.name.extension.where(url='http://hl7.no/fhir/StructureDefinition/no-basis-middlename')" },
                 Expression = "Patient.name.extension.where(url='http://hl7.no/fhir/StructureDefinition/no-basis-middlename')"
             };
             var searchParameters = new List<SearchParamDefinition> { spPatientName, spMiddleName };

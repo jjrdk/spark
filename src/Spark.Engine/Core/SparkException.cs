@@ -18,26 +18,17 @@ namespace Spark.Engine.Core
 
     public class SparkException : Exception
     {
-        public HttpStatusCode StatusCode;
+        public HttpStatusCode StatusCode { get; set; }
+
         public OperationOutcome Outcome { get; set; }
 
         public SparkException(HttpStatusCode statuscode, string message = null) : base(message)
         {
             this.StatusCode = statuscode;
         }
-        
+
         public SparkException(HttpStatusCode statuscode, string message, params object[] values)
             : base(string.Format(message, values))
-        {
-            this.StatusCode = statuscode;
-        }
-        
-        public SparkException(string message) : base(message)
-        {
-            this.StatusCode = HttpStatusCode.BadRequest;
-        }
-
-        public SparkException(HttpStatusCode statuscode, string message, Exception inner) : base(message, inner)
         {
             this.StatusCode = statuscode;
         }

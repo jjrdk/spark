@@ -1,9 +1,9 @@
-﻿using System;
-using System.Linq;
-using Spark.Engine.Core;
-
-namespace Spark.Engine.Search
+﻿namespace Spark.Engine.Search
 {
+    using System;
+    using System.Linq;
+    using Spark.Engine.Core;
+
     using Extensions;
     using ValueExpressionTypes;
 

@@ -1,7 +1,7 @@
-﻿using System;
-
-namespace Spark.Engine.Maintenance
+﻿namespace Spark.Engine.Maintenance
 {
+    using System;
+
     internal class MaintenanceLock : IDisposable
     {
         public MaintenanceLockMode Mode { get; private set; }

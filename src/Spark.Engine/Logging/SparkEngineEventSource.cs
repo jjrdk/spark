@@ -1,22 +1,17 @@
-﻿using System.Diagnostics.Tracing;
-using System;
-
-namespace Spark.Engine.Logging
+﻿namespace Spark.Engine.Logging
 {
+    using System.Diagnostics.Tracing;
+    using System;
+
     [EventSource(Name = "Furore-Spark-Engine")]
     public sealed class SparkEngineEventSource : EventSource
     {
-        public class Keywords
+        public static class Keywords
         {
             public const EventKeywords SERVICE_METHOD = (EventKeywords)1;
-            public const EventKeywords INVALID = (EventKeywords)2;
+            //public const EventKeywords INVALID = (EventKeywords)2;
             public const EventKeywords UNSUPPORTED = (EventKeywords)4;
-            public const EventKeywords TRACING = (EventKeywords)8;
-        }
-
-        public class Tasks
-        {
-            public const EventTask SERVICE_METHOD = (EventTask)1;
+            //public const EventKeywords TRACING = (EventKeywords)8;
         }
 
         private static readonly Lazy<SparkEngineEventSource> _instance = new Lazy<SparkEngineEventSource>(() => new SparkEngineEventSource());
@@ -24,13 +19,6 @@ namespace Spark.Engine.Logging
         private SparkEngineEventSource() { }
 
         public static SparkEngineEventSource Log => _instance.Value;
-
-        [Event(1, Message = "Service call: {0}",
-            Level = EventLevel.Verbose, Keywords = Keywords.SERVICE_METHOD)]
-        internal void ServiceMethodCalled(string methodName)
-        {
-            this.WriteEvent(1, methodName);
-        }
 
         [Event(2, Message = "Not supported: {0} in {1}",
          Level = EventLevel.Verbose, Keywords = Keywords.UNSUPPORTED)]

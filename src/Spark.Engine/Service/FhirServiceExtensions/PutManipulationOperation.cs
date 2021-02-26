@@ -1,18 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using Hl7.Fhir.Model;
-using Hl7.Fhir.Rest;
-using Spark.Engine.Core;
-
-namespace Spark.Engine.Service.FhirServiceExtensions
+﻿namespace Spark.Engine.Service.FhirServiceExtensions
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Net;
+    using Hl7.Fhir.Model;
+    using Hl7.Fhir.Rest;
+    using Spark.Engine.Core;
+
     public static partial class ResourceManipulationOperationFactory
     {
         private class PutManipulationOperation : ResourceManipulationOperation
         {
-            public PutManipulationOperation(Resource resource, IKey operationKey, SearchResults searchResults, SearchParams searchCommand = null) 
+            public PutManipulationOperation(Resource resource, IKey operationKey, SearchResults searchResults, SearchParams searchCommand = null)
                 : base(resource, operationKey, searchResults, searchCommand)
             {
             }
@@ -40,7 +40,7 @@ namespace Spark.Engine.Service.FhirServiceExtensions
                     {
                         IKey localKey = Key.ParseOperationPath(localKeyValue);
 
-                        entry = Entry.Put(localKey, Resource); 
+                        entry = Entry.Put(localKey, Resource);
                     }
                     else
                     {
@@ -48,7 +48,7 @@ namespace Spark.Engine.Service.FhirServiceExtensions
                     }
                 }
 
-                entry = entry ?? Entry.Put(OperationKey, Resource);
+                entry ??= Entry.Put(OperationKey, Resource);
                 yield return entry;
             }
         }

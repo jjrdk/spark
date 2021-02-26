@@ -18,15 +18,12 @@ namespace Spark.Engine.Service.FhirServiceExtensions
     /// Test failing: X012_Goal.
     ///
     /// TODO: create PR in the original repo and fix it.
-    /// 
+    ///
     /// </summary>
 
     internal static class ElementNavFhirExtensionsNew
     {
-        public static IEnumerable<Base> SelectNew(
-            this Base input,
-            string expression,
-            FhirEvaluationContext ctx = null)
+        public static IEnumerable<Base> SelectNew(this Base input, string expression, FhirEvaluationContext ctx = null)
         {
             var inputNav = input.ToTypedElement();
             var result = inputNav.Select(expression, ctx ?? FhirEvaluationContext.CreateDefault());
@@ -35,35 +32,33 @@ namespace Spark.Engine.Service.FhirServiceExtensions
 
         public static IEnumerable<Base> ToFhirValues(this IEnumerable<ITypedElement> results)
         {
-            return results.Select(r =>
-            {
-                if (r == null)
+            return results.Select(
+                r =>
                 {
-                    return null;
-                }
-                var fhirValueProvider = r.Annotation<IFhirValueProvider>();
-                if (fhirValueProvider != null)
-                {
-                    return fhirValueProvider.FhirValue;
-                }
-                var obj = r.Value;
-                switch (obj)
-                {
-                    case bool flag:
-                        return new FhirBoolean(flag);
-                    case long num:
-                        return new Integer((int)num);
-                    case decimal num:
-                        return new FhirDecimal(num);
-                    case string s:
-                        return new FhirString(s);
-                    case Hl7.Fhir.ElementModel.Types.Date date:
-                        return new Date(date.ToString());
-                    case Hl7.Fhir.ElementModel.Types.DateTime dateTime:
-                        return new FhirDateTime(dateTime.ToDateTimeOffset(TimeSpan.Zero).ToUniversalTime());
-                }
-                return r.Value as Base;
-            });
+                    if (r == null)
+                    {
+                        return null;
+                    }
+
+                    var fhirValueProvider = r.Annotation<IFhirValueProvider>();
+                    if (fhirValueProvider != null)
+                    {
+                        return fhirValueProvider.FhirValue;
+                    }
+
+                    var obj = r.Value;
+                    return obj switch
+                    {
+                        bool flag => new FhirBoolean(flag),
+                        long num => new Integer((int) num),
+                        decimal num => new FhirDecimal(num),
+                        string s => new FhirString(s),
+                        Hl7.Fhir.ElementModel.Types.Date date => new Date(date.ToString()),
+                        Hl7.Fhir.ElementModel.Types.DateTime dateTime => new FhirDateTime(
+                            dateTime.ToDateTimeOffset(TimeSpan.Zero).ToUniversalTime()),
+                        _ => r.Value as Base
+                    };
+                });
         }
     }
 }

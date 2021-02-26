@@ -30,7 +30,7 @@ namespace Spark.Engine.Extensions
         {
             var identity = new ResourceIdentity(uri);
 
-            var @base = (identity.HasBaseUri) ? identity.BaseUri.ToString() : null;
+            var @base = identity.HasBaseUri ? identity.BaseUri.ToString() : null;
             var key = new Key(@base, identity.ResourceType, identity.Id, identity.VersionId);
             return key;
         }
@@ -169,21 +169,6 @@ namespace Spark.Engine.Extensions
             return key.WithoutBase().ToUriString();
         }
 
-        public static Key CreateFromLocalReference(string reference)
-        {
-            var parts = reference.Split('/');
-            if (parts.Length == 2)
-            {
-                return Key.Create(parts[0], parts[1], parts[3]);
-            }
-            else
-            {
-                return parts.Length == 4
-                    ? Key.Create(parts[0], parts[1], parts[3])
-                    : throw new ArgumentException("Could not create key from local-reference: " + reference);
-            }
-        }
-
         public static Uri ToRelativeUri(this IKey key)
         {
             var path = key.ToOperationPath();
@@ -202,7 +187,6 @@ namespace Spark.Engine.Extensions
             return new Uri(s);
         }
 
-
         /// <summary>
         /// Determines if the Key was constructed from a temporary id. 
         /// </summary>
@@ -210,19 +194,5 @@ namespace Spark.Engine.Extensions
         {
             return key.ResourceId != null ? UriHelper.IsTemporaryUri(key.ResourceId) : false;
         }
-
-        /// <summary>
-        /// Value equality for two IKey's
-        /// </summary>
-        /// <returns>true if all parts of of the keys are the same</returns>
-        public static bool EqualTo(this IKey key, IKey other)
-        {
-            return (key.Base == other.Base)
-                && (key.TypeName == other.TypeName)
-                && (key.ResourceId == other.ResourceId)
-                && (key.VersionId == other.VersionId);
-        }
-
-
     }
 }

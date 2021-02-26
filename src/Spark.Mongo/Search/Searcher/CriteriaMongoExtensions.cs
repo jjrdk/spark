@@ -98,54 +98,52 @@ namespace Spark.Mongo.Search.Searcher
             {
                 throw new NotSupportedException("Chain operators should be handled in MongoSearcher.");
             }
-            else // There's only one operand.
+
+            var parameterName = parameter.Name;
+            if (parameterName == "_id")
             {
-                var parameterName = parameter.Name;
-                if (parameterName == "_id")
-                {
-                    parameterName = "fhir_id"; //See MongoIndexMapper for counterpart.
+                parameterName = "fhir_id"; //See MongoIndexMapper for counterpart.
 
-                    // This search finds the patient resource with the given id (there can only be one resource for a given id).
-                    // Functionally, this is equivalent to a simple read operation
-                    modifier = Modifier.EXACT;
-                }
+                // This search finds the patient resource with the given id (there can only be one resource for a given id).
+                // Functionally, this is equivalent to a simple read operation
+                modifier = Modifier.EXACT;
+            }
 
-                var valueOperand = (ValueExpression)operand;
-                switch (parameter.Type)
-                {
-                    case SearchParamType.Composite:
-                        return CompositeQuery(parameter, op, modifier, valueOperand);
-                    case SearchParamType.Date:
-                        return DateQuery(parameterName, op, modifier, valueOperand);
-                    case SearchParamType.Number:
-                        return NumberQuery(parameter.Name, op, valueOperand);
-                    case SearchParamType.Quantity:
-                        return QuantityQuery(parameterName, op, valueOperand);
-                    case SearchParamType.Reference:
-                        //Chain is handled in MongoSearcher, so here we have the result of a closed criterium: IN [ list of id's ]
-                        if (parameter.Target?.Any() == true && !valueOperand.ToUnescapedString().Contains("/"))
-                        {
-                            // For searching by reference without type specified.
-                            // If reference target type is known, create the exact query like ^(Person|Group)/123$
-                            return Builders<BsonDocument>.Filter.Regex(parameterName,
-                                new BsonRegularExpression(new Regex(
-                                    $"^({string.Join("|", parameter.Target)})/{valueOperand.ToUnescapedString()}$")));
-                        }
-                        else
-                        {
-                            return StringQuery(parameterName, op, Modifier.EXACT, valueOperand);
-                        }
-                    case SearchParamType.String:
-                        return StringQuery(parameterName, op, modifier, valueOperand);
-                    case SearchParamType.Token:
-                        return TokenQuery(parameterName, op, modifier, valueOperand);
-                    case SearchParamType.Uri:
-                        return UriQuery(parameterName, op, modifier, valueOperand);
-                    default:
-                        //return Builders<BsonDocument>.Filter.Null;
-                        throw new NotSupportedException(
-                            $"SearchParamType {parameter.Type} on parameter {parameter.Name} not supported.");
-                }
+            var valueOperand = (ValueExpression)operand;
+            switch (parameter.Type)
+            {
+                case SearchParamType.Composite:
+                    return CompositeQuery(parameter, op, modifier, valueOperand);
+                case SearchParamType.Date:
+                    return DateQuery(parameterName, op, modifier, valueOperand);
+                case SearchParamType.Number:
+                    return NumberQuery(parameter.Name, op, valueOperand);
+                case SearchParamType.Quantity:
+                    return QuantityQuery(parameterName, op, valueOperand);
+                case SearchParamType.Reference:
+                    //Chain is handled in MongoSearcher, so here we have the result of a closed criterium: IN [ list of id's ]
+                    if (parameter.Target?.Any() == true && !valueOperand.ToUnescapedString().Contains("/"))
+                    {
+                        // For searching by reference without type specified.
+                        // If reference target type is known, create the exact query like ^(Person|Group)/123$
+                        return Builders<BsonDocument>.Filter.Regex(parameterName,
+                            new BsonRegularExpression(new Regex(
+                                $"^({string.Join("|", parameter.Target)})/{valueOperand.ToUnescapedString()}$")));
+                    }
+                    else
+                    {
+                        return StringQuery(parameterName, op, Modifier.EXACT, valueOperand);
+                    }
+                case SearchParamType.String:
+                    return StringQuery(parameterName, op, modifier, valueOperand);
+                case SearchParamType.Token:
+                    return TokenQuery(parameterName, op, modifier, valueOperand);
+                case SearchParamType.Uri:
+                    return UriQuery(parameterName, op, modifier, valueOperand);
+                default:
+                    //return Builders<BsonDocument>.Filter.Null;
+                    throw new NotSupportedException(
+                        $"SearchParamType {parameter.Type} on parameter {parameter.Name} not supported.");
             }
         }
 
@@ -487,7 +485,7 @@ namespace Spark.Mongo.Search.Searcher
         {
             if (optor == Operator.IN)
             {
-                var choices = ((ChoiceValue)operand);
+                var choices = (ChoiceValue)operand;
                 var queries = new List<FilterDefinition<BsonDocument>>();
                 foreach (var choice in choices.Choices)
                 {
@@ -495,7 +493,8 @@ namespace Spark.Mongo.Search.Searcher
                 }
                 return Builders<BsonDocument>.Filter.Or(queries);
             }
-            else if (optor == Operator.EQ)
+
+            if (optor == Operator.EQ)
             {
                 var typedOperand = (CompositeValue)operand;
                 var queries = new List<FilterDefinition<BsonDocument>>();
