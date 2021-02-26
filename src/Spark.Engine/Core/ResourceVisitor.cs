@@ -31,7 +31,9 @@ namespace Spark.Engine.Core
         public void VisitByPath(object fhirObject, Action<object> action, string path, string predicate = null)
         {
             if (fhirObject == null)
+            {
                 return;
+            }
 
             //List of items, visit each of them.
             if (TestIfGenericList(fhirObject.GetType()))
@@ -49,13 +51,13 @@ namespace Spark.Engine.Core
                 //See what else is in the path and recursively visit that.
                 else
                 {
-                    var hpt = headPredicateAndTail(path);
+                    var hpt = HeadPredicateAndTail(path);
                     var head = hpt.Item1.TrimStart('@');
                     var headPredicate = hpt.Item2;
                     var tail = hpt.Item3;
 
                     //Path was not empty, so there should be a head. No need for an extra null-check.
-                    var pm = _propIndex.findPropertyInfo(fhirObject.GetType(), head);
+                    var pm = _propIndex.FindPropertyInfo(fhirObject.GetType(), head);
 
                     //Path might denote an unknown property.
                     if (pm != null)
@@ -95,11 +97,11 @@ namespace Spark.Engine.Core
         ///     a(x=y).b.c  => "a"      | "x=y"         | "b.c"
         /// See also ResourceVisitorTests.
         /// </summary>
-        private readonly Regex headTailRegex = new Regex(@"(?([^\.]*\[.*\])(?<head>[^\[]*)\[(?<predicate>.*)\](\.(?<tail>.*))?|(?<head>[^\.]*)(\.(?<tail>.*))?)");
+        private readonly Regex _headTailRegex = new Regex(@"(?([^\.]*\[.*\])(?<head>[^\[]*)\[(?<predicate>.*)\](\.(?<tail>.*))?|(?<head>[^\.]*)(\.(?<tail>.*))?)");
 
-        private Tuple<string, string, string> headPredicateAndTail(string path)
+        private Tuple<string, string, string> HeadPredicateAndTail(string path)
         {
-            var match = headTailRegex.Match(path);
+            var match = _headTailRegex.Match(path);
             var head = match.Groups["head"].Value;
             var predicate = match.Groups["predicate"].Value;
             var tail = match.Groups["tail"].Value;
@@ -107,13 +109,15 @@ namespace Spark.Engine.Core
             return new Tuple<string, string, string>(head, predicate, tail);
         }
 
-        private readonly Regex predicateRegex = new Regex(@"(?<propname>[^=]*)=(?<filterValue>.*)");
+        private readonly Regex _predicateRegex = new Regex(@"(?<propname>[^=]*)=(?<filterValue>.*)");
 
         private bool PredicateIsTrue(string predicate, object fhirObject)
         {
-            var match = predicateRegex.Match(predicate);
+            var match = _predicateRegex.Match(predicate);
             if (match == null || !match.Success)
+            {
                 return false;
+            }
 
             var propertyName = match.Groups["propname"].Value;
             var filterValue = match.Groups["filterValue"].Value.Trim('\'');
@@ -126,9 +130,14 @@ namespace Spark.Engine.Core
                 action: el =>
                 { string actualValue;
                     if (TestIfCodedEnum(el.GetType()))
+                    {
                         actualValue = el.GetType().GetProperty("Value").GetValue(el).ToString();
+                    }
                     else
+                    {
                         actualValue = el.ToString();
+                    }
+
                     result = filterValue.Equals(actualValue, StringComparison.InvariantCultureIgnoreCase);
                 },
                 path: propertyName,
@@ -162,11 +171,7 @@ namespace Spark.Engine.Core
             }
 
             var codedEnum = type.GenericTypeArguments?.FirstOrDefault()?.IsEnum;
-            if (codedEnum.HasValue && codedEnum.Value)
-            {
-                return true;
-            }
-            return false;
+            return codedEnum.HasValue && codedEnum.Value;
         }
 
     }

@@ -24,7 +24,9 @@ namespace Spark.Mongo.Search.Utils
             word = Regex.Replace(word == null ? string.Empty : word.ToUpper(), @"[^\w\s]", string.Empty);
 
             if (string.IsNullOrEmpty(word))
+            {
                 return string.Empty.PadRight(length, '0');
+            }
 
             soundex.Append(word.First());
 
@@ -33,13 +35,19 @@ namespace Spark.Mongo.Search.Utils
                 var n = GetCharNumberForLetter(word[i]);
 
                 if (i == 1 && n == GetCharNumberForLetter(soundex[0]))
+                {
                     continue;
+                }
 
                 if (soundex.Length > 2 && previousWasHOrW && n == soundex[soundex.Length - 2])
+                {
                     continue;
+                }
 
                 if (soundex.Length > 0 && n == soundex[soundex.Length - 1])
+                {
                     continue;
+                }
 
                 soundex.Append(n);
 
@@ -54,14 +62,32 @@ namespace Spark.Mongo.Search.Utils
 
         private static char GetCharNumberForLetter(char letter)
         {
-            if ("BFPV".Contains(letter)) return '1';
-            if ("CGJKQSXZ".Contains(letter)) return '2';
-            if ("DT".Contains(letter)) return '3';
-            if ('L' == letter) return '4';
-            if ("MN".Contains(letter)) return '5';
-            if ('R' == letter) return '6';
+            if ("BFPV".Contains(letter))
+            {
+                return '1';
+            }
 
-            return '0';
+            if ("CGJKQSXZ".Contains(letter))
+            {
+                return '2';
+            }
+
+            if ("DT".Contains(letter))
+            {
+                return '3';
+            }
+
+            if ('L' == letter)
+            {
+                return '4';
+            }
+
+            if ("MN".Contains(letter))
+            {
+                return '5';
+            }
+
+            return 'R' == letter ? '6' : '0';
         }
     } 
 }

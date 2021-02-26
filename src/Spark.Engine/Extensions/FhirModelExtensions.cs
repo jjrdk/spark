@@ -23,17 +23,23 @@ namespace Spark.Engine.Extensions
         {
             var entry = CreateEntryForResource(resource);
 
-            if (entry.Request == null) entry.Request = new Bundle.RequestComponent();
+            if (entry.Request == null)
+            {
+                entry.Request = new Bundle.RequestComponent();
+            }
+
             entry.Request.Method = method;
             bundle.Entry.Add(entry);
         }
 
         private static Bundle.EntryComponent CreateEntryForResource(Resource resource)
         {
-            var entry = new Bundle.EntryComponent();
-            entry.Resource = resource;
-//            entry.FullUrl = resource.ResourceIdentity().ToString();
-            entry.FullUrl = resource.ExtractKey().ToUriString();
+            var entry = new Bundle.EntryComponent
+            {
+                Resource = resource,
+                //            entry.FullUrl = resource.ResourceIdentity().ToString();
+                FullUrl = resource.ExtractKey().ToUriString()
+            };
             return entry;
         }
 

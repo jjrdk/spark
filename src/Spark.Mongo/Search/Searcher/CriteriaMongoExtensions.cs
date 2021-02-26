@@ -43,7 +43,10 @@ namespace Spark.Mongo.Search.Searcher
         {
             var queries = new List<FilterDefinition<BsonDocument>>();
             if (level == 0)
+            {
                 queries.Add(Builders<BsonDocument>.Filter.Eq(InternalField.LEVEL, 0));
+            }
+
             queries.Add(Builders<BsonDocument>.Filter.Eq(InternalField.RESOURCE, resourceType));
 
             return Builders<BsonDocument>.Filter.And(queries);
@@ -151,7 +154,9 @@ namespace Spark.Mongo.Search.Searcher
             var allowedResourceTypes = parameter.Target.Select(t => t.GetLiteral()).ToList();// ModelInfo.SupportedResources; //TODO: restrict to parameter.ReferencedResources. This means not making this static, because you want to use IFhirModel.
             var searchResourceTypes = new List<string>();
             if (string.IsNullOrEmpty(modifier))
+            {
                 searchResourceTypes.AddRange(allowedResourceTypes);
+            }
             else if (allowedResourceTypes.Contains(modifier))
             {
                 searchResourceTypes.Add(modifier);
@@ -168,7 +173,9 @@ namespace Spark.Mongo.Search.Searcher
         {
 
             if (chainCriterium.Operator != Operator.CHAIN)
+            {
                 throw new ArgumentException("Targeted reference types are only relevent for chained criteria.");
+            }
 
             var critSp = chainCriterium.FindSearchParamDefinition(resourceType);
             var modifier = chainCriterium.Modifier;
@@ -614,9 +621,7 @@ namespace Spark.Mongo.Search.Searcher
 
         private static FilterDefinition<BsonDocument> SafeIn(string parameterName, BsonArray values)
         {
-            if (values.Any())
-                return Builders<BsonDocument>.Filter.In(parameterName, values);
-            return FalseQuery();
+            return values.Any() ? Builders<BsonDocument>.Filter.In(parameterName, values) : FalseQuery();
         }
     }
 }

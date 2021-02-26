@@ -98,7 +98,11 @@ namespace Spark.Engine.Service
                         return;
                     case ResourceReference reference:
                         {
-                            if (reference.Url != null) reference.Url = new Uri(ExternalizeReference(reference.Url.ToString()), UriKind.RelativeOrAbsolute);
+                            if (reference.Url != null)
+                            {
+                                reference.Url = new Uri(ExternalizeReference(reference.Url.ToString()), UriKind.RelativeOrAbsolute);
+                            }
+
                             break;
                         }
                     case FhirUri uri:
@@ -118,7 +122,10 @@ namespace Spark.Engine.Service
 
         private string ExternalizeReference(string uristring)
         {
-            if (string.IsNullOrWhiteSpace(uristring)) return uristring;
+            if (string.IsNullOrWhiteSpace(uristring))
+            {
+                return uristring;
+            }
 
             var uri = new Uri(uristring, UriKind.RelativeOrAbsolute);
 

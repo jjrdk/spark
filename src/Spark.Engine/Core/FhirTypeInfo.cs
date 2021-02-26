@@ -14,11 +14,11 @@
 
         public Type FhirType { get; internal set; }
 
-        internal List<FhirPropertyInfo> properties;
+        internal List<FhirPropertyInfo> Properties;
 
-        public IEnumerable<FhirPropertyInfo> findPropertyInfos(Predicate<FhirPropertyInfo> propertyPredicate)
+        public IEnumerable<FhirPropertyInfo> FindPropertyInfos(Predicate<FhirPropertyInfo> propertyPredicate)
         {
-            return properties?.Where(pi => propertyPredicate(pi));
+            return Properties?.Where(pi => propertyPredicate(pi));
         }
 
         /// <summary>
@@ -27,9 +27,9 @@
         /// </summary>
         /// <param name="propertyPredicate"></param>
         /// <returns>PropertyInfo for property that matches the predicate. Null if none matches.</returns>
-        public FhirPropertyInfo findPropertyInfo(Predicate<FhirPropertyInfo> propertyPredicate)
+        public FhirPropertyInfo FindPropertyInfo(Predicate<FhirPropertyInfo> propertyPredicate)
         {
-            var allMatches = findPropertyInfos(propertyPredicate);
+            var allMatches = FindPropertyInfos(propertyPredicate);
             IEnumerable<FhirPropertyInfo> preferredMatches;
             if (allMatches != null && allMatches.Count() > 1)
             {
@@ -48,13 +48,13 @@
         /// </summary>
         /// <param name="propertyName"></param>
         /// <returns>PropertyInofo for property that matches this name.</returns>
-        public FhirPropertyInfo findPropertyInfo(string propertyName)
+        public FhirPropertyInfo FindPropertyInfo(string propertyName)
         {
-            var result = findPropertyInfo(new Predicate<FhirPropertyInfo>(pi => pi.PropertyName == propertyName));
+            var result = FindPropertyInfo(new Predicate<FhirPropertyInfo>(pi => pi.PropertyName == propertyName));
             if (result == null)
             {
                 //try it by typed name
-                result = findPropertyInfo(new Predicate<FhirPropertyInfo>(pi => pi.TypedNames.Contains(propertyName)));
+                result = FindPropertyInfo(new Predicate<FhirPropertyInfo>(pi => pi.TypedNames.Contains(propertyName)));
             }
             return result;
         }

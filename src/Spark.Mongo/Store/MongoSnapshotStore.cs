@@ -8,22 +8,22 @@
 
     public class MongoSnapshotStore : ISnapshotStore
     {
-        readonly IMongoDatabase database;
+        readonly IMongoDatabase _database;
 
         public MongoSnapshotStore(string mongoUrl)
         {
-            this.database = MongoDatabaseFactory.GetMongoDatabase(mongoUrl);
+            this._database = MongoDatabaseFactory.GetMongoDatabase(mongoUrl);
         }
 
         public async Task AddSnapshot(Snapshot snapshot)
         {
-            var collection = database.GetCollection<Snapshot>(Collection.SNAPSHOT);
+            var collection = _database.GetCollection<Snapshot>(Collection.SNAPSHOT);
             await collection.InsertOneAsync(snapshot).ConfigureAwait(false);
         }
 
         public async Task<Snapshot> GetSnapshot(string snapshotId)
         {
-            var collection = database.GetCollection<Snapshot>(Collection.SNAPSHOT);
+            var collection = _database.GetCollection<Snapshot>(Collection.SNAPSHOT);
             return (await collection.FindAsync(s => s.Id == snapshotId).ConfigureAwait(false)).FirstOrDefault();
         }
     }

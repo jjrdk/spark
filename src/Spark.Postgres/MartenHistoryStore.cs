@@ -103,7 +103,7 @@
         {
             return Snapshot.Create(
                 Bundle.BundleType.History,
-                new Uri(RestOperation.HISTORY, UriKind.Relative),
+                new Uri(RestOperation.History, UriKind.Relative),
                 keys,
                 "history",
                 count,

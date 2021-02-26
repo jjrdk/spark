@@ -18,16 +18,16 @@ namespace Spark.Mongo.Search.Common
 
     public class Definitions
     {
-        private readonly List<Definition> definitions = new List<Definition>();
+        private readonly List<Definition> _definitions = new List<Definition>();
 
         public void Add(Definition definition)
         {
-            this.definitions.Add(definition);
+            this._definitions.Add(definition);
         }
         public void Replace(Definition definition)
         {
-            definitions.RemoveAll(d => (d.Resource == definition.Resource) && (d.ParamName == definition.ParamName));
-            definitions.Add(definition);
+            _definitions.RemoveAll(d => (d.Resource == definition.Resource) && (d.ParamName == definition.ParamName));
+            _definitions.Add(definition);
             // for manual correction
         }
     }

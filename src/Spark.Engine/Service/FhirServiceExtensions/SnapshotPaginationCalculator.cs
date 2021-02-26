@@ -23,7 +23,9 @@ namespace Spark.Engine.Service.FhirServiceExtensions
         {
             var countParam = snapshot.CountParam ?? DEFAULT_PAGE_SIZE;
             if (snapshot.Count <= countParam)
+            {
                 return 0;
+            }
 
             var numberOfPages = snapshot.Count/countParam;
             var lastPageIndex = (snapshot.Count%countParam == 0) ? numberOfPages - 1 : numberOfPages;
@@ -34,17 +36,13 @@ namespace Spark.Engine.Service.FhirServiceExtensions
         {
             var countParam = snapshot.CountParam ?? DEFAULT_PAGE_SIZE;
 
-            if (((start ?? 0) + countParam) >= snapshot.Count)
-                return null;
-            return (start ?? 0) + countParam;
+            return ((start ?? 0) + countParam) >= snapshot.Count ? null : (int?)((start ?? 0) + countParam);
         }
 
         public int? GetIndexForPreviousPage(Snapshot snapshot, int? start = null)
         {
             var countParam = snapshot.CountParam ?? DEFAULT_PAGE_SIZE;
-            if (start.HasValue == false || start.Value == 0)
-                return null;
-            return Math.Max(0, start.Value - countParam);
+            return start.HasValue == false || start.Value == 0 ? null : (int?)Math.Max(0, start.Value - countParam);
         }
     }
 }

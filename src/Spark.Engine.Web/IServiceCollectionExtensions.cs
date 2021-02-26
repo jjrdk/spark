@@ -17,11 +17,14 @@
     using Spark.Service;
     using Store.Interfaces;
 
-    public static class IServiceCollectionExtensions
+    public static class ServiceCollectionExtensions
     {
         public static IMvcCoreBuilder AddFhir(this IServiceCollection services, SparkSettings settings, Action<MvcOptions> setupAction = null)
         {
-            if (settings == null) throw new ArgumentNullException(nameof(settings));
+            if (settings == null)
+            {
+                throw new ArgumentNullException(nameof(settings));
+            }
 
             services.AddFhirHttpSearchParameters();
 
@@ -82,9 +85,9 @@
 
         public static IMvcCoreBuilder AddFhirFormatters(this IServiceCollection services, SparkSettings settings, Action<MvcOptions> setupAction = null)
         {
-            if (settings == null) throw new ArgumentNullException(nameof(settings));
-
-            return services.AddMvcCore(options =>
+            return settings == null
+                ? throw new ArgumentNullException(nameof(settings))
+                : services.AddMvcCore(options =>
             {
                 options.InputFormatters.Add(new JsonFhirInputFormatter(new FhirJsonParser(settings.ParserSettings)));
                 options.InputFormatters.Add(new XmlFhirInputFormatter(new FhirXmlParser(settings.ParserSettings)));

@@ -6,22 +6,22 @@
 
     public static class MongoDatabaseFactory
     {
-        private static Dictionary<string, IMongoDatabase> instances;
+        private static Dictionary<string, IMongoDatabase> _instances;
 
         public static IMongoDatabase GetMongoDatabase(string url)
         {
             IMongoDatabase result;
         
-            if (instances == null) //instances dictionary is not at all initialized
+            if (_instances == null) //instances dictionary is not at all initialized
             {
-                instances = new Dictionary<string, IMongoDatabase>();
+                _instances = new Dictionary<string, IMongoDatabase>();
             }
-            if (instances.Where(i => i.Key == url).Count() == 0) //there is no instance for this url yet
+            if (_instances.Where(i => i.Key == url).Count() == 0) //there is no instance for this url yet
             {
                 result = CreateMongoDatabase(url);
-                instances.Add(url, result);
+                _instances.Add(url, result);
             }; 
-            return instances.First(i => i.Key == url).Value; //now there must be one.
+            return _instances.First(i => i.Key == url).Value; //now there must be one.
         }
 
         private static IMongoDatabase CreateMongoDatabase(string url)

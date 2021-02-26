@@ -2,88 +2,114 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Collections.Specialized;
     using System.Linq;
-    using System.Net.Http;
     using System.Threading.Tasks;
     using Hl7.Fhir.Model;
     using Hl7.Fhir.Rest;
     using Spark.Engine.Core;
     using Spark.Engine.Extensions;
-    using Task = System.Threading.Tasks.Task;
 
     public static partial class ResourceManipulationOperationFactory
     {
-        private static readonly Dictionary<Bundle.HTTPVerb, Func<Resource, IKey, ISearchService, SearchParams, Task<ResourceManipulationOperation>>> builders;
-        private static ISearchService searchService;
+        private static readonly Dictionary<Bundle.HTTPVerb, Func<Resource, IKey, ISearchService, SearchParams, Task<ResourceManipulationOperation>>> _builders;
 
         static ResourceManipulationOperationFactory()
         {
-            builders = new Dictionary<Bundle.HTTPVerb, Func<Resource, IKey, ISearchService, SearchParams, Task<ResourceManipulationOperation>>>();
-            builders.Add(Bundle.HTTPVerb.POST, CreatePost);
-            builders.Add(Bundle.HTTPVerb.PUT, CreatePut);
-            builders.Add(Bundle.HTTPVerb.DELETE, CreateDelete);
+            _builders = new Dictionary<Bundle.HTTPVerb, Func<Resource, IKey, ISearchService, SearchParams, Task<ResourceManipulationOperation>>>();
+            _builders.Add(Bundle.HTTPVerb.POST, CreatePost);
+            _builders.Add(Bundle.HTTPVerb.PUT, CreatePut);
+            _builders.Add(Bundle.HTTPVerb.DELETE, CreateDelete);
         }
 
-        public static async Task<ResourceManipulationOperation> CreatePost(Resource resource, IKey key, ISearchService service = null, SearchParams command = null)
+        public static async Task<ResourceManipulationOperation> CreatePost(
+            this Resource resource,
+            IKey key,
+            ISearchService service = null,
+            SearchParams command = null)
         {
-            searchService = service;
-            return new PostManipulationOperation(resource, key, await GetSearchResultAsync(key, command).ConfigureAwait(false), command);
+            return new PostManipulationOperation(
+                resource,
+                key,
+                await GetSearchResultAsync(key, service, command).ConfigureAwait(false),
+                command);
         }
 
-        private static async Task<SearchResults> GetSearchResultAsync(IKey key, SearchParams command = null)
+        private static async Task<SearchResults> GetSearchResultAsync(IKey key, ISearchService searchService = null, SearchParams command = null)
         {
             if (command == null || command.Parameters.Count == 0)
+            {
                 return null;
-            if (command != null && searchService == null)
-                throw new InvalidOperationException("Unallowed operation");
-            return await searchService.GetSearchResults(key.TypeName, command).ConfigureAwait(false);
+            }
+
+            return command != null && searchService == null
+                ? throw new InvalidOperationException("Invalid operation")
+                : await searchService.GetSearchResults(key.TypeName, command).ConfigureAwait(false);
         }
 
-        public static async Task<ResourceManipulationOperation> CreatePut(Resource resource, IKey key, ISearchService service = null, SearchParams command = null)
+        public static async Task<ResourceManipulationOperation> CreatePut(
+            Resource resource,
+            IKey key,
+            ISearchService service = null,
+            SearchParams command = null)
         {
-            searchService = service;
-            return new PutManipulationOperation(resource, key, await GetSearchResultAsync(key, command).ConfigureAwait(false), command);
+            return new PutManipulationOperation(
+                resource,
+                key,
+                await GetSearchResultAsync(key, service, command).ConfigureAwait(false),
+                command);
         }
 
-        public static async Task<ResourceManipulationOperation> CreateDelete(IKey key, ISearchService service = null, SearchParams command = null)
+        public static async Task<ResourceManipulationOperation> CreateDelete(
+            IKey key,
+            ISearchService service = null,
+            SearchParams command = null)
         {
-            searchService = service;
-            return new DeleteManipulationOperation(null, key, await GetSearchResultAsync(key, command).ConfigureAwait(false), command);
+            return new DeleteManipulationOperation(
+                null,
+                key,
+                await GetSearchResultAsync(key, service, command).ConfigureAwait(false),
+                command);
         }
 
-        private static async Task<ResourceManipulationOperation> CreateDelete(Resource resource, IKey key, ISearchService service = null, SearchParams command = null)
+        private static async Task<ResourceManipulationOperation> CreateDelete(
+            Resource resource,
+            IKey key,
+            ISearchService service = null,
+            SearchParams command = null)
         {
-            searchService = service;
-            return new DeleteManipulationOperation(null, key, await GetSearchResultAsync(key, command).ConfigureAwait(false), command);
+            return new DeleteManipulationOperation(
+                null,
+                key,
+                await GetSearchResultAsync(key, service, command).ConfigureAwait(false),
+                command);
         }
 
-        public static async Task<ResourceManipulationOperation> GetManipulationOperation(Bundle.EntryComponent entryComponent, ILocalhost localhost, ISearchService service = null)
+        public static async Task<ResourceManipulationOperation> GetManipulationOperation(
+            Bundle.EntryComponent entryComponent,
+            ILocalhost localhost,
+            ISearchService service = null)
         {
-            searchService = service;
             var method = localhost.ExtrapolateMethod(entryComponent, null); //CCR: is key needed? Isn't method required?
             var key = localhost.ExtractKey(entryComponent);
             var searchUri = GetSearchUri(entryComponent, method);
 
-            return await builders[method](entryComponent.Resource, key, service, searchUri != null ? ParseQueryString(localhost, searchUri) : null)
+            return await _builders[method](
+                    entryComponent.Resource,
+                    key,
+                    service,
+                    searchUri != null ? ParseQueryString(localhost, searchUri) : null)
                 .ConfigureAwait(false);
         }
 
         private static Uri GetSearchUri(Bundle.EntryComponent entryComponent, Bundle.HTTPVerb method)
         {
-            Uri searchUri = null;
-            if (method == Bundle.HTTPVerb.POST)
+            Uri searchUri = method switch
             {
-                searchUri = PostManipulationOperation.ReadSearchUri(entryComponent);
-            }
-            else if (method == Bundle.HTTPVerb.PUT)
-            {
-                searchUri = PutManipulationOperation.ReadSearchUri(entryComponent);
-            }
-            else if (method == Bundle.HTTPVerb.DELETE)
-            {
-                searchUri = DeleteManipulationOperation.ReadSearchUri(entryComponent);
-            }
+                Bundle.HTTPVerb.POST => PostManipulationOperation.ReadSearchUri(entryComponent),
+                Bundle.HTTPVerb.PUT => PutManipulationOperation.ReadSearchUri(entryComponent),
+                Bundle.HTTPVerb.DELETE => DeleteManipulationOperation.ReadSearchUri(entryComponent),
+                _ => null
+            };
             return searchUri;
         }
 
@@ -99,7 +125,6 @@
         private static IEnumerable<Tuple<string, string>> ParseQueryString(Uri uri)
         {
             var query = uri?.Query ?? throw new ArgumentNullException(nameof(uri));
-            var collection = new NameValueCollection();
             return query.Trim('?')
                 .Split('&')
                 .Select(x => x.Split('='))

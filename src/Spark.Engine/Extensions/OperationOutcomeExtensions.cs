@@ -77,9 +77,13 @@ namespace Spark.Engine.Extensions
             string message;
 
             if (exception is SparkException)
+            {
                 message = exception.Message;
+            }
             else
+            {
                 message = $"{exception.GetType().Name}: {exception.Message}";
+            }
 
             outcome.AddError(message);
 
@@ -126,7 +130,10 @@ namespace Spark.Engine.Extensions
 
         private static OperationOutcome AddIssue(this OperationOutcome outcome, OperationOutcome.IssueSeverity severity, string message)
         {
-            if (outcome.Issue == null) outcome.Init();
+            if (outcome.Issue == null)
+            {
+                outcome.Init();
+            }
 
             var item = new OperationOutcome.IssueComponent
             {

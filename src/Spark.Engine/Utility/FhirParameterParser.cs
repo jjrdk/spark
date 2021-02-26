@@ -17,7 +17,11 @@ namespace Spark.Engine.Utility
 
         public static bool? ParseBoolParameter(this string value)
         {
-            if (value == null) return null;
+            if (value == null)
+            {
+                return null;
+            }
+
             try
             {
                 //bool b = PrimitiveTypeConverter.ConvertTo<bool>(value);

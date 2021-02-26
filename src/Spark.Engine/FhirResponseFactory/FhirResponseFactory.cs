@@ -10,13 +10,13 @@ namespace Spark.Engine.FhirResponseFactory
 {
     public class FhirResponseFactory : IFhirResponseFactory
     {
-        private readonly IFhirResponseInterceptorRunner interceptorRunner;
-        private readonly ILocalhost localhost;
+        private readonly IFhirResponseInterceptorRunner _interceptorRunner;
+        private readonly ILocalhost _localhost;
 
         public FhirResponseFactory(ILocalhost localhost, IFhirResponseInterceptorRunner interceptorRunner)
         {
-            this.localhost = localhost;
-            this.interceptorRunner = interceptorRunner;
+            this._localhost = localhost;
+            this._interceptorRunner = interceptorRunner;
         }
 
         public FhirResponse GetFhirResponse(Entry entry, IKey key = null, IEnumerable<object> parameters = null)
@@ -34,7 +34,7 @@ namespace Spark.Engine.FhirResponseFactory
 
             if (parameters != null)
             {
-                response = interceptorRunner.RunInterceptors(entry, parameters);
+                response = _interceptorRunner.RunInterceptors(entry, parameters);
             }
 
             return response ?? Respond.WithResource(entry);
@@ -61,7 +61,7 @@ namespace Spark.Engine.FhirResponseFactory
 
         public FhirResponse GetFhirResponse(IEnumerable<Tuple<Entry, FhirResponse>> responses, Bundle.BundleType bundleType)
         {
-            var bundle = localhost.CreateBundle(bundleType);
+            var bundle = _localhost.CreateBundle(bundleType);
             foreach (var response in responses)
             {
                 bundle.Append(response.Item1, response.Item2);

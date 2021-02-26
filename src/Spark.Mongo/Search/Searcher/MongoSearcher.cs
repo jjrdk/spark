@@ -124,7 +124,9 @@ namespace Spark.Search.Mongo
         private static SortDefinition<BsonDocument> CreateSortBy(IList<(string, SortOrder)> sortItems)
         {
             if (sortItems.Any() == false)
+            {
                 return null;
+            }
 
             SortDefinition<BsonDocument> sortDefinition = null;
             var first = sortItems.FirstOrDefault();
@@ -168,7 +170,11 @@ namespace Spark.Search.Mongo
                         }
                         catch (ArgumentException ex)
                         {
-                            if (results == null) throw; //The exception *will* be caught on the highest level.
+                            if (results == null)
+                            {
+                                throw; //The exception *will* be caught on the highest level.
+                            }
+
                             results.AddIssue(
                                 $"Parameter [{crit.Key.ToString()}] was ignored for the reason: {ex.Message}.", OperationOutcome.IssueSeverity.Warning);
                             results.UsedCriteria.Remove(crit.Key);
@@ -200,7 +206,11 @@ namespace Spark.Search.Mongo
                     }
                     catch (ArgumentException ex)
                     {
-                        if (results == null) throw; //The exception *will* be caught on the highest level.
+                        if (results == null)
+                        {
+                            throw; //The exception *will* be caught on the highest level.
+                        }
+
                         results.AddIssue($"Parameter [{c.ToString()}] was ignored for the reason: {ex.Message}.", OperationOutcome.IssueSeverity.Warning);
                         results.UsedCriteria.Remove(c);
                     }
@@ -279,8 +289,10 @@ namespace Spark.Search.Mongo
                         continue;
                     }
 
-                    var subCrit = new Criterium();
-                    subCrit.Operator = crit.Operator;
+                    var subCrit = new Criterium
+                    {
+                        Operator = crit.Operator
+                    };
                     string modifier = crit.Modifier;
 
                     //operand can be one of three things:
@@ -369,16 +381,21 @@ namespace Spark.Search.Mongo
                             break;
                     }
 
-                    var superCrit = new Criterium();
-                    superCrit.ParamName = crit.ParamName;
-                    superCrit.Modifier = crit.Modifier;
-                    superCrit.Operator = Operator.CHAIN;
-                    superCrit.Operand = subCrit;
+                    var superCrit = new Criterium
+                    {
+                        ParamName = crit.ParamName,
+                        Modifier = crit.Modifier,
+                        Operator = Operator.CHAIN,
+                        Operand = subCrit
+                    };
                     superCrit.SearchParameters.AddRange(crit.SearchParameters);
 
                     result.Add(superCrit);
                 }
-                else result.Add(crit);
+                else
+                {
+                    result.Add(crit);
+                }
             }
 
             return result;
@@ -402,7 +419,7 @@ namespace Spark.Search.Mongo
 
             var results = new SearchResults();
 
-            var criteria = parseCriteria(searchCommand, results);
+            var criteria = ParseCriteria(searchCommand, results);
 
             if (!results.HasErrors)
             {
@@ -446,16 +463,12 @@ namespace Spark.Search.Mongo
             {
                 return (sortItem.Item1 + ".start", sortItem.Item2);
             }
-            if (definition?.Type == SearchParamType.Quantity)
-            {
-                return (sortItem.Item1 + ".value", sortItem.Item2);
-            }
-            return sortItem;
+            return definition?.Type == SearchParamType.Quantity ? (sortItem.Item1 + ".value", sortItem.Item2) : sortItem;
         }
 
         public async Task<SearchResults> GetReverseIncludesAsync(IList<IKey> keys, IList<string> revIncludes)
         {
-            BsonValue[] internal_ids = keys.Select(k => BsonString.Create($"{k.TypeName}/{k.ResourceId}")).ToArray();
+            BsonValue[] internalIds = keys.Select(k => BsonString.Create($"{k.TypeName}/{k.ResourceId}")).ToArray();
 
             var results = new SearchResults();
 
@@ -471,7 +484,7 @@ namespace Spark.Search.Mongo
                         riQueries.Add(
                             Builders<BsonDocument>.Filter.And(
                                 Builders<BsonDocument>.Filter.Eq(InternalField.RESOURCE, ri.ResourceType)
-                                , Builders<BsonDocument>.Filter.In(ri.SearchPath, internal_ids)));
+                                , Builders<BsonDocument>.Filter.In(ri.SearchPath, internalIds)));
                     }
                 }
 
@@ -563,7 +576,7 @@ namespace Spark.Search.Mongo
         }
         */
 
-        private List<Criterium> parseCriteria(SearchParams searchCommand, SearchResults results)
+        private List<Criterium> ParseCriteria(SearchParams searchCommand, SearchResults results)
         {
             var result = new List<Criterium>();
             foreach (var c in searchCommand.Parameters)

@@ -30,7 +30,11 @@ namespace Spark.Mongo.Search.Common
         }
         private static string FieldToInternalField(string field)
         {
-            if (Config.Equal(field, UniversalField.ID)) field = InternalField.JUSTID;
+            if (Config.Equal(field, UniversalField.ID))
+            {
+                field = InternalField.JUSTID;
+            }
+
             return field;
         }
     }

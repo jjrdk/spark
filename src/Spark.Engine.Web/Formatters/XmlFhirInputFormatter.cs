@@ -60,7 +60,9 @@ namespace Spark.Engine.Web.Formatters
                     if (XmlSignatureHelper.IsSigned(body))
                     {
                         if (!XmlSignatureHelper.VerifySignature(body))
+                        {
                             throw Error.BadRequest("Digital signature in body failed verification");
+                        }
                     }
                 }
 

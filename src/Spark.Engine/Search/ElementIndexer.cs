@@ -28,7 +28,9 @@ namespace Spark.Engine.Search
         private static List<Expression> ListOf(params Expression[] args)
         {
             if (!args.Any())
+            {
                 return null;
+            }
 
             var result = new List<Expression>();
             result.AddRange(args);
@@ -62,15 +64,15 @@ namespace Spark.Engine.Search
 
         private List<Expression> ToExpressions(Age element)
         {
-            if (element == null) return null;
-
-            return ToExpressions(element as Quantity);
+            return element == null ? null : ToExpressions(element as Quantity);
         }
 
         private static List<Expression> ToExpressions(Location.PositionComponent element)
         {
             if (element == null || (element.Latitude == null && element.Longitude == null))
+            {
                 return null;
+            }
 
             var position = new List<IndexValue>
             {
@@ -83,24 +85,20 @@ namespace Spark.Engine.Search
 
         private static List<Expression> ToExpressions(Base64Binary element)
         {
-            if (element?.Value == null || element.Value.Length == 0)
-                return null;
-
-            return ToExpressions(new FhirString(element.ToString()));
+            return element?.Value == null || element.Value.Length == 0 ? null : ToExpressions(new FhirString(element.ToString()));
         }
 
         private static List<Expression> ToExpressions(Attachment element)
         {
-            if (element?.UrlElement == null)
-                return null;
-
-            return ToExpressions(element.UrlElement);
+            return element?.UrlElement == null ? null : ToExpressions(element.UrlElement);
         }
 
         private static List<Expression> ToExpressions(Timing element)
         {
             if (element?.Repeat?.Bounds == null)
+            {
                 return null;
+            }
 
             // TODO: Should I handle Duration?
             return ToExpressions(element.Repeat.Bounds as Period);
@@ -108,58 +106,39 @@ namespace Spark.Engine.Search
 
         private List<Expression> ToExpressions(Extension element)
         {
-            if (element == null)
-                return null;
-
-            return ToExpressions((dynamic) element.Value);
+            return element == null ? null : (List<Expression>)ToExpressions((dynamic) element.Value);
         }
 
         private static List<Expression> ToExpressions(Markdown element)
         {
-            if (element == null || string.IsNullOrWhiteSpace(element.Value))
-                return null;
-
-            return ListOf(new StringValue(element.Value));
+            return element == null || string.IsNullOrWhiteSpace(element.Value) ? null : ListOf(new StringValue(element.Value));
         }
         private static List<Expression> ToExpressions(Id element)
         {
-            if (element == null || string.IsNullOrWhiteSpace(element.Value))
-                return null;
-
-            return ListOf(new StringValue(element.Value));
+            return element == null || string.IsNullOrWhiteSpace(element.Value) ? null : ListOf(new StringValue(element.Value));
         }
         private static List<Expression> ToExpressions(Oid element)
         {
-            if (element == null || string.IsNullOrWhiteSpace(element.Value))
-                return null;
-
-            return ListOf(new StringValue(element.Value));
+            return element == null || string.IsNullOrWhiteSpace(element.Value) ? null : ListOf(new StringValue(element.Value));
         }
         private static List<Expression> ToExpressions(Integer element)
         {
-            if (element?.Value == null)
-                return null;
-
-            return ListOf(new NumberValue(element.Value.Value));
+            return element?.Value == null ? null : ListOf(new NumberValue(element.Value.Value));
         }
         private static List<Expression> ToExpressions(UnsignedInt element)
         {
-            if (element?.Value == null)
-                return null;
-
-            return ListOf(new NumberValue(element.Value.Value));
+            return element?.Value == null ? null : ListOf(new NumberValue(element.Value.Value));
         }
         private static List<Expression> ToExpressions(PositiveInt element)
         {
-            if (element?.Value == null)
-                return null;
-
-            return ListOf(new NumberValue(element.Value.Value));
+            return element?.Value == null ? null : ListOf(new NumberValue(element.Value.Value));
         }
         private static List<Expression> ToExpressions(Instant element)
         {
             if (element == null || !element.Value.HasValue)
+            {
                 return null;
+            }
 
             var fdt = new FhirDateTime(element.Value.Value);
             return ToExpressions(fdt);
@@ -167,38 +146,28 @@ namespace Spark.Engine.Search
 
         private static List<Expression> ToExpressions(Time element)
         {
-            if (element == null || string.Empty.Equals(element.Value))
-                return null;
-
-            return ListOf(new StringValue(element.Value));
+            return element == null || string.Empty.Equals(element.Value) ? null : ListOf(new StringValue(element.Value));
         }
         private static List<Expression> ToExpressions(FhirUrl element)
         {
-            if (element == null || String.Empty.Equals(element.Value))
-                return null;
-
-            return ListOf(new StringValue(element.Value));
+            return element == null || String.Empty.Equals(element.Value) ? null : ListOf(new StringValue(element.Value));
         }
         private static List<Expression> ToExpressions(FhirUri element)
         {
-            if (element == null || string.Empty.Equals(element.Value))
-                return null;
-
-            return ListOf(new StringValue(element.Value));
+            return element == null || string.Empty.Equals(element.Value) ? null : ListOf(new StringValue(element.Value));
         }
 
         private static List<Expression> ToExpressions(Canonical element)
         {
-            if (element == null || String.Empty.Equals(element.Value))
-                return null;
-
-            return ListOf(new StringValue(element.Value));
+            return element == null || String.Empty.Equals(element.Value) ? null : ListOf(new StringValue(element.Value));
         }
 
         private static List<Expression> ToExpressions(Date element)
         {
             if (element == null || string.Empty.Equals(element.Value))
+            {
                 return null;
+            }
 
             var fdt = new FhirDateTime(element.Value);
             return ToExpressions(fdt);
@@ -206,10 +175,7 @@ namespace Spark.Engine.Search
 
         private static List<Expression> ToExpressions(FhirDecimal element)
         {
-            if (element?.Value == null)
-                return null;
-
-            return ListOf(new NumberValue(element.Value.Value));
+            return element?.Value == null ? null : ListOf(new NumberValue(element.Value.Value));
         }
 
         /// <summary>
@@ -221,7 +187,9 @@ namespace Spark.Engine.Search
         private static List<Expression> ToExpressions(FhirDateTime element)
         {
             if (element == null)
+            {
                 return null;
+            }
 
             var bounds = new List<IndexValue>
             {
@@ -242,14 +210,20 @@ namespace Spark.Engine.Search
         private static List<Expression> ToExpressions(Period element)
         {
             if (element == null || (element.StartElement == null && element.EndElement == null))
+            {
                 return null;
+            }
 
             var bounds = new List<IndexValue>();
             if (element.StartElement != null)
+            {
                 bounds.Add(new IndexValue("start", new DateTimeValue(element.StartElement.LowerBound())));
-            if (element.EndElement != null)
-                bounds.Add(new IndexValue("end", new DateTimeValue(element.EndElement.UpperBound())));
+            }
 
+            if (element.EndElement != null)
+            {
+                bounds.Add(new IndexValue("end", new DateTimeValue(element.EndElement.UpperBound())));
+            }
 
             return ListOf(new CompositeValue(bounds));
         }
@@ -262,15 +236,25 @@ namespace Spark.Engine.Search
         private static List<Expression> ToExpressions(Coding element)
         {
             if (element == null)
+            {
                 return null;
+            }
 
             var values = new List<IndexValue>();
             if (element.Code != null)
+            {
                 values.Add(new IndexValue("code", new StringValue(element.Code)));
+            }
+
             if (element.System != null)
+            {
                 values.Add(new IndexValue("system", new StringValue(element.System)));
+            }
+
             if (element.Display != null)
+            {
                 values.Add(new IndexValue("text", new StringValue(element.Display)));
+            }
 
             return ListOf(new CompositeValue(values));
         }
@@ -283,15 +267,25 @@ namespace Spark.Engine.Search
         private static List<Expression> ToExpressions(Identifier element)
         {
             if (element == null)
+            {
                 return null;
+            }
 
             var values = new List<IndexValue>();
             if (element.Value != null)
+            {
                 values.Add(new IndexValue("code", new StringValue(element.Value)));
+            }
+
             if (element.System != null)
+            {
                 values.Add(new IndexValue("system", new StringValue(element.System)));
+            }
+
             if (element.Type != null)
+            {
                 values.Add(new IndexValue("text", new StringValue(element.Type.Text)));
+            }
 
             return ListOf(new CompositeValue(values));
         }
@@ -308,7 +302,9 @@ namespace Spark.Engine.Search
         private static List<Expression> ToExpressions(CodeableConcept element)
         {
             if (element == null)
+            {
                 return null;
+            }
 
             var result = new List<Expression>();
             if (element.Coding != null && element.Coding.Any())
@@ -330,15 +326,25 @@ namespace Spark.Engine.Search
         private List<Expression> ToExpressions(ContactPoint element)
         {
             if (element == null)
+            {
                 return null;
+            }
 
             var values = new List<IndexValue>();
             if (element.Value != null)
+            {
                 values.Add(new IndexValue("code", Map(element.ValueElement)));
+            }
+
             if (element.System != null)
+            {
                 values.Add(new IndexValue("system", Map(element.SystemElement)));
+            }
+
             if (element.Use != null)
+            {
                 values.Add(new IndexValue("use", Map(element.UseElement)));
+            }
 
             return ListOf(new CompositeValue(values));
         }
@@ -351,7 +357,9 @@ namespace Spark.Engine.Search
         private static List<Expression> ToExpressions(FhirBoolean element)
         {
             if (element?.Value == null)
+            {
                 return null;
+            }
 
             var values = new List<IndexValue>
             {
@@ -366,7 +374,9 @@ namespace Spark.Engine.Search
         private List<Expression> ToExpressions(ResourceReference element)
         {
             if (element == null || element.Url == null)
+            {
                 return null;
+            }
 
             Expression value = null;
             var uri = element.Url;
@@ -404,7 +414,9 @@ namespace Spark.Engine.Search
         private List<Expression> ToExpressions(Address element)
         {
             if (element == null)
+            {
                 return null;
+            }
 
             var values = new List<Expression>
             {
@@ -428,12 +440,16 @@ namespace Spark.Engine.Search
         private List<Expression> ToExpressions(HumanName element)
         {
             if (element == null)
+            {
                 return null;
+            }
 
             var values = new List<Expression>();
             values.AddRange(ToExpressions(element.GivenElement));
             if(element.FamilyElement != null)
+            {
                 values.AddRange(ToExpressions(element.FamilyElement));
+            }
 
             return values;
         }
@@ -463,10 +479,7 @@ namespace Spark.Engine.Search
 
         private List<Expression> ToExpressions(IEnumerable<Element> elements)
         {
-            if (elements == null)
-                return null;
-
-            return elements.SelectMany(el => Map(el)).ToList();
+            return elements == null ? null : elements.SelectMany(el => Map(el)).ToList();
         }
 
         private List<Expression> ToExpressions<T>(Code<T> element) where T : struct

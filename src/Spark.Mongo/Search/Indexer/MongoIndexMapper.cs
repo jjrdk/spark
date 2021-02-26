@@ -26,7 +26,10 @@ namespace Spark.Mongo.Search.Indexer
                 EntryToDocument(indexValue, 0, result);
                 return result;
             }
-            else throw new ArgumentException("MapEntry is only meant for mapping a root IndexValue.", nameof(indexValue));
+            else
+            {
+                throw new ArgumentException("MapEntry is only meant for mapping a root IndexValue.", nameof(indexValue));
+            }
         }
 
         private void EntryToDocument(IndexValue indexValue, int level, List<BsonDocument> result)
@@ -63,7 +66,9 @@ namespace Spark.Mongo.Search.Indexer
         private BsonElement IndexValueToElement(IndexValue indexValue)
         {
             if (indexValue.Name == "_id")
+            {
                 indexValue.Name = "fhir_id"; //_id is reserved in Mongo for the primary key and must be unique.
+            }
 
             if (indexValue.Values.Count == 1)
             {
@@ -83,9 +88,13 @@ namespace Spark.Mongo.Search.Indexer
             foreach (var component in composite.Components)
             {
                 if (component is IndexValue value)
+                {
                     compositeDocument.Add(IndexValueToElement(value));
+                }
                 else
+                {
                     throw new ArgumentException("All Components of composite are expected to be of type IndexValue");
+                }
             }
             return compositeDocument;
         }

@@ -28,8 +28,8 @@ namespace Spark.Engine.Search.ValueExpressionTypes
         private Operator _type = Operator.EQ;
         public Operator Operator
         {
-            get { return _type; }
-            set { _type = value; }
+            get => _type;
+            set => _type = value;
         }
 
         public string Modifier { get; set; }
@@ -44,35 +44,48 @@ namespace Spark.Engine.Search.ValueExpressionTypes
             get
             {
                 if (_searchParameters == null)
+                {
                     _searchParameters = new List<ModelInfo.SearchParamDefinition>();
+                }
+
                 return _searchParameters;
             }
         }
 
         public static Criterium Parse(string key, string value)
         {
-            if (string.IsNullOrEmpty(key)) throw Error.ArgumentNull("key");
-            if (string.IsNullOrEmpty(value)) throw Error.ArgumentNull("value");
+            if (string.IsNullOrEmpty(key))
+            {
+                throw Error.ArgumentNull("key");
+            }
+
+            if (string.IsNullOrEmpty(value))
+            {
+                throw Error.ArgumentNull("value");
+            }
 
             // Split chained parts (if any) into name + modifier tuples
             var chainPath = key.Split(new char[] { SearchParams.SEARCH_CHAINSEPARATOR }, StringSplitOptions.RemoveEmptyEntries)
-                        .Select(s => pathToKeyModifTuple(s));
+                        .Select(s => PathToKeyModifTuple(s));
 
-            if (chainPath.Count() == 0) throw Error.Argument("key", "Supplied an empty search parameter name or chain");
-
-            return fromPathTuples(chainPath, value);
+            return chainPath.Count() == 0
+                ? throw Error.Argument("key", "Supplied an empty search parameter name or chain")
+                : FromPathTuples(chainPath, value);
         }
 
         //TODO: Probably not used anymore.
         public static Criterium Parse(string text)
         {
-            if (string.IsNullOrEmpty(text)) throw Error.ArgumentNull("text");
+            if (string.IsNullOrEmpty(text))
+            {
+                throw Error.ArgumentNull("text");
+            }
 
             var keyVal = text.SplitLeft('=');
 
-            if (keyVal.Item2 == null) throw Error.Argument("text", "Value must contain an '=' to separate key and value");
-
-            return Parse(keyVal.Item1, keyVal.Item2);
+            return keyVal.Item2 == null
+                ? throw Error.Argument("text", "Value must contain an '=' to separate key and value")
+                : Parse(keyVal.Item1, keyVal.Item2);
         }
 
 
@@ -82,24 +95,28 @@ namespace Spark.Engine.Search.ValueExpressionTypes
 
             // Turn ISNULL and NOTNULL operators into the :missing modifier
             if (Operator == Operator.ISNULL || Operator == Operator.NOTNULL)
+            {
                 result += SearchParams.SEARCH_MODIFIERSEPARATOR + MISSINGMODIF;
+            }
             else
-                if (!string.IsNullOrEmpty(Modifier)) result += SearchParams.SEARCH_MODIFIERSEPARATOR + Modifier;
+                if (!string.IsNullOrEmpty(Modifier))
+            {
+                result += SearchParams.SEARCH_MODIFIERSEPARATOR + Modifier;
+            }
 
             if (Operator == Operator.CHAIN)
             {
-                if (Operand is Criterium)
-                    return result + SearchParams.SEARCH_CHAINSEPARATOR + Operand.ToString();
-                else
-                    return result + SearchParams.SEARCH_CHAINSEPARATOR + " ** INVALID CHAIN OPERATION ** Chain operation must have a Criterium as operand";
+                return Operand is Criterium
+                    ? result + SearchParams.SEARCH_CHAINSEPARATOR + Operand.ToString()
+                    : result + SearchParams.SEARCH_CHAINSEPARATOR + " ** INVALID CHAIN OPERATION ** Chain operation must have a Criterium as operand";
             }
             else
             {
-                return result + "=" + buildValue();
+                return result + "=" + BuildValue();
             }
         }
 
-        private static Tuple<string, string> pathToKeyModifTuple(string pathPart)
+        private static Tuple<string, string> PathToKeyModifTuple(string pathPart)
         {
             var pair = pathPart.Split(SearchParams.SEARCH_MODIFIERSEPARATOR);
 
@@ -109,7 +126,7 @@ namespace Spark.Engine.Search.ValueExpressionTypes
             return Tuple.Create(name, modifier);
         }
 
-        private static Criterium fromPathTuples(IEnumerable<Tuple<string, string>> path, string value)
+        private static Criterium FromPathTuples(IEnumerable<Tuple<string, string>> path, string value)
         {
             var first = path.First();
             var name = first.Item1;
@@ -121,7 +138,7 @@ namespace Spark.Engine.Search.ValueExpressionTypes
             if (path.Count() > 1)
             {
                 type = Operator.CHAIN;
-                operand = fromPathTuples(path.Skip(1), value);
+                operand = FromPathTuples(path.Skip(1), value);
             }
 
             // :missing modifier is actually not a real modifier and is turned into
@@ -131,11 +148,17 @@ namespace Spark.Engine.Search.ValueExpressionTypes
                 modifier = null;
 
                 if (value == MISSINGTRUE)
+                {
                     type = Operator.ISNULL;
+                }
                 else if (value == MISSINGFALSE)
+                {
                     type = Operator.NOTNULL;
+                }
                 else
+                {
                     throw Error.Argument("value", "For the :missing modifier, only values 'true' and 'false' are allowed");
+                }
 
                 operand = null;
             }
@@ -145,12 +168,15 @@ namespace Spark.Engine.Search.ValueExpressionTypes
                 // If this an ordered parameter type, then we accept a comparator prefix: https://www.hl7.org/fhir/stu3/search.html#prefix
                 if (ModelInfo.SearchParameters.CanHaveOperatorPrefix(name))
                 {
-                    var compVal = findComparator(value);
+                    var compVal = FindComparator(value);
                     type = compVal.Item1;
                     value = compVal.Item2;
                 }
 
-                if (value == null) throw new FormatException("Value is empty");
+                if (value == null)
+                {
+                    throw new FormatException("Value is empty");
+                }
                 // Parse the value. If there's > 1, we are using the IN operator, unless
                 // the input already specifies another comparison, which would be illegal
                 var values = ChoiceValue.Parse(value);
@@ -158,7 +184,10 @@ namespace Spark.Engine.Search.ValueExpressionTypes
                 if (values.Choices.Length > 1)
                 {
                     if (type != Operator.EQ)
+                    {
                         throw new InvalidOperationException("Multiple values cannot be used in combination with a comparison operator");
+                    }
+
                     type = Operator.IN;
                     operand = values;
                 }
@@ -180,37 +209,50 @@ namespace Spark.Engine.Search.ValueExpressionTypes
         }
 
 
-        private string buildValue()
+        private string BuildValue()
         {
             // Turn ISNULL and NOTNULL operators into either true/or false to match the :missing modifier
-            if (Operator == Operator.ISNULL) return "true";
-            if (Operator == Operator.NOTNULL) return "false";
+            if (Operator == Operator.ISNULL)
+            {
+                return "true";
+            }
 
-            if (Operand == null) throw new InvalidOperationException("Criterium does not have an operand");
-            if (!(Operand is ValueExpression)) throw new FormatException("Expected a ValueExpression as operand");
+            if (Operator == Operator.NOTNULL)
+            {
+                return "false";
+            }
+
+            if (Operand == null)
+            {
+                throw new InvalidOperationException("Criterium does not have an operand");
+            }
+
+            if (!(Operand is ValueExpression))
+            {
+                throw new FormatException("Expected a ValueExpression as operand");
+            }
 
             var value = Operand.ToString();
 
-            if (Operator == Operator.EQ)
-                return value;
-            else
-                return operatorMapping.FirstOrDefault(t => t.Item2 == Operator).Item1 + value;
+            return Operator == Operator.EQ ? value : _operatorMapping.FirstOrDefault(t => t.Item2 == Operator).Item1 + value;
         }
 
-        private static Tuple<Operator, string> findComparator(string value)
+        private static Tuple<Operator, string> FindComparator(string value)
         {
-            var opMap = operatorMapping.FirstOrDefault(t => value.StartsWith(t.Item1));
+            var opMap = _operatorMapping.FirstOrDefault(t => value.StartsWith(t.Item1));
 
             return Tuple.Create(opMap.Item2, value.Substring(opMap.Item1.Length));
         }
 
         public Criterium Clone()
         {
-            var result = new Criterium();
-            result.Modifier = Modifier;
-            result.Operand = (Operand is Criterium) ? (Operand as Criterium).Clone() : Operand;
-            result.Operator = Operator;
-            result.ParamName = ParamName;
+            var result = new Criterium
+            {
+                Modifier = Modifier,
+                Operand = (Operand is Criterium) ? (Operand as Criterium).Clone() : Operand,
+                Operator = Operator,
+                ParamName = ParamName
+            };
 
             return result;
         }
@@ -221,7 +263,7 @@ namespace Spark.Engine.Search.ValueExpressionTypes
         }
 
         //CK: Order of these mappings is important for string matching. From more specific to less specific.
-        private static readonly List<Tuple<string, Operator>> operatorMapping = new List<Tuple<string, Operator>> {
+        private static readonly List<Tuple<string, Operator>> _operatorMapping = new List<Tuple<string, Operator>> {
                 new Tuple<string, Operator>( "ne", Operator.NOT_EQUAL)
                 , new Tuple<string, Operator>( "ge", Operator.GTE)
                 , new Tuple<string, Operator>( "le", Operator.LTE)

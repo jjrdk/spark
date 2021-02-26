@@ -8,7 +8,7 @@
         public const string
             BEFORE = "before",
             AFTER = "after",
-            Separator = ":";
+            SEPARATOR = ":";
 
         public const string
             EXACT = "exact",

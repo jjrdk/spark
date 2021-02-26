@@ -34,7 +34,7 @@ namespace Spark.Web.Services
             public long Count { get; set; }
         }
 
-        public class ResourceStatsVM
+        public class ResourceStatsVm
         {
             public List<ResourceStat> ResourceStats;
         }

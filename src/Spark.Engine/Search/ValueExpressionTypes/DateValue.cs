@@ -29,8 +29,10 @@ namespace Spark.Engine.Search.ValueExpressionTypes
             if (!Date.IsValidValue(date))
             {
                 if (!FhirDateTime.IsValidValue(date))
+                {
                     throw Error.Argument("date", "The string [" + date + "] is not a valid FHIR date string and isn't a FHIR datetime either");
-                
+                }
+
                 // This was a time, so we can just use the date portion of this
                 date = (new FhirDateTime(date)).ToDateTimeOffset(TimeSpan.Zero).Date.ToString("yyyy-MM-dd");
             }

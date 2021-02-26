@@ -19,9 +19,9 @@ namespace Spark.Engine.Core
             }
             else
             {
-                var _base = DefaultBase.ToString().TrimEnd('/') + "/";
+                var @base = DefaultBase.ToString().TrimEnd('/') + "/";
                 var path = uri.ToString();
-                return new Uri(_base + uri);
+                return new Uri(@base + uri);
             }
         }
 

@@ -10,7 +10,7 @@
     using Microsoft.Extensions.DependencyInjection.Extensions;
     using Microsoft.Extensions.Logging;
 
-    public static class IServiceCollectionExtensions
+    public static class ServiceCollectionExtensions
     {
         public static void AddPostgresFhirStore(this IServiceCollection services, StoreSettings settings)
         {
@@ -18,7 +18,7 @@
                 o =>
                 {
                     o.Connection(settings.ConnectionString);
-                    o.PLV8Enabled = true;
+                    o.PLV8Enabled = false;
                     o.Schema.Include<FhirRegistry>();
                 });
             services.AddSingleton<IDocumentStore>(store);

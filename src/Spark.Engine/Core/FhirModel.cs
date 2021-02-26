@@ -38,11 +38,46 @@ namespace Spark.Engine.Core
         {
             var genericSearchParamDefinitions = new List<SearchParamDefinition>
             {
-                new SearchParamDefinition { Resource = "Resource", Name = "_id", Type = SearchParamType.String, Expression = "Resource.id", Path = new string[] { "Resource.id" } }
-                , new SearchParamDefinition { Resource = "Resource", Name = "_lastUpdated", Type = SearchParamType.Date, Expression = "Resource.meta.lastUpdated", Path = new string[] { "Resource.meta.lastUpdated" } }
-                , new SearchParamDefinition { Resource = "Resource", Name = "_profile", Type = SearchParamType.Uri, Expression = "Resource.meta.profile", Path = new string[] { "Resource.meta.profile" } }
-                , new SearchParamDefinition { Resource = "Resource", Name = "_security", Type = SearchParamType.Token, Expression = "Resource.meta.security", Path = new string[] { "Resource.meta.security" } }
-                , new SearchParamDefinition { Resource = "Resource", Name = "_tag", Type = SearchParamType.Token, Expression = "Resource.meta.tag", Path = new string[] { "Resource.meta.tag" } }
+                new SearchParamDefinition
+                {
+                    Resource = "Resource",
+                    Name = "_id",
+                    Type = SearchParamType.String,
+                    Expression = "Resource.id",
+                    Path = new string[] {"Resource.id"}
+                },
+                new SearchParamDefinition
+                {
+                    Resource = "Resource",
+                    Name = "_lastUpdated",
+                    Type = SearchParamType.Date,
+                    Expression = "Resource.meta.lastUpdated",
+                    Path = new string[] {"Resource.meta.lastUpdated"}
+                },
+                new SearchParamDefinition
+                {
+                    Resource = "Resource",
+                    Name = "_profile",
+                    Type = SearchParamType.Uri,
+                    Expression = "Resource.meta.profile",
+                    Path = new string[] {"Resource.meta.profile"}
+                },
+                new SearchParamDefinition
+                {
+                    Resource = "Resource",
+                    Name = "_security",
+                    Type = SearchParamType.Token,
+                    Expression = "Resource.meta.security",
+                    Path = new string[] {"Resource.meta.security"}
+                },
+                new SearchParamDefinition
+                {
+                    Resource = "Resource",
+                    Name = "_tag",
+                    Type = SearchParamType.Token,
+                    Expression = "Resource.meta.tag",
+                    Path = new string[] {"Resource.meta.tag"}
+                }
             };
 
             //CK: Below is how it should be, once SearchParameter has proper support for Composite parameters.
@@ -69,7 +104,7 @@ namespace Spark.Engine.Core
             {
                 Name = def.Name,
                 Code = def.Name,
-                Base = new List<ResourceType?> {GetResourceTypeForResourceName(def.Resource)},
+                Base = new List<ResourceType?> { GetResourceTypeForResourceName(def.Resource) },
                 Type = def.Type,
                 Target = def.Target != null ? def.Target.ToList().Cast<ResourceType?>() : new List<ResourceType?>(),
                 Description = def.Description,
@@ -78,13 +113,14 @@ namespace Spark.Engine.Core
             //CK: SearchParamDefinition has no Code, but in all current SearchParameter resources, name and code are equal.
             //Strip off the [x], for example in Condition.onset[x].
             result.SetPropertyPath(def.Path?.Select(p => p.Replace("[x]", "")).ToArray());
-            
+
             //Watch out: SearchParameter is not very good yet with Composite parameters.
             //Therefore we include a reference to the original SearchParamDefinition :-)
             result.SetOriginalDefinition(def);
 
             return result;
         }
+
         //TODO: this should be removed after IndexServiceTests are changed to used mocking instead of this for overriding the context (CCR).
         private readonly Dictionary<Type, string> _csTypeToFhirTypeName;
 
@@ -104,9 +140,12 @@ namespace Spark.Engine.Core
 
             public override bool Equals(object obj)
             {
-                if (obj is null) return false;
-                if (ReferenceEquals(this, obj)) return true;
-                return obj.GetType() == this.GetType() && Equals((ComparableSearchParameter)obj);
+                if (obj is null)
+                {
+                    return false;
+                }
+
+                return ReferenceEquals(this, obj) ? true : obj.GetType() == this.GetType() && Equals((ComparableSearchParameter)obj);
             }
 
             public override int GetHashCode()
@@ -121,22 +160,11 @@ namespace Spark.Engine.Core
             }
         }
 
-        public List<SearchParameter> SearchParameters
-        {
-            get
-            {
-                return _searchParameters;
-            }
-        }
+        public List<SearchParameter> SearchParameters => _searchParameters;
 
         public string GetResourceNameForType(Type type)
         {
-            if (_csTypeToFhirTypeName != null)
-            {
-                return _csTypeToFhirTypeName[type];
-            }
-            return GetFhirTypeNameForType(type);
-
+            return _csTypeToFhirTypeName != null ? _csTypeToFhirTypeName[type] : GetFhirTypeNameForType(type);
         }
 
         public Type GetTypeForResourceName(string name)
@@ -290,7 +318,7 @@ namespace Spark.Engine.Core
 
         public CompartmentInfo FindCompartmentInfo(ResourceType resourceType)
         {
-            return _compartments.Where(ci => ci.ResourceType == resourceType).FirstOrDefault();
+            return _compartments.FirstOrDefault(ci => ci.ResourceType == resourceType);
         }
 
         public CompartmentInfo FindCompartmentInfo(string resourceType)

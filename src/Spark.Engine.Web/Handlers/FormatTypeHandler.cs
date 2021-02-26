@@ -17,7 +17,11 @@
                 var accepted = ContentType.GetResourceFormatFromFormatParam(format);
                 if (accepted != ResourceFormat.Unknown)
                 {
-                    if (context.Request.Headers.ContainsKey("Accept")) context.Request.Headers.Remove("Accept");
+                    if (context.Request.Headers.ContainsKey("Accept"))
+                    {
+                        context.Request.Headers.Remove("Accept");
+                    }
+
                     context.Request.Headers.Add(
                         "Accept",
                         accepted == ResourceFormat.Json

@@ -32,12 +32,9 @@
 
         public async Task<ISnapshotPagination> StartPagination(string snapshotkey)
         {
-            if (_snapshotstore == null)
-            {
-                throw new NotSupportedException("Stateful pagination is not currently supported.");
-            }
-
-            return _paginationProvider.StartPagination(
+            return _snapshotstore == null
+                ? throw new NotSupportedException("Stateful pagination is not currently supported.")
+                : _paginationProvider.StartPagination(
                 await _snapshotstore.GetSnapshot(snapshotkey).ConfigureAwait(false));
         }
     }

@@ -18,9 +18,13 @@ namespace Spark.Engine.Utility
             foreach (var element in elements)
             {
                 if (string.IsNullOrEmpty(xPathExpression))
+                {
                     xPathExpression = $"{prefix}{element}";
+                }
                 else
+                {
                     xPathExpression += $"{separator}{prefix}{element}";
+                }
             }
 
             return xPathExpression;
@@ -49,7 +53,10 @@ namespace Spark.Engine.Utility
         internal static (Type, string) ResolveElement(Type root, string element)
         {
             var pi = root.GetProperty(element);
-            if (pi == null) return (null, element);
+            if (pi == null)
+            {
+                return (null, element);
+            }
 
             var fhirElementName = element;
             var fhirElement = pi.GetCustomAttribute<FhirElementAttribute>();
@@ -90,12 +97,7 @@ namespace Spark.Engine.Utility
         internal static (string, string) GetElementSeparetedFromIndexer(string element)
         {
             var index = element.LastIndexOf("[");
-            if (index > -1)
-            {
-                return (element.Substring(0, index), element.Substring(index));
-            }
-
-            return (element, string.Empty);
+            return index > -1 ? (element.Substring(0, index), element.Substring(index)) : (element, string.Empty);
         }
     }
 }

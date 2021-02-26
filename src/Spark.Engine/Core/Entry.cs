@@ -82,7 +82,7 @@ namespace Spark.Engine.Core
         /// <summary>
         ///  Creates a deleted entry
         /// </summary>
-        public static Entry DELETE(IKey key, DateTimeOffset? when)
+        public static Entry Delete(IKey key, DateTimeOffset? when)
         {
             return Create(Bundle.HTTPVerb.DELETE, key, when ?? DateTimeOffset.UtcNow);
         }
@@ -98,25 +98,19 @@ namespace Spark.Engine.Core
             }
         }
 
-        public bool IsPresent
-        {
-            get
-            {
-                return Method != Bundle.HTTPVerb.DELETE;
-            }
-        }
+        public bool IsPresent => Method != Bundle.HTTPVerb.DELETE;
 
-        public static Entry POST(IKey key, Resource resource)
+        public static Entry Post(IKey key, Resource resource)
         {
             return Create(Bundle.HTTPVerb.POST, key, resource);
         }
 
-        public static Entry POST(Resource resource)
+        public static Entry Post(Resource resource)
         {
             return Create(Bundle.HTTPVerb.POST, resource);
         }
 
-        public static Entry PUT(IKey key, Resource resource)
+        public static Entry Put(IKey key, Resource resource)
         {
             return Create(Bundle.HTTPVerb.PUT, key, resource);
         }

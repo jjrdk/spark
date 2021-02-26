@@ -11,8 +11,8 @@ namespace Spark.Engine.Model
     {
         public ResourceType ResourceType { get; set; }
 
-        private readonly List<string> revIncludes = new List<string>();
-        public List<string> ReverseIncludes { get { return revIncludes; }  }
+        private readonly List<string> _revIncludes = new List<string>();
+        public List<string> ReverseIncludes => _revIncludes;
 
         public CompartmentInfo(ResourceType resourceType)
         {
@@ -21,12 +21,12 @@ namespace Spark.Engine.Model
 
         public void AddReverseInclude(string revInclude)
         {
-            revIncludes.Add(revInclude);
+            _revIncludes.Add(revInclude);
         }
 
         public void AddReverseIncludes(IEnumerable<string> revIncludes)
         {
-            this.revIncludes.AddRange(revIncludes);
+            this._revIncludes.AddRange(revIncludes);
         }
     }
 }

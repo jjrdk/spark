@@ -23,7 +23,7 @@ namespace Spark.Mongo.Search.Common
         {
             _database = MongoDatabaseFactory.GetMongoDatabase(mongoUrl);
             _indexMapper = indexMapper;
-            Collection = _database.GetCollection<BsonDocument>(Config.MONGOINDEXCOLLECTION);
+            Collection = _database.GetCollection<BsonDocument>(Config.Mongoindexcollection);
         }
 
         public async Task Save(IndexValue indexValue)

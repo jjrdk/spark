@@ -6,10 +6,7 @@
     {
         public override string GroomElement(string value)
         {
-            if (value != null)
-                return value.Trim();
-            else
-                return null;
+            return value != null ? value.Trim() : null;
         }
 
         public override string ValueToString(ITerm term)

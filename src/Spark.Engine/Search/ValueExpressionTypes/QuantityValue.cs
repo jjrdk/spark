@@ -43,21 +43,30 @@ namespace Spark.Engine.Search.ValueExpressionTypes
 
         public static QuantityValue Parse(string text)
         {
-            if (text == null) throw Error.ArgumentNull("text");
+            if (text == null)
+            {
+                throw Error.ArgumentNull("text");
+            }
 
             var triple = text.SplitNotEscaped('|');
 
             if (triple.Length != 3)
+            {
                 throw Error.Argument("text", "Quantity needs to have three parts separated by '|'");
+            }
 
-            if(triple[0] == string.Empty) 
+            if (triple[0] == string.Empty)
+            {
                 throw new FormatException("Quantity needs to specify a number");
+            }
 
             var number = PrimitiveTypeConverter.ConvertTo<decimal>(triple[0]);
             var ns = triple[1] != string.Empty ? StringValue.UnescapeString(triple[1]) : null;
 
             if (triple[2] == string.Empty)
+            {
                 throw new FormatException("Quantity needs to specify a unit");
+            }
 
             var unit = StringValue.UnescapeString(triple[2]);
  

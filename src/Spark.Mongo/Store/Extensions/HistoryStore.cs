@@ -29,7 +29,9 @@ namespace Spark.Mongo.Store.Extensions
                 new List<FilterDefinition<BsonDocument>> {Builders<BsonDocument>.Filter.Eq(Field.TYPENAME, resource)};
 
             if (parameters.Since != null)
+            {
                 clauses.Add(Builders<BsonDocument>.Filter.Gt(Field.WHEN, BsonDateTime.Create(parameters.Since)));
+            }
 
             var primaryKeys = await FetchPrimaryKeys(clauses).ConfigureAwait(false);
             return CreateSnapshot(primaryKeys, parameters.Count);
@@ -44,7 +46,9 @@ namespace Spark.Mongo.Store.Extensions
             };
 
             if (parameters.Since != null)
+            {
                 clauses.Add(Builders<BsonDocument>.Filter.Gt(Field.WHEN, BsonDateTime.Create(parameters.Since)));
+            }
 
             var primaryKeys = await FetchPrimaryKeys(clauses).ConfigureAwait(false);
             return CreateSnapshot(primaryKeys, parameters.Count);
@@ -54,7 +58,9 @@ namespace Spark.Mongo.Store.Extensions
         {
             var clauses = new List<FilterDefinition<BsonDocument>>();
             if (parameters.Since != null)
+            {
                 clauses.Add(Builders<BsonDocument>.Filter.Gt(Field.WHEN, BsonDateTime.Create(parameters.Since)));
+            }
 
             var primaryKeys = await FetchPrimaryKeys(clauses).ConfigureAwait(false);
             return CreateSnapshot(primaryKeys, parameters.Count);
@@ -75,7 +81,7 @@ namespace Spark.Mongo.Store.Extensions
 
         private Snapshot CreateSnapshot(IList<string> keys, int? count = null, IList<string> includes = null, IList<string> reverseIncludes = null)
         {
-            var link = new Uri(RestOperation.HISTORY, UriKind.Relative);
+            var link = new Uri(RestOperation.History, UriKind.Relative);
             var snapshot = Snapshot.Create(Bundle.BundleType.History, link, keys, "history", count, includes, reverseIncludes);
             return snapshot;
         }

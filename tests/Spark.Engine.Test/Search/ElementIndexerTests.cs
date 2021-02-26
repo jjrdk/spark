@@ -76,8 +76,15 @@
         private static void CheckPeriod(List<Expression> result, string start, string end)
         {
             var nrOfComponents = 0;
-            if (!string.IsNullOrWhiteSpace(start)) nrOfComponents++;
-            if (!string.IsNullOrWhiteSpace(end)) nrOfComponents++;
+            if (!string.IsNullOrWhiteSpace(start))
+            {
+                nrOfComponents++;
+            }
+
+            if (!string.IsNullOrWhiteSpace(end))
+            {
+                nrOfComponents++;
+            }
 
             Assert.Single(result);
             Assert.IsType<CompositeValue>(result.First());

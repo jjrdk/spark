@@ -14,9 +14,9 @@
 
         public Key() { }
 
-        public Key(string _base, string type, string resourceid, string versionid)
+        public Key(string @base, string type, string resourceid, string versionid)
         {
-            this.Base = _base != null ? _base.TrimEnd('/') : null;
+            this.Base = @base != null ? @base.TrimEnd('/') : null;
             this.TypeName = type;
             this.ResourceId = resourceid;
             this.VersionId = versionid;
@@ -37,18 +37,15 @@
             return new Key(null, type, resourceid, versionid);
         }
 
-        public static Key Null
-        {
-            get
-            {
-                return default(Key);
-            }
-        }
+        public static Key Null => default(Key);
 
         public override bool Equals(object obj)
         {
             if (obj == null || GetType() != obj.GetType())
+            {
                 return false;
+            }
+
             var other = (Key)obj;
             return this.ToUriString() == other.ToUriString();
         }
@@ -68,9 +65,21 @@
                 path = path.Substring(0, indexOfQueryString);
             }
             var segments = path.Split('/');
-            if (segments.Length >= 1) key.TypeName = segments[0];
-            if (segments.Length >= 2) key.ResourceId = segments[1];
-            if (segments.Length == 4 && segments[2] == "_history") key.VersionId = segments[3];
+            if (segments.Length >= 1)
+            {
+                key.TypeName = segments[0];
+            }
+
+            if (segments.Length >= 2)
+            {
+                key.ResourceId = segments[1];
+            }
+
+            if (segments.Length == 4 && segments[2] == "_history")
+            {
+                key.VersionId = segments[3];
+            }
+
             return key;
         }
 

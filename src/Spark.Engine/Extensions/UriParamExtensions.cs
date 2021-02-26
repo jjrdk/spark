@@ -26,8 +26,10 @@ namespace Spark.Engine.Extensions
             }
             else
             {
-                builder = new UriBuilder(fakeBase);
-                builder.Path= uri.ToString();
+                builder = new UriBuilder(fakeBase)
+                {
+                    Path = uri.ToString()
+                };
             }
 
             ICollection<Tuple<string, string>> query = UriUtils.SplitParams(builder.Query).ToList();
@@ -39,14 +41,7 @@ namespace Spark.Engine.Extensions
 
             builder.Query = UriUtils.JoinParams(query);
 
-            if (uri.IsAbsoluteUri)
-            {
-                return builder.Uri;
-            }
-            else
-            {
-                return fakeBase.MakeRelativeUri(builder.Uri);
-            }
+            return uri.IsAbsoluteUri ? builder.Uri : fakeBase.MakeRelativeUri(builder.Uri);
         }
     }
 }

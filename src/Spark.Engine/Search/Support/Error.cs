@@ -126,7 +126,9 @@
                     $"At line {pos.LineNumber}, pos {pos.LinePosition}: {FormatMessage(messageFormat, messageArgs)}";
             }
             else
+            {
                 message = FormatMessage(messageFormat, messageArgs);
+            }
 
             return new FormatException(message);
         }

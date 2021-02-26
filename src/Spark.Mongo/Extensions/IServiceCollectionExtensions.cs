@@ -17,7 +17,7 @@ namespace Spark.Mongo.Extensions
     using Spark.Search.Mongo;
     using Spark.Store.Mongo;
 
-    public static class IServiceCollectionExtensions
+    public static class ServiceCollectionExtensions
     {
         public static void AddMongoFhirStore(this IServiceCollection services, StoreSettings settings)
         {

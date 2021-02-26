@@ -11,13 +11,13 @@
 
     public class MongoStoreAdministration : IFhirStoreAdministration
     {
-        readonly IMongoDatabase database;
-        readonly IMongoCollection<BsonDocument> collection;
+        readonly IMongoDatabase _database;
+        readonly IMongoCollection<BsonDocument> _collection;
 
         public MongoStoreAdministration(string mongoUrl)
         {
-            this.database = MongoDatabaseFactory.GetMongoDatabase(mongoUrl);
-            this.collection = database.GetCollection<BsonDocument>(Collection.RESOURCE);
+            this._database = MongoDatabaseFactory.GetMongoDatabase(mongoUrl);
+            this._collection = _database.GetCollection<BsonDocument>(Collection.RESOURCE);
         }
         
         public async Task Clean()
@@ -68,14 +68,14 @@
                 new CreateIndexModel<BsonDocument>(Builders<BsonDocument>.IndexKeys.Ascending(Field.PRIMARYKEY).Ascending(Field.STATE)),
                 new CreateIndexModel<BsonDocument>(Builders<BsonDocument>.IndexKeys.Descending(Field.WHEN).Ascending(Field.TYPENAME)),
             };
-            await collection.Indexes.CreateManyAsync(indices).ConfigureAwait(false);
+            await _collection.Indexes.CreateManyAsync(indices).ConfigureAwait(false);
         }
 
         private async Task TryDropCollectionAsync(string name)
         {
             try
             {
-                await database.DropCollectionAsync(name).ConfigureAwait(false);
+                await _database.DropCollectionAsync(name).ConfigureAwait(false);
             }
             catch
             {

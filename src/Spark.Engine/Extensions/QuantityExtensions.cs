@@ -22,9 +22,11 @@ namespace Spark.Engine.Extensions
         }
         public static FM.Quantity ToFhirModelQuantity(this Quantity input)
         {
-            var output = new FM.Quantity();
-            output.Value = (decimal)input.Value;
-            output.Code = input.Metric.ToString();
+            var output = new FM.Quantity
+            {
+                Value = (decimal)input.Value,
+                Code = input.Metric.ToString()
+            };
             output.Unit = output.Code;
             output.System = UcumUriString;
             return output;
@@ -48,18 +50,21 @@ namespace Spark.Engine.Extensions
         {
             var values = new List<ValueExpression>();
             if (quantity.System != null)
+            {
                 values.Add(new IndexValue("system", new StringValue(quantity.System)));
+            }
 
             if (quantity.Unit != null)
+            {
                 values.Add(new IndexValue("unit", new StringValue(quantity.Unit)));
+            }
 
             if (quantity.Value.HasValue)
+            {
                 values.Add(new IndexValue("value", new NumberValue(quantity.Value.Value)));
+            }
 
-            if (values.Any())
-                return new CompositeValue(values);
-
-            return null;
+            return values.Any() ? new CompositeValue(values) : null;
         }
 
         public static Expression ToExpression(this FM.Quantity quantity)
@@ -69,15 +74,15 @@ namespace Spark.Engine.Extensions
                 var q = quantity.ToUnitsOfMeasureQuantity();
                 return q.ToExpression();
             }
-            else return quantity.NonUcumIndexedExpression();
+            else
+            {
+                return quantity.NonUcumIndexedExpression();
+            }
         }
 
         public static bool IsUcum(this FM.Quantity quantity)
         {
-            if (quantity.System == null)
-                return false;
-
-            return new Uri(UcumUriString).IsBaseOf(new Uri(quantity.System));
+            return quantity.System == null ? false : new Uri(UcumUriString).IsBaseOf(new Uri(quantity.System));
         }
 
         public static Quantity Canonical(this Quantity input)
@@ -106,7 +111,10 @@ namespace Spark.Engine.Extensions
                 quantity = quantity.Canonical();
                 return quantity.ToFhirModelQuantity();
             }
-            else return input;
+            else
+            {
+                return input;
+            }
         }
 
         public static string ValueAsSearchableString(this FM.Quantity quantity)

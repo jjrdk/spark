@@ -12,20 +12,20 @@
     /// </summary>
     public class Transfer : ITransfer
     {
-        private readonly ILocalhost localhost;
-        private readonly IGenerator generator;
-        private readonly SparkSettings sparkSettings;
+        private readonly ILocalhost _localhost;
+        private readonly IGenerator _generator;
+        private readonly SparkSettings _sparkSettings;
 
         public Transfer(IGenerator generator, ILocalhost localhost, SparkSettings sparkSettings = null)
         {
-            this.generator = generator;
-            this.localhost = localhost;
-            this.sparkSettings = sparkSettings;
+            this._generator = generator;
+            this._localhost = localhost;
+            this._sparkSettings = sparkSettings;
         }
 
         public Task Internalize(Entry entry)
         {
-            var import = new Import(localhost, generator);
+            var import = new Import(_localhost, _generator);
             import.Add(entry);
             return import.Internalize();
         }
@@ -33,7 +33,7 @@
 
         public Task Internalize(IEnumerable<Entry> interactions, Mapper<string, IKey> mapper = null)
         {
-            var import = new Import(this.localhost, this.generator);
+            var import = new Import(this._localhost, this._generator);
             if (mapper != null)
             {
                 import.AddMappings(mapper);
@@ -44,14 +44,14 @@
 
         public void Externalize(Entry interaction)
         {
-            var export = new Export(this.localhost, this.sparkSettings?.ExportSettings ?? new ExportSettings());
+            var export = new Export(this._localhost, this._sparkSettings?.ExportSettings ?? new ExportSettings());
             export.Add(interaction);
             export.Externalize();
         }
 
         public void Externalize(IEnumerable<Entry> interactions)
         {
-            var export = new Export(this.localhost, this.sparkSettings?.ExportSettings ?? new ExportSettings());
+            var export = new Export(this._localhost, this._sparkSettings?.ExportSettings ?? new ExportSettings());
             export.Add(interactions);
             export.Externalize();
         }

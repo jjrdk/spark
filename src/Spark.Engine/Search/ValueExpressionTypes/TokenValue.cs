@@ -41,17 +41,24 @@ namespace Spark.Engine.Search.ValueExpressionTypes
                                     StringValue.EscapeString(Value);
             }
             else
+            {
                 return StringValue.EscapeString(Value);
+            }
         }
 
         public static TokenValue Parse(string text)
         {
-            if (text == null) throw Error.ArgumentNull("text");
+            if (text == null)
+            {
+                throw Error.ArgumentNull("text");
+            }
 
             var pair = text.SplitNotEscaped('|');
 
             if (pair.Length > 2)
+            {
                 throw Error.Argument("text", "Token cannot have more than two parts separated by '|'");
+            }
 
             var hasNamespace = pair.Length == 2;
 
@@ -60,14 +67,13 @@ namespace Spark.Engine.Search.ValueExpressionTypes
             if (hasNamespace)
             {
                 if(pair[1] == string.Empty)
+                {
                     throw new FormatException("Token query parameters should at least specify a value after the '|'");
+                }
 
                 var pair1 = StringValue.UnescapeString(pair[1]);
 
-                if (pair0 == string.Empty)
-                    return new TokenValue(pair1, matchAnyNamespace: false );
-                else
-                    return new TokenValue(pair1, pair0);
+                return pair0 == string.Empty ? new TokenValue(pair1, matchAnyNamespace: false ) : new TokenValue(pair1, pair0);
             }
             else
             {

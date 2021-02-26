@@ -12,7 +12,7 @@ namespace Spark.Engine.Service
 
     public static class CommonUri
     {
-        public static Uri HL7Fhir = new Uri("http://hl7.org/fhir/");
-        public static Uri HL7V2 = new Uri("http://hl7.org/v2/");
+        public static Uri Hl7Fhir = new Uri("http://hl7.org/fhir/");
+        public static Uri Hl7V2 = new Uri("http://hl7.org/v2/");
     }
 }

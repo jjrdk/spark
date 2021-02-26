@@ -22,13 +22,13 @@ namespace Spark.Store.Mongo
 
     public class MongoFhirStore : IFhirStore
     {
-        readonly IMongoDatabase database;
-        readonly IMongoCollection<BsonDocument> collection;
+        readonly IMongoDatabase _database;
+        readonly IMongoCollection<BsonDocument> _collection;
 
         public MongoFhirStore(string mongoUrl)
         {
-            this.database = MongoDatabaseFactory.GetMongoDatabase(mongoUrl);
-            this.collection = database.GetCollection<BsonDocument>(Collection.RESOURCE);
+            this._database = MongoDatabaseFactory.GetMongoDatabase(mongoUrl);
+            this._collection = _database.GetCollection<BsonDocument>(Collection.RESOURCE);
             //this.transaction = new MongoSimpleTransaction(collection);
         }
 
@@ -36,7 +36,7 @@ namespace Spark.Store.Mongo
         {
             var document = entry.ToBsonDocument();
             await SupercedeAsync(entry.Key).ConfigureAwait(false);
-            await collection.InsertOneAsync(document).ConfigureAwait(false);
+            await _collection.InsertOneAsync(document).ConfigureAwait(false);
         }
 
         public async Task<Entry> Get(IKey key)
@@ -57,7 +57,7 @@ namespace Spark.Store.Mongo
 
             var query = Builders<BsonDocument>.Filter.And(clauses);
 
-            var document = (await collection.FindAsync(query).ConfigureAwait(false)).FirstOrDefault();
+            var document = (await _collection.FindAsync(query).ConfigureAwait(false)).FirstOrDefault();
             return document.ToEntry();
 
         }
@@ -65,7 +65,9 @@ namespace Spark.Store.Mongo
         public async Task<IList<Entry>> Get(IEnumerable<IKey> identifiers)
         {
             if (!identifiers.Any())
+            {
                 return new List<Entry>();
+            }
 
             IList<IKey> identifiersList = identifiers.ToList();
             var versionedIdentifiers = GetBsonValues(identifiersList, k => k.HasVersionId());
@@ -73,12 +75,18 @@ namespace Spark.Store.Mongo
 
             var queries = new List<FilterDefinition<BsonDocument>>();
             if (versionedIdentifiers.Any())
+            {
                 queries.Add(GetSpecificVersionQuery(versionedIdentifiers));
+            }
+
             if (unversionedIdentifiers.Any())
+            {
                 queries.Add(GetCurrentVersionQuery(unversionedIdentifiers));
+            }
+
             var query = Builders<BsonDocument>.Filter.Or(queries);
 
-            var cursor = (await collection.FindAsync(query).ConfigureAwait(false)).ToEnumerable();
+            var cursor = (await _collection.FindAsync(query).ConfigureAwait(false)).ToEnumerable();
 
             return cursor.ToEntries().ToList();
         }
@@ -115,7 +123,7 @@ namespace Spark.Store.Mongo
 
             var update = Builders<BsonDocument>.Update.Set(Field.STATE, Value.SUPERCEDED);
             // A single delete on a sharded collection must contain an exact match on _id (and have the collection default collation) or contain the shard key (and have the simple collation).
-            await collection.UpdateManyAsync(query, update).ConfigureAwait(false);
+            await _collection.UpdateManyAsync(query, update).ConfigureAwait(false);
         }
 
     }

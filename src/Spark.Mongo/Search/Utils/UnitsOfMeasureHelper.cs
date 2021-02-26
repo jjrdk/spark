@@ -54,7 +54,10 @@ namespace Spark.Mongo.Search.Utils
                 var q = quantity.ToUnitsOfMeasureQuantity();
                 return ToBson(q);
             }
-            else return quantity.NonUcumIndexed();
+            else
+            {
+                return quantity.NonUcumIndexed();
+            }
         }
 
 

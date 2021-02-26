@@ -95,7 +95,7 @@
             Validate.ResourceType(key, resource);
 
             key = key.CleanupForCreate();
-            var result = await Store(Entry.POST(key, resource)).ConfigureAwait(false);
+            var result = await Store(Entry.Post(key, resource)).ConfigureAwait(false);
             return Respond.WithResource(HttpStatusCode.Created, result);
         }
 
@@ -107,11 +107,9 @@
             var resourceStorage = GetFeature<IResourceStorageService>();
 
             var current = await resourceStorage.Get(key).ConfigureAwait(false);
-            if (current != null && current.IsPresent)
-            {
-                return await Delete(Entry.DELETE(key, DateTimeOffset.UtcNow)).ConfigureAwait(false);
-            }
-            return Respond.WithCode(HttpStatusCode.NoContent);
+            return current != null && current.IsPresent
+                ? await Delete(Entry.Delete(key, DateTimeOffset.UtcNow)).ConfigureAwait(false)
+                : Respond.WithCode(HttpStatusCode.NoContent);
         }
 
         public async Task<FhirResponse> Delete(Entry entry)
@@ -164,7 +162,7 @@
         {
             Validate.HasResourceId(resource);
             Validate.IsResourceIdEqual(key, resource);
-            return Put(Entry.PUT(key, resource));
+            return Put(Entry.Put(key, resource));
         }
 
         public async Task<FhirResponse> Put(Entry entry)

@@ -21,8 +21,8 @@ namespace Spark.Engine.Extensions
     {
         public static Key ExtractKey(this Resource resource)
         {
-            var _base = resource.ResourceBase?.ToString();
-            var key = new Key(_base, resource.TypeName, resource.Id, resource.VersionId);
+            var @base = resource.ResourceBase?.ToString();
+            var key = new Key(@base, resource.TypeName, resource.Id, resource.VersionId);
             return key;
         }
 
@@ -30,8 +30,8 @@ namespace Spark.Engine.Extensions
         {
             var identity = new ResourceIdentity(uri);
 
-            var _base = (identity.HasBaseUri) ? identity.BaseUri.ToString() : null;
-            var key = new Key(_base, identity.ResourceType, identity.Id, identity.VersionId);
+            var @base = (identity.HasBaseUri) ? identity.BaseUri.ToString() : null;
+            var key = new Key(@base, identity.ResourceType, identity.Id, identity.VersionId);
             return key;
         }
 
@@ -61,10 +61,10 @@ namespace Spark.Engine.Extensions
             return !string.IsNullOrEmpty(key.Base);
         }
 
-        public static Key WithBase(this IKey self, string _base)
+        public static Key WithBase(this IKey self, string @base)
         {
             var key = self.Clone();
-            key.Base = _base;
+            key.Base = @base;
             return key;
         }
 
@@ -123,9 +123,21 @@ namespace Spark.Engine.Extensions
 
         public static IEnumerable<string> GetSegments(this IKey key)
         {
-            if (key.Base != null) yield return key.Base;
-            if (key.TypeName != null) yield return key.TypeName;
-            if (key.ResourceId != null) yield return key.ResourceId;
+            if (key.Base != null)
+            {
+                yield return key.Base;
+            }
+
+            if (key.TypeName != null)
+            {
+                yield return key.TypeName;
+            }
+
+            if (key.ResourceId != null)
+            {
+                yield return key.ResourceId;
+            }
+
             if (key.VersionId != null)
             {
                 yield return "_history";
@@ -164,11 +176,12 @@ namespace Spark.Engine.Extensions
             {
                 return Key.Create(parts[0], parts[1], parts[3]);
             }
-            else if (parts.Length == 4)
+            else
             {
-                return Key.Create(parts[0], parts[1], parts[3]);
+                return parts.Length == 4
+                    ? Key.Create(parts[0], parts[1], parts[3])
+                    : throw new ArgumentException("Could not create key from local-reference: " + reference);
             }
-            else throw new ArgumentException("Could not create key from local-reference: " + reference);
         }
 
         public static Uri ToRelativeUri(this IKey key)
@@ -184,8 +197,8 @@ namespace Spark.Engine.Extensions
 
         public static Uri ToUri(this IKey key, Uri endpoint)
         {
-            var _base = endpoint.ToString().TrimEnd('/');
-            var s = $"{_base}/{key}";
+            var @base = endpoint.ToString().TrimEnd('/');
+            var s = $"{@base}/{key}";
             return new Uri(s);
         }
 
@@ -195,11 +208,7 @@ namespace Spark.Engine.Extensions
         /// </summary>
         public static bool IsTemporary(this IKey key)
         {
-            if (key.ResourceId != null)
-            {
-                return UriHelper.IsTemporaryUri(key.ResourceId);
-            }
-            else return false;
+            return key.ResourceId != null ? UriHelper.IsTemporaryUri(key.ResourceId) : false;
         }
 
         /// <summary>

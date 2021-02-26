@@ -11,33 +11,26 @@ namespace Spark.Engine.Service
     using System;
     using System.Collections.Generic;
 
-    public class Mapper<TKEY, TVALUE>
+    public class Mapper<TKey, TValue>
     {
-        private readonly Dictionary<TKEY, TVALUE> mapping = new Dictionary<TKEY, TVALUE>();
+        private readonly Dictionary<TKey, TValue> _mapping = new Dictionary<TKey, TValue>();
 
         public Mapper() { }
 
         public void Clear()
         {
-            mapping.Clear();
+            _mapping.Clear();
         }
 
-        public TVALUE TryGet(TKEY key)
+        public TValue TryGet(TKey key)
         {
-            TVALUE value;
-            if (mapping.TryGetValue(key, out value))
-            {
-                return value;
-            }
-            else
-            {
-                return default(TVALUE);
-            }
+            TValue value;
+            return _mapping.TryGetValue(key, out value) ? value : default(TValue);
         }
 
-        public bool Exists(TKEY key)
+        public bool Exists(TKey key)
         {
-            foreach(var item in mapping)
+            foreach(var item in _mapping)
             {
                 if (item.Key.Equals(key))
                 {
@@ -47,22 +40,27 @@ namespace Spark.Engine.Service
             return false;
         }
 
-        public TVALUE Remap(TKEY key, TVALUE value)
+        public TValue Remap(TKey key, TValue value)
         {
             if (Exists(key))
-                mapping[key] = value;
+            {
+                _mapping[key] = value;
+            }
             else
-                mapping.Add(key, value);
+            {
+                _mapping.Add(key, value);
+            }
+
             return value;
         }
 
-        public void Merge(Mapper<TKEY, TVALUE> mapper)
+        public void Merge(Mapper<TKey, TValue> mapper)
         {
-            foreach (var keyValuePair in mapper.mapping)
+            foreach (var keyValuePair in mapper._mapping)
             {
                 if (!Exists(keyValuePair.Key))
                 {
-                    this.mapping.Add(keyValuePair.Key, keyValuePair.Value);
+                    this._mapping.Add(keyValuePair.Key, keyValuePair.Value);
                 }
                 else if(Exists(keyValuePair.Key) && TryGet(keyValuePair.Key).Equals(keyValuePair.Value) == false)
                 {

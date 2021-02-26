@@ -55,7 +55,10 @@
 
         public static Entry ToEntry(this BsonDocument document)
         {
-            if (document == null) return null;
+            if (document == null)
+            {
+                return null;
+            }
 
             try
             {
@@ -87,10 +90,12 @@
             return value.ToUniversalTime();
         }
 
-        private static void ensureMeta(Resource resource)
+        private static void EnsureMeta(Resource resource)
         {
             if (resource.Meta == null)
+            {
                 resource.Meta = new Meta();
+            }
         }
 
         public static void AddVersionDate(Entry entry, DateTime when)
@@ -98,7 +103,7 @@
             entry.When = when;
             if (entry.Resource != null)
             {
-                ensureMeta(entry.Resource);
+                EnsureMeta(entry.Resource);
                 entry.Resource.Meta.LastUpdated = when;
             }
         }

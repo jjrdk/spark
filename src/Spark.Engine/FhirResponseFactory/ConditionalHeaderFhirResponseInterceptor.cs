@@ -21,7 +21,10 @@ namespace Spark.Engine.FhirResponseFactory
         public FhirResponse GetFhirResponse(Entry entry, object input)
         {
             var parameters = ConvertInput(input);
-            if (parameters == null) return null;
+            if (parameters == null)
+            {
+                return null;
+            }
 
             var matchTags = parameters.IfNoneMatchTags.Any() ? parameters.IfNoneMatchTags.Any(t => t == ETag.Create(entry.Key.VersionId).Tag) : (bool?)null;
             var matchModifiedDate = parameters.IfModifiedSince.HasValue
@@ -33,12 +36,7 @@ namespace Spark.Engine.FhirResponseFactory
                 return null;
             }
 
-            if ((matchTags ?? true) && (matchModifiedDate ?? true))
-            {
-                return Respond.WithCode(HttpStatusCode.NotModified);
-            }
-
-            return null;
+            return (matchTags ?? true) && (matchModifiedDate ?? true) ? Respond.WithCode(HttpStatusCode.NotModified) : null;
         }
     }
 }

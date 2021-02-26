@@ -31,7 +31,10 @@ namespace Spark.Engine.Extensions
 
         private static Bundle.HTTPVerb DetermineMethod(ILocalhost localhost, IKey key)
         {
-            if (key == null) return Bundle.HTTPVerb.DELETE; // probably...
+            if (key == null)
+            {
+                return Bundle.HTTPVerb.DELETE; // probably...
+            }
 
             return localhost.GetKeyKind(key) switch
             {
@@ -53,14 +56,7 @@ namespace Spark.Engine.Extensions
             var key = localhost.ExtractKey(bundleEntry);
             var method = localhost.ExtrapolateMethod(bundleEntry, key);
 
-            if (key != null)
-            {
-                return Entry.Create(method, key, bundleEntry.Resource);
-            }
-            else
-            {
-                return Entry.Create(method, bundleEntry.Resource);
-            }
+            return key != null ? Entry.Create(method, key, bundleEntry.Resource) : Entry.Create(method, bundleEntry.Resource);
 
         }
 
@@ -158,7 +154,7 @@ namespace Spark.Engine.Extensions
             return entries.Where(i => i.HasResource()).Select(i => i.Resource);
         }
 
-        private static bool isValidResourcePath(string path, Resource resource)
+        private static bool IsValidResourcePath(string path, Resource resource)
         {
             var name = path.Split('.').FirstOrDefault();
             return resource.TypeName == name;
@@ -166,7 +162,10 @@ namespace Spark.Engine.Extensions
 
         public static IEnumerable<string> GetReferences(this Resource resource, string path)
         {
-            if (!isValidResourcePath(path, resource)) return Enumerable.Empty<string>();
+            if (!IsValidResourcePath(path, resource))
+            {
+                return Enumerable.Empty<string>();
+            }
 
             var query = new ElementQuery(path);
             var list = new List<string>();
@@ -233,19 +232,19 @@ namespace Spark.Engine.Extensions
         }
 
         // If an interaction has no base, you should be able to supplement it (from the containing bundle for example)
-        public static void SupplementBase(this Entry entry, string _base)
+        public static void SupplementBase(this Entry entry, string @base)
         {
             var key = entry.Key.Clone();
             if (!key.HasBase())
             {
-                key.Base = _base;
+                key.Base = @base;
                 entry.Key = key;
             }
         }
 
-        public static void SupplementBase(this Entry entry, Uri _base)
+        public static void SupplementBase(this Entry entry, Uri @base)
         {
-            SupplementBase(entry, _base.ToString());
+            SupplementBase(entry, @base.ToString());
         }
 
         public static IEnumerable<Entry> Transferable(this IEnumerable<Entry> entries)

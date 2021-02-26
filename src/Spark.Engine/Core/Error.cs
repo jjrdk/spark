@@ -23,14 +23,9 @@
 
         public static SparkException NotFound(IKey key)
         {
-            if (key.VersionId == null)
-            {
-                return NotFound("No {0} resource with id {1} was found.", key.TypeName, key.ResourceId);
-            }
-            else
-            {
-                return NotFound("There is no {0} resource with id {1}, or there is no version {2}", key.TypeName, key.ResourceId, key.VersionId);
-            }
+            return key.VersionId == null
+                ? NotFound("No {0} resource with id {1} was found.", key.TypeName, key.ResourceId)
+                : NotFound("There is no {0} resource with id {1}, or there is no version {2}", key.TypeName, key.ResourceId, key.VersionId);
         }
 
         public static SparkException NotAllowed(string message)

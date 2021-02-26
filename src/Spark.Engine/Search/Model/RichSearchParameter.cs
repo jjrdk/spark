@@ -6,10 +6,10 @@ namespace Spark.Engine.Search.Model
     {
         public RichSearchParameter(SearchParameter searchParameter)
         {
-            this.searchParameter = searchParameter;
+            this.SearchParameter = searchParameter;
         }
 
-        public readonly SearchParameter searchParameter;
+        public readonly SearchParameter SearchParameter;
 
     }
 }

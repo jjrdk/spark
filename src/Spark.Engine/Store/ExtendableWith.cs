@@ -7,28 +7,26 @@
 
     public abstract class ExtendableWith<T> : IEnumerable<T>
     {
-        private readonly Dictionary<Type, T> extensions = new Dictionary<Type, T>();
+        private readonly Dictionary<Type, T> _extensions = new Dictionary<Type, T>();
 
         protected void AddExtension<TV>(TV extension)
             where TV : T
         {
             foreach (var interfaceType in extension.GetType().GetInterfaces().Where(i => typeof(T).IsAssignableFrom(i)))
             {
-                extensions[interfaceType] = extension;
+                _extensions[interfaceType] = extension;
             }
         }
 
         protected TV FindExtension<TV>()
             where TV : T
         {
-            if (extensions.ContainsKey(typeof(TV)))
-                return (TV) extensions[typeof(TV)];
-            return default(TV);
+            return _extensions.ContainsKey(typeof(TV)) ? (TV) _extensions[typeof(TV)] : default(TV);
         }
 
         public IEnumerator<T> GetEnumerator()
         {
-            return extensions.Values.GetEnumerator();
+            return _extensions.Values.GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()

@@ -157,8 +157,10 @@
         [Fact]
         public async Task TestMultiValueIndexCanIndexFhirDateTime()
         {
-            var cd = new Condition();
-            cd.Onset = new FhirDateTime(2015, 6, 15);
+            var cd = new Condition
+            {
+                Onset = new FhirDateTime(2015, 6, 15)
+            };
 
             IKey cdKey = new Key("http://localhost/", "Condition", "test", null);
 

@@ -19,10 +19,10 @@ namespace Spark.Engine.Core
 {
     public class ElementQuery
     {
-        private readonly List<Chain> chains = new List<Chain>();
+        private readonly List<Chain> _chains = new List<Chain>();
         public void Add(string path)
         {
-            chains.Add(new Chain(path));
+            _chains.Add(new Chain(path));
         }
         public ElementQuery(params string[] paths)
         {
@@ -38,7 +38,7 @@ namespace Spark.Engine.Core
 
         public void Visit(object field, Action<object> action)
         {
-            foreach (var chain in chains)
+            foreach (var chain in _chains)
             {
                 chain.Visit(field, action);
             }
@@ -58,20 +58,13 @@ namespace Spark.Engine.Core
 
             public object GetValue(object field)
             {
-                if (field == null || Property == null)
-                {
-                    return null;
-                }
-                else
-                {
-                    return Property.GetValue(field);
-                }
+                return field == null || Property == null ? null : Property.GetValue(field);
             }
         }
 
         public class Chain
         {
-            private readonly List<Segment> segments = new List<Segment>();
+            private readonly List<Segment> _segments = new List<Segment>();
 
             public Chain(string path)
             {
@@ -81,7 +74,7 @@ namespace Spark.Engine.Core
                 var typeName = chain.First();
                 chain.RemoveAt(0);
 
-                segments = BuildSegments(typeName, chain);
+                _segments = BuildSegments(typeName, chain);
             }
 
             // segments is a cache of PropertyInfo elements for every link in the chain. We have to cache this for performance.
@@ -130,8 +123,10 @@ namespace Spark.Engine.Core
                 var baseType = ModelInfo.FhirTypeToCsType[classname];
                 foreach (var linkString in chain)
                 {
-                    var segment = new Segment();
-                    segment.FhirType = baseType;
+                    var segment = new Segment
+                    {
+                        FhirType = baseType
+                    };
                     var predicateRegex = new Regex(@"(?<propname>[^\[]*)(\[(?<predicate>.*)\])?");
                     var match = predicateRegex.Match(linkString);
                     var predicate = match.Groups["predicate"].Value;
@@ -172,18 +167,26 @@ namespace Spark.Engine.Core
                         segment.Property = baseType.GetProperty(segment.Name);
                     }
                     if (segment.Property == null)
+                    {
                         break;
+                    }
 
                     segments.Add(segment);
                     //infoChain.Add(Tuple.Create<Type, string, PropertyInfo, Type>(baseType, propertyname, info, choiceType));
 
                     if (segment.Property.PropertyType.IsGenericType)
+                    {
                         //For instance AllergyIntolerance.Event, which is a List<Hl7.Fhir.Model.AllergyIntolerance.AllergyIntoleranceEventComponent>
                         baseType = segment.Property.PropertyType.GetGenericArguments().First();
+                    }
                     else if (segment.AllowedType != null)
+                    {
                         baseType = segment.AllowedType;
+                    }
                     else
+                    {
                         baseType = segment.Property.PropertyType;
+                    }
                 }
 
                 return segments;
@@ -195,7 +198,9 @@ namespace Spark.Engine.Core
                 var predicateRegex = new Regex(@"(?<propname>[^=]*)=(?<filterValue>.*)");
                 var match = predicateRegex.Match(predicate);
                 if (match == null || !match.Success)
+                {
                     return null;
+                }
 
                 var propertyName = match.Groups["propname"].Value;
                 var filterValue = match.Groups["filterValue"].Value;
@@ -261,7 +266,7 @@ namespace Spark.Engine.Core
 
             public void Visit(object field, Action<object> action)
             {
-                Visit(field, this.segments, action, null);
+                Visit(field, this._segments, action, null);
             }
 
             /// <summary>
@@ -383,13 +388,13 @@ namespace Spark.Engine.Core
 
             public override string ToString()
             {
-                return string.Join(".", segments.Select(l => l.Name));
+                return string.Join(".", _segments.Select(l => l.Name));
             }
         }
 
         public override string ToString()
         {
-            return string.Join(", ", chains.Select(chain => string.Join(".", chain)));
+            return string.Join(", ", _chains.Select(chain => string.Join(".", chain)));
         }
     }
 }

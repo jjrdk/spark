@@ -11,25 +11,22 @@
 
     public class TransactionService : ITransactionService
     {
-        private readonly ILocalhost localhost;
-        private readonly ITransfer transfer;
-        private readonly ISearchService searchService;
+        private readonly ILocalhost _localhost;
+        private readonly ITransfer _transfer;
+        private readonly ISearchService _searchService;
 
         public TransactionService(ILocalhost localhost, ITransfer transfer, ISearchService searchService)
         {
-            this.localhost = localhost;
-            this.transfer = transfer;
-            this.searchService = searchService;
+            this._localhost = localhost;
+            this._transfer = transfer;
+            this._searchService = searchService;
         }
 
         public async Task<IList<Tuple<Entry, FhirResponse>>> HandleTransaction(IList<Entry> interactions, IInteractionHandler interactionHandler)
         {
-            if (interactionHandler == null)
-            {
-                throw new InvalidOperationException("Unable to run transaction operation");
-            }
-
-            return await HandleTransaction(interactions, interactionHandler, null).ConfigureAwait(false);
+            return interactionHandler == null
+                ? throw new InvalidOperationException("Unable to run transaction operation")
+                : await HandleTransaction(interactions, interactionHandler, null).ConfigureAwait(false);
         }
 
         public Task<FhirResponse> HandleTransaction(ResourceManipulationOperation operation, IInteractionHandler interactionHandler)
@@ -41,17 +38,23 @@
         {
             IList<Entry> interactions = operation.GetEntries().ToList();
             if (mapper != null)
-                transfer.Internalize(interactions, mapper);
+            {
+                _transfer.Internalize(interactions, mapper);
+            }
 
             FhirResponse response = null;
             foreach (var interaction in interactions)
             {
                 response = MergeFhirResponse(response, await interactionHandler.HandleInteraction(interaction).ConfigureAwait(false));
-                if (!response.IsValid) throw new Exception();
+                if (!response.IsValid)
+                {
+                    throw new Exception();
+                }
+
                 interaction.Resource = response.Resource;
             }
 
-            transfer.Externalize(interactions);
+            _transfer.Externalize(interactions);
 
             return response;
         }
@@ -61,28 +64,43 @@
             //CCR: How to handle responses?
             //Currently we assume that all FhirResponses from one ResourceManipulationOperation should be equivalent - kind of hackish
             if (previousResponse == null)
+            {
                 return response;
+            }
+
             if (!response.IsValid)
+            {
                 return response;
+            }
+
             if (response.StatusCode != previousResponse.StatusCode)
+            {
                 throw new Exception("Incompatible responses");
+            }
+
             if (response.Key != null && previousResponse.Key != null && response.Key.Equals(previousResponse.Key) == false)
+            {
                 throw new Exception("Incompatible responses");
-            if ((response.Key != null && previousResponse.Key == null) || (response.Key == null && previousResponse.Key != null))
-                throw new Exception("Incompatible responses");
-            return response;
+            }
+
+            return (response.Key != null && previousResponse.Key == null) || (response.Key == null && previousResponse.Key != null)
+                ? throw new Exception("Incompatible responses")
+                : response;
         }
 
         private void AddMappingsForOperation(Mapper<string, IKey> mapper, ResourceManipulationOperation operation, IList<Entry> interactions)
         {
             if (mapper == null)
+            {
                 return;
+            }
+
             if (interactions.Count() == 1)
             {
                 var entry = interactions.First();
                 if (!entry.Key.Equals(operation.OperationKey))
                 {
-                    if (localhost.GetKeyKind(operation.OperationKey) == KeyKind.Temporary)
+                    if (_localhost.GetKeyKind(operation.OperationKey) == KeyKind.Temporary)
                     {
                         mapper.Remap(operation.OperationKey.ResourceId, entry.Key.WithoutVersion());
                     }
@@ -104,7 +122,7 @@
             var entries = new List<Entry>();
             var mapper = new Mapper<string, IKey>();
 
-            foreach (var task in bundle.Entry.Select(e => ResourceManipulationOperationFactory.GetManipulationOperation(e, localhost, searchService)))
+            foreach (var task in bundle.Entry.Select(e => ResourceManipulationOperationFactory.GetManipulationOperation(e, _localhost, _searchService)))
             {
                 var operation = await task.ConfigureAwait(false);
                 IList<Entry> atomicOperations = operation.GetEntries().ToList();
@@ -119,12 +137,16 @@
         {
             var responses = new List<Tuple<Entry, FhirResponse>>();
 
-            transfer.Internalize(interactions, mapper);
+            _transfer.Internalize(interactions, mapper);
 
             foreach (var interaction in interactions)
             {
                 var response = await interactionHandler.HandleInteraction(interaction).ConfigureAwait(false);
-                if (!response.IsValid) throw new Exception();
+                if (!response.IsValid)
+                {
+                    throw new Exception();
+                }
+
                 interaction.Resource = response.Resource;
                 response.Resource = null;
 
@@ -134,7 +156,7 @@
                                                                                       //Example: conditional delete
             }
 
-            transfer.Externalize(interactions);
+            _transfer.Externalize(interactions);
             return responses;
         }
     }

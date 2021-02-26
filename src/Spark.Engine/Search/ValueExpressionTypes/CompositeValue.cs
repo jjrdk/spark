@@ -20,14 +20,20 @@ namespace Spark.Engine.Search.ValueExpressionTypes
 
         public CompositeValue(ValueExpression[] components)
         {
-            if (components == null) throw Error.ArgumentNull("components");
+            if (components == null)
+            {
+                throw Error.ArgumentNull("components");
+            }
 
             Components = components;
         }
 
         public CompositeValue(IEnumerable<ValueExpression> components)
         {
-            if (components == null) throw Error.ArgumentNull("components");
+            if (components == null)
+            {
+                throw Error.ArgumentNull("components");
+            }
 
             Components = components.ToArray();
         }
@@ -41,7 +47,10 @@ namespace Spark.Engine.Search.ValueExpressionTypes
 
         public static CompositeValue Parse(string text)
         {
-            if (text == null) throw Error.ArgumentNull("text");
+            if (text == null)
+            {
+                throw Error.ArgumentNull("text");
+            }
 
             var values = text.SplitNotEscaped(TUPLESEPARATOR);
 

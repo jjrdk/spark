@@ -53,7 +53,10 @@ namespace Spark.Engine.Extensions
 
             foreach(var s in source)
             {
-                if (!target.HasTag(s)) yield return s;
+                if (!target.HasTag(s))
+                {
+                    yield return s;
+                }
             }
 
             foreach(var t in target)
@@ -74,14 +77,26 @@ namespace Spark.Engine.Extensions
 
         public static IEnumerable<Coding> AffixTags(this Resource target, Resource source)
         {
-            if (target.Meta == null) target.Meta = new Meta();
-            if (source.Meta == null) source.Meta = new Meta(); // !! side effect / mh
+            if (target.Meta == null)
+            {
+                target.Meta = new Meta();
+            }
+
+            if (source.Meta == null)
+            {
+                source.Meta = new Meta(); // !! side effect / mh
+            }
+
             return AffixTags(target.Meta, source.Meta);
         }
 
         public static void AffixTags(this Resource target, Parameters parameters)
         {
-            if (target.Meta == null) target.Meta = new Meta();
+            if (target.Meta == null)
+            {
+                target.Meta = new Meta();
+            }
+
             var meta = parameters.ExtractMeta().FirstOrDefault();
             if (meta != null)
             {

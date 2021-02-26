@@ -84,14 +84,9 @@ namespace Spark.Engine.Core
 
         public static FhirResponse WithMeta(Entry entry)
         {
-            if (entry.Resource?.Meta != null)
-            {
-                return WithMeta(entry.Resource.Meta);
-            }
-            else
-            {
-                return WithError(HttpStatusCode.InternalServerError, "Could not retrieve meta. Meta was not present on the resource");
-            }
+            return entry.Resource?.Meta != null
+                ? WithMeta(entry.Resource.Meta)
+                : WithError(HttpStatusCode.InternalServerError, "Could not retrieve meta. Meta was not present on the resource");
         }
 
         public static FhirResponse WithKey(HttpStatusCode code, IKey key)
@@ -111,14 +106,9 @@ namespace Spark.Engine.Core
 
         public static FhirResponse NotFound(IKey key)
         {
-            if (key.VersionId == null)
-            {
-                return WithError(HttpStatusCode.NotFound, "No {0} resource with id {1} was found.", key.TypeName, key.ResourceId);
-            }
-            else
-            {
-                return WithError(HttpStatusCode.NotFound, "There is no {0} resource with id {1}, or there is no version {2}", key.TypeName, key.ResourceId, key.VersionId);
-            }
+            return key.VersionId == null
+                ? WithError(HttpStatusCode.NotFound, "No {0} resource with id {1} was found.", key.TypeName, key.ResourceId)
+                : WithError(HttpStatusCode.NotFound, "There is no {0} resource with id {1}, or there is no version {2}", key.TypeName, key.ResourceId, key.VersionId);
             // For security reasons (leakage): keep message in sync with Error.NotFound(key)
         }
 
@@ -131,23 +121,8 @@ namespace Spark.Engine.Core
             return WithError(HttpStatusCode.Gone, message);
         }
 
-        public static FhirResponse NotImplemented
-        {
-            get
-            {
-                return WithError(HttpStatusCode.NotImplemented);
-            }
-        }
+        public static FhirResponse NotImplemented => WithError(HttpStatusCode.NotImplemented);
 
-        public static FhirResponse Success
-        {
-            get
-            {
-                return new FhirResponse(HttpStatusCode.OK);
-            }
-        }
-
-
-
+        public static FhirResponse Success => new FhirResponse(HttpStatusCode.OK);
     }
 }

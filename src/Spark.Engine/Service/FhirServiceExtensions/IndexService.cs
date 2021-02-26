@@ -41,7 +41,10 @@ namespace Spark.Engine.Service.FhirServiceExtensions
                 {
                     await _indexStore.Delete(entry).ConfigureAwait(false);
                 }
-                else throw new Exception("Entry is neither resource nor deleted");
+                else
+                {
+                    throw new Exception("Entry is neither resource nor deleted");
+                }
             }
         }
 
@@ -57,7 +60,10 @@ namespace Spark.Engine.Service.FhirServiceExtensions
         {
             var searchParameters = _fhirModel.FindSearchParameters(resource.GetType());
 
-            if (searchParameters == null) return null;
+            if (searchParameters == null)
+            {
+                return null;
+            }
 
             var rootIndexValue = new IndexValue(rootPartName);
             AddMetaParts(resource, key, rootIndexValue);
@@ -66,11 +72,17 @@ namespace Spark.Engine.Service.FhirServiceExtensions
 
             foreach (var searchParameter in searchParameters)
             {
-                if (string.IsNullOrWhiteSpace(searchParameter.Expression)) continue;
+                if (string.IsNullOrWhiteSpace(searchParameter.Expression))
+                {
+                    continue;
+                }
                 // TODO: Do we need to index composite search parameters, some
                 // of them are already indexed by ordinary search parameters so
                 // need to make sure that we don't do overlapping indexing.
-                if (searchParameter.Type == Hl7.Fhir.Model.SearchParamType.Composite) continue;
+                if (searchParameter.Type == Hl7.Fhir.Model.SearchParamType.Composite)
+                {
+                    continue;
+                }
 
                 var indexValue = new IndexValue(searchParameter.Code);
                 IEnumerable<Base> resolvedValues;
@@ -87,16 +99,23 @@ namespace Spark.Engine.Service.FhirServiceExtensions
                 foreach (var value in resolvedValues)
                 {
                     var element = value as Element;
-                    if (element == null) continue;
+                    if (element == null)
+                    {
+                        continue;
+                    }
 
                     indexValue.Values.AddRange(_elementIndexer.Map(element));
                 }
                 if (indexValue.Values.Any())
+                {
                     rootIndexValue.Values.Add(indexValue);
+                }
             }
 
             if (resource is DomainResource)
+            {
                 AddContainedResources((DomainResource)resource, rootIndexValue);
+            }
 
             return rootIndexValue;
         }
@@ -139,7 +158,9 @@ namespace Spark.Engine.Service.FhirServiceExtensions
                              {
                                  referenceMap.TryGetValue(currentRefence.Reference, out var replacementId);
                                  if (replacementId != null)
+                                 {
                                      currentRefence.Reference = replacementId;
+                                 }
                              }
                          },
                          typeof(ResourceReference));

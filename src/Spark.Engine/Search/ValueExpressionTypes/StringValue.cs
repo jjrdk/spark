@@ -31,7 +31,10 @@ namespace Spark.Engine.Search.ValueExpressionTypes
 
         public static string EscapeString(string value)
         {
-            if (value == null) return null;
+            if (value == null)
+            {
+                return null;
+            }
 
             value = value.Replace(@"\", @"\\");
             value = value.Replace(@"$", @"\$");
@@ -43,7 +46,10 @@ namespace Spark.Engine.Search.ValueExpressionTypes
 
         public static string UnescapeString(string value)
         {
-            if (value == null) return null;
+            if (value == null)
+            {
+                return null;
+            }
 
             value = value.Replace(@"\|", @"|");
             value = value.Replace(@"\,", @",");

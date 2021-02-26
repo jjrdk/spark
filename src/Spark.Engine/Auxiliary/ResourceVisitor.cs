@@ -26,14 +26,16 @@ namespace Spark.Engine.Auxiliary
                     {
                         var type = elem.GetType();
                         if (t.IsAssignableFrom(type))
-                           action(elem, path);
+                        {
+                            action(elem, path);
+                        }
                     }
                 };
 
-            scan(item, null, visitor);
+            Scan(item, null, visitor);
         }
 
-        private static bool propertyFilter(MemberInfo mem, object arg)
+        private static bool PropertyFilter(MemberInfo mem, object arg)
         {
             // We prefilter on properties, so this cast is always valid
             var prop = (PropertyInfo)mem;
@@ -53,23 +55,26 @@ namespace Spark.Engine.Auxiliary
             return (isElementProperty || isElementCollection) && hasIndexParameters == false;
         }
 
-        private static string joinPath(string old, string part)
+        private static string JoinPath(string old, string part)
         {
-            if (!string.IsNullOrEmpty(old))
-                return old + "." + part;
-            else
-                return part;
+            return !string.IsNullOrEmpty(old) ? old + "." + part : part;
         }
 
-        private static void scan(object item, string path, Visitor visitor)
+        private static void Scan(object item, string path, Visitor visitor)
         {
-            if (item == null) return;
+            if (item == null)
+            {
+                return;
+            }
 
-            if (path == null) path = string.Empty;
+            if (path == null)
+            {
+                path = string.Empty;
+            }
 
             // Scan the object 'item' and find all properties of type Element of IEnumerable<Element>
             var result = item.GetType().FindMembers(MemberTypes.Property, BindingFlags.Instance | BindingFlags.Public,
-                             new MemberFilter(propertyFilter), null);
+                             new MemberFilter(PropertyFilter), null);
             
             // Do a depth-first traversal of the properties and their contents
             foreach (PropertyInfo property in result)
@@ -86,12 +91,12 @@ namespace Spark.Engine.Auxiliary
                         var index = 0;
                         foreach (var element in list)
                         {
-                            var propertyPath = joinPath(path,property.Name + "[" + index.ToString() + "]");
+                            var propertyPath = JoinPath(path,property.Name + "[" + index.ToString() + "]");
 
                             if (element != null)
                             {
                                 visitor(element, propertyPath);
-                                scan(element, propertyPath, visitor);
+                                Scan(element, propertyPath, visitor);
                             }
                         }
                     }
@@ -100,7 +105,7 @@ namespace Spark.Engine.Auxiliary
                 // If this member is an Element, go inside and recurse
                 else
                 {
-                    var propertyPath = joinPath(path,property.Name);
+                    var propertyPath = JoinPath(path,property.Name);
 
                     var propValue = (Element)property.GetValue(item);
                    
@@ -108,7 +113,7 @@ namespace Spark.Engine.Auxiliary
                     if (propValue != null)
                     {
                         visitor(propValue, propertyPath);
-                        scan(propValue, propertyPath, visitor);
+                        Scan(propValue, propertyPath, visitor);
                     }
                 }
             }

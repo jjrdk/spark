@@ -161,11 +161,17 @@ namespace Spark.Engine.Service
         {
             void Visitor(Element element, string name)
             {
-                if (element == null) return;
+                if (element == null)
+                {
+                    return;
+                }
 
                 if (element is ResourceReference reference)
                 {
-                    if (reference.Url != null) reference.Url = new Uri(InternalizeReference(reference.Url.ToString()), UriKind.RelativeOrAbsolute);
+                    if (reference.Url != null)
+                    {
+                        reference.Url = new Uri(InternalizeReference(reference.Url.ToString()), UriKind.RelativeOrAbsolute);
+                    }
                 }
                 else if (element is FhirUri uri)
                 {
@@ -185,19 +191,18 @@ namespace Spark.Engine.Service
         private IKey InternalizeReference(IKey localkey)
         {
             var triage = (_localhost.GetKeyKind(localkey));
-            if (triage == KeyKind.Foreign) throw new ArgumentException("Cannot internalize foreign reference");
+            if (triage == KeyKind.Foreign)
+            {
+                throw new ArgumentException("Cannot internalize foreign reference");
+            }
 
             if (triage == KeyKind.Temporary)
             {
                 return GetReplacement(localkey);
             }
-            else if (triage == KeyKind.Local)
-            {
-                return localkey.WithoutBase();
-            }
             else
             {
-                return localkey;
+                return triage == KeyKind.Local ? localkey.WithoutBase() : localkey;
             }
         }
 
@@ -218,25 +223,26 @@ namespace Spark.Engine.Service
                 }
             }
 
-            if (replacement != null)
-            {
-                return replacement;
-            }
-            else
-            {
-                throw Error.Create(HttpStatusCode.Conflict, "This reference does not point to a resource in the server or the current transaction: {0}", localkey);
-            }
+            return replacement != null
+                ? replacement
+                : throw Error.Create(HttpStatusCode.Conflict, "This reference does not point to a resource in the server or the current transaction: {0}", localkey);
         }
 
         private string InternalizeReference(string uristring)
         {
-            if (string.IsNullOrWhiteSpace(uristring)) return uristring;
+            if (string.IsNullOrWhiteSpace(uristring))
+            {
+                return uristring;
+            }
 
             var uri = new Uri(uristring, UriKind.RelativeOrAbsolute);
 
             // If it is a reference to another contained resource do not internalize.
             // BALLOT: this seems very... ad hoc.
-            if (uri.HasFragment()) return uristring;
+            if (uri.HasFragment())
+            {
+                return uristring;
+            }
 
             if (uri.IsTemporaryUri() || _localhost.IsBaseOf(uri))
             {

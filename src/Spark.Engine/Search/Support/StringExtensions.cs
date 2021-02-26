@@ -63,7 +63,9 @@ namespace Spark.Engine.Search.Support
             var pos = text.IndexOf(separator);
 
             if (pos == -1)
+            {
                 return Tuple.Create(text, (string)null);     // Nothing to split
+            }
             else
             {
                 var key = text.Substring(0, pos);

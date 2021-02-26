@@ -39,13 +39,7 @@
             }
         }
 
-        public bool HasBody
-        {
-            get
-            {
-                return Resource != null;
-            }
-        }
+        public bool HasBody => Resource != null;
 
         public override string ToString()
         {

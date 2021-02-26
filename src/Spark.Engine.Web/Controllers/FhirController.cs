@@ -78,7 +78,7 @@
         {
             var key = Key.Create(type, resource?.Id);
 
-            if (Request.Headers.ContainsKey(FhirHttpHeaders.IfNoneExist))
+            if (Request.Headers.ContainsKey(FhirHttpHeaders.IF_NONE_EXIST))
             {
                 var searchQueryString = HttpUtility.ParseQueryString(Request.GetTypedHeaders().IfNoneExist());
                 var searchValues =

@@ -22,10 +22,10 @@
         {
             var index = new FhirPropertyIndex(_fhirModel, new List<Type> { typeof(Patient), typeof(HumanName) });
 
-            var pm = index.findPropertyInfo("Patient", "name");
+            var pm = index.FindPropertyInfo("Patient", "name");
             Assert.NotNull(pm);
 
-            pm = index.findPropertyInfo("HumanName", "given");
+            pm = index.FindPropertyInfo("HumanName", "given");
             Assert.NotNull(pm);
         }
 
@@ -34,7 +34,7 @@
         {
             var index = new FhirPropertyIndex(_fhirModel, new List<Type> { typeof(ClinicalImpression), typeof(Period) });
 
-            var pm = index.findPropertyInfo("ClinicalImpression", "effectivePeriod");
+            var pm = index.FindPropertyInfo("ClinicalImpression", "effectivePeriod");
             Assert.NotNull(pm);
         }
 
@@ -43,10 +43,10 @@
         {
             var index = new FhirPropertyIndex(_fhirModel, new List<Type> { typeof(Patient), typeof(Account) });
 
-            var pm = index.findPropertyInfo("TypeNotPresent", "subject");
+            var pm = index.FindPropertyInfo("TypeNotPresent", "subject");
             Assert.Null(pm);
 
-            pm = index.findPropertyInfo("Patient", "property_not_present");
+            pm = index.FindPropertyInfo("Patient", "property_not_present");
             Assert.Null(pm);
         }
     }

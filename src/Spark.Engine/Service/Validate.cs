@@ -22,7 +22,9 @@ namespace Spark.Engine.Service
         {
 
             if (ModelInfo.SupportedResources.Contains(name))
+            {
                 return;
+            }
 
             //  Test for the most common mistake first: wrong casing of the resource name
             var correct = ModelInfo.SupportedResources.FirstOrDefault(s => s.ToUpperInvariant() == name.ToUpperInvariant());
@@ -39,7 +41,9 @@ namespace Spark.Engine.Service
         public static void ResourceType(IKey key, Resource resource)
         {
             if (resource == null)
+            {
                 throw Error.BadRequest("Request did not contain a body");
+            }
 
             if (key.TypeName != resource.TypeName)
             {

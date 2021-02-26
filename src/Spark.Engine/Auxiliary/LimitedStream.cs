@@ -20,49 +20,19 @@ namespace Spark.Engine.Auxiliary
 
         public long SizeLimitInBytes { get; private set; }
 
-        public override bool CanRead
-        {
-            get
-            {
-                return _innerStream.CanRead;
-            }
-        }
+        public override bool CanRead => _innerStream.CanRead;
 
-        public override bool CanSeek
-        {
-            get
-            {
-                return _innerStream.CanSeek;
-            }
-        }
+        public override bool CanSeek => _innerStream.CanSeek;
 
-        public override bool CanWrite
-        {
-            get
-            {
-                return _innerStream.CanWrite && _innerStream.Length < SizeLimitInBytes;
-            }
-        }
+        public override bool CanWrite => _innerStream.CanWrite && _innerStream.Length < SizeLimitInBytes;
 
-        public override long Length
-        {
-            get
-            {
-                return _innerStream.Length;
-            }
-        }
+        public override long Length => _innerStream.Length;
 
         public override long Position
         {
-            get
-            {
-                return _innerStream.Position;
-            }
+            get => _innerStream.Position;
 
-            set
-            {
-                _innerStream.Position = value;
-            }
+            set => _innerStream.Position = value;
         }
 
         public override void Flush()
@@ -89,7 +59,9 @@ namespace Spark.Engine.Auxiliary
         {
             var bytesToBeAdded = Math.Min(buffer.Length - offset, count);
             if (Length + bytesToBeAdded > SizeLimitInBytes)
+            {
                 throw new ArgumentOutOfRangeException("buffer", $"Adding {bytesToBeAdded} bytes to the stream would exceed the size limit of {SizeLimitInBytes} bytes.");
+            }
 
             _innerStream.Write(buffer, offset, count);
         }

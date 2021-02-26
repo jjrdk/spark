@@ -47,8 +47,7 @@
 
         private Hl7.Fhir.Model.OperationOutcome GetOperationOutcome(SparkException exception)
         {
-            if (exception == null) return null;
-            return (exception.Outcome ?? new Hl7.Fhir.Model.OperationOutcome()).AddAllInnerErrors(exception);
+            return exception == null ? null : (exception.Outcome ?? new Hl7.Fhir.Model.OperationOutcome()).AddAllInnerErrors(exception);
         }
 
         private Hl7.Fhir.Model.OperationOutcome GetOperationOutcome(Exception exception)

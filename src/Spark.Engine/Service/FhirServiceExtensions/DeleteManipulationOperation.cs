@@ -28,12 +28,12 @@ namespace Spark.Engine.Service.FhirServiceExtensions
                 {
                     foreach (var localKeyValue in SearchResults)
                     {
-                        yield return Entry.DELETE(Key.ParseOperationPath(localKeyValue), DateTimeOffset.UtcNow);
+                        yield return Entry.Delete(Key.ParseOperationPath(localKeyValue), DateTimeOffset.UtcNow);
                     }
                 }
                 else
                 {
-                    yield return Entry.DELETE(OperationKey, DateTimeOffset.UtcNow);
+                    yield return Entry.Delete(OperationKey, DateTimeOffset.UtcNow);
                 }
             }
         }

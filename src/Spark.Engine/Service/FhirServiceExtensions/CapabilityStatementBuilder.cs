@@ -39,13 +39,15 @@ namespace Spark.Engine.Service.FhirServiceExtensions
 
         public static CapabilityStatement CreateServer(String server, String serverVersion, String publisher, FHIRVersion fhirVersion)
         {
-            var capabilityStatement = new CapabilityStatement();
-            capabilityStatement.Name = server;
-            capabilityStatement.Publisher = publisher;
-            capabilityStatement.Version = serverVersion;
-            capabilityStatement.FhirVersion = fhirVersion;
-            //capabilityStatement.AcceptUnknown = CapabilityStatement.UnknownContentCode.No;
-            capabilityStatement.Date = Date.Today().Value;
+            var capabilityStatement = new CapabilityStatement
+            {
+                Name = server,
+                Publisher = publisher,
+                Version = serverVersion,
+                FhirVersion = fhirVersion,
+                //capabilityStatement.AcceptUnknown = CapabilityStatement.UnknownContentCode.No;
+                Date = Date.Today().Value
+            };
             capabilityStatement.AddServer();
             return capabilityStatement;
             //AddRestComponent(true);
@@ -59,8 +61,10 @@ namespace Spark.Engine.Service.FhirServiceExtensions
 
         public static CapabilityStatement.RestComponent AddRestComponent(this CapabilityStatement capabilityStatement, Boolean isServer, Markdown documentation = null)
         {
-            var server = new CapabilityStatement.RestComponent();
-            server.Mode = (isServer) ? CapabilityStatement.RestfulCapabilityMode.Server : CapabilityStatement.RestfulCapabilityMode.Client;
+            var server = new CapabilityStatement.RestComponent
+            {
+                Mode = (isServer) ? CapabilityStatement.RestfulCapabilityMode.Server : CapabilityStatement.RestfulCapabilityMode.Client
+            };
 
             if (documentation != null)
             {
@@ -107,13 +111,14 @@ namespace Spark.Engine.Service.FhirServiceExtensions
 
         public static CapabilityStatement AddSingleResourceComponent(this CapabilityStatement capabilityStatement, String resourcetype, Boolean readhistory, Boolean updatecreate, CapabilityStatement.ResourceVersionPolicy versioning, Canonical profile = null)
         {
-            var resource = new CapabilityStatement.ResourceComponent();
-
-            resource.Type = Hacky.GetResourceTypeForResourceName(resourcetype);
-            resource.Profile = profile;
-            resource.ReadHistory = readhistory;
-            resource.UpdateCreate = updatecreate;
-            resource.Versioning = versioning;
+            var resource = new CapabilityStatement.ResourceComponent
+            {
+                Type = Hacky.GetResourceTypeForResourceName(resourcetype),
+                Profile = profile,
+                ReadHistory = readhistory,
+                UpdateCreate = updatecreate,
+                Versioning = versioning
+            };
             capabilityStatement.Server().Resource.Add(resource);
             return capabilityStatement;
         }
@@ -122,10 +127,12 @@ namespace Spark.Engine.Service.FhirServiceExtensions
         {
             foreach (var resource in capabilityStatement.Rest.FirstOrDefault().Resource.ToList())
             {
-                var p = new CapabilityStatement.SearchParamComponent();
-                p.Name = "_summary";
-                p.Type = SearchParamType.String;
-                p.Documentation = new Markdown("Summary for resource");
+                var p = new CapabilityStatement.SearchParamComponent
+                {
+                    Name = "_summary",
+                    Type = SearchParamType.String,
+                    Documentation = new Markdown("Summary for resource")
+                };
                 resource.SearchParam.Add(p);
             }
             return capabilityStatement;
@@ -178,8 +185,10 @@ namespace Spark.Engine.Service.FhirServiceExtensions
 
         public static CapabilityStatement.ResourceInteractionComponent AddSingleResourceInteraction(CapabilityStatement.ResourceComponent resourcecomp, CapabilityStatement.TypeRestfulInteraction type)
         {
-            var interaction = new CapabilityStatement.ResourceInteractionComponent();
-            interaction.Code = type;
+            var interaction = new CapabilityStatement.ResourceInteractionComponent
+            {
+                Code = type
+            };
             return interaction;
 
         }
@@ -195,19 +204,21 @@ namespace Spark.Engine.Service.FhirServiceExtensions
 
         public static void AddSystemInteraction(this CapabilityStatement capabilityStatement, CapabilityStatement.SystemRestfulInteraction code)
         {
-            var interaction = new CapabilityStatement.SystemInteractionComponent();
-
-            interaction.Code = code;
+            var interaction = new CapabilityStatement.SystemInteractionComponent
+            {
+                Code = code
+            };
 
             capabilityStatement.Rest().Interaction.Add(interaction);
         }
 
         public static void AddOperation(this CapabilityStatement capabilityStatement, String name, string definition)
         {
-            var operation = new CapabilityStatement.OperationComponent();
-
-            operation.Name = name;
-            operation.Definition = definition;
+            var operation = new CapabilityStatement.OperationComponent
+            {
+                Name = name,
+                Definition = definition
+            };
 
             capabilityStatement.Server().Operation.Add(operation);
         }

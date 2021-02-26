@@ -6,12 +6,11 @@ namespace Spark.Engine.Core
 {
     using Extensions;
 
-    public static class ILocalhostExtensions
+    public static class LocalhostExtensions
     {
         public static bool IsLocal(this ILocalhost localhost, IKey key)
         {
-            if (key.Base == null) return true;
-            return localhost.IsBaseOf(key.Base);
+            return key.Base == null ? true : localhost.IsBaseOf(key.Base);
         }
 
         public static bool IsForeign(this ILocalhost localhost, IKey key)
@@ -21,15 +20,15 @@ namespace Spark.Engine.Core
 
         public static Uri RemoveBase(this ILocalhost localhost, Uri uri)
         {
-            var _base = localhost.GetBaseOf(uri)?.ToString();
-            if (_base == null)
+            var @base = localhost.GetBaseOf(uri)?.ToString();
+            if (@base == null)
             {
                 return uri;
             }
             else
             {
                 var s = uri.ToString();
-                var path = s.Remove(0, _base.Length);
+                var path = s.Remove(0, @base.Length);
                 return new Uri(path, UriKind.Relative);
             }
         }
@@ -37,10 +36,10 @@ namespace Spark.Engine.Core
         public static Key LocalUriToKey(this ILocalhost localhost, Uri uri)
         {
             var s = uri.ToString();
-            var _base = localhost.GetBaseOf(uri)?.ToString();
-            var path = s.Remove(0, _base == null ? 0 : _base.Length);
+            var @base = localhost.GetBaseOf(uri)?.ToString();
+            var path = s.Remove(0, @base == null ? 0 : @base.Length);
 
-            return Key.ParseOperationPath(path).WithBase(_base);
+            return Key.ParseOperationPath(path).WithBase(@base);
         }
 
         public static Key UriToKey(this ILocalhost localhost, Uri uri)
@@ -48,14 +47,9 @@ namespace Spark.Engine.Core
 
             if (uri.IsAbsoluteUri && (uri.IsTemporaryUri() == false))
             {
-                if (localhost.IsBaseOf(uri))
-                {
-                    return localhost.LocalUriToKey(uri);
-                }
-                else
-                {
-                    throw new ArgumentException("Cannot create a key from a foreign Uri");
-                }
+                return localhost.IsBaseOf(uri)
+                    ? localhost.LocalUriToKey(uri)
+                    : throw new ArgumentException("Cannot create a key from a foreign Uri");
             }
             else if (uri.IsTemporaryUri())
             {
@@ -89,13 +83,9 @@ namespace Spark.Engine.Core
             {
                 return KeyKind.Internal;
             }
-            else if (localhost.IsLocal(key))
-            {
-                return KeyKind.Local;
-            }
             else
             {
-                return KeyKind.Foreign;
+                return localhost.IsLocal(key) ? KeyKind.Local : KeyKind.Foreign;
             }
         }
 
@@ -128,8 +118,10 @@ namespace Spark.Engine.Core
 
         public static Bundle CreateBundle(this ILocalhost localhost, Bundle.BundleType type)
         {
-            var bundle = new Bundle();
-            bundle.Type = type;
+            var bundle = new Bundle
+            {
+                Type = type
+            };
             return bundle;
         }
     }

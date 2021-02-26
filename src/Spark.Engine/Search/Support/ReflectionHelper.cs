@@ -16,15 +16,17 @@ namespace Spark.Engine.Search.Support
 
     internal static class ReflectionHelper
     {
-        public static bool CanBeTreatedAsType(this Type CurrentType, Type TypeToCompareWith)
+        public static bool CanBeTreatedAsType(this Type currentType, Type typeToCompareWith)
         {
             // Always return false if either Type is null
-            if (CurrentType == null || TypeToCompareWith == null)
+            if (currentType == null || typeToCompareWith == null)
+            {
                 return false;
+            }
 
 
             // Return the result of the assignability test
-            return TypeToCompareWith.IsAssignableFrom(CurrentType);
+            return typeToCompareWith.IsAssignableFrom(currentType);
         }
 
 
@@ -50,7 +52,10 @@ namespace Spark.Engine.Search.Support
 
         public static IEnumerable<PropertyInfo> FindPublicProperties(Type t)
         {
-            if (t == null) throw Error.ArgumentNull("t");
+            if (t == null)
+            {
+                throw Error.ArgumentNull("t");
+            }
 
 #if PORTABLE45
 			return t.GetRuntimeProperties(); //(BindingFlags.Instance | BindingFlags.Public);
@@ -62,8 +67,15 @@ namespace Spark.Engine.Search.Support
 
         public static PropertyInfo FindPublicProperty(Type t, string name)
         {
-            if (t == null) throw Error.ArgumentNull("t");
-            if (name == null) throw Error.ArgumentNull("name");
+            if (t == null)
+            {
+                throw Error.ArgumentNull("t");
+            }
+
+            if (name == null)
+            {
+                throw Error.ArgumentNull("name");
+            }
 
 #if PORTABLE45
             return t.GetRuntimeProperty(name);
@@ -74,8 +86,15 @@ namespace Spark.Engine.Search.Support
 
         internal static MethodInfo FindPublicStaticMethod(Type t, string name, params Type[] arguments)
         {
-            if (t == null) throw Error.ArgumentNull("t");
-            if (name == null) throw Error.ArgumentNull("name");
+            if (t == null)
+            {
+                throw Error.ArgumentNull("t");
+            }
+
+            if (name == null)
+            {
+                throw Error.ArgumentNull("name");
+            }
 
 #if PORTABLE45
             return t.GetRuntimeMethod(name,arguments);
@@ -86,14 +105,19 @@ namespace Spark.Engine.Search.Support
 
         internal static bool HasDefaultPublicConstructor(Type t)
         {
-            if (t == null) throw Error.ArgumentNull("t");
+            if (t == null)
+            {
+                throw Error.ArgumentNull("t");
+            }
 
 #if PORTABLE45
 			if (t.GetTypeInfo().IsValueType)
                 return true;
 #else
             if (t.IsValueType)
+            {
                 return true;
+            }
 #endif
 
             return (GetDefaultPublicConstructor(t) != null);
@@ -112,7 +136,10 @@ namespace Spark.Engine.Search.Support
 
         public static bool IsNullableType(Type type)
         {
-            if (type == null) throw Error.ArgumentNull("type");
+            if (type == null)
+            {
+                throw Error.ArgumentNull("type");
+            }
 
 #if PORTABLE45
 			return (type.GetTypeInfo().IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>));
@@ -123,7 +150,10 @@ namespace Spark.Engine.Search.Support
 
         public static Type GetNullableArgument(Type type)
         {
-            if (type == null) throw Error.ArgumentNull("type");
+            if (type == null)
+            {
+                throw Error.ArgumentNull("type");
+            }
 
             if (IsNullableType(type))
             {
@@ -134,7 +164,9 @@ namespace Spark.Engine.Search.Support
 #endif
             }
             else
+            {
                 throw Error.Argument("type", "Type {0} is not a Nullable<T>", type.Name);
+            }
         }
 
         public static bool IsTypedCollection(Type type)
@@ -180,7 +212,10 @@ namespace Spark.Engine.Search.Support
         /// <returns>The type of the typed collection's items.</returns>
         public static Type GetCollectionItemType(Type type)
         {
-            if (type == null) throw Error.ArgumentNull("type");
+            if (type == null)
+            {
+                throw Error.ArgumentNull("type");
+            }
 
             if (type.IsArray)
             {
@@ -195,13 +230,9 @@ namespace Spark.Engine.Search.Support
 
                 return genericListType.GetGenericArguments()[0];
             }
-            else if (typeof(IEnumerable).IsAssignableFrom(type))
-            {
-                return null;
-            }
             else
             {
-                throw Error.Argument("type", "Type {0} is not a collection.", type.Name);
+                return typeof(IEnumerable).IsAssignableFrom(type) ? (Type)null : throw Error.Argument("type", "Type {0} is not a collection.", type.Name);
             }
         }
 
@@ -215,14 +246,24 @@ namespace Spark.Engine.Search.Support
             Type genericInterfaceDefinition,
             out Type implementingType)
         {
-            if (type == null) throw Error.ArgumentNull("type");
-            if (genericInterfaceDefinition == null) throw Error.ArgumentNull("genericInterfaceDefinition");
+            if (type == null)
+            {
+                throw Error.ArgumentNull("type");
+            }
+
+            if (genericInterfaceDefinition == null)
+            {
+                throw Error.ArgumentNull("genericInterfaceDefinition");
+            }
 
             if (!genericInterfaceDefinition.IsInterface || !genericInterfaceDefinition.IsGenericTypeDefinition)
+            {
                 throw Error.Argument(
                     "genericInterfaceDefinition",
                     "'{0}' is not a generic interface definition.",
                     genericInterfaceDefinition.Name);
+            }
+
             if (type.IsInterface)
             {
                 if (type.IsGenericType)
@@ -297,16 +338,12 @@ namespace Spark.Engine.Search.Support
 
         internal static IEnumerable<FieldInfo> FindEnumFields(Type t)
         {
-            if (t == null) throw Error.ArgumentNull("t");
-
-            return t.GetFields(BindingFlags.Public | BindingFlags.Static);
+            return t == null ? throw Error.ArgumentNull("t") : (IEnumerable<FieldInfo>)t.GetFields(BindingFlags.Public | BindingFlags.Static);
         }
 
         internal static bool IsArray(object value)
         {
-            if (value == null) throw Error.ArgumentNull("value");
-
-            return value.GetType().IsArray;
+            return value == null ? throw Error.ArgumentNull("value") : value.GetType().IsArray;
         }
     }
 }

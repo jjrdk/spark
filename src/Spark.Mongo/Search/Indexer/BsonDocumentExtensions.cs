@@ -21,9 +21,15 @@ namespace Spark.Mongo.Search.Indexer
         public static void Write(this BsonDocument document, string field, BsonValue value)
         {
 
-            if (value == null) return;
+            if (value == null)
+            {
+                return;
+            }
 
-            if (field.StartsWith("_")) field = "PREFIX" + field;
+            if (field.StartsWith("_"))
+            {
+                field = "PREFIX" + field;
+            }
             // todo: make sure the search query builder also picks up this name change.
 
             var forcearray = (value.BsonType == BsonType.Document);
@@ -46,9 +52,13 @@ namespace Spark.Mongo.Search.Indexer
             else
             {
                 if (forcearray)
+                {
                     document.Append(field, new BsonArray() { value ?? BsonNull.Value });
+                }
                 else
+                {
                     document.Append(field, value);
+                }
             }
         }
 

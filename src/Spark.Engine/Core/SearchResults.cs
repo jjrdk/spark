@@ -1,7 +1,7 @@
-﻿/* 
+﻿/*
  * Copyright (c) 2014, Furore (info@furore.com) and contributors
  * See the file CONTRIBUTORS for details.
- * 
+ *
  * This file is licensed under the BSD 3-Clause license
  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
  */
@@ -17,17 +17,11 @@ namespace Spark.Engine.Core
 
     public class SearchResults : List<string>
     {
-        
         public List<Criterium> UsedCriteria { get; set; }
         public int MatchCount { get; set; }
 
-        private readonly OperationOutcome outcome;
-        public OperationOutcome Outcome { 
-            get
-            {
-                return outcome.Issue.Any() ? outcome : null;
-            }
-        }
+        private readonly OperationOutcome _outcome;
+        public OperationOutcome Outcome => _outcome.Issue.Any() ? _outcome : null;
 
 
         // todo: I think OperationOutcome logic should be on a higher level or at least not SearchResults specific -mh
@@ -35,14 +29,16 @@ namespace Spark.Engine.Core
         {
             UsedCriteria = new List<Criterium>();
             MatchCount = 0;
-            outcome = new OperationOutcome();
-            outcome.Issue = new List<OperationOutcome.IssueComponent>();
+            _outcome = new OperationOutcome
+            {
+                Issue = new List<OperationOutcome.IssueComponent>()
+            };
         }
 
         public void AddIssue(string errorMessage, OperationOutcome.IssueSeverity severity = OperationOutcome.IssueSeverity.Error)
         {
             var newIssue = new OperationOutcome.IssueComponent() { Diagnostics = errorMessage, Severity = severity };
-            outcome.Issue.Add(newIssue);
+            _outcome.Issue.Add(newIssue);
         }
 
         public bool HasErrors
@@ -53,13 +49,7 @@ namespace Spark.Engine.Core
             }
         }
 
-        public bool HasIssues
-        {
-            get
-            {
-                return Outcome != null && Outcome.Issue.Any();
-            }
-        }
+        public bool HasIssues => Outcome != null && Outcome.Issue.Any();
 
         public string UsedParameters
         {
@@ -73,33 +63,33 @@ namespace Spark.Engine.Core
 
     //public static class UriListExtentions
     //{
-        //public static bool SameAs(this ResourceIdentity a, ResourceIdentity b)
-        //{
-        //    if (a.ResourceType == b.ResourceType && a.Id == b.Id)
-        //    {
-        //        if (a.VersionId == b.VersionId || a.VersionId == null || b.VersionId == null)
-        //            return true;
-        //    }
-        //    return false;
-        //}
-        //public static bool Has(this SearchResults list, Uri uri)
-        //{
-        //    foreach (Uri item in list)
-        //    {
-        //        //if (item.ToString() == uri.ToString())
-        //        ResourceIdentity a = new ResourceIdentity(item);
-        //        ResourceIdentity b = new ResourceIdentity(uri);
-        //        if (a.SameAs(b))
-        //            return true;
+    //public static bool SameAs(this ResourceIdentity a, ResourceIdentity b)
+    //{
+    //    if (a.ResourceType == b.ResourceType && a.Id == b.Id)
+    //    {
+    //        if (a.VersionId == b.VersionId || a.VersionId == null || b.VersionId == null)
+    //            return true;
+    //    }
+    //    return false;
+    //}
+    //public static bool Has(this SearchResults list, Uri uri)
+    //{
+    //    foreach (Uri item in list)
+    //    {
+    //        //if (item.ToString() == uri.ToString())
+    //        ResourceIdentity a = new ResourceIdentity(item);
+    //        ResourceIdentity b = new ResourceIdentity(uri);
+    //        if (a.SameAs(b))
+    //            return true;
 
-        //    }
-        //    return false;
-        //}
-        //public static bool Has(this SearchResults list, string s)
-        //{
-        //    //var uri = new Uri(s, UriKind.Relative);
-        //    //var uri = new Uri(s, UriKind.RelativeOrAbsolute);
-        //    return list.Contains(s);
-        //}
+    //    }
+    //    return false;
+    //}
+    //public static bool Has(this SearchResults list, string s)
+    //{
+    //    //var uri = new Uri(s, UriKind.Relative);
+    //    //var uri = new Uri(s, UriKind.RelativeOrAbsolute);
+    //    return list.Contains(s);
+    //}
     //}
 }

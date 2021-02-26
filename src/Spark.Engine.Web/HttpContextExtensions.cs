@@ -36,7 +36,7 @@
             return new OutputFormatterWriteContext(context, writerFactory.CreateWriter, type, model);
         }
 
-        public static void AllowSynchronousIO(this HttpContext context)
+        public static void AllowSynchronousIo(this HttpContext context)
         {
             var bodyControlFeature = context.Features.Get<IHttpBodyControlFeature>();
             if (bodyControlFeature != null)
@@ -47,7 +47,11 @@
 
         public static void AddResourceType(this HttpContext context, Type resourceType)
         {
-            if (context.Items.ContainsKey(RESOURCE_TYPE_KEY)) return;
+            if (context.Items.ContainsKey(RESOURCE_TYPE_KEY))
+            {
+                return;
+            }
+
             context.Items.Add(RESOURCE_TYPE_KEY, resourceType);
         }
 

@@ -20,14 +20,20 @@ namespace Spark.Engine.Auxiliary
     {
         public static bool VerifySignature(string xml)
         {
-            if (xml == null) throw new ArgumentNullException(nameof(xml));
+            if (xml == null)
+            {
+                throw new ArgumentNullException(nameof(xml));
+            }
 
             var doc = new XmlDocument {PreserveWhitespace = true};
             doc.LoadXml(xml);
 
             // If there's no signature => return that we are "valid"
-            var signatureNode = findSignatureElement(doc);
-            if (signatureNode == null) return true;
+            var signatureNode = FindSignatureElement(doc);
+            if (signatureNode == null)
+            {
+                return true;
+            }
 
             var signedXml = new SignedXml(doc);
             signedXml.LoadXml((XmlElement)signatureNode);
@@ -42,36 +48,55 @@ namespace Spark.Engine.Auxiliary
         }
 
 
-        private static XmlNode findSignatureElement(XmlDocument doc)
+        private static XmlNode FindSignatureElement(XmlDocument doc)
         {
             var signatureElements = doc.DocumentElement.GetElementsByTagName("Signature", "http://www.w3.org/2000/09/xmldsig#");
             if (signatureElements.Count == 1)
+            {
                 return signatureElements[0];
-            else if (signatureElements.Count == 0)
-                return null;
+            }
             else
-                throw new InvalidOperationException("Document has multiple xmldsig Signature elements");
+            {
+                return signatureElements.Count == 0 ? (XmlNode)null : throw new InvalidOperationException("Document has multiple xmldsig Signature elements");
+            }
         }
 
 
         public static bool IsSigned(string xml)
         {
-            if (xml == null) throw new ArgumentNullException(nameof(xml));
+            if (xml == null)
+            {
+                throw new ArgumentNullException(nameof(xml));
+            }
 
             // First, a quick check, before reading the full document
-            if (!xml.Contains("Signature")) return false;
+            if (!xml.Contains("Signature"))
+            {
+                return false;
+            }
 
             var doc = new XmlDocument();
             doc.LoadXml(xml);
-            return findSignatureElement(doc) != null;
+            return FindSignatureElement(doc) != null;
         }
 
 
         public static string Sign(string xml, X509Certificate2 certificate)
         {
-            if (xml == null) throw new ArgumentNullException(nameof(xml));
-            if (certificate == null) throw new ArgumentNullException(nameof(certificate));
-            if (!certificate.HasPrivateKey) throw new ArgumentException("Certificate should have a private key", nameof(certificate));
+            if (xml == null)
+            {
+                throw new ArgumentNullException(nameof(xml));
+            }
+
+            if (certificate == null)
+            {
+                throw new ArgumentNullException(nameof(certificate));
+            }
+
+            if (!certificate.HasPrivateKey)
+            {
+                throw new ArgumentException("Certificate should have a private key", nameof(certificate));
+            }
 
             var doc = new XmlDocument {PreserveWhitespace = true};
 

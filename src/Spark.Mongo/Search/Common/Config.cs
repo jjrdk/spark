@@ -20,11 +20,11 @@ namespace Spark.Mongo.Search.Common
             PARAM_NOLIMIT = -1;
 
         public static int
-            MAX_SEARCH_RESULTS = 5000;
+            MaxSearchResults = 5000;
 
         public static string
             LuceneIndexPath = @"C:\Index",
-            MONGOINDEXCOLLECTION = "searchindex";
+            Mongoindexcollection = "searchindex";
 
         public static bool Equal(string a, string b)
         {

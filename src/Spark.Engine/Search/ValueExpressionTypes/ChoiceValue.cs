@@ -20,14 +20,20 @@ namespace Spark.Engine.Search.ValueExpressionTypes
 
         public ChoiceValue(ValueExpression[] choices)
         {
-            if (choices == null) Error.ArgumentNull("choices");
+            if (choices == null)
+            {
+                Error.ArgumentNull("choices");
+            }
 
             Choices = choices;
         }
 
         public ChoiceValue(IEnumerable<ValueExpression> choices)
         {
-            if (choices == null) Error.ArgumentNull("choices");
+            if (choices == null)
+            {
+                Error.ArgumentNull("choices");
+            }
 
             Choices = choices.ToArray();
         }
@@ -40,22 +46,22 @@ namespace Spark.Engine.Search.ValueExpressionTypes
 
         public static ChoiceValue Parse(string text)
         {
-            if (text == null) Error.ArgumentNull("text");
+            if (text == null)
+            {
+                Error.ArgumentNull("text");
+            }
 
             var values = text.SplitNotEscaped(VALUESEPARATOR);
 
-            return new ChoiceValue(values.Select(v => splitIntoComposite(v)));
+            return new ChoiceValue(values.Select(v => SplitIntoComposite(v)));
         }
 
-        private static ValueExpression splitIntoComposite(string text)
+        private static ValueExpression SplitIntoComposite(string text)
         {
             var composite = CompositeValue.Parse(text);
 
             // If there's only one component, this really was a single value
-            if (composite.Components.Length == 1)
-                return composite.Components[0];
-            else
-                return composite;
+            return composite.Components.Length == 1 ? composite.Components[0] : composite;
         }
     }
 }

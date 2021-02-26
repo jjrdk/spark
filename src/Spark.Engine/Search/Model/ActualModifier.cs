@@ -18,7 +18,7 @@
         public const string MISSINGFALSE = "false";
         public const string MISSING_SEPARATOR = "=";
 
-        private static readonly Dictionary<string, Modifier> mapping = new Dictionary<string, Modifier>
+        private static readonly Dictionary<string, Modifier> _mapping = new Dictionary<string, Modifier>
         { {"exact", Modifier.EXACT }
             , {"partial", Modifier.PARTIAL }
             , {"text", Modifier.TEXT}
@@ -40,7 +40,7 @@
                 Modifier = Modifier.MISSING;
                 return;
             }
-            Modifier = mapping.FirstOrDefault(m => m.Key.Equals(rawModifier, StringComparison.InvariantCultureIgnoreCase)).Value;
+            Modifier = _mapping.FirstOrDefault(m => m.Key.Equals(rawModifier, StringComparison.InvariantCultureIgnoreCase)).Value;
 
             if (Modifier == Modifier.UNKNOWN)
             {
@@ -62,18 +62,22 @@
         /// <returns></returns>
         private bool? TryParseMissing(string rawModifier)
         {
-            var missing = mapping.FirstOrDefault(m => m.Value == Modifier.MISSING).Key;
+            var missing = _mapping.FirstOrDefault(m => m.Value == Modifier.MISSING).Key;
             var parts = rawModifier.Split(new string[] { MISSING_SEPARATOR }, StringSplitOptions.None);
             if (parts[0].Equals(missing, StringComparison.InvariantCultureIgnoreCase))
             {
                 if (parts.Length > 1)
                 {
                     if (parts[1].Equals(MISSINGTRUE, StringComparison.InvariantCultureIgnoreCase))
+                    {
                         return true;
-                    else if (parts[1].Equals(MISSINGFALSE, StringComparison.InvariantCultureIgnoreCase))
-                        return false;
+                    }
                     else
-                        throw Error.Argument("rawModifier", "For the :missing modifier, only values '{0}' and '{1}' are allowed", MISSINGTRUE, MISSINGFALSE);
+                    {
+                        return parts[1].Equals(MISSINGFALSE, StringComparison.InvariantCultureIgnoreCase)
+                            ? (bool?)false
+                            : throw Error.Argument("rawModifier", "For the :missing modifier, only values '{0}' and '{1}' are allowed", MISSINGTRUE, MISSINGFALSE);
+                    }
                 }
                 return true;
             }
@@ -87,7 +91,7 @@
 
         public override string ToString()
         {
-            var modifierText = mapping.FirstOrDefault(m => m.Value == Modifier).Key;
+            var modifierText = _mapping.FirstOrDefault(m => m.Value == Modifier).Key;
             switch (Modifier)
             {
                 case Modifier.MISSING:

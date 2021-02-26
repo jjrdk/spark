@@ -29,12 +29,7 @@
                 return false;
             }
 
-            if (ReferenceEquals(this, other))
-            {
-                return true;
-            }
-
-            return Id == other.Id && Equals(Values, other.Values);
+            return ReferenceEquals(this, other) ? true : Id == other.Id && Equals(Values, other.Values);
         }
 
         /// <inheritdoc />
@@ -45,12 +40,7 @@
                 return false;
             }
 
-            if (ReferenceEquals(this, obj))
-            {
-                return true;
-            }
-
-            return obj.GetType() == this.GetType() && Equals((IndexEntry)obj);
+            return ReferenceEquals(this, obj) ? true : obj.GetType() == this.GetType() && Equals((IndexEntry)obj);
         }
 
         /// <inheritdoc />

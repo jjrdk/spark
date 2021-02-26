@@ -21,17 +21,14 @@ namespace Spark.Engine.Core
 
         public static string GetContentType(Type type, ResourceFormat format)
         {
-            if (typeof(Resource).IsAssignableFrom(type) || type == typeof(Resource))
-            {
-                return format switch
+            return typeof(Resource).IsAssignableFrom(type) || type == typeof(Resource)
+                ? (format switch
                 {
                     ResourceFormat.Json => ContentType.JSON_CONTENT_HEADER,
                     ResourceFormat.Xml => ContentType.XML_CONTENT_HEADER,
                     _ => ContentType.XML_CONTENT_HEADER
-                };
-            }
-
-            return "application/octet-stream";
+                })
+                : "application/octet-stream";
         }
 
         public static string GetContentTypeHeaderValue(this HttpRequestMessage request)

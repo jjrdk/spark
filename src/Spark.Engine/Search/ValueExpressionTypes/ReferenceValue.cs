@@ -20,7 +20,9 @@ namespace Spark.Engine.Search.ValueExpressionTypes
         {
             if (!Uri.IsWellFormedUriString(value, UriKind.Absolute) &&
                 !Id.IsValidValue(value))
+            {
                 throw Error.Argument("text", "Reference is not a valid Id nor a valid absolute Url");
+            }
 
             Value = value;
         }

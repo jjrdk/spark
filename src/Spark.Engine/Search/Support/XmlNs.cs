@@ -26,10 +26,10 @@ namespace Spark.Engine.Search.Support
         public const string NAMESPACE = "http://www.w3.org/XML/1998/namespace";
 
 
-        public static readonly XNamespace XATOM = ATOM;
-        public static readonly XNamespace XATOMPUB_TOMBSTONES = ATOMPUB_TOMBSTONES;
-        public static readonly XNamespace XFHIR = FHIR;
-        public static readonly XNamespace XOPENSEARCH = OPENSEARCH;
-        public static readonly XNamespace XHTMLNS = XHTML;
+        public static readonly XNamespace Xatom = ATOM;
+        public static readonly XNamespace XatompubTombstones = ATOMPUB_TOMBSTONES;
+        public static readonly XNamespace Xfhir = FHIR;
+        public static readonly XNamespace Xopensearch = OPENSEARCH;
+        public static readonly XNamespace Xhtmlns = XHTML;
     }
 }

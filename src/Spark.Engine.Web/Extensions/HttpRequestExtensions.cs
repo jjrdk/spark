@@ -38,8 +38,9 @@ namespace Spark.Engine.Web.Extensions
 
         public static bool IsContentTypeHeaderFhirMediaType(this string contentType)
         {
-            if (string.IsNullOrEmpty(contentType)) return false;
-            return ContentType.XML_CONTENT_HEADERS.Contains(contentType)
+            return string.IsNullOrEmpty(contentType)
+                ? false
+                : ContentType.XML_CONTENT_HEADERS.Contains(contentType)
                 || ContentType.JSON_CONTENT_HEADERS.Contains(contentType);
         }
 

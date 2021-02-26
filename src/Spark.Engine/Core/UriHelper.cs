@@ -6,7 +6,7 @@ namespace Spark.Engine.Core
     {
         public const string CID = "cid";
 
-        public static string CreateCID()
+        public static string CreateCid()
         {
             return $"{CID}:{Guid.NewGuid()}";
         }
@@ -36,9 +36,7 @@ namespace Spark.Engine.Core
 
         public static bool IsTemporaryUri(this Uri uri)
         {
-            if (uri == null) return false;
-
-            return IsTemporaryUri(uri.ToString());
+            return uri == null ? false : IsTemporaryUri(uri.ToString());
         }
 
         public static bool IsTemporaryUri(string uri)
@@ -77,9 +75,9 @@ namespace Spark.Engine.Core
         /// <summary>
         /// Bugfixed_IsBaseOf is a fix for Uri.IsBaseOf which has a bug
         /// </summary>
-        public static bool Bugfixed_IsBaseOf(this Uri _base, Uri uri)
+        public static bool Bugfixed_IsBaseOf(this Uri @base, Uri uri)
         {
-            var b = _base.ToString().ToLowerInvariant();
+            var b = @base.ToString().ToLowerInvariant();
             var u = uri.ToString().ToLowerInvariant();
 
             var isbase = u.StartsWith(b);

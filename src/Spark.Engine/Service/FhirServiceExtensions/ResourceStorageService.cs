@@ -8,22 +8,22 @@
 
     public class ResourceStorageService : IResourceStorageService
     {
-        private readonly ITransfer transfer;
-        private readonly IFhirStore fhirStore;
+        private readonly ITransfer _transfer;
+        private readonly IFhirStore _fhirStore;
 
 
         public ResourceStorageService(ITransfer transfer, IFhirStore fhirStore)
         {
-            this.transfer = transfer;
-            this.fhirStore = fhirStore;
+            this._transfer = transfer;
+            this._fhirStore = fhirStore;
         }
 
         public async Task<Entry> Get(IKey key)
         {
-            var entry = await fhirStore.Get(key).ConfigureAwait(false);
+            var entry = await _fhirStore.Get(key).ConfigureAwait(false);
             if (entry != null)
             {
-                transfer.Externalize(entry);
+                _transfer.Externalize(entry);
             }
 
             return entry;
@@ -33,10 +33,10 @@
         {
             if (entry.State != EntryState.Internal)
             {
-                await transfer.Internalize(entry).ConfigureAwait(false);
+                await _transfer.Internalize(entry).ConfigureAwait(false);
             }
 
-            await fhirStore.Add(entry).ConfigureAwait(false);
+            await _fhirStore.Add(entry).ConfigureAwait(false);
             Entry result;
             if (entry.IsDelete)
             {
@@ -44,19 +44,19 @@
             }
             else
             {
-                result = await fhirStore.Get(entry.Key).ConfigureAwait(false);
+                result = await _fhirStore.Get(entry.Key).ConfigureAwait(false);
             }
 
-            transfer.Externalize(result);
+            _transfer.Externalize(result);
 
             return result;
         }
 
         public async Task<IList<Entry>> Get(IEnumerable<string> localIdentifiers, string sortby = null)
         {
-            var results = await fhirStore.Get(localIdentifiers.Select(k => (IKey)Key.ParseOperationPath(k)))
+            var results = await _fhirStore.Get(localIdentifiers.Select(k => (IKey)Key.ParseOperationPath(k)))
                 .ConfigureAwait(false);
-            transfer.Externalize(results);
+            _transfer.Externalize(results);
             return results;
         }
     }

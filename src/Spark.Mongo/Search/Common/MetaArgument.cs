@@ -2,10 +2,10 @@
 {
     public class MetaArgument : Argument
     {
-        private string field;
+        private string _field;
         public MetaArgument(string field)
         {
-            this.field = field;
+            this._field = field;
         }
     }
 }

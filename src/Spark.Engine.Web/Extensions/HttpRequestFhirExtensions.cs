@@ -61,7 +61,7 @@ namespace Spark.Engine.Web.Extensions
         public static string IfNoneExist(this RequestHeaders headers)
         {
             string ifNoneExist = null;
-            if (headers.Headers.TryGetValue(FhirHttpHeaders.IfNoneExist, out var values))
+            if (headers.Headers.TryGetValue(FhirHttpHeaders.IF_NONE_EXIST, out var values))
             {
                 ifNoneExist = values.FirstOrDefault();
             }
@@ -100,7 +100,9 @@ namespace Spark.Engine.Web.Extensions
             if (!string.IsNullOrEmpty(contentType) && resource is Binary && resource.Id == null && id != null)
             {
                 if (!ContentType.XML_CONTENT_HEADERS.Contains(contentType) && !ContentType.JSON_CONTENT_HEADERS.Contains(contentType))
+                {
                     resource.Id = id;
+                }
             }
         }
 

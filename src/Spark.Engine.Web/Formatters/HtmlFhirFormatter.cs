@@ -76,16 +76,29 @@ namespace Spark.Engine.Web.Formatters
 
                         var ps = ParseQueryString(resource1.SelfLink);
                         if (ps.AllKeys.Contains(FhirParameter.SORT))
+                        {
                             await writer.WriteLineAsync($"    Sort by: {ps[FhirParameter.SORT]}<br/>").ConfigureAwait(false);
-                        if (ps.AllKeys.Contains(FhirParameter.SUMMARY))
-                            await writer.WriteLineAsync("    Summary only<br/>").ConfigureAwait(false);
-                        if (ps.AllKeys.Contains(FhirParameter.COUNT))
-                            await writer.WriteLineAsync($"    Count: {ps[FhirParameter.COUNT]}<br/>").ConfigureAwait(false);
-                        if (ps.AllKeys.Contains(FhirParameter.SNAPSHOT_INDEX))
-                            await writer.WriteLineAsync($"    From RowNum: {ps[FhirParameter.SNAPSHOT_INDEX]}<br/>").ConfigureAwait(false);
-                        if (ps.AllKeys.Contains(FhirParameter.SINCE))
-                            await writer.WriteLineAsync($"    Since: {ps[FhirParameter.SINCE]}<br/>").ConfigureAwait(false);
+                        }
 
+                        if (ps.AllKeys.Contains(FhirParameter.SUMMARY))
+                        {
+                            await writer.WriteLineAsync("    Summary only<br/>").ConfigureAwait(false);
+                        }
+
+                        if (ps.AllKeys.Contains(FhirParameter.COUNT))
+                        {
+                            await writer.WriteLineAsync($"    Count: {ps[FhirParameter.COUNT]}<br/>").ConfigureAwait(false);
+                        }
+
+                        if (ps.AllKeys.Contains(FhirParameter.SNAPSHOT_INDEX))
+                        {
+                            await writer.WriteLineAsync($"    From RowNum: {ps[FhirParameter.SNAPSHOT_INDEX]}<br/>").ConfigureAwait(false);
+                        }
+
+                        if (ps.AllKeys.Contains(FhirParameter.SINCE))
+                        {
+                            await writer.WriteLineAsync($"    Since: {ps[FhirParameter.SINCE]}<br/>").ConfigureAwait(false);
+                        }
 
                         foreach (var item in ps.AllKeys.Where(k => !k.StartsWith("_")))
                         {
@@ -101,13 +114,24 @@ namespace Spark.Engine.Web.Formatters
                     }
 
                     if (resource1.FirstLink != null)
+                    {
                         await writer.WriteLineAsync($"First Link: {resource1.FirstLink.OriginalString}<br/>").ConfigureAwait(false);
+                    }
+
                     if (resource1.PreviousLink != null)
+                    {
                         await writer.WriteLineAsync($"Previous Link: {resource1.PreviousLink.OriginalString}<br/>").ConfigureAwait(false);
+                    }
+
                     if (resource1.NextLink != null)
+                    {
                         await writer.WriteLineAsync($"Next Link: {resource1.NextLink.OriginalString}<br/>").ConfigureAwait(false);
+                    }
+
                     if (resource1.LastLink != null)
+                    {
                         await writer.WriteLineAsync($"Last Link: {resource1.LastLink.OriginalString}<br/>").ConfigureAwait(false);
+                    }
 
                     // Write the other Bundle Header data
                     await writer.WriteLineAsync(
@@ -135,16 +159,23 @@ namespace Spark.Engine.Web.Formatters
                             await writer.WriteLineAsync(
                                 $"<a style=\"word-wrap: break-word; display:block;\" href=\"{realurl}\">{visualurl}</a>").ConfigureAwait(false);
                             if (item.Resource.Meta?.LastUpdated != null)
+                            {
                                 await writer.WriteLineAsync(
                                     $"<i>Modified: {item.Resource.Meta.LastUpdated.Value}</i><br/>").ConfigureAwait(false);
+                            }
+
                             await writer.WriteLineAsync("<hr/>").ConfigureAwait(false);
 
                             if (item.Resource is DomainResource)
                             {
                                 if ((item.Resource as DomainResource).Text != null && !string.IsNullOrEmpty((item.Resource as DomainResource).Text.Div))
+                                {
                                     await writer.WriteAsync((item.Resource as DomainResource).Text.Div).ConfigureAwait(false);
+                                }
                                 else
+                                {
                                     await writer.WriteLineAsync($"Blank Text: {item.Resource.ExtractKey().ToUriString()}<br/>").ConfigureAwait(false);
+                                }
                             }
                             else
                             {

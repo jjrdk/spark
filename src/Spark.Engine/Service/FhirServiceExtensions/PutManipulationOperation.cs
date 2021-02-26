@@ -31,22 +31,24 @@ namespace Spark.Engine.Service.FhirServiceExtensions
                 if (SearchResults != null)
                 {
                     if(SearchResults.Count > 1)
+                    {
                         throw new SparkException(HttpStatusCode.PreconditionFailed, "Multiple matches found when trying to resolve conditional update. Client's criteria were not selective enough");
+                    }
 
                     var localKeyValue = SearchResults.SingleOrDefault();
                     if (localKeyValue != null)
                     {
                         IKey localKey = Key.ParseOperationPath(localKeyValue);
 
-                        entry = Entry.PUT(localKey, Resource); 
+                        entry = Entry.Put(localKey, Resource); 
                     }
                     else
                     {
-                        entry = Entry.POST(OperationKey, Resource);
+                        entry = Entry.Post(OperationKey, Resource);
                     }
                 }
 
-                entry = entry ?? Entry.PUT(OperationKey, Resource);
+                entry = entry ?? Entry.Put(OperationKey, Resource);
                 yield return entry;
             }
         }

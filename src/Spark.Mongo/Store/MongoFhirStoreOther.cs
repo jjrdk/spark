@@ -18,14 +18,14 @@
     public class MongoFhirStoreOther
     {
         private readonly IFhirStore _mongoFhirStoreOther;
-        readonly IMongoDatabase database;
-        readonly IMongoCollection<BsonDocument> collection;
+        readonly IMongoDatabase _database;
+        readonly IMongoCollection<BsonDocument> _collection;
 
         public MongoFhirStoreOther(string mongoUrl, IFhirStore mongoFhirStoreOther)
         {
             _mongoFhirStoreOther = mongoFhirStoreOther;
-            this.database = MongoDatabaseFactory.GetMongoDatabase(mongoUrl);
-            this.collection = database.GetCollection<BsonDocument>(Collection.RESOURCE);
+            this._database = MongoDatabaseFactory.GetMongoDatabase(mongoUrl);
+            this._collection = _database.GetCollection<BsonDocument>(Collection.RESOURCE);
             //this.transaction = new MongoSimpleTransaction(collection);
         }
 
@@ -76,7 +76,7 @@
             clauses.Add(Builders<BsonDocument>.Filter.Eq(Field.STATE, Value.CURRENT));
             var query = Builders<BsonDocument>.Filter.And(clauses);
 
-            var cursor = collection.Find(query);
+            var cursor = _collection.Find(query);
 
             if (sortby != null)
             {
@@ -98,7 +98,7 @@
                 Builders<BsonDocument>.Filter.Eq(Field.STATE, Value.CURRENT)
                 );
             var update = Builders<BsonDocument>.Update.Set(Field.STATE, Value.SUPERCEDED);
-            collection.UpdateMany(query, update);
+            _collection.UpdateMany(query, update);
         }
 
         public void Add(IEnumerable<Entry> entries)
@@ -106,7 +106,7 @@
             var keys = entries.Select(i => i.Key);
             Supercede(keys);
             IList<BsonDocument> documents = entries.Select(SparkBsonHelper.ToBsonDocument).ToList();
-            collection.InsertMany(documents);
+            _collection.InsertMany(documents);
         }
 
         public void Replace(Entry entry)

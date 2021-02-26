@@ -65,7 +65,9 @@ namespace Spark.Engine.Core
         public bool InRange(int index)
         {
             if (index == 0 && !Keys.Any())
+            {
                 return true;
+            }
 
             var last = Keys.Count() - 1;
             return (index > 0 || index <= last);
