@@ -1,7 +1,7 @@
-﻿/* 
+﻿/*
  * Copyright (c) 2014, Furore (info@furore.com) and contributors
  * See the file CONTRIBUTORS for details.
- * 
+ *
  * This file is licensed under the BSD 3-Clause license
  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
  */
@@ -20,17 +20,16 @@ namespace Spark.Engine.Auxiliary
     {
         public static bool VerifySignature(string xml)
         {
-            if (xml == null) throw new ArgumentNullException("xml");
+            if (xml == null) throw new ArgumentNullException(nameof(xml));
 
-            XmlDocument doc = new XmlDocument();
-            doc.PreserveWhitespace = true;
+            var doc = new XmlDocument {PreserveWhitespace = true};
             doc.LoadXml(xml);
 
             // If there's no signature => return that we are "valid"
-            XmlNode signatureNode = findSignatureElement(doc);
+            var signatureNode = findSignatureElement(doc);
             if (signatureNode == null) return true;
 
-            SignedXml signedXml = new SignedXml(doc);
+            var signedXml = new SignedXml(doc);
             signedXml.LoadXml((XmlElement)signatureNode);
 
             //var x509Certificates = signedXml.KeyInfo.OfType<KeyInfoX509Data>();
@@ -39,7 +38,7 @@ namespace Spark.Engine.Auxiliary
             //if (certificate == null) throw new InvalidOperationException("Signature does not contain a X509 certificate public key to verify the signature");
             //return signedXml.CheckSignature(certificate, true);
 
-            return signedXml.CheckSignature();           
+            return signedXml.CheckSignature();
         }
 
 
@@ -57,7 +56,7 @@ namespace Spark.Engine.Auxiliary
 
         public static bool IsSigned(string xml)
         {
-            if (xml == null) throw new ArgumentNullException("xml");
+            if (xml == null) throw new ArgumentNullException(nameof(xml));
 
             // First, a quick check, before reading the full document
             if (!xml.Contains("Signature")) return false;
@@ -70,21 +69,19 @@ namespace Spark.Engine.Auxiliary
 
         public static string Sign(string xml, X509Certificate2 certificate)
         {
-            if (xml == null) throw new ArgumentNullException("xml");
-            if (certificate == null) throw new ArgumentNullException("certificate");
-            if (!certificate.HasPrivateKey) throw new ArgumentException("Certificate should have a private key", "certificate");
+            if (xml == null) throw new ArgumentNullException(nameof(xml));
+            if (certificate == null) throw new ArgumentNullException(nameof(certificate));
+            if (!certificate.HasPrivateKey) throw new ArgumentException("Certificate should have a private key", nameof(certificate));
 
-            XmlDocument doc = new XmlDocument();
+            var doc = new XmlDocument {PreserveWhitespace = true};
 
-            doc.PreserveWhitespace = true;
             doc.LoadXml(xml);
 
-            SignedXml signedXml = new SignedXml(doc);
-            signedXml.SigningKey = certificate.PrivateKey;
+            var signedXml = new SignedXml(doc) {SigningKey = certificate.PrivateKey};
 
             // Attach certificate KeyInfo
-            KeyInfoX509Data keyInfoData = new KeyInfoX509Data(certificate);
-            KeyInfo keyInfo = new KeyInfo();
+            var keyInfoData = new KeyInfoX509Data(certificate);
+            var keyInfo = new KeyInfo();
             keyInfo.AddClause(keyInfoData);
             signedXml.KeyInfo = keyInfo;
 
@@ -103,7 +100,7 @@ namespace Spark.Engine.Auxiliary
 
             return doc.OuterXml;
         }
-        
+
     }
 
 }

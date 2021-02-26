@@ -6,11 +6,11 @@
  * available at https://raw.githubusercontent.com/ewoutkramer/fhir-net-api/master/LICENSE
  */
 
-using Spark.Search.Support;
-using System;
-
-namespace Spark.Search
+namespace Spark.Engine.Search.ValueExpressionTypes
 {
+    using System;
+    using Support;
+
     public class TokenValue : ValueExpression
     {
         public string Namespace { get; private set; }
@@ -36,7 +36,7 @@ namespace Spark.Search
         {
             if (!AnyNamespace)
             {
-                var ns = Namespace ?? String.Empty;
+                var ns = Namespace ?? string.Empty;
                 return StringValue.EscapeString(ns) + "|" +
                                     StringValue.EscapeString(Value);
             }
@@ -48,23 +48,23 @@ namespace Spark.Search
         {
             if (text == null) throw Error.ArgumentNull("text");
 
-            string[] pair = text.SplitNotEscaped('|');
+            var pair = text.SplitNotEscaped('|');
 
             if (pair.Length > 2)
                 throw Error.Argument("text", "Token cannot have more than two parts separated by '|'");
 
-            bool hasNamespace = pair.Length == 2;
+            var hasNamespace = pair.Length == 2;
 
-            string pair0 = StringValue.UnescapeString(pair[0]);
+            var pair0 = StringValue.UnescapeString(pair[0]);
 
             if (hasNamespace)
             {
-                if(pair[1] == String.Empty)
+                if(pair[1] == string.Empty)
                     throw new FormatException("Token query parameters should at least specify a value after the '|'");
 
-                string pair1 = StringValue.UnescapeString(pair[1]);
+                var pair1 = StringValue.UnescapeString(pair[1]);
 
-                if (pair0 == String.Empty)
+                if (pair0 == string.Empty)
                     return new TokenValue(pair1, matchAnyNamespace: false );
                 else
                     return new TokenValue(pair1, pair0);

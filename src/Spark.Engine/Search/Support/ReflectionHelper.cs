@@ -1,19 +1,19 @@
-﻿/* 
+﻿/*
  * Copyright (c) 2014, Furore (info@furore.com) and contributors
  * See the file CONTRIBUTORS for details.
- * 
+ *
  * This file is licensed under the BSD 3-Clause license
  * available at https://raw.githubusercontent.com/ewoutkramer/fhir-net-api/master/LICENSE
  */
 
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-
-namespace Spark.Search.Support
+namespace Spark.Engine.Search.Support
 {
+    using System;
+    using System.Collections;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Reflection;
+
     internal static class ReflectionHelper
     {
         public static bool CanBeTreatedAsType(this Type CurrentType, Type TypeToCompareWith)
@@ -34,7 +34,8 @@ namespace Spark.Search.Support
         /// <typeparam name="T">The type of the attribute you want to retrieve</typeparam>
         /// <param name="enumVal">The enum value</param>
         /// <returns>The attribute of type T that exists on the enum value</returns>
-        public static T GetAttributeOnEnum<T>(this Enum enumVal) where T : System.Attribute
+        public static T GetAttributeOnEnum<T>(this Enum enumVal)
+            where T : Attribute
         {
             var type = enumVal.GetType();
 #if PORTABLE45
@@ -43,13 +44,13 @@ namespace Spark.Search.Support
             var memInfo = type.GetMember(enumVal.ToString())[0];
 #endif
             var attributes = memInfo.GetCustomAttributes(typeof(T), false);
-            return (attributes.Count() > 0) ? (T)attributes.First() : null;
+            return (attributes.Length > 0) ? (T)attributes.First() : null;
         }
 
 
         public static IEnumerable<PropertyInfo> FindPublicProperties(Type t)
         {
-            if(t == null) throw Error.ArgumentNull("t");
+            if (t == null) throw Error.ArgumentNull("t");
 
 #if PORTABLE45
 			return t.GetRuntimeProperties(); //(BindingFlags.Instance | BindingFlags.Public);
@@ -61,7 +62,7 @@ namespace Spark.Search.Support
 
         public static PropertyInfo FindPublicProperty(Type t, string name)
         {
-            if(t == null) throw Error.ArgumentNull("t");
+            if (t == null) throw Error.ArgumentNull("t");
             if (name == null) throw Error.ArgumentNull("name");
 
 #if PORTABLE45
@@ -69,7 +70,7 @@ namespace Spark.Search.Support
 #else
             return t.GetProperty(name, BindingFlags.Instance | BindingFlags.Public);
 #endif
-		}
+        }
 
         internal static MethodInfo FindPublicStaticMethod(Type t, string name, params Type[] arguments)
         {
@@ -79,9 +80,9 @@ namespace Spark.Search.Support
 #if PORTABLE45
             return t.GetRuntimeMethod(name,arguments);
 #else
-            return t.GetMethod(name,arguments);
+            return t.GetMethod(name, arguments);
 #endif
-		}
+        }
 
         internal static bool HasDefaultPublicConstructor(Type t)
         {
@@ -103,9 +104,9 @@ namespace Spark.Search.Support
 #if PORTABLE45
             return t.GetTypeInfo().DeclaredConstructors.FirstOrDefault(s => s.GetParameters().Length == 0 && s.IsPublic && !s.IsStatic);
 #else
-            BindingFlags bindingFlags = BindingFlags.Instance | BindingFlags.Public;
+            var bindingFlags = BindingFlags.Instance | BindingFlags.Public;
 
-			return t.GetConstructors(bindingFlags).SingleOrDefault(c => !c.GetParameters().Any());
+            return t.GetConstructors(bindingFlags).SingleOrDefault(c => !c.GetParameters().Any());
 #endif
         }
 
@@ -118,7 +119,7 @@ namespace Spark.Search.Support
 #else
             return (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>));
 #endif
-		}
+        }
 
         public static Type GetNullableArgument(Type type)
         {
@@ -131,7 +132,7 @@ namespace Spark.Search.Support
 #else
                 return type.GetGenericArguments()[0];
 #endif
-			}
+            }
             else
                 throw Error.Argument("type", "Type {0} is not a Nullable<T>", type.Name);
         }
@@ -143,7 +144,7 @@ namespace Spark.Search.Support
 
 
         public static IList CreateGenericList(Type itemType)
-        {          
+        {
             return (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(itemType));
         }
 
@@ -181,66 +182,52 @@ namespace Spark.Search.Support
         {
             if (type == null) throw Error.ArgumentNull("type");
 
-            Type genericListType;
-
             if (type.IsArray)
             {
                 return type.GetElementType();
             }
-			else if (ImplementsGenericDefinition(type, typeof(ICollection<>), out genericListType))
-			{
-				//EK: If I look at ImplementsGenericDefinition, I don't think this can actually occur.
-				//if (genericListType.IsGenericTypeDefinition)
-				//throw Error.Argument("type", "Type {0} is not a collection.", type.Name);
 
-#if PORTABLE45
-				return genericListType.GetTypeInfo().GenericTypeArguments[0];
-#else
+            if (ImplementsGenericDefinition(type, typeof(ICollection<>), out var genericListType))
+            {
+                //EK: If I look at ImplementsGenericDefinition, I don't think this can actually occur.
+                //if (genericListType.IsGenericTypeDefinition)
+                //throw Error.Argument("type", "Type {0} is not a collection.", type.Name);
+
                 return genericListType.GetGenericArguments()[0];
-#endif
-			}
-			else if (typeof(IEnumerable).IsAssignableFrom(type))
-			{
-				return null;
-			}
-			else
-			{
-				throw Error.Argument("type", "Type {0} is not a collection.", type.Name);
-			}
+            }
+            else if (typeof(IEnumerable).IsAssignableFrom(type))
+            {
+                return null;
+            }
+            else
+            {
+                throw Error.Argument("type", "Type {0} is not a collection.", type.Name);
+            }
         }
 
         public static bool ImplementsGenericDefinition(Type type, Type genericInterfaceDefinition)
         {
-            Type implementingType;
-            return ImplementsGenericDefinition(type, genericInterfaceDefinition, out implementingType);
+            return ImplementsGenericDefinition(type, genericInterfaceDefinition, out _);
         }
 
-        public static bool ImplementsGenericDefinition(Type type, Type genericInterfaceDefinition, out Type implementingType)
+        public static bool ImplementsGenericDefinition(
+            Type type,
+            Type genericInterfaceDefinition,
+            out Type implementingType)
         {
             if (type == null) throw Error.ArgumentNull("type");
             if (genericInterfaceDefinition == null) throw Error.ArgumentNull("genericInterfaceDefinition");
 
-#if PORTABLE45
-			if (!genericInterfaceDefinition.GetTypeInfo().IsInterface || !genericInterfaceDefinition.GetTypeInfo().IsGenericTypeDefinition)
-				throw Error.Argument("genericInterfaceDefinition", "'{0}' is not a generic interface definition.", genericInterfaceDefinition.Name);
-#else
-			if (!genericInterfaceDefinition.IsInterface || !genericInterfaceDefinition.IsGenericTypeDefinition)
-               throw Error.Argument("genericInterfaceDefinition", "'{0}' is not a generic interface definition.",genericInterfaceDefinition.Name);
-#endif
-
-#if PORTABLE45
-			if (type.GetTypeInfo().IsInterface)
-#else
+            if (!genericInterfaceDefinition.IsInterface || !genericInterfaceDefinition.IsGenericTypeDefinition)
+                throw Error.Argument(
+                    "genericInterfaceDefinition",
+                    "'{0}' is not a generic interface definition.",
+                    genericInterfaceDefinition.Name);
             if (type.IsInterface)
-#endif
-			{
-#if PORTABLE45
-				if (type.GetTypeInfo().IsGenericType)
-#else
-				if (type.IsGenericType)
-#endif
-				{
-                    Type interfaceDefinition = type.GetGenericTypeDefinition();
+            {
+                if (type.IsGenericType)
+                {
+                    var interfaceDefinition = type.GetGenericTypeDefinition();
 
                     if (genericInterfaceDefinition == interfaceDefinition)
                     {
@@ -250,19 +237,11 @@ namespace Spark.Search.Support
                 }
             }
 
-#if PORTABLE45
-			foreach (Type i in type.GetTypeInfo().ImplementedInterfaces)
-#else
-            foreach (Type i in type.GetInterfaces())
-#endif
-			{
-#if PORTABLE45
-				if (i.GetTypeInfo().IsGenericType)
-#else
+            foreach (var i in type.GetInterfaces())
+            {
                 if (i.IsGenericType)
-#endif
-				{
-                    Type interfaceDefinition = i.GetGenericTypeDefinition();
+                {
+                    var interfaceDefinition = i.GetGenericTypeDefinition();
 
                     if (genericInterfaceDefinition == interfaceDefinition)
                     {
@@ -276,7 +255,7 @@ namespace Spark.Search.Support
             return false;
         }
 
-		#region << Extension methods to make the handling of PCL easier >>
+        #region << Extension methods to make the handling of PCL easier >>
 
 #if PORTABLE45
 		internal static bool IsDefined(this Type t, Type attributeType, bool inherit)
@@ -290,41 +269,28 @@ namespace Spark.Search.Support
 		}
 #endif
 
-		internal static bool IsEnum(this Type t)
-		{
+        internal static bool IsEnum(this Type t)
+        {
 #if PORTABLE45
 			return t.GetTypeInfo().IsEnum;
 #else
-			return t.IsEnum;
+            return t.IsEnum;
 #endif
-		}
-		#endregion
+        }
 
-#if PORTABLE45
-		internal static T GetAttribute<T>(Type type) where T : Attribute
-		{
-			var attr = type.GetTypeInfo().GetCustomAttribute<T>();
-			return (T)attr;
-		}
-#endif
+        #endregion
 
-		internal static T GetAttribute<T>(MemberInfo member) where T : Attribute
+        internal static T GetAttribute<T>(MemberInfo member)
+            where T : Attribute
         {
-#if PORTABLE45
-			var attr = member.GetCustomAttribute<T>();
-#else
             var attr = Attribute.GetCustomAttribute(member, typeof(T));
-#endif
             return (T)attr;
         }
 
-        internal static ICollection<T> GetAttributes<T>(MemberInfo member) where T : Attribute
+        internal static ICollection<T> GetAttributes<T>(MemberInfo member)
+            where T : Attribute
         {
-#if PORTABLE45
-			var attr = member.GetCustomAttributes<T>();
-#else
             var attr = Attribute.GetCustomAttributes(member, typeof(T));
-#endif
             return (ICollection<T>)attr.Select(a => (T)a);
         }
 
@@ -333,11 +299,7 @@ namespace Spark.Search.Support
         {
             if (t == null) throw Error.ArgumentNull("t");
 
-#if PORTABLE45
-			return t.GetTypeInfo().DeclaredFields.Where(a => a.IsPublic && a.IsStatic);
-#else
             return t.GetFields(BindingFlags.Public | BindingFlags.Static);
-#endif
         }
 
         internal static bool IsArray(object value)

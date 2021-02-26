@@ -1,14 +1,15 @@
-using Spark.Engine.Core;
-using Spark.Engine.Model;
-
 namespace Spark.Engine.Store.Interfaces
 {
+    using System.Threading.Tasks;
+    using Spark.Engine.Core;
+    using Spark.Engine.Model;
+
     public interface IIndexStore
     {
-        void Save(IndexValue indexValue);
+        Task Save(IndexValue indexValue);
 
-        void Delete(Entry entry);
+        Task Delete(Entry entry);
 
-        void Clean();
+        Task Clean();
     }
 }

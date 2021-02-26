@@ -10,17 +10,18 @@ using System.Collections.Generic;
 using System.Linq;
 
 using Hl7.Fhir.Model;
-using Spark.Search;
 
 namespace Spark.Engine.Core
 {
+    using Search.ValueExpressionTypes;
+
     public class SearchResults : List<string>
     {
         
         public List<Criterium> UsedCriteria { get; set; }
         public int MatchCount { get; set; }
 
-        private OperationOutcome outcome;
+        private readonly OperationOutcome outcome;
         public OperationOutcome Outcome { 
             get
             {
@@ -64,7 +65,7 @@ namespace Spark.Engine.Core
         {
             get
             {
-                string[] used = UsedCriteria.Select(c => c.ToString()).ToArray();
+                var used = UsedCriteria.Select(c => c.ToString()).ToArray();
                 return string.Join("&", used);
             }
         }

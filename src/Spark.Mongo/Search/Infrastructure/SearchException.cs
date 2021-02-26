@@ -6,10 +6,10 @@
  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
  */
 
-using System;
-
-namespace Spark.Mongo.Search.Common
+namespace Spark.Mongo.Search.Infrastructure
 {
+    using System;
+
     public class SearchException : Exception
     {
         public SearchException(string message) : base(message) { }

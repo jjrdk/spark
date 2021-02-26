@@ -10,6 +10,8 @@ using Spark.Web.Data;
 
 namespace Spark.Web
 {
+    using Microsoft.AspNetCore.Server.Kestrel.Core;
+
     public class Program
     {
         public static void Main(string[] args)
@@ -42,7 +44,12 @@ namespace Spark.Web
         }
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
-            WebHost.CreateDefaultBuilder(args)
+            WebHost.CreateDefaultBuilder(args).ConfigureKestrel(
+                    k =>
+                    {
+                        k.AddServerHeader = false;
+                        k.ListenAnyIP(80, options => options.Protocols = HttpProtocols.Http1AndHttp2AndHttp3);
+                    })
                 .UseStartup<Startup>()
                 .ConfigureLogging(logging =>
                 {

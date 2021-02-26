@@ -1,11 +1,14 @@
-﻿using Hl7.Fhir.Model;
-using Spark.Engine.Model;
-
-namespace Spark.Engine.Core
+﻿namespace Spark.Engine.Core
 {
+    using System.Threading.Tasks;
+    using Hl7.Fhir.Model;
+    using Model;
+    using Task = System.Threading.Tasks.Task;
+
     public interface IIndexService
     {
-        void Process(Entry entry);
-        IndexValue IndexResource(Resource resource, IKey key);
+        Task Process(Entry entry);
+
+        Task<IndexValue> IndexResource(Resource resource, IKey key);
     }
 }

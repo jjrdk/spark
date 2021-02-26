@@ -13,8 +13,8 @@ namespace Spark.Engine.Utility
             const string prefix = "f:";
             const string separator = "/";
 
-            string[] elements = fhirPathExpression.Split('.');
-            string xPathExpression = string.Empty;
+            var elements = fhirPathExpression.Split('.');
+            var xPathExpression = string.Empty;
             foreach (var element in elements)
             {
                 if (string.IsNullOrEmpty(xPathExpression))
@@ -28,15 +28,15 @@ namespace Spark.Engine.Utility
 
         internal static string ResolveToFhirPathExpression(Type resourceType, string expression)
         {
-            Type rootType = resourceType;
-            string[] elements = expression.Split('.');
-            int length = elements.Length;
-            string fhirPathExpression = string.Empty;
-            Type currentType = rootType;
-            for (int i = 0; length > i; i++)
+            var rootType = resourceType;
+            var elements = expression.Split('.');
+            var length = elements.Length;
+            var fhirPathExpression = string.Empty;
+            var currentType = rootType;
+            for (var i = 0; length > i; i++)
             {
-                (string, string) elementAndIndexer = GetElementSeparetedFromIndexer(elements[i]);
-                (Type, string) resolvedElement = ResolveElement(currentType, elementAndIndexer.Item1);
+                var elementAndIndexer = GetElementSeparetedFromIndexer(elements[i]);
+                var resolvedElement = ResolveElement(currentType, elementAndIndexer.Item1);
 
                 fhirPathExpression += $"{resolvedElement.Item2}{elementAndIndexer.Item2}.";
 
@@ -48,11 +48,11 @@ namespace Spark.Engine.Utility
 
         internal static (Type, string) ResolveElement(Type root, string element)
         {
-            PropertyInfo pi = root.GetProperty(element);
+            var pi = root.GetProperty(element);
             if (pi == null) return (null, element);
 
-            string fhirElementName = element;
-            FhirElementAttribute fhirElement = pi.GetCustomAttribute<FhirElementAttribute>();
+            var fhirElementName = element;
+            var fhirElement = pi.GetCustomAttribute<FhirElementAttribute>();
             if (fhirElement != null)
             {
                 fhirElementName = fhirElement.Name;
@@ -74,10 +74,10 @@ namespace Spark.Engine.Utility
         internal static string GetFhirElementForResource<T>(string element)
             where T : Resource
         {
-            MemberInfo mi = typeof(T).GetMember(element).FirstOrDefault();
+            var mi = typeof(T).GetMember(element).FirstOrDefault();
             if (mi != null)
             {
-                FhirElementAttribute fhirElement = mi.GetCustomAttribute<FhirElementAttribute>();
+                var fhirElement = mi.GetCustomAttribute<FhirElementAttribute>();
                 if (fhirElement != null)
                 {
                     return fhirElement.Name;
@@ -89,7 +89,7 @@ namespace Spark.Engine.Utility
 
         internal static (string, string) GetElementSeparetedFromIndexer(string element)
         {
-            int index = element.LastIndexOf("[");
+            var index = element.LastIndexOf("[");
             if (index > -1)
             {
                 return (element.Substring(0, index), element.Substring(index));

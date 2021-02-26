@@ -13,8 +13,6 @@ using System.Reflection;
 
 namespace Spark.Engine.Auxiliary
 {
-    public delegate void Visitor(Element element, string path);
-    
     public static class ResourceVisitor
     {
         public static void VisitByType(object item, Visitor action, params Type[] filter)
@@ -26,7 +24,7 @@ namespace Spark.Engine.Auxiliary
                 {
                     foreach (var t in filter)
                     {
-                        Type type = elem.GetType();
+                        var type = elem.GetType();
                         if (t.IsAssignableFrom(type))
                            action(elem, path);
                     }
@@ -38,13 +36,13 @@ namespace Spark.Engine.Auxiliary
         private static bool propertyFilter(MemberInfo mem, object arg)
         {
             // We prefilter on properties, so this cast is always valid
-            PropertyInfo prop = (PropertyInfo)mem;
+            var prop = (PropertyInfo)mem;
 
             // Return true if the property is either an Element or an IEnumerable<Element>.
-            bool isElementProperty = typeof(Element).IsAssignableFrom(prop.PropertyType);
+            var isElementProperty = typeof(Element).IsAssignableFrom(prop.PropertyType);
             var collectionInterface = prop.PropertyType.GetInterface("IEnumerable`1");
-            bool isElementCollection = false;
-            bool hasIndexParameters = prop.GetIndexParameters().Length > 0;
+            var isElementCollection = false;
+            var hasIndexParameters = prop.GetIndexParameters().Length > 0;
 
             if (collectionInterface != null)
             {
@@ -85,7 +83,7 @@ namespace Spark.Engine.Auxiliary
 
                     if (list != null)
                     {
-                        int index = 0;
+                        var index = 0;
                         foreach (var element in list)
                         {
                             var propertyPath = joinPath(path,property.Name + "[" + index.ToString() + "]");
@@ -104,7 +102,7 @@ namespace Spark.Engine.Auxiliary
                 {
                     var propertyPath = joinPath(path,property.Name);
 
-                    Element propValue = (Element)property.GetValue(item);
+                    var propValue = (Element)property.GetValue(item);
                    
                     // Look into the property to find nested elements
                     if (propValue != null)

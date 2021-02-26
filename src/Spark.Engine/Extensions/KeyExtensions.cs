@@ -6,54 +6,53 @@
  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
  */
 
-using Hl7.Fhir.Model;
-using Hl7.Fhir.Rest;
-using System;
-using System.Text;
-using Spark.Engine.Core;
-using System.Collections.Generic;
+
 
 // mh: KeyExtensions terugverplaatst naar Spark.Engine.Core omdat ze in dezelfde namespace moeten zitten als Key.
-namespace Spark.Engine.Core
+namespace Spark.Engine.Extensions
 {
+    using System;
+    using System.Collections.Generic;
+    using Core;
+    using Hl7.Fhir.Model;
+    using Hl7.Fhir.Rest;
 
     public static class KeyExtensions
     {
         public static Key ExtractKey(this Resource resource)
         {
-            string _base = (resource.ResourceBase != null) ? resource.ResourceBase.ToString() : null;
-            Key key = new Key(_base, resource.TypeName, resource.Id, resource.VersionId);
+            var _base = resource.ResourceBase?.ToString();
+            var key = new Key(_base, resource.TypeName, resource.Id, resource.VersionId);
             return key;
         }
 
         public static Key ExtractKey(Uri uri)
         {
-            
             var identity = new ResourceIdentity(uri);
-            
-            string _base = (identity.HasBaseUri) ? identity.BaseUri.ToString() : null;
-            Key key = new Key(_base, identity.ResourceType, identity.Id, identity.VersionId);
+
+            var _base = (identity.HasBaseUri) ? identity.BaseUri.ToString() : null;
+            var key = new Key(_base, identity.ResourceType, identity.Id, identity.VersionId);
             return key;
         }
 
-        public static Key ExtractKey(this Localhost localhost, Bundle.EntryComponent entry)
-        {
-            Uri uri = new Uri(entry.Request.Url, UriKind.RelativeOrAbsolute);
-            Key compare = ExtractKey(uri); // This fails!! ResourceIdentity does not work in this case.
-            return localhost.LocalUriToKey(uri);   
-            
-        }
-                
+        //public static Key ExtractKey(this Localhost localhost, Bundle.EntryComponent entry)
+        //{
+        //    var uri = new Uri(entry.Request.Url, UriKind.RelativeOrAbsolute);
+        //    var compare = ExtractKey(uri); // This fails!! ResourceIdentity does not work in this case.
+        //    return localhost.LocalUriToKey(uri);
+
+        //}
+
         public static void ApplyTo(this IKey key, Resource resource)
         {
-            resource.ResourceBase = key.HasBase() ?  new Uri(key.Base) : null;
+            resource.ResourceBase = key.HasBase() ? new Uri(key.Base) : null;
             resource.Id = key.ResourceId;
-            resource.VersionId = key.VersionId; 
+            resource.VersionId = key.VersionId;
         }
 
         public static Key Clone(this IKey self)
         {
-            Key key = new Key(self.Base, self.TypeName, self.ResourceId, self.VersionId);
+            var key = new Key(self.Base, self.TypeName, self.ResourceId, self.VersionId);
             return key;
         }
 
@@ -64,21 +63,21 @@ namespace Spark.Engine.Core
 
         public static Key WithBase(this IKey self, string _base)
         {
-            Key key = self.Clone();
+            var key = self.Clone();
             key.Base = _base;
             return key;
         }
 
         public static Key WithoutBase(this IKey self)
         {
-            Key key = self.Clone();
+            var key = self.Clone();
             key.Base = null;
             return key;
         }
-        
+
         public static Key WithoutVersion(this IKey self)
         {
-            Key key = self.Clone();
+            var key = self.Clone();
             key.VersionId = null;
             return key;
         }
@@ -91,6 +90,35 @@ namespace Spark.Engine.Core
         public static bool HasResourceId(this IKey self)
         {
             return !string.IsNullOrEmpty(self.ResourceId);
+        }
+
+        public static IKey WithoutResourceId(this IKey self)
+        {
+            var key = self.Clone();
+            key.ResourceId = null;
+            return key;
+        }
+
+        /// <summary>
+        /// If an id is provided, the server SHALL ignore it.
+        /// If the request body includes a meta, the server SHALL ignore
+        /// the existing versionId and lastUpdated values.
+        /// http://hl7.org/fhir/STU3/http.html#create
+        /// http://hl7.org/fhir/R4/http.html#create
+        /// </summary>
+        public static IKey CleanupForCreate(this IKey key)
+        {
+            if (key.HasResourceId())
+            {
+                key = key.WithoutResourceId();
+            }
+
+            if (key.HasVersionId())
+            {
+                key = key.WithoutVersion();
+            }
+
+            return key;
         }
 
         public static IEnumerable<string> GetSegments(this IKey key)
@@ -113,7 +141,7 @@ namespace Spark.Engine.Core
 
         public static string ToOperationPath(this IKey self)
         {
-            Key key = self.WithoutBase();
+            var key = self.WithoutBase();
             return key.ToUriString();
         }
 
@@ -131,7 +159,7 @@ namespace Spark.Engine.Core
 
         public static Key CreateFromLocalReference(string reference)
         {
-            string[] parts = reference.Split('/');
+            var parts = reference.Split('/');
             if (parts.Length == 2)
             {
                 return Key.Create(parts[0], parts[1], parts[3]);
@@ -145,7 +173,7 @@ namespace Spark.Engine.Core
 
         public static Uri ToRelativeUri(this IKey key)
         {
-            string path = key.ToOperationPath();
+            var path = key.ToOperationPath();
             return new Uri(path, UriKind.Relative);
         }
 
@@ -156,8 +184,8 @@ namespace Spark.Engine.Core
 
         public static Uri ToUri(this IKey key, Uri endpoint)
         {
-            string _base = endpoint.ToString().TrimEnd('/');
-            string s = string.Format("{0}/{1}", _base, key);
+            var _base = endpoint.ToString().TrimEnd('/');
+            var s = $"{_base}/{key}";
             return new Uri(s);
         }
 

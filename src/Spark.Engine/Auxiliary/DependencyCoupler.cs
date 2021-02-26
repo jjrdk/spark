@@ -8,19 +8,18 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
-using Spark.Core;
 
 namespace Spark.Engine.Auxiliary
 {
-    // Intermediate solution. Eventually replace with real resolver.
+    using Core;
 
-    public delegate object Instantiator();
+    // Intermediate solution. Eventually replace with real resolver.
 
     public static class DependencyCoupler
     {
-        static Dictionary<Type, Object> instances = new Dictionary<Type, object>();
-        static Dictionary<Type, Instantiator> instanciators = new Dictionary<Type, Instantiator>();
-        static Dictionary<Type, Type> types = new Dictionary<Type, Type>();
+        private static readonly Dictionary<Type, object> instances = new Dictionary<Type, object>();
+        private static readonly Dictionary<Type, Instantiator> instanciators = new Dictionary<Type, Instantiator>();
+        private static readonly Dictionary<Type, Type> types = new Dictionary<Type, Type>();
 
         public static void Register<I>(Instantiator instanciator)
         {
@@ -39,8 +38,8 @@ namespace Spark.Engine.Auxiliary
 
         public static T Inject<T>()
         {
-            T instance = default(T);
-            Type key = typeof(T);
+            var instance = default(T);
+            var key = typeof(T);
             Type type = null;
             Instantiator instanciator = null;
 

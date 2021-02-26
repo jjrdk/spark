@@ -1,11 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("Spark.Engine.Test")]
-
-namespace Spark.Engine.Properties
-{
-
-    internal class AssemblyInfo
-    {
-    }
-}
+[assembly: InternalsVisibleTo("Spark.Engine.Web")]
+[assembly: InternalsVisibleTo("Spark.Engine.Web.Tests")]

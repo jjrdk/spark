@@ -1,50 +1,49 @@
-﻿/* 
+﻿/*
  * Copyright (c) 2014, Furore (info@furore.com) and contributors
  * See the file CONTRIBUTORS for details.
- * 
+ *
  * This file is licensed under the BSD 3-Clause license
  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
  */
 
-using Hl7.Fhir.Model;
-using System;
-using System.Collections.Generic;
-using Spark.Core;
-using System.Xml.Linq;
-using Spark.Engine;
-using Spark.Engine.Core;
-using Spark.Engine.Extensions;
-using Spark.Engine.Auxiliary;
-
-namespace Spark.Service
+namespace Spark.Engine.Service
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Xml.Linq;
+    using Auxiliary;
+    using Core;
+    using Engine;
+    using Extensions;
+    using Hl7.Fhir.Model;
+
     /// <summary>
     /// Import can map id's and references  that are local to the Spark Server to absolute id's and references in outgoing Interactions.
     /// </summary>
     internal class Export
     {
-        ILocalhost localhost;
-        List<Entry> entries;
-        ExportSettings exportSettings;
+        private readonly ILocalhost _localhost;
+        private readonly List<Entry> _entries;
+        private readonly ExportSettings _exportSettings;
 
         public Export(ILocalhost localhost, ExportSettings exportSettings)
         {
-            this.localhost = localhost;
-            this.exportSettings = exportSettings;
-            entries = new List<Entry>();
+            this._localhost = localhost;
+            this._exportSettings = exportSettings;
+            _entries = new List<Entry>();
         }
 
         public void Add(Entry interaction)
         {
             if (interaction != null && interaction.State == EntryState.Undefined)
             {
-                entries.Add(interaction);
+                _entries.Add(interaction);
             }
         }
 
         public void Add(IEnumerable<Entry> set)
         {
-            foreach (Entry interaction in set)
+            foreach (var interaction in set)
             {
                 Add(interaction);
             }
@@ -57,25 +56,25 @@ namespace Spark.Service
             ExternalizeState();
         }
 
-        void ExternalizeState()
+        private void ExternalizeState()
         {
-            foreach (Entry entry in this.entries)
+            foreach (var entry in this._entries)
             {
                 entry.State = EntryState.External;
             }
         }
 
-        void ExternalizeKeys()
+        private void ExternalizeKeys()
         {
-            foreach(Entry entry in this.entries)
+            foreach (var entry in this._entries)
             {
                 ExternalizeKey(entry);
             }
         }
 
-        void ExternalizeReferences()
+        private void ExternalizeReferences()
         {
-            foreach(Entry entry in this.entries)
+            foreach (var entry in this._entries)
             {
                 if (entry.Resource != null)
                 {
@@ -84,98 +83,64 @@ namespace Spark.Service
             }
         }
 
-        void ExternalizeKey(Entry entry)
+        private void ExternalizeKey(Entry entry)
         {
-            entry.SupplementBase(localhost.DefaultBase);
+            entry.SupplementBase(_localhost.DefaultBase);
         }
 
-        void ExternalizeReferences(Resource resource)
+        private void ExternalizeReferences(Resource resource)
         {
-            Visitor action = (element, name) =>
+            void Action(Element element, string name)
             {
-                if (element == null) return;
-
-                if (element is ResourceReference)
+                switch (element)
                 {
-                    ResourceReference reference = (ResourceReference)element;
-                    if (reference.Url != null)
-                        reference.Url = new Uri(ExternalizeReference(reference.Url.ToString()), UriKind.RelativeOrAbsolute);
+                    case null:
+                        return;
+                    case ResourceReference reference:
+                        {
+                            if (reference.Url != null) reference.Url = new Uri(ExternalizeReference(reference.Url.ToString()), UriKind.RelativeOrAbsolute);
+                            break;
+                        }
+                    case FhirUri uri:
+                        uri.Value = ExternalizeReference(uri.Value);
+                        //((FhirUri)element).Value = LocalizeReference(new Uri(((FhirUri)element).Value, UriKind.RelativeOrAbsolute)).ToString();
+                        break;
+                    case Narrative n:
+                        n.Div = FixXhtmlDiv(n.Div);
+                        break;
                 }
-                else if (element is FhirUri)
-                {
-                    FhirUri uri = (FhirUri)element;
-                    uri.Value = ExternalizeReference(uri.Value);
-                    //((FhirUri)element).Value = LocalizeReference(new Uri(((FhirUri)element).Value, UriKind.RelativeOrAbsolute)).ToString();
-                }
-                else if (element is Narrative)
-                {
-                    Narrative n = (Narrative)element;
-                    n.Div = FixXhtmlDiv(n.Div);
-                }
-
-            };
+            }
 
             Type[] types = { typeof(ResourceReference), typeof(FhirUri), typeof(Narrative) };
 
-            Engine.Auxiliary.ResourceVisitor.VisitByType(resource, action, types);
+            Auxiliary.ResourceVisitor.VisitByType(resource, Action, types);
         }
 
-        //Key ExternalizeReference(Key original)
-        //{
-        //    KeyKind triage = (localhost.GetKeyKind(original));
-        //    if (triage == KeyKind.Foreign | triage == KeyKind.Temporary)
-        //    {
-        //        Key replacement = mapper.TryGet(original);
-        //        if (replacement != null)
-        //        {
-        //            return replacement;
-        //        }
-        //        else
-        //        {
-        //            throw new SparkException(HttpStatusCode.Conflict, "This reference does not point to a resource in the server or the current transaction: {0}", original);
-        //        }
-        //    }
-        //    else if (triage == KeyKind.Local)
-        //    {
-        //        return original.WithoutBase();
-        //    }
-        //    else
-        //    {
-        //        return original;
-        //    }
-        //}
-
-        string ExternalizeReference(string uristring)
+        private string ExternalizeReference(string uristring)
         {
             if (string.IsNullOrWhiteSpace(uristring)) return uristring;
 
-            Uri uri = new Uri(uristring, UriKind.RelativeOrAbsolute);
+            var uri = new Uri(uristring, UriKind.RelativeOrAbsolute);
 
-            if (!uri.IsAbsoluteUri && exportSettings.ExternalizeFhirUri)
+            switch (uri.IsAbsoluteUri)
             {
-                var absoluteUri = localhost.Absolute(uri);
-                if (absoluteUri.Fragment == uri.ToString()) //don't externalize uri's that are just anchor fragments
+                case false when _exportSettings.ExternalizeFhirUri:
                 {
+                    var absoluteUri = _localhost.Absolute(uri);
+                    return absoluteUri.Fragment == uri.ToString() ? uristring : absoluteUri.ToString();
+                }
+                default:
                     return uristring;
-                }
-                else
-                {
-                    return absoluteUri.ToString();
-                }
-            }
-            else
-            {
-                return uristring;
             }
         }
 
-        string FixXhtmlDiv(string div)
+        private string FixXhtmlDiv(string div)
         {
             try
             {
-                XDocument xdoc = XDocument.Parse(div);
-                xdoc.VisitAttributes("img", "src", (n) => n.Value = ExternalizeReference(n.Value));
-                xdoc.VisitAttributes("a", "href", (n) => n.Value = ExternalizeReference(n.Value));
+                var xdoc = XDocument.Parse(div);
+                xdoc.VisitAttributes("img", "src", n => n.Value = ExternalizeReference(n.Value));
+                xdoc.VisitAttributes("a", "href", n => n.Value = ExternalizeReference(n.Value));
                 return xdoc.ToString();
 
             }

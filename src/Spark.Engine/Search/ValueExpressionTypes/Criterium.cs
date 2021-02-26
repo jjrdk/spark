@@ -6,16 +6,16 @@
  * available at https://raw.githubusercontent.com/ewoutkramer/fhir-net-api/master/LICENSE
  */
 
-using Spark.Search.Support;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using Hl7.Fhir.Rest;
-using Hl7.Fhir.Model;
-using Spark.Engine.Extensions;
-
-namespace Spark.Search
+namespace Spark.Engine.Search.ValueExpressionTypes
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using Extensions;
+    using Hl7.Fhir.Model;
+    using Hl7.Fhir.Rest;
+    using Support;
+
     public class Criterium : Expression, ICloneable
     {
         public const string MISSINGMODIF = "missing";
@@ -51,8 +51,8 @@ namespace Spark.Search
 
         public static Criterium Parse(string key, string value)
         {
-            if (String.IsNullOrEmpty(key)) throw Error.ArgumentNull("key");
-            if (String.IsNullOrEmpty(value)) throw Error.ArgumentNull("value");
+            if (string.IsNullOrEmpty(key)) throw Error.ArgumentNull("key");
+            if (string.IsNullOrEmpty(value)) throw Error.ArgumentNull("value");
 
             // Split chained parts (if any) into name + modifier tuples
             var chainPath = key.Split(new char[] { SearchParams.SEARCH_CHAINSEPARATOR }, StringSplitOptions.RemoveEmptyEntries)
@@ -66,7 +66,7 @@ namespace Spark.Search
         //TODO: Probably not used anymore.
         public static Criterium Parse(string text)
         {
-            if (String.IsNullOrEmpty(text)) throw Error.ArgumentNull("text");
+            if (string.IsNullOrEmpty(text)) throw Error.ArgumentNull("text");
 
             var keyVal = text.SplitLeft('=');
 
@@ -84,7 +84,7 @@ namespace Spark.Search
             if (Operator == Operator.ISNULL || Operator == Operator.NOTNULL)
                 result += SearchParams.SEARCH_MODIFIERSEPARATOR + MISSINGMODIF;
             else
-                if (!String.IsNullOrEmpty(Modifier)) result += SearchParams.SEARCH_MODIFIERSEPARATOR + Modifier;
+                if (!string.IsNullOrEmpty(Modifier)) result += SearchParams.SEARCH_MODIFIERSEPARATOR + Modifier;
 
             if (Operator == Operator.CHAIN)
             {
@@ -103,8 +103,8 @@ namespace Spark.Search
         {
             var pair = pathPart.Split(SearchParams.SEARCH_MODIFIERSEPARATOR);
 
-            string name = pair[0];
-            string modifier = pair.Length == 2 ? pair[1] : null;
+            var name = pair[0];
+            var modifier = pair.Length == 2 ? pair[1] : null;
 
             return Tuple.Create(name, modifier);
         }
@@ -189,7 +189,7 @@ namespace Spark.Search
             if (Operand == null) throw new InvalidOperationException("Criterium does not have an operand");
             if (!(Operand is ValueExpression)) throw new FormatException("Expected a ValueExpression as operand");
 
-            string value = Operand.ToString();
+            var value = Operand.ToString();
 
             if (Operator == Operator.EQ)
                 return value;
@@ -206,7 +206,7 @@ namespace Spark.Search
 
         public Criterium Clone()
         {
-            Criterium result = new Criterium();
+            var result = new Criterium();
             result.Modifier = Modifier;
             result.Operand = (Operand is Criterium) ? (Operand as Criterium).Clone() : Operand;
             result.Operator = Operator;
@@ -221,7 +221,7 @@ namespace Spark.Search
         }
 
         //CK: Order of these mappings is important for string matching. From more specific to less specific.
-        private static List<Tuple<string, Operator>> operatorMapping = new List<Tuple<string, Operator>> {
+        private static readonly List<Tuple<string, Operator>> operatorMapping = new List<Tuple<string, Operator>> {
                 new Tuple<string, Operator>( "ne", Operator.NOT_EQUAL)
                 , new Tuple<string, Operator>( "ge", Operator.GTE)
                 , new Tuple<string, Operator>( "le", Operator.LTE)
@@ -242,27 +242,5 @@ namespace Spark.Search
                 //, new Tuple<string, Operator>( "<", Operator.LT)
                 //, new Tuple<string, Operator>( "~", Operator.APPROX)
             };
-    }
-
-
-    /// <summary>
-    /// Types of comparison operator applicable to searching on integer values
-    /// </summary>
-    public enum Operator
-    {
-        LT,     // less than
-        LTE,    // less than or equals
-        EQ,     // equals (default)
-        APPROX, // approximately equals
-        GTE,    // greater than or equals
-        GT,     // greater than
-
-        ISNULL, // has no value
-        NOTNULL, // has value
-        IN,      // equals one of a set of values
-        CHAIN,    // chain to subexpression
-        NOT_EQUAL,      // not equal
-        STARTS_AFTER,
-        ENDS_BEFORE
     }
 }

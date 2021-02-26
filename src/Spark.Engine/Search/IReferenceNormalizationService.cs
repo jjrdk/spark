@@ -1,7 +1,7 @@
-﻿using Spark.Search;
-
-namespace Spark.Engine.Search
+﻿namespace Spark.Engine.Search
 {
+    using ValueExpressionTypes;
+
     public interface IReferenceNormalizationService
     {
         /// <summary>

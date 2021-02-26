@@ -1,32 +1,33 @@
-﻿using Spark.Engine.Core;
-using Spark.Engine.Store.Interfaces;
-
-namespace Spark.Engine.Service.FhirServiceExtensions
+﻿namespace Spark.Engine.Service.FhirServiceExtensions
 {
+    using System.Threading.Tasks;
+    using Spark.Engine.Core;
+    using Spark.Engine.Store.Interfaces;
+
     public class HistoryService : IHistoryService
     {
-        private IHistoryStore historyStore;
+        private readonly IHistoryStore historyStore;
 
         public HistoryService(IHistoryStore historyStore)
         {
             this.historyStore = historyStore;
         }
 
-        public Snapshot History(string typename, HistoryParameters parameters)
+        public async Task<Snapshot> History(string typename, HistoryParameters parameters)
         {
-            return historyStore.History(typename, parameters);
+            return await historyStore.History(typename, parameters).ConfigureAwait(false);
         }
 
-        public Snapshot History(IKey key, HistoryParameters parameters)
+        public async Task<Snapshot> History(IKey key, HistoryParameters parameters)
         {
-            
-            return historyStore.History(key, parameters);
+
+            return await historyStore.History(key, parameters).ConfigureAwait(false);
         }
 
-        public Snapshot History(HistoryParameters parameters)
+        public async Task<Snapshot> History(HistoryParameters parameters)
         {
-            return historyStore.History(parameters);
+            return await historyStore.History(parameters).ConfigureAwait(false);
         }
-      
+
     }
 }

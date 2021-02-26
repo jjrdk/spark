@@ -6,41 +6,41 @@
  * available at https://raw.githubusercontent.com/ewoutkramer/fhir-net-api/master/LICENSE
  */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.RegularExpressions;
-
-namespace Spark.Search.Support
+namespace Spark.Engine.Search.Support
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text.RegularExpressions;
+
     public static class StringExtensions
     {
         public static string[] SplitNotInQuotes(this string value, char separator)
         {
             var parts = Regex.Split(value, separator + "(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)")
                                 .Select(s => s.Trim());
-                               
-            return parts.ToArray<string>();
+
+            return parts.ToArray();
         }
 
         public static string[] SplitNotEscaped(this string value, char separator)
         {
-            String word = String.Empty;
-            List<String> result = new List<string>();
-            bool seenEscape = false;
+            var word = string.Empty;
+            var result = new List<string>();
+            var seenEscape = false;
 
-            for (int i = 0; i < value.Length; i++)
+            for (var i = 0; i < value.Length; i++)
             {
                 if (value[i] == '\\')
                 {
                     seenEscape = true;
                     continue;
                 }
-               
+
                 if (value[i] == separator && !seenEscape)
                 {
                     result.Add(word);
-                    word = String.Empty;
+                    word = string.Empty;
                     continue;
                 }
 
@@ -58,7 +58,7 @@ namespace Spark.Search.Support
             return result.ToArray<string>();
         }
 
-        public static Tuple<string,string> SplitLeft(this string text, char separator)
+        public static Tuple<string, string> SplitLeft(this string text, char separator)
         {
             var pos = text.IndexOf(separator);
 
@@ -67,7 +67,7 @@ namespace Spark.Search.Support
             else
             {
                 var key = text.Substring(0, pos);
-                var value = text.Substring(pos + 1);
+                var value = text[(pos + 1)..];
 
                 return Tuple.Create(key, value);
             }

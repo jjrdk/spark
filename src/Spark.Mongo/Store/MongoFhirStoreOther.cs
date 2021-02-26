@@ -1,20 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using MongoDB.Bson;
-using MongoDB.Driver;
-using Spark.Engine.Core;
-using Spark.Engine.Interfaces;
-using Spark.Engine.Store.Interfaces;
-
-namespace Spark.Store.Mongo
+﻿namespace Spark.Store.Mongo
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Threading.Tasks;
+    using MongoDB.Bson;
+    using MongoDB.Driver;
+    using Spark.Engine.Core;
+    using Spark.Engine.Interfaces;
+    using Spark.Engine.Store.Interfaces;
+
+    using Spark.Mongo.Search.Infrastructure;
+    using Spark.Mongo.Store;
+
     //TODO: decide if we still need this
+    [Obsolete("Don't use it at all")]
     public class MongoFhirStoreOther
     {
         private readonly IFhirStore _mongoFhirStoreOther;
-        IMongoDatabase database;
-        IMongoCollection<BsonDocument> collection;
+        readonly IMongoDatabase database;
+        readonly IMongoCollection<BsonDocument> collection;
 
         public MongoFhirStoreOther(string mongoUrl, IFhirStore mongoFhirStoreOther)
         {
@@ -38,12 +43,12 @@ namespace Spark.Store.Mongo
 
         //    return FetchPrimaryKeys(clauses);
         //}
-  
 
-        public bool Exists(IKey key)
+
+        public async Task<bool> Exists(IKey key)
         {
             // PERF: efficiency
-            Entry existing = _mongoFhirStoreOther.Get(key);
+            var existing = await _mongoFhirStoreOther.Get(key).ConfigureAwait(false);
             return (existing != null);
         }
 
@@ -65,11 +70,11 @@ namespace Spark.Store.Mongo
         public IList<Entry> GetCurrent(IEnumerable<string> identifiers, string sortby = null)
         {
             var clauses = new List<FilterDefinition<BsonDocument>>();
-            IEnumerable<BsonValue> ids = identifiers.Select(i => (BsonValue)i);
+            var ids = identifiers.Select(i => (BsonValue)i);
 
             clauses.Add(Builders<BsonDocument>.Filter.In(Field.REFERENCE, ids));
             clauses.Add(Builders<BsonDocument>.Filter.Eq(Field.STATE, Value.CURRENT));
-            FilterDefinition<BsonDocument> query = Builders<BsonDocument>.Filter.And(clauses);
+            var query = Builders<BsonDocument>.Filter.And(clauses);
 
             var cursor = collection.Find(query);
 
@@ -88,11 +93,11 @@ namespace Spark.Store.Mongo
         private void Supercede(IEnumerable<IKey> keys)
         {
             var pks = keys.Select(k => k.ToBsonReferenceKey());
-            FilterDefinition<BsonDocument> query = Builders<BsonDocument>.Filter.And(
+            var query = Builders<BsonDocument>.Filter.And(
                 Builders<BsonDocument>.Filter.In(Field.REFERENCE, pks),
                 Builders<BsonDocument>.Filter.Eq(Field.STATE, Value.CURRENT)
                 );
-            UpdateDefinition<BsonDocument> update = Builders<BsonDocument>.Update.Set(Field.STATE, Value.SUPERCEDED);
+            var update = Builders<BsonDocument>.Update.Set(Field.STATE, Value.SUPERCEDED);
             collection.UpdateMany(query, update);
         }
 
@@ -123,9 +128,9 @@ namespace Spark.Store.Mongo
         {
             if (value.StartsWith(Value.IDPREFIX))
             {
-                string remainder = value.Substring(1);
+                var remainder = value.Substring(1);
                 int i;
-                bool isint = int.TryParse(remainder, out i);
+                var isint = int.TryParse(remainder, out i);
                 return !isint;
             }
             return true;
@@ -158,15 +163,15 @@ namespace Spark.Store.Mongo
         }
         */
 
-     
 
-    
+
+
 
         /// <summary>
         /// Does a complete wipe and reset of the database. USE WITH CAUTION!
         /// </summary>
-     
 
-       
+
+
     }
 }

@@ -33,7 +33,7 @@ namespace Spark.Engine.Service.FhirServiceExtensions
                     if(SearchResults.Count > 1)
                         throw new SparkException(HttpStatusCode.PreconditionFailed, "Multiple matches found when trying to resolve conditional update. Client's criteria were not selective enough");
 
-                    string localKeyValue = SearchResults.SingleOrDefault();
+                    var localKeyValue = SearchResults.SingleOrDefault();
                     if (localKeyValue != null)
                     {
                         IKey localKey = Key.ParseOperationPath(localKeyValue);

@@ -8,7 +8,6 @@
 
 using Hl7.Fhir.Model;
 using System.Collections.Generic;
-using System.Linq;
 using Spark.Engine.Core;
 
 namespace Spark.Mongo.Search.Common
@@ -17,13 +16,13 @@ namespace Spark.Mongo.Search.Common
     {
         public static Definition CreateDefinition(ModelInfo.SearchParamDefinition paramdef)
         {
-            Definition definition = new Definition();
+            var definition = new Definition();
             definition.Argument = ArgumentFactory.Create(paramdef.Type);
             definition.Resource = paramdef.Resource;
             definition.ParamName = paramdef.Name;
             definition.Query = new ElementQuery(paramdef.Path);
             definition.ParamType = paramdef.Type;
-            definition.Description = paramdef.Description;
+            definition.Description = paramdef.Description?.Value;
             return definition;
         }
 
@@ -33,9 +32,9 @@ namespace Spark.Mongo.Search.Common
 
             foreach (var param in searchparameters)
             {
-                if (param.Path != null && param.Path.Count() > 0)
+                if (param.Path != null && param.Path.Length > 0)
                 {
-                    Definition definition = CreateDefinition(param);
+                    var definition = CreateDefinition(param);
                     definitions.Add(definition);
                 }
             }

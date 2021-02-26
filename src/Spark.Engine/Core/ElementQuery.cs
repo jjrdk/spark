@@ -19,14 +19,14 @@ namespace Spark.Engine.Core
 {
     public class ElementQuery
     {
-        private List<Chain> chains = new List<Chain>();
+        private readonly List<Chain> chains = new List<Chain>();
         public void Add(string path)
         {
             chains.Add(new Chain(path));
         }
         public ElementQuery(params string[] paths)
         {
-            foreach (string path in paths)
+            foreach (var path in paths)
             {
                 this.Add(path);
             }
@@ -38,7 +38,7 @@ namespace Spark.Engine.Core
 
         public void Visit(object field, Action<object> action)
         {
-            foreach (Chain chain in chains)
+            foreach (var chain in chains)
             {
                 chain.Visit(field, action);
             }
@@ -71,11 +71,11 @@ namespace Spark.Engine.Core
 
         public class Chain
         {
-            private List<Segment> segments = new List<Segment>();
+            private readonly List<Segment> segments = new List<Segment>();
 
             public Chain(string path)
             {
-                List<string> chain = SplitPath(path);
+                var chain = SplitPath(path);
 
                 // Keep the typename separate.
                 var typeName = chain.First();
@@ -101,8 +101,8 @@ namespace Spark.Engine.Core
                 // Split on the dots, except when the dot is inside square brackets, because then it is part of a predicate value.
                 while (path.Length > 0)
                 {
-                    int firstBracket = path.IndexOf('[');
-                    int firstDot = path.IndexOf('.');
+                    var firstBracket = path.IndexOf('[');
+                    var firstDot = path.IndexOf('.');
                     if (firstDot == -1)
                     {
                         chain.Add((string)path);
@@ -110,7 +110,7 @@ namespace Spark.Engine.Core
                     }
                     if (firstBracket > -1 && firstBracket < firstDot)
                     {
-                        int endBracket = path.IndexOf(']');
+                        var endBracket = path.IndexOf(']');
                         chain.Add(path.Substring(0, endBracket + 1)); //+1 to include the bracket itself.
                         path = path.Remove(0, Math.Min(path.Length, endBracket + 2)); //+2 for the bracket itself and the dot after the bracket
                     }
@@ -127,8 +127,8 @@ namespace Spark.Engine.Core
             {
                 var segments = new List<Segment>();
 
-                Type baseType = ModelInfo.FhirTypeToCsType[classname];
-                foreach (string linkString in chain)
+                var baseType = ModelInfo.FhirTypeToCsType[classname];
+                foreach (var linkString in chain)
                 {
                     var segment = new Segment();
                     segment.FhirType = baseType;
@@ -144,18 +144,18 @@ namespace Spark.Engine.Core
                     {
                         segment.Property = baseType.GetProperty(matchingFhirElements.First().Name);
                         // TODO: Ugly repetitive code from IsFhirElement(), since that method can only return a boolean...
-                        FhirElementAttribute feAtt = segment.Property.GetCustomAttribute<FhirElementAttribute>();
+                        var feAtt = segment.Property.GetCustomAttribute<FhirElementAttribute>();
                         if (feAtt != null)
                         {
                             if (feAtt.Choice == ChoiceType.DatatypeChoice || feAtt.Choice == ChoiceType.ResourceChoice)
                             {
-                                AllowedTypesAttribute atAtt = segment.Property.GetCustomAttribute<AllowedTypesAttribute>();
+                                var atAtt = segment.Property.GetCustomAttribute<AllowedTypesAttribute>();
                                 if (atAtt != null)
                                 {
-                                    foreach (Type allowedType in atAtt.Types)
+                                    foreach (var allowedType in atAtt.Types)
                                     {
                                         var curTypeName = segment.Name.Remove(0, feAtt.Name.Length);
-                                        Type curType = ModelInfo.GetTypeForFhirType(curTypeName);
+                                        var curType = ModelInfo.GetTypeForFhirType(curTypeName);
                                         if (allowedType.IsAssignableFrom(curType))
                                         //if (link.propertyName.Equals(feAtt.Name + ModelInfo.FhirCsTypeToString[allowedType], StringComparison.InvariantCultureIgnoreCase))
                                         {
@@ -201,17 +201,17 @@ namespace Spark.Engine.Core
                 var filterValue = match.Groups["filterValue"].Value;
 
                 Predicate<object> result =
-                    (obj) => GetPredicateForPropertyAndFilter(propertyName, filterValue, obj);
+                    obj => GetPredicateForPropertyAndFilter(propertyName, filterValue, obj);
 
                 return result;
             }
 
             private bool GetPredicateForPropertyAndFilter(string propertyName, string filterValue, object obj)
             {
-                PropertyInfo property = obj.GetType().GetProperty(propertyName);
+                var property = obj.GetType().GetProperty(propertyName);
                 if (property != null)
                 {
-                    object value = property.GetValue(obj);
+                    var value = property.GetValue(obj);
                     if (value != null)
                     {
                         return filterValue.Equals(value.ToString(), StringComparison.CurrentCultureIgnoreCase);
@@ -223,8 +223,8 @@ namespace Spark.Engine.Core
 
             private static bool IsFhirElement(MemberInfo member, object criterium)
             {
-                string fhirElementName = (string)criterium;
-                FhirElementAttribute feAtt = member.GetCustomAttribute<FhirElementAttribute>();
+                var fhirElementName = (string)criterium;
+                var feAtt = member.GetCustomAttribute<FhirElementAttribute>();
 
                 if (feAtt != null)
                 {
@@ -236,13 +236,13 @@ namespace Spark.Engine.Core
                     {
                         if (feAtt.Choice == ChoiceType.DatatypeChoice || feAtt.Choice == ChoiceType.ResourceChoice)
                         {
-                            AllowedTypesAttribute atAtt = member.GetCustomAttribute<AllowedTypesAttribute>();
+                            var atAtt = member.GetCustomAttribute<AllowedTypesAttribute>();
                             if (atAtt != null)
                             {
-                                foreach (Type allowedType in atAtt.Types)
+                                foreach (var allowedType in atAtt.Types)
                                 {
                                     var curTypeName = fhirElementName.Remove(0, feAtt.Name.Length);
-                                    Type curType = ModelInfo.GetTypeForFhirType(curTypeName);
+                                    var curType = ModelInfo.GetTypeForFhirType(curTypeName);
                                     if (allowedType.IsAssignableFrom(curType))
                                     //                                        if (link.propertyName.Equals(feAtt.Name + ModelInfo.FhirCsTypeToString[allowedType], StringComparison.InvariantCultureIgnoreCase))
                                     {
@@ -286,13 +286,13 @@ namespace Spark.Engine.Core
                     throw new ArgumentNullException("type");
                 }
 
-                bool? codedEnum = type.GenericTypeArguments?.FirstOrDefault()?.IsEnum;
+                var codedEnum = type.GenericTypeArguments?.FirstOrDefault()?.IsEnum;
                 return codedEnum.HasValue && codedEnum.Value;
             }
 
             private void Visit(object field, IEnumerable<Segment> chain, Action<object> action, Predicate<object> predicate)
             {
-                Type type = field.GetType();
+                var type = field.GetType();
 
                 if (TestIfGenericList(type))
                 {
@@ -318,7 +318,7 @@ namespace Spark.Engine.Core
                         if ((chain != null) && (chain.Count() > 0)) //not at the end of the chain, follow the next link in the chain
                         {
                             var next = chain.First(); //{ FhirString, "city", (propertyInfo of city), AllowedTypes = null, Filter = null }
-                            IEnumerable<Segment> subchain = chain.Skip(1); //subpath = <empty> (city is the last item)
+                            var subchain = chain.Skip(1); //subpath = <empty> (city is the last item)
 
                             //if (field.GetType().GetProperty(next.Name) == null)
                             //    throw new ArgumentException(string.Format("'{0}' is not a valid property for '{1}'", next.Name, field.GetType().Name));
@@ -390,14 +390,6 @@ namespace Spark.Engine.Core
         public override string ToString()
         {
             return string.Join(", ", chains.Select(chain => string.Join(".", chain)));
-        }
-    }
-
-    public static class ChainExtensions
-    {
-        public static bool IsEmpty(this IEnumerable<ElementQuery.Segment> chain)
-        {
-            return chain.Count() == 0;
         }
     }
 }

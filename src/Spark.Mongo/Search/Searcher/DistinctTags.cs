@@ -7,7 +7,7 @@
  */
 
 
-namespace Spark.Search.Mongo
+namespace Spark.Mongo.Search.Searcher
 {
     // todo: not used. But needs reimplementation
     /*

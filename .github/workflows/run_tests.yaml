@@ -3,7 +3,7 @@
 on:
   push:
     branches:
-      - 'master'
+      - 'r4/master'
   pull_request:
 
 jobs:

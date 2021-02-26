@@ -103,6 +103,7 @@ namespace Spark
             container.RegisterType<InitializerHub>(new HierarchicalLifetimeManager());
             container.RegisterType<IHistoryStore, HistoryStore>(new InjectionConstructor(Settings.MongoUrl));
             container.RegisterType<IFhirService, FhirService>(new ContainerControlledLifetimeManager());
+            container.RegisterType<IAsyncFhirService, AsyncFhirService>(new ContainerControlledLifetimeManager());
             container.RegisterType<IIndexRebuildService, IndexRebuildService>(new ContainerControlledLifetimeManager(),
                 new InjectionConstructor(
                     container.Resolve<IIndexStore>(),
@@ -126,7 +127,7 @@ namespace Spark
             container.RegisterType<ISnapshotPaginationProvider, SnapshotPaginationProvider>();
             container.RegisterType<ISnapshotPaginationCalculator, SnapshotPaginationCalculator>();
             container.RegisterType<IFhirServiceExtension, ResourceStorageService>("storage");
-            container.RegisterType<IFhirServiceExtension, ConformanceService>("conformance");
+            container.RegisterType<IFhirServiceExtension, CapabilityStatementService>("capabilityStatement");
             container.RegisterType<ICompositeServiceListener, ServiceListener>(new ContainerControlledLifetimeManager());
 
             // register all your components with the container here

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Hl7.Fhir.Model;
@@ -39,11 +38,11 @@ namespace Spark.Engine.Service.FhirServiceExtensions
             if (SearchResults == null)
                 return null;
 
-            StringBuilder messageBuilder = new StringBuilder();
+            var messageBuilder = new StringBuilder();
             messageBuilder.AppendLine();
             if (searchCommand != null)
             {
-                string[] parametersNotUsed =
+                var parametersNotUsed =
                     searchCommand.Parameters.Where(p => SearchResults.UsedParameters.Contains(p.Item1) == false)
                         .Select(t => t.Item1).ToArray();
                 messageBuilder.AppendFormat("Search parameters not used:{0}", string.Join(",", parametersNotUsed));

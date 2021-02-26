@@ -1,11 +1,11 @@
-﻿using Spark.Engine.Core;
-using Spark.Engine.Maintenance;
-using Spark.Engine.Store.Interfaces;
-using System;
-using System.Threading.Tasks;
-
-namespace Spark.Engine.Service.FhirServiceExtensions
+﻿namespace Spark.Engine.Service.FhirServiceExtensions
 {
+    using Spark.Engine.Core;
+    using Spark.Engine.Maintenance;
+    using Spark.Engine.Store.Interfaces;
+    using System;
+    using System.Threading.Tasks;
+
     public class IndexRebuildService : IIndexRebuildService
     {
         private readonly IIndexStore _indexStore;
@@ -38,7 +38,7 @@ namespace Spark.Engine.Service.FhirServiceExtensions
                 if (indexSettings.ClearIndexOnRebuild)
                 {
                     await progress.CleanStartedAsync().ConfigureAwait(false);
-                    _indexStore.Clean();
+                    await _indexStore.Clean().ConfigureAwait(false);
                     await progress.CleanCompletedAsync().ConfigureAwait(false);
                 }
 
@@ -54,15 +54,14 @@ namespace Spark.Engine.Service.FhirServiceExtensions
                     foreach (var entry in entries)
                     {
                         // TODO: use BulkWrite operation for this
-                        // TODO: use async API
                         try
                         {
-                            _indexService.Process(entry);
+                            await _indexService.Process(entry).ConfigureAwait(false);
                         }
                         catch (Exception)
                         {
                             // TODO: log exception!
-                            await progress.ErrorAsync($"Failed to reindex entry {entry.Key}");
+                            await progress.ErrorAsync($"Failed to reindex entry {entry.Key}").ConfigureAwait(false);
                         }
                     }
 
@@ -76,82 +75,6 @@ namespace Spark.Engine.Service.FhirServiceExtensions
                 await progress.DoneAsync()
                     .ConfigureAwait(false);
             }
-        }
-    }
-
-    internal class IndexRebuildProgress
-    {
-        private const int INDEX_CLEAR_PROGRESS_PERCENTAGE = 10;
-
-        private readonly IIndexBuildProgressReporter _reporter;
-        private int _overallProgress;
-        private int _remainingProgress = 100;
-        private int _recordsProcessed = 0;
-
-        public IndexRebuildProgress(IIndexBuildProgressReporter reporter)
-        {
-            _reporter = reporter;
-        }
-
-        public async Task StartedAsync()
-        {
-            await ReportProgressAsync("Index rebuild started")
-                .ConfigureAwait(false);
-        }
-
-        public async Task CleanStartedAsync()
-        {
-            await ReportProgressAsync("Clearing index")
-                .ConfigureAwait(false);
-        }
-
-        public async Task CleanCompletedAsync()
-        {
-            _overallProgress += INDEX_CLEAR_PROGRESS_PERCENTAGE;
-            await ReportProgressAsync("Index cleared")
-                .ConfigureAwait(false);
-            _remainingProgress -= _overallProgress;
-        }
-
-        public async Task RecordsProcessedAsync(int records, long total)
-        {
-            _recordsProcessed += records;
-            _overallProgress += (int)(_remainingProgress / (double)total * records);
-            await ReportProgressAsync($"{_recordsProcessed} records processed")
-                .ConfigureAwait(false);
-        }
-
-        public async Task DoneAsync()
-        {
-            _overallProgress = 100;
-            await ReportProgressAsync("Index rebuild done")
-                .ConfigureAwait(false);
-        }
-
-        public async Task ErrorAsync(string error)
-        {
-            if (_reporter == null)
-            {
-                return;
-            }
-            await _reporter.ReportErrorAsync(error)
-                .ConfigureAwait(false);
-        }
-
-        public async Task ErrorAsync(Exception exception)
-        {
-            await ErrorAsync(exception.Message)
-                .ConfigureAwait(false);
-        }
-
-        private async Task ReportProgressAsync(string message)
-        {
-            if (_reporter == null)
-            {
-                return;
-            }
-            await _reporter.ReportProgressAsync(_overallProgress, message)
-                .ConfigureAwait(false);
         }
     }
 }

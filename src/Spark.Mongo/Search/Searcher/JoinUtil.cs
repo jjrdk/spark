@@ -7,7 +7,7 @@
  */
 
 
-namespace Spark.Search.Mongo
+namespace Spark.Mongo.Search.Searcher
 {
     /*
     public class JoinUtil

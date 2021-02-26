@@ -1,13 +1,16 @@
-﻿/* 
+﻿/*
  * Copyright (c) 2014, Furore (info@furore.com) and contributors
  * See the file CONTRIBUTORS for details.
- * 
+ *
  * This file is licensed under the BSD 3-Clause license
  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
  */
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Spark.Core;
 using Hl7.Fhir.Rest;
 using Spark.Engine;
@@ -20,9 +23,9 @@ namespace Spark.Mongo.Search.Common
 {
     public class MongoFhirIndex : IFhirIndex
     {
-        private MongoSearcher _searcher;
-        private IIndexStore _indexStore;
-        private SearchSettings _searchSettings;
+        private readonly MongoSearcher _searcher;
+        private readonly IIndexStore _indexStore;
+        private readonly SearchSettings _searchSettings;
 
         public MongoFhirIndex(IIndexStore indexStore, MongoSearcher searcher, SparkSettings sparkSettings = null)
         {
@@ -31,44 +34,48 @@ namespace Spark.Mongo.Search.Common
             _searchSettings = sparkSettings?.Search ?? new SearchSettings();
         }
 
-        private object transaction = new object();
-       
-        public void Clean()
+        private readonly SemaphoreSlim _transaction = new SemaphoreSlim(1, 1);
+
+        public async Task Clean()
         {
-            lock (transaction)
+            await _transaction.WaitAsync().ConfigureAwait(false);
+            try
             {
-                _indexStore.Clean();
+                await _indexStore.Clean().ConfigureAwait(false);
+            }
+            finally
+            {
+                _transaction.Release();
             }
         }
 
-        public SearchResults Search(string resource, SearchParams searchCommand)
+        public async Task<SearchResults> Search(string resource, SearchParams searchCommand)
         {
-            return _searcher.Search(resource, searchCommand, _searchSettings);
+            return await _searcher.SearchAsync(resource, searchCommand, _searchSettings).ConfigureAwait(false);
         }
 
-        public Key FindSingle(string resource, SearchParams searchCommand)
+        public async Task<Key> FindSingle(string resource, SearchParams searchCommand)
         {
             // todo: this needs optimization
 
-            SearchResults results = _searcher.Search(resource, searchCommand, _searchSettings);
+            var results = await _searcher.SearchAsync(resource, searchCommand, _searchSettings).ConfigureAwait(false);
             if (results.Count > 1)
             {
                 throw Error.BadRequest("The search for a single resource yielded more than one.");
             }
-            else if (results.Count == 0)
+
+            if (results.Count == 0)
             {
                 throw Error.BadRequest("No resources were found while searching for a single resource.");
             }
-            else 
-            {
-                string location = results.FirstOrDefault();
-                return Key.ParseOperationPath(location);
-            }
-        }
-        public SearchResults GetReverseIncludes(IList<IKey> keys, IList<string> revIncludes)
-        {
-            return _searcher.GetReverseIncludes(keys, revIncludes);
+
+            var location = results.FirstOrDefault();
+            return Key.ParseOperationPath(location);
         }
 
+        public async Task<SearchResults> GetReverseIncludes(IList<IKey> keys, IList<string> revIncludes)
+        {
+            return await _searcher.GetReverseIncludesAsync(keys, revIncludes).ConfigureAwait(false);
+        }
     }
 }

@@ -15,19 +15,19 @@ docker-compose up -d spark
 ### Listing all available tests
 
 ```
-docker-compose run --rm --no-deps plan_executor ./list_all.sh dstu2
+docker-compose run --rm --no-deps plan_executor ./list_all.sh r4
 ```
 
 ### Running particular test
 
 ```
-docker-compose run --rm --no-deps plan_executor ./execute_test.sh http://spark.url/fhir dstu2 FormatTest
+docker-compose run --rm --no-deps plan_executor ./execute_test.sh http://spark.url/fhir r4 FormatTest
 ```
 
 ### Running all tests
 
 ```
-docker-compose run --rm --no-deps plan_executor ./execute_all.sh http://spark.url/fhir dstu2
+docker-compose run --rm --no-deps plan_executor ./execute_all.sh http://spark.url/fhir r4
 ```
 
 ## Test results
@@ -38,3 +38,4 @@ Each test result is stored in a separate subdir.
 ## Test logs
 
 Test logs can be found in `logs` directory.
+

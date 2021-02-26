@@ -1,5 +1,4 @@
 ﻿using Hl7.Fhir.Model;
-using System;
 using System.Collections.Generic;
 using System.Net;
 using Spark.Engine.Extensions;
@@ -26,7 +25,7 @@ namespace Spark.Engine.Core
 
         public static FhirResponse WithError(HttpStatusCode code, string message, params object[] args)
         {
-            OperationOutcome outcome = new OperationOutcome();
+            var outcome = new OperationOutcome();
             outcome.AddError(string.Format(message, args));
             return new FhirResponse(code, outcome);
         }
@@ -69,29 +68,29 @@ namespace Spark.Engine.Core
             return new FhirResponse(HttpStatusCode.OK, bundle);
         }
 
-        public static FhirResponse WithBundle(IEnumerable<Entry> entries, Uri serviceBase)
+        public static FhirResponse WithBundle(IEnumerable<Entry> entries)
         {
-            Bundle bundle = new Bundle();
+            var bundle = new Bundle();
             bundle.Append(entries);
             return WithBundle(bundle);
         }
 
         public static FhirResponse WithMeta(Meta meta)
         {
-            Parameters parameters = new Parameters();
-            parameters.Add(typeof(Meta).Name, meta);
-            return Respond.WithResource(parameters);
+            var parameters = new Parameters();
+            parameters.Add(nameof(Meta), meta);
+            return WithResource(parameters);
         }
 
         public static FhirResponse WithMeta(Entry entry)
         {
-            if (entry.Resource != null && entry.Resource.Meta != null)
+            if (entry.Resource?.Meta != null)
             {
-                return Respond.WithMeta(entry.Resource.Meta);
+                return WithMeta(entry.Resource.Meta);
             }
             else
             {
-                return Respond.WithError(HttpStatusCode.InternalServerError, "Could not retrieve meta. Meta was not present on the resource");
+                return WithError(HttpStatusCode.InternalServerError, "Could not retrieve meta. Meta was not present on the resource");
             }
         }
 
@@ -114,11 +113,11 @@ namespace Spark.Engine.Core
         {
             if (key.VersionId == null)
             {
-                return Respond.WithError(HttpStatusCode.NotFound, "No {0} resource with id {1} was found.", key.TypeName, key.ResourceId);
+                return WithError(HttpStatusCode.NotFound, "No {0} resource with id {1} was found.", key.TypeName, key.ResourceId);
             }
             else
             {
-                return Respond.WithError(HttpStatusCode.NotFound, "There is no {0} resource with id {1}, or there is no version {2}", key.TypeName, key.ResourceId, key.VersionId);
+                return WithError(HttpStatusCode.NotFound, "There is no {0} resource with id {1}, or there is no version {2}", key.TypeName, key.ResourceId, key.VersionId);
             }
             // For security reasons (leakage): keep message in sync with Error.NotFound(key)
         }
@@ -126,21 +125,17 @@ namespace Spark.Engine.Core
         public static FhirResponse Gone(Entry entry)
         {
 
-            var message = String.Format(
-                  "A {0} resource with id {1} existed, but was deleted on {2} (version {3}).",
-                  entry.Key.TypeName,
-                  entry.Key.ResourceId,
-                  entry.When,
-                  entry.Key.ToRelativeUri());
+            var message =
+                $"A {entry.Key.TypeName} resource with id {entry.Key.ResourceId} existed, but was deleted on {entry.When} (version {entry.Key.ToRelativeUri()}).";
 
-            return Respond.WithError(HttpStatusCode.Gone, message);
+            return WithError(HttpStatusCode.Gone, message);
         }
 
         public static FhirResponse NotImplemented
         {
             get
             {
-                return Respond.WithError(HttpStatusCode.NotImplemented);
+                return WithError(HttpStatusCode.NotImplemented);
             }
         }
 
@@ -152,7 +147,7 @@ namespace Spark.Engine.Core
             }
         }
 
-        
+
 
     }
 }

@@ -1,7 +1,8 @@
-﻿using MongoDB.Bson;
+﻿using System;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using Spark.Engine.Core;
-using System;
+using System.Threading.Tasks;
 using Spark.Store.Mongo;
 using Spark.Engine.Model;
 using Spark.Mongo.Search.Indexer;
@@ -9,57 +10,52 @@ using Spark.Engine.Store.Interfaces;
 
 namespace Spark.Mongo.Search.Common
 {
+    using Engine.Extensions;
+    using Infrastructure;
+
     public class MongoIndexStore : IIndexStore
     {
-        private IMongoDatabase _database;
-        private MongoIndexMapper _indexMapper;
+        private readonly IMongoDatabase _database;
+        private readonly MongoIndexMapper _indexMapper;
         public IMongoCollection<BsonDocument> Collection;
 
         public MongoIndexStore(string mongoUrl, MongoIndexMapper indexMapper)
         {
             _database = MongoDatabaseFactory.GetMongoDatabase(mongoUrl);
-            _indexMapper = indexMapper; 
+            _indexMapper = indexMapper;
             Collection = _database.GetCollection<BsonDocument>(Config.MONGOINDEXCOLLECTION);
         }
 
-        public void Save(IndexValue indexValue)
+        public async Task Save(IndexValue indexValue)
         {
             var result = _indexMapper.MapEntry(indexValue);
 
             foreach (var doc in result)
             {
-                Save(doc);
+                await Save(doc).ConfigureAwait(false);
             }
         }
 
-        public void Save(BsonDocument document)
+        public async Task Save(BsonDocument document)
         {
-            try
-            {
-                string keyvalue = document.GetValue(InternalField.ID).ToString();
-                var query = Builders<BsonDocument>.Filter.Eq(InternalField.ID, keyvalue);
+            var keyvalue = document.GetValue(InternalField.ID).ToString();
+            var query = Builders<BsonDocument>.Filter.Eq(InternalField.ID, keyvalue);
 
-                // todo: should use Update: collection.Update();
-                Collection.DeleteMany(query);
-                Collection.InsertOne(document);
-            }
-            catch (Exception exception)
-            {
-                throw exception;
-            }
+            // todo: should use Update: collection.Update();
+            await Collection.DeleteManyAsync(query).ConfigureAwait(false);
+            await Collection.InsertOneAsync(document).ConfigureAwait(false);
         }
 
-        public void Delete(Entry entry)
+        public async Task Delete(Entry entry)
         {
             string id = entry.Key.WithoutVersion().ToOperationPath();
             var query = Builders<BsonDocument>.Filter.Eq(InternalField.ID, id);
-            Collection.DeleteMany(query);
+            await Collection.DeleteManyAsync(query).ConfigureAwait(false);
         }
 
-        public void Clean()
+        public async Task Clean()
         {
-            Collection.DeleteMany(Builders<BsonDocument>.Filter.Empty);
+            await Collection.DeleteManyAsync(Builders<BsonDocument>.Filter.Empty).ConfigureAwait(false);
         }
-
     }
 }

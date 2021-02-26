@@ -1,2 +1,2 @@
 #!/bin/bash
-mongorestore --drop --archive=/home/dstu2.archive.gz --gzip 
+mongorestore --drop --archive=/home/r4.archive.gz --gzip 

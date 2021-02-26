@@ -11,7 +11,7 @@ namespace Spark.Engine.Service.FhirServiceExtensions
 
         public IEnumerable<IKey> GetKeysForPage(Snapshot snapshot, int? start = null)
         {
-            IEnumerable<string> keysInBundle = snapshot.Keys;
+            var keysInBundle = snapshot.Keys;
             if (start.HasValue)
             {
                 keysInBundle = keysInBundle.Skip(start.Value);
@@ -21,18 +21,18 @@ namespace Spark.Engine.Service.FhirServiceExtensions
 
         public int GetIndexForLastPage(Snapshot snapshot)
         {
-            int countParam = snapshot.CountParam ?? DEFAULT_PAGE_SIZE;
+            var countParam = snapshot.CountParam ?? DEFAULT_PAGE_SIZE;
             if (snapshot.Count <= countParam)
                 return 0;
 
-            int numberOfPages = snapshot.Count/countParam;
-            int lastPageIndex = (snapshot.Count%countParam == 0) ? numberOfPages - 1 : numberOfPages;
+            var numberOfPages = snapshot.Count/countParam;
+            var lastPageIndex = (snapshot.Count%countParam == 0) ? numberOfPages - 1 : numberOfPages;
             return lastPageIndex*countParam;
         }
 
         public int? GetIndexForNextPage(Snapshot snapshot, int? start = null)
         {
-            int countParam = snapshot.CountParam ?? DEFAULT_PAGE_SIZE;
+            var countParam = snapshot.CountParam ?? DEFAULT_PAGE_SIZE;
 
             if (((start ?? 0) + countParam) >= snapshot.Count)
                 return null;
@@ -41,7 +41,7 @@ namespace Spark.Engine.Service.FhirServiceExtensions
 
         public int? GetIndexForPreviousPage(Snapshot snapshot, int? start = null)
         {
-            int countParam = snapshot.CountParam ?? DEFAULT_PAGE_SIZE;
+            var countParam = snapshot.CountParam ?? DEFAULT_PAGE_SIZE;
             if (start.HasValue == false || start.Value == 0)
                 return null;
             return Math.Max(0, start.Value - countParam);

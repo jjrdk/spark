@@ -1,11 +1,8 @@
 ﻿using Hl7.Fhir.Model;
-using Spark.Engine.Search.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace Spark.Engine.Core
 {
@@ -16,7 +13,7 @@ namespace Spark.Engine.Core
             _propIndex = propIndex;
         }
 
-        private FhirPropertyIndex _propIndex;
+        private readonly FhirPropertyIndex _propIndex;
 
         public void VisitByType(object fhirObject, Action<object> action, params Type[] types)
         {
@@ -42,10 +39,10 @@ namespace Spark.Engine.Core
                 VisitByPath(fhirObject as IEnumerable<Base>, action, path, predicate);
             }
             //Single item, visit it if it adheres to the predicate (if any)
-            else if (String.IsNullOrEmpty(predicate) || PredicateIsTrue(predicate, fhirObject))
+            else if (string.IsNullOrEmpty(predicate) || PredicateIsTrue(predicate, fhirObject))
             {
                 //Path has ended, we arrived at the object that needs action.
-                if (String.IsNullOrEmpty(path))
+                if (string.IsNullOrEmpty(path))
                 {
                     action(fhirObject);
                 }
@@ -98,7 +95,7 @@ namespace Spark.Engine.Core
         ///     a(x=y).b.c  => "a"      | "x=y"         | "b.c"
         /// See also ResourceVisitorTests.
         /// </summary>
-        private Regex headTailRegex = new Regex(@"(?([^\.]*\[.*\])(?<head>[^\[]*)\[(?<predicate>.*)\](\.(?<tail>.*))?|(?<head>[^\.]*)(\.(?<tail>.*))?)");
+        private readonly Regex headTailRegex = new Regex(@"(?([^\.]*\[.*\])(?<head>[^\[]*)\[(?<predicate>.*)\](\.(?<tail>.*))?|(?<head>[^\.]*)(\.(?<tail>.*))?)");
 
         private Tuple<string, string, string> headPredicateAndTail(string path)
         {
@@ -110,7 +107,7 @@ namespace Spark.Engine.Core
             return new Tuple<string, string, string>(head, predicate, tail);
         }
 
-        private Regex predicateRegex = new Regex(@"(?<propname>[^=]*)=(?<filterValue>.*)");
+        private readonly Regex predicateRegex = new Regex(@"(?<propname>[^=]*)=(?<filterValue>.*)");
 
         private bool PredicateIsTrue(string predicate, object fhirObject)
         {
@@ -121,7 +118,7 @@ namespace Spark.Engine.Core
             var propertyName = match.Groups["propname"].Value;
             var filterValue = match.Groups["filterValue"].Value.Trim('\'');
 
-            bool result = false;
+            var result = false;
 
             //Handle the predicate by (again recursively) visiting from here.
             VisitByPath(
@@ -164,7 +161,7 @@ namespace Spark.Engine.Core
                 throw new ArgumentNullException("type");
             }
 
-            bool? codedEnum = type.GenericTypeArguments?.FirstOrDefault()?.IsEnum;
+            var codedEnum = type.GenericTypeArguments?.FirstOrDefault()?.IsEnum;
             if (codedEnum.HasValue && codedEnum.Value)
             {
                 return true;

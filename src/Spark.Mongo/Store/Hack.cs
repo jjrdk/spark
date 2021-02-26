@@ -1,8 +1,8 @@
-﻿using Hl7.Fhir.Model;
-using Spark.Engine.Auxiliary;
-
-namespace Spark.Store.Mongo
+﻿namespace Spark.Mongo.Store
 {
+    using Engine.Auxiliary;
+    using Hl7.Fhir.Model;
+
     public static class Hack
     {
         // HACK: json extensions
@@ -10,15 +10,14 @@ namespace Spark.Store.Mongo
         // because MongoDB doesn't allow dots in the json-name, this hack will remove all extensions for now.
         public static void RemoveExtensions(Resource resource)
         {
-            if (resource is DomainResource)
+            if (resource is DomainResource domain)
             {
-                DomainResource domain = (DomainResource)resource;
                 domain.Extension = null;
                 domain.ModifierExtension = null;
-                RemoveExtensionsFromElements(resource);
-                foreach (Resource r in domain.Contained)
+                RemoveExtensionsFromElements(domain);
+                foreach (var r in domain.Contained)
                 {
-                    Hack.RemoveExtensions(r);
+                    RemoveExtensions(r);
                 }
             }
         }

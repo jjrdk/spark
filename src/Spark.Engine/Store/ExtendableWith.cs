@@ -1,19 +1,16 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using Spark.Engine.Store.Interfaces;
-
-namespace Spark.Engine.Storage
+﻿namespace Spark.Engine.Store
 {
-    public class ExtendableWith<T> : IExtendableWith<T>, IEnumerable<T>
+    using System;
+    using System.Collections;
+    using System.Collections.Generic;
+    using System.Linq;
+
+    public abstract class ExtendableWith<T> : IEnumerable<T>
     {
-        private Dictionary<Type, T> extensions; 
-        public ExtendableWith()
-        {
-            extensions = new Dictionary<Type, T>();
-        }
-        public void AddExtension<TV>(TV extension) where TV : T
+        private readonly Dictionary<Type, T> extensions = new Dictionary<Type, T>();
+
+        protected void AddExtension<TV>(TV extension)
+            where TV : T
         {
             foreach (var interfaceType in extension.GetType().GetInterfaces().Where(i => typeof(T).IsAssignableFrom(i)))
             {
@@ -21,29 +18,11 @@ namespace Spark.Engine.Storage
             }
         }
 
-        public void RemoveExtension<TV>() where TV : T
+        protected TV FindExtension<TV>()
+            where TV : T
         {
-            extensions.Remove(typeof (TV));
-        }
-
-        public void RemoveExtension(Type type)
-        {
-            extensions.Remove(type);
-        }
-
-        public T FindExtension(Type type)
-        {
-            var key = extensions.Keys.SingleOrDefault(k =>type.IsAssignableFrom(k));
-            if (key != null)
-                return extensions[key];
-
-            return default(T);
-        }
-
-        public TV FindExtension<TV>() where TV : T
-        {
-            if (extensions.ContainsKey(typeof (TV)))
-                return (TV)extensions[typeof (TV)];
+            if (extensions.ContainsKey(typeof(TV)))
+                return (TV) extensions[typeof(TV)];
             return default(TV);
         }
 

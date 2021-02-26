@@ -6,16 +6,15 @@
  * available at https://raw.githubusercontent.com/ewoutkramer/fhir-net-api/master/LICENSE
  */
 
-using Hl7.Fhir.Serialization;
-using System;
-
-namespace Spark.Search
+namespace Spark.Engine.Search.ValueExpressionTypes
 {
+    using Hl7.Fhir.Serialization;
+
     public class NumberValue : ValueExpression
     {
-        public Decimal Value { get; private set; }
+        public decimal Value { get; private set; }
      
-        public NumberValue(Decimal value)
+        public NumberValue(decimal value)
         {
             Value = value;
         }
@@ -27,7 +26,7 @@ namespace Spark.Search
 
         public static NumberValue Parse(string text)
         {
-            return new NumberValue(PrimitiveTypeConverter.ConvertTo<Decimal>(text));
+            return new NumberValue(PrimitiveTypeConverter.ConvertTo<decimal>(text));
         }
     }
 }

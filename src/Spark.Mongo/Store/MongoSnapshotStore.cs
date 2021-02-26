@@ -1,27 +1,30 @@
-﻿using MongoDB.Driver;
-using Spark.Engine.Core;
-using Spark.Engine.Store.Interfaces;
-using Spark.Store.Mongo;
-
-namespace Spark.Mongo.Store
+﻿namespace Spark.Mongo.Store
 {
+    using System.Threading.Tasks;
+    using MongoDB.Driver;
+    using Spark.Engine.Core;
+    using Spark.Engine.Store.Interfaces;
+    using Search.Infrastructure;
+
     public class MongoSnapshotStore : ISnapshotStore
     {
-        IMongoDatabase database;
+        readonly IMongoDatabase database;
+
         public MongoSnapshotStore(string mongoUrl)
         {
             this.database = MongoDatabaseFactory.GetMongoDatabase(mongoUrl);
         }
-        public void AddSnapshot(Snapshot snapshot)
+
+        public async Task AddSnapshot(Snapshot snapshot)
         {
             var collection = database.GetCollection<Snapshot>(Collection.SNAPSHOT);
-            collection.InsertOne(snapshot);
+            await collection.InsertOneAsync(snapshot).ConfigureAwait(false);
         }
 
-        public Snapshot GetSnapshot(string snapshotid)
+        public async Task<Snapshot> GetSnapshot(string snapshotId)
         {
             var collection = database.GetCollection<Snapshot>(Collection.SNAPSHOT);
-            return collection.Find(s => s.Id == snapshotid).FirstOrDefault();
+            return (await collection.FindAsync(s => s.Id == snapshotId).ConfigureAwait(false)).FirstOrDefault();
         }
     }
 }

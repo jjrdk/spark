@@ -1,14 +1,14 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using Spark.Core;
-using Spark.Engine.Core;
-using Spark.Engine.Store.Interfaces;
-using Spark.Service;
-
-namespace Spark.Engine.Service.FhirServiceExtensions
+﻿namespace Spark.Engine.Service.FhirServiceExtensions
 {
+    using System;
+    using System.Collections;
+    using System.Collections.Generic;
+    using System.Linq;
+    using Spark.Engine.Core;
+    using Spark.Engine.Store.Interfaces;
+    using Interfaces;
+    using Spark.Core;
+
     public class FhirExtensionsBuilder : IFhirExtensionsBuilder
     {
         private readonly IStorageBuilder fhirStoreBuilder;
@@ -27,7 +27,7 @@ namespace Spark.Engine.Service.FhirServiceExtensions
            {
                 GetSearch,
                 GetHistory,
-                GetConformance,
+                GetCapabilityStatement,
                 GetPaging,
                 GetStorage
            };
@@ -36,31 +36,30 @@ namespace Spark.Engine.Service.FhirServiceExtensions
 
         protected virtual IFhirServiceExtension GetSearch()
         {
-            IFhirIndex fhirStore = fhirStoreBuilder.GetStore<IFhirIndex>();
-            if (fhirStore!= null)
-                return new SearchService(new Localhost(baseUri),  new FhirModel(), fhirStore, indexService);
+            var fhirStore = fhirStoreBuilder.GetStore<IFhirIndex>();
+            if (fhirStore != null)
+                return new SearchService(new Localhost(baseUri), new FhirModel(), fhirStore, indexService);
             return null;
         }
 
         protected virtual IFhirServiceExtension GetHistory()
         {
-            IHistoryStore historyStore = fhirStoreBuilder.GetStore<IHistoryStore>();
-            if (historyStore != null)
-                return new HistoryService(historyStore);
-            return null;
+            var historyStore = fhirStoreBuilder.GetStore<IHistoryStore>();
+
+            return historyStore;
         }
 
-        protected virtual IFhirServiceExtension GetConformance()
+        protected virtual IFhirServiceExtension GetCapabilityStatement()
         {
-            return new ConformanceService(new Localhost(baseUri));
+            return new CapabilityStatementService(new Localhost(baseUri));
         }
 
 
         protected virtual IFhirServiceExtension GetPaging()
         {
-            IFhirStore fhirStore = fhirStoreBuilder.GetStore<IFhirStore>();
-            ISnapshotStore snapshotStore = fhirStoreBuilder.GetStore<ISnapshotStore>();
-            IGenerator storeGenerator = fhirStoreBuilder.GetStore<IGenerator>();
+            var fhirStore = fhirStoreBuilder.GetStore<IFhirStore>();
+            var snapshotStore = fhirStoreBuilder.GetStore<ISnapshotStore>();
+            var storeGenerator = fhirStoreBuilder.GetStore<IGenerator>();
             if (fhirStore != null)
                 return new PagingService(snapshotStore, new SnapshotPaginationProvider(fhirStore, new Transfer(storeGenerator, new Localhost(baseUri), sparkSettings), new Localhost(baseUri), new SnapshotPaginationCalculator()));
             return null;
@@ -68,10 +67,10 @@ namespace Spark.Engine.Service.FhirServiceExtensions
 
         protected virtual IFhirServiceExtension GetStorage()
         {
-            IFhirStore fhirStore = fhirStoreBuilder.GetStore<IFhirStore>();
-            IGenerator fhirGenerator = fhirStoreBuilder.GetStore<IGenerator>();
+            var fhirStore = fhirStoreBuilder.GetStore<IFhirStore>();
+            var fhirGenerator = fhirStoreBuilder.GetStore<IGenerator>();
             if (fhirStore != null)
-                return new ResourceStorageService(new Transfer(fhirGenerator, new Localhost(baseUri), sparkSettings),  fhirStore);
+                return new ResourceStorageService(new Transfer(fhirGenerator, new Localhost(baseUri), sparkSettings), fhirStore);
             return null;
         }
 

@@ -1,12 +1,11 @@
-﻿using Hl7.Fhir.Model;
-using Spark.Engine.Core;
-using Spark.Engine.Extensions;
-
-namespace Spark.Engine.Service.FhirServiceExtensions
+﻿namespace Spark.Engine.Service.FhirServiceExtensions
 {
+    using System.Threading.Tasks;
+    using Spark.Engine.Core;
+
     public interface IPagingService : IFhirServiceExtension
     {
-        ISnapshotPagination StartPagination(Snapshot snapshot);
-        ISnapshotPagination StartPagination(string snapshotkey);
+        Task<ISnapshotPagination> StartPagination(Snapshot snapshot);
+        Task<ISnapshotPagination> StartPagination(string snapshotKey);
     }
 }

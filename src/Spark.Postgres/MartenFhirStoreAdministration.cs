@@ -1,0 +1,29 @@
+﻿namespace Spark.Postgres
+{
+    using System;
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
+    using Engine.Core;
+    using Engine.Interfaces;
+    using Marten;
+
+    public class MartenFhirStoreAdministration : IFhirStoreAdministration
+    {
+        private readonly Func<IDocumentSession> _sessionFunc;
+
+        public MartenFhirStoreAdministration(Func<IDocumentSession> sessionFunc)
+        {
+            _sessionFunc = sessionFunc;
+        }
+
+        public Task Clean()
+        {
+            using var session = _sessionFunc();
+            var documentCleaner = session.DocumentStore.Advanced.Clean;
+            documentCleaner.DeleteDocumentsFor(typeof(IndexEntry));
+            documentCleaner.DeleteDocumentsFor(typeof(EntryEnvelope));
+            documentCleaner.DeleteDocumentsFor(typeof(Snapshot));
+            return Task.CompletedTask;
+        }
+    }
+}

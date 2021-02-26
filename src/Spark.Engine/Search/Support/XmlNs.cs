@@ -6,17 +6,17 @@
  * available at https://raw.githubusercontent.com/ewoutkramer/fhir-net-api/master/LICENSE
  */
 
-using System.Xml.Linq;
-
-namespace Spark.Search.Support
+namespace Spark.Engine.Search.Support
 {
+    using System.Xml.Linq;
+
     public static class XmlNs
     {
         public const string FHIR = "http://hl7.org/fhir";
         public const string FHIR_URL_SEARCHPARAM = FHIR + "/query";
         public const string FHIRTAG = FHIR + "/tag";
-        public const string TAG_PROFILE = XmlNs.FHIRTAG + "/profile";
-        public const string TAG_SECURITY = XmlNs.FHIRTAG + "/security";
+        public const string TAG_PROFILE = FHIRTAG + "/profile";
+        public const string TAG_SECURITY = FHIRTAG + "/security";
         public const string ATOM_CATEGORY_RESOURCETYPE = FHIR + "/resource-types";
 
         public const string XHTML = "http://www.w3.org/1999/xhtml";

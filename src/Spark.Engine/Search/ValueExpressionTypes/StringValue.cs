@@ -7,7 +7,7 @@
  */
 
 
-namespace Spark.Search
+namespace Spark.Engine.Search.ValueExpressionTypes
 {
     public class StringValue : ValueExpression
     {

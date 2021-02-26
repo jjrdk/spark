@@ -6,7 +6,7 @@ namespace Spark.Engine.Extensions
     {
         public static EntityTagHeaderValue Create(string value)
         {
-            string tag = "\"" + value + "\"";
+            var tag = "\"" + value + "\"";
             return new EntityTagHeaderValue(tag, true);
         }
     }

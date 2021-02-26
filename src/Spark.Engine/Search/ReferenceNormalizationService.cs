@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Linq;
 using Spark.Engine.Core;
-using Spark.Search;
 
 namespace Spark.Engine.Search
 {
+    using Extensions;
+    using ValueExpressionTypes;
+
     public class ReferenceNormalizationService : IReferenceNormalizationService
     {
         private readonly ILocalhost _localhost;

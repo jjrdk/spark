@@ -2,11 +2,12 @@
 using MongoDB.Driver;
 using Spark.Engine.Core;
 using Spark.Engine.Store.Interfaces;
-using Spark.Store.Mongo;
 using System.Threading.Tasks;
 
 namespace Spark.Mongo.Store
 {
+    using Search.Infrastructure;
+
     public class MongoFhirStorePagedReader : IFhirStorePagedReader
     {
         private readonly IMongoCollection<BsonDocument> _collection;
@@ -19,7 +20,7 @@ namespace Spark.Mongo.Store
 
         public async Task<IPageResult<Entry>> ReadAsync(FhirStorePageReaderOptions options)
         {
-            options = options ?? new FhirStorePageReaderOptions();
+            options ??= new FhirStorePageReaderOptions();
 
             var filter = Builders<BsonDocument>.Filter.Empty;
 

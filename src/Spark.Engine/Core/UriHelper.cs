@@ -1,6 +1,4 @@
-﻿using Hl7.Fhir.Rest;
-using System;
-using Spark.Core;
+﻿using System;
 
 namespace Spark.Engine.Core
 {
@@ -10,7 +8,7 @@ namespace Spark.Engine.Core
 
         public static string CreateCID()
         {
-            return string.Format("{0}:{1}", CID, Guid.NewGuid());
+            return $"{CID}:{Guid.NewGuid()}";
         }
 
         public static Uri CreateUrn()
@@ -58,33 +56,33 @@ namespace Spark.Engine.Core
         {
             if (uri.IsAbsoluteUri)
             {
-                string fragment = uri.Fragment;
+                var fragment = uri.Fragment;
                 return !string.IsNullOrEmpty(fragment);
             }
             else
             {
-                string s = uri.ToString();
+                var s = uri.ToString();
                 return s.StartsWith("#");
             }
         }
 
-        public static Uri HistoryKeyFor(this IGenerator generator, Uri key)
-        {
-            var identity = new ResourceIdentity(key);
-            string vid = generator.NextVersionId(identity.ResourceType, identity.Id);
-            Uri result = identity.WithVersion(vid);
-            return result;
-        }
+        //public static Uri HistoryKeyFor(this IGenerator generator, Uri key)
+        //{
+        //    var identity = new ResourceIdentity(key);
+        //    string vid = generator.NextVersionId(identity.ResourceType, identity.Id);
+        //    Uri result = identity.WithVersion(vid);
+        //    return result;
+        //}
 
         /// <summary>
         /// Bugfixed_IsBaseOf is a fix for Uri.IsBaseOf which has a bug
         /// </summary>
         public static bool Bugfixed_IsBaseOf(this Uri _base, Uri uri)
         {
-            string b = _base.ToString().ToLowerInvariant();
-            string u = uri.ToString().ToLowerInvariant();
+            var b = _base.ToString().ToLowerInvariant();
+            var u = uri.ToString().ToLowerInvariant();
 
-            bool isbase = u.StartsWith(b);
+            var isbase = u.StartsWith(b);
             return isbase;
         }
 

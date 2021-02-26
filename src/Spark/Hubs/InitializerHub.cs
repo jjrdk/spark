@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using Tasks = System.Threading.Tasks;
 using Spark.Engine.Interfaces;
 using Spark.Engine.Service;
 using Spark.Engine.Service.FhirServiceExtensions;
@@ -28,7 +28,7 @@ namespace Spark.Import
 
         private List<Resource> resources;
 
-        private readonly IFhirService fhirService;
+        private readonly IAsyncFhirService fhirService;
         private readonly ILocalhost localhost;
         private readonly IFhirStoreAdministration fhirStoreAdministration;
         private readonly IFhirIndex fhirIndex;
@@ -37,7 +37,7 @@ namespace Spark.Import
         private int ResourceCount;
 
         public InitializerHub(
-            IFhirService fhirService, 
+            IAsyncFhirService fhirService, 
             ILocalhost localhost, 
             IFhirStoreAdministration fhirStoreAdministration, 
             IFhirIndex fhirIndex,
@@ -109,7 +109,7 @@ namespace Spark.Import
             };
             return msg;
         }
-        public void LoadData()
+        public async Tasks.Task LoadData()
         {
             var messages = new StringBuilder();
             messages.AppendLine("Import completed!");
@@ -117,8 +117,8 @@ namespace Spark.Import
             {
                 //cleans store and index
                 Progress("Clearing the database...", 0);
-                fhirStoreAdministration.Clean();
-                fhirIndex.Clean();
+                await fhirStoreAdministration.CleanAsync().ConfigureAwait(false);
+                await fhirIndex.CleanAsync().ConfigureAwait(false);
 
                 Progress("Loading examples data...", 5);
                 this.resources = GetExampleData();
@@ -130,7 +130,7 @@ namespace Spark.Import
                 {
                     var res = resarray[x];
                     // Sending message:
-                    var msg = Message("Importing " + res.ResourceType.ToString() + " " + res.Id + "...", x);
+                    var msg = Message("Importing " + res.TypeName + " " + res.Id + "...", x);
                     Clients.Caller.sendMessage(msg);
 
                     try
@@ -141,17 +141,17 @@ namespace Spark.Import
                         if (res.Id != null && res.Id != "")
                         {
 
-                            fhirService.Put(key, res);
+                            await fhirService.PutAsync(key, res).ConfigureAwait(false);
                         }
                         else
                         {
-                            fhirService.Create(key, res);
+                            await fhirService.CreateAsync(key, res).ConfigureAwait(false);
                         }
                     }
                     catch (Exception e)
                     {
                         // Sending message:
-                        var msgError = Message("ERROR Importing " + res.ResourceType.ToString() + " " + res.Id + "... ", x);
+                        var msgError = Message("ERROR Importing " + res.TypeName + " " + res.Id + "... ", x);
                         Clients.Caller.sendMessage(msg);
                         messages.AppendLine(msgError.Message + ": " + e.Message);
                     }
@@ -167,7 +167,7 @@ namespace Spark.Import
             }
         }
 
-        public async Task RebuildIndex()
+        public async Tasks.Task RebuildIndex()
         {
             try
             {
@@ -186,13 +186,13 @@ namespace Spark.Import
             }
         }
 
-        public Task ReportProgressAsync(int progress, string message)
+        public Tasks.Task ReportProgressAsync(int progress, string message)
         {
             Progress(message, progress);
-            return Task.CompletedTask;
+            return Tasks.Task.CompletedTask;
         }
 
-        public Task ReportErrorAsync(string message)
+        public Tasks.Task ReportErrorAsync(string message)
         {
             return ReportProgressAsync(_progress, message);
         }

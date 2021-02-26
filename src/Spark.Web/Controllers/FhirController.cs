@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 using System.Web;
 using Hl7.Fhir.Model;
 using Hl7.Fhir.Rest;
@@ -12,161 +13,162 @@ using Microsoft.AspNetCore.Mvc;
 using Spark.Engine;
 using Spark.Engine.Core;
 using Spark.Engine.Extensions;
+using Spark.Engine.Service;
 using Spark.Engine.Utility;
-using Spark.Service;
 
 namespace Spark.Web.Controllers
 {
+    using Engine.Web.Extensions;
+
     [Route("fhir"), ApiController, EnableCors]
     public class FhirController : ControllerBase
     {
-        private readonly IFhirService _fhirService;
-        private readonly SparkSettings _settings;
+        private readonly IAsyncFhirService _fhirService;
 
-        public FhirController(IFhirService fhirService, SparkSettings settings)
+        public FhirController(IAsyncFhirService fhirService)
         {
             _fhirService = fhirService ?? throw new ArgumentNullException(nameof(fhirService));
-            _settings = settings ?? throw new ArgumentNullException(nameof(settings));
         }
 
         [HttpGet("{type}/{id}")]
-        public ActionResult<FhirResponse> Read(string type, string id)
+        public async Task<ActionResult<FhirResponse>> Read(string type, string id)
         {
-            ConditionalHeaderParameters parameters = new ConditionalHeaderParameters(Request);
-            Key key = Key.Create(type, id);
-            return new ActionResult<FhirResponse>(_fhirService.Read(key, parameters));
+            var parameters = new ConditionalHeaderParameters(Request.IfNoneMatch(), Request.IfModifiedSince());
+            var key = Key.Create(type, id);
+            var response = await _fhirService.Read(key, parameters).ConfigureAwait(false);
+            return new ActionResult<FhirResponse>(response);
         }
 
         [HttpGet("{type}/{id}/_history/{vid}")]
-        public FhirResponse VRead(string type, string id, string vid)
+        public async Task<FhirResponse> VRead(string type, string id, string vid)
         {
-            Key key = Key.Create(type, id, vid);
-            return _fhirService.VersionRead(key);
+            var key = Key.Create(type, id, vid);
+            return await _fhirService.VersionRead(key).ConfigureAwait(false);
         }
 
         [HttpPut("{type}/{id?}")]
-        public ActionResult<FhirResponse> Update(string type, Resource resource, string id = null)
+        public async Task<ActionResult<FhirResponse>> Update(string type, Resource resource, string id = null)
         {
-            string versionId = Request.GetTypedHeaders().IfMatch?.FirstOrDefault()?.Tag.Buffer;
-            Key key = Key.Create(type, id, versionId);
-            if(key.HasResourceId())
+            var versionId = Request.GetTypedHeaders().IfMatch?.FirstOrDefault()?.Tag.Buffer;
+            var key = Key.Create(type, id, versionId);
+            if (key.HasResourceId())
             {
                 Request.TransferResourceIdIfRawBinary(resource, id);
 
-                return new ActionResult<FhirResponse>(_fhirService.Update(key, resource));
+                return new ActionResult<FhirResponse>(await _fhirService.Update(key, resource).ConfigureAwait(false));
             }
             else
             {
-                return new ActionResult<FhirResponse>(_fhirService.ConditionalUpdate(key, resource,
-                    SearchParams.FromUriParamList(Request.TupledParameters())));
+                return new ActionResult<FhirResponse>(await _fhirService.ConditionalUpdate(key, resource,
+                    SearchParams.FromUriParamList(Request.TupledParameters())).ConfigureAwait(false));
             }
         }
 
         [HttpPost("{type}")]
-        public FhirResponse Create(string type, Resource resource)
+        public async Task<FhirResponse> Create(string type, Resource resource)
         {
-            Key key = Key.Create(type, resource?.Id);
+            var key = Key.Create(type, resource?.Id);
 
             if (Request.Headers.ContainsKey(FhirHttpHeaders.IfNoneExist))
             {
-                NameValueCollection searchQueryString = HttpUtility.ParseQueryString(Request.GetTypedHeaders().IfNoneExist());
-                IEnumerable<Tuple<string, string>> searchValues =
+                var searchQueryString = HttpUtility.ParseQueryString(Request.GetTypedHeaders().IfNoneExist());
+                var searchValues =
                     searchQueryString.Keys.Cast<string>()
                         .Select(k => new Tuple<string, string>(k, searchQueryString[k]));
 
-                return _fhirService.ConditionalCreate(key, resource, SearchParams.FromUriParamList(searchValues));
+                return await _fhirService.ConditionalCreate(key, resource, SearchParams.FromUriParamList(searchValues)).ConfigureAwait(false);
             }
 
-            return _fhirService.Create(key, resource);
+            return await _fhirService.Create(key, resource).ConfigureAwait(false);
         }
 
         [HttpDelete("{type}/{id}")]
-        public FhirResponse Delete(string type, string id)
+        public async Task<FhirResponse> Delete(string type, string id)
         {
-            Key key = Key.Create(type, id);
-            FhirResponse response = _fhirService.Delete(key);
+            var key = Key.Create(type, id);
+            var response = await _fhirService.Delete(key).ConfigureAwait(false);
             return response;
         }
 
         [HttpDelete("{type}")]
-        public FhirResponse ConditionalDelete(string type)
+        public async Task<FhirResponse> ConditionalDelete(string type)
         {
-            Key key = Key.Create(type);
-            return _fhirService.ConditionalDelete(key, Request.TupledParameters());
+            var key = Key.Create(type);
+            return await _fhirService.ConditionalDelete(key, Request.TupledParameters()).ConfigureAwait(false);
         }
 
         [HttpGet("{type}/{id}/_history")]
-        public FhirResponse History(string type, string id)
+        public async Task<FhirResponse> History(string type, string id)
         {
-            Key key = Key.Create(type, id);
-            var parameters = new HistoryParameters(Request);
-            return _fhirService.History(key, parameters);
+            var key = Key.Create(type, id);
+            var parameters = Request.ToHistoryParameters();
+            return await _fhirService.History(key, parameters).ConfigureAwait(false);
         }
 
         // ============= Validate
 
         [HttpPost("{type}/{id}/$validate")]
-        public FhirResponse Validate(string type, string id, Resource resource)
+        public async Task<FhirResponse> Validate(string type, string id, Resource resource)
         {
-            Key key = Key.Create(type, id);
-            return _fhirService.ValidateOperation(key, resource);
+            var key = Key.Create(type, id);
+            return await _fhirService.ValidateOperation(key, resource).ConfigureAwait(false);
         }
 
         [HttpPost("{type}/$validate")]
-        public FhirResponse Validate(string type, Resource resource)
+        public async Task<FhirResponse> Validate(string type, Resource resource)
         {
-            Key key = Key.Create(type);
-            return _fhirService.ValidateOperation(key, resource);
+            var key = Key.Create(type);
+            return await _fhirService.ValidateOperation(key, resource).ConfigureAwait(false);
         }
 
         // ============= Type Level Interactions
 
         [HttpGet("{type}")]
-        public FhirResponse Search(string type)
+        public async Task<FhirResponse> Search(string type)
         {
-            int start = FhirParameterParser.ParseIntParameter(Request.GetParameter(FhirParameter.SNAPSHOT_INDEX)) ?? 0;
+            var start = Request.GetParameter(FhirParameter.SNAPSHOT_INDEX).ParseIntParameter() ?? 0;
             var searchparams = Request.GetSearchParams();
             //int pagesize = Request.GetIntParameter(FhirParameter.COUNT) ?? Const.DEFAULT_PAGE_SIZE;
             //string sortby = Request.GetParameter(FhirParameter.SORT);
 
-            return _fhirService.Search(type, searchparams, start);
+            return await _fhirService.Search(type, searchparams, start).ConfigureAwait(false);
         }
 
         [HttpPost("{type}/_search")]
-        public FhirResponse SearchWithOperator(string type)
+        public async Task<FhirResponse> SearchWithOperator(string type)
         {
             // TODO: start index should be retrieved from the body.
-            int start = FhirParameterParser.ParseIntParameter(Request.GetParameter(FhirParameter.SNAPSHOT_INDEX)) ?? 0;
+            var start = Request.GetParameter(FhirParameter.SNAPSHOT_INDEX).ParseIntParameter() ?? 0;
             SearchParams searchparams = Request.GetSearchParamsFromBody();
 
-            return _fhirService.Search(type, searchparams, start);
+            return await _fhirService.Search(type, searchparams, start).ConfigureAwait(false);
         }
 
         [HttpGet("{type}/_history")]
-        public FhirResponse History(string type)
+        public async Task<FhirResponse> History(string type)
         {
-            var parameters = new HistoryParameters(Request);
-            return _fhirService.History(type, parameters);
+            var parameters = Request.ToHistoryParameters();
+            return await _fhirService.History(type, parameters).ConfigureAwait(false);
         }
 
         // ============= Whole System Interactions
 
         [HttpGet, Route("metadata")]
-        public FhirResponse Metadata()
+        public async Task<FhirResponse> Metadata()
         {
-            return _fhirService.Conformance(_settings.Version);
+            return await _fhirService.CapabilityStatement(SparkSettings.Version).ConfigureAwait(false);
         }
 
         [HttpOptions, Route("")]
-        public FhirResponse Options()
+        public async Task<FhirResponse> Options()
         {
-            return _fhirService.Conformance(_settings.Version);
+            return await _fhirService.CapabilityStatement(SparkSettings.Version).ConfigureAwait(false);
         }
 
         [HttpPost, Route("")]
-        public FhirResponse Transaction(Bundle bundle)
+        public async Task<FhirResponse> Transaction(Bundle bundle)
         {
-            return _fhirService.Transaction(bundle);
+            return await _fhirService.Transaction(bundle).ConfigureAwait(false);
         }
 
         //[HttpPost, Route("Mailbox")]
@@ -177,18 +179,18 @@ namespace Spark.Web.Controllers
         //}
 
         [HttpGet, Route("_history")]
-        public FhirResponse History()
+        public async Task<FhirResponse> History()
         {
-            var parameters = new HistoryParameters(Request);
-            return _fhirService.History(parameters);
+            var parameters = Request.ToHistoryParameters();
+            return await _fhirService.History(parameters).ConfigureAwait(false);
         }
 
         [HttpGet, Route("_snapshot")]
-        public FhirResponse Snapshot()
+        public async Task<FhirResponse> Snapshot()
         {
             string snapshot = Request.GetParameter(FhirParameter.SNAPSHOT_ID);
-            int start = FhirParameterParser.ParseIntParameter(Request.GetParameter(FhirParameter.SNAPSHOT_INDEX)) ?? 0;
-            return _fhirService.GetPage(snapshot, start);
+            var start = Request.GetParameter(FhirParameter.SNAPSHOT_INDEX).ParseIntParameter() ?? 0;
+            return await _fhirService.GetPage(snapshot, start).ConfigureAwait(false);
         }
 
         // Operations
@@ -204,13 +206,13 @@ namespace Spark.Web.Controllers
         }
 
         [HttpPost, Route("{type}/{id}/${operation}")]
-        public FhirResponse InstanceOperation(string type, string id, string operation, Parameters parameters)
+        public async Task<FhirResponse> InstanceOperation(string type, string id, string operation, Parameters parameters)
         {
-            Key key = Key.Create(type, id);
+            var key = Key.Create(type, id);
             switch (operation.ToLower())
             {
-                case "meta": return _fhirService.ReadMeta(key);
-                case "meta-add": return _fhirService.AddMeta(key, parameters);
+                case "meta": return await _fhirService.ReadMeta(key).ConfigureAwait(false);
+                case "meta-add": return await _fhirService.AddMeta(key, parameters).ConfigureAwait(false);
                 case "meta-delete":
 
                 default: return Respond.WithError(HttpStatusCode.NotFound, "Unknown operation");
@@ -218,24 +220,24 @@ namespace Spark.Web.Controllers
         }
 
         [HttpPost, HttpGet, Route("{type}/{id}/$everything")]
-        public FhirResponse Everything(string type, string id = null)
+        public async Task<FhirResponse> Everything(string type, string id = null)
         {
-            Key key = Key.Create(type, id);
-            return _fhirService.Everything(key);
+            var key = Key.Create(type, id);
+            return await _fhirService.Everything(key).ConfigureAwait(false);
         }
 
         [HttpPost, HttpGet, Route("{type}/$everything")]
-        public FhirResponse Everything(string type)
+        public async Task<FhirResponse> Everything(string type)
         {
-            Key key = Key.Create(type);
-            return _fhirService.Everything(key);
+            var key = Key.Create(type);
+            return await _fhirService.Everything(key).ConfigureAwait(false);
         }
 
         [HttpPost, HttpGet, Route("Composition/{id}/$document")]
-        public FhirResponse Document(string id)
+        public async Task<FhirResponse> Document(string id)
         {
-            Key key = Key.Create("Composition", id);
-            return _fhirService.Document(key);
+            var key = Key.Create("Composition", id);
+            return await _fhirService.Document(key).ConfigureAwait(false);
         }
     }
 }

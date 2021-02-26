@@ -1,12 +1,9 @@
-﻿using MongoDB.Driver;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Spark.Store.Mongo
+﻿namespace Spark.Mongo.Search.Infrastructure
 {
+    using System.Collections.Generic;
+    using System.Linq;
+    using MongoDB.Driver;
+
     public static class MongoDatabaseFactory
     {
         private static Dictionary<string, IMongoDatabase> instances;

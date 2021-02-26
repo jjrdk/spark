@@ -1,13 +1,10 @@
-﻿using System;
-using Spark.Core;
-using System.Collections.Generic;
-using Hl7.Fhir.Model;
-using Spark.Engine;
-using Spark.Engine.Core;
-using Spark.Engine.Extensions;
-
-namespace Spark.Service
+﻿namespace Spark.Engine.Service
 {
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
+    using Core;
+    using Engine;
+    using Interfaces;
 
     /// <summary>
     /// Transfer maps between local id's and references and absolute id's and references upon incoming or outgoing Interactions.
@@ -15,9 +12,9 @@ namespace Spark.Service
     /// </summary>
     public class Transfer : ITransfer
     {
-        ILocalhost localhost;
-        IGenerator generator;
-        SparkSettings sparkSettings;
+        private readonly ILocalhost localhost;
+        private readonly IGenerator generator;
+        private readonly SparkSettings sparkSettings;
 
         public Transfer(IGenerator generator, ILocalhost localhost, SparkSettings sparkSettings = null)
         {
@@ -26,15 +23,15 @@ namespace Spark.Service
             this.sparkSettings = sparkSettings;
         }
 
-        public void Internalize(Entry entry)
+        public Task Internalize(Entry entry)
         {
-            var import = new Import(this.localhost, this.generator);
+            var import = new Import(localhost, generator);
             import.Add(entry);
-            import.Internalize();
+            return import.Internalize();
         }
 
-    
-        public void Internalize(IEnumerable<Entry> interactions, Mapper<string, IKey> mapper = null)
+
+        public Task Internalize(IEnumerable<Entry> interactions, Mapper<string, IKey> mapper = null)
         {
             var import = new Import(this.localhost, this.generator);
             if (mapper != null)
@@ -42,19 +39,19 @@ namespace Spark.Service
                 import.AddMappings(mapper);
             }
             import.Add(interactions);
-            import.Internalize();
+            return import.Internalize();
         }
 
         public void Externalize(Entry interaction)
         {
-            Export export = new Export(this.localhost, this.sparkSettings?.ExportSettings ?? new ExportSettings());
+            var export = new Export(this.localhost, this.sparkSettings?.ExportSettings ?? new ExportSettings());
             export.Add(interaction);
             export.Externalize();
         }
 
         public void Externalize(IEnumerable<Entry> interactions)
         {
-            Export export = new Export(this.localhost, this.sparkSettings?.ExportSettings ?? new ExportSettings());
+            var export = new Export(this.localhost, this.sparkSettings?.ExportSettings ?? new ExportSettings());
             export.Add(interactions);
             export.Externalize();
         }

@@ -1,36 +1,32 @@
-﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.OpenApi.Models;
-using Spark.Engine;
-using Spark.Engine.Extensions;
-using Spark.Mongo.Extensions;
-using Spark.Web.Data;
-using Spark.Web.Models.Config;
-using Spark.Web.Services;
-using Spark.Web.Hubs;
-using Microsoft.AspNetCore.ResponseCompression;
-using System.Linq;
-using Microsoft.Extensions.Logging;
-using Microsoft.AspNetCore.Mvc.Formatters;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
-using Microsoft.Extensions.Hosting;
-using Spark.Engine.Formatters;
-
-namespace Spark.Web
+﻿namespace Spark.Web
 {
+    using Microsoft.AspNetCore.Builder;
+    using Microsoft.AspNetCore.Hosting;
+    using Microsoft.AspNetCore.Http;
+    using Microsoft.AspNetCore.Identity;
+    using Microsoft.AspNetCore.Mvc;
+    using Microsoft.EntityFrameworkCore;
+    using Microsoft.Extensions.Configuration;
+    using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.OpenApi.Models;
+    using Engine;
+    using Data;
+    using Models.Config;
+    using Services;
+    using Hubs;
+    using Microsoft.AspNetCore.ResponseCompression;
+    using System.Linq;
+    using Microsoft.AspNetCore.Mvc.Formatters;
+    using Microsoft.Extensions.Hosting;
+    using Engine.Web;
+    using Engine.Web.Formatters;
+    using Postgres;
+
     public class Startup
     {
-        private ILogger<Startup> _logger;
-        public Startup(IConfiguration configuration, ILogger<Startup> logger)
+        public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
-            _logger = logger;
         }
 
         public IConfiguration Configuration { get; }
@@ -39,38 +35,40 @@ namespace Spark.Web
         public void ConfigureServices(IServiceCollection services)
         {
             // Bind to Spark and store settings from appSettings.json
-            SparkSettings sparkSettings = new SparkSettings();
-            Configuration.Bind("SparkSettings", sparkSettings);
-            services.AddSingleton<SparkSettings>(sparkSettings);
+            var sparkSettings = new SparkSettings();
+            Configuration.Bind("Settings", sparkSettings);
+            services.AddSingleton(sparkSettings);
 
-            StoreSettings storeSettings = new StoreSettings();
+            var storeSettings = new StoreSettings();
             Configuration.Bind("StoreSettings", storeSettings);
 
             // Read examples settings from config
-            ExamplesSettings examplesSettings = new ExamplesSettings();
+            var examplesSettings = new ExamplesSettings();
             Configuration.Bind("ExamplesSettings", examplesSettings);
             services.Configure<ExamplesSettings>(options => Configuration.GetSection("ExamplesSettings").Bind(options));
-            services.AddSingleton<ExamplesSettings>(examplesSettings);
+            services.AddSingleton(examplesSettings);
 
             // Configure cookie policy
-            services.Configure<CookiePolicyOptions>(options =>
-            {
-                // This lambda determines whether user consent for non-essential cookies is needed for a given request.
-                options.CheckConsentNeeded = context => true;
-                options.MinimumSameSitePolicy = SameSiteMode.None;
-            });
+            services.Configure<CookiePolicyOptions>(
+                options =>
+                {
+                    // This lambda determines whether user consent for non-essential cookies is needed for a given request.
+                    options.CheckConsentNeeded = _ => true;
+                    options.MinimumSameSitePolicy = SameSiteMode.None;
+                });
 
-            services.AddResponseCompression(options =>
-            {
-                options.Providers.Add<GzipCompressionProvider>();
-                options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
-                    new[] { "application/fhir+json", "application/fhir+xml" });
-            });
+            services.AddResponseCompression(
+                options =>
+                {
+                    options.Providers.Add<GzipCompressionProvider>();
+                    options.Providers.Add<BrotliCompressionProvider>();
+                    options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
+                        new[] {"application/fhir+json", "application/fhir+xml"});
+                });
 
             // Add database context for user administration
-            services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlite(Configuration.GetConnectionString("DefaultConnection"))
-            );
+            services.AddDbContext<ApplicationDbContext>(
+                options => options.UseSqlite(Configuration.GetConnectionString("DefaultConnection")));
 
             // Add Identity management
             services.AddIdentity<IdentityUser, IdentityRole>()
@@ -82,58 +80,60 @@ namespace Spark.Web
 
             // Set up a default policy for CORS that accepts any origin, method and header.
             // only for test purposes.
-            services.AddCors(options =>
-                options.AddDefaultPolicy(policy =>
-                {
-                    policy.AllowAnyOrigin();
-                    policy.AllowAnyMethod();
-                    policy.AllowAnyHeader();
-                }));
+            services.AddCors(
+                options => options.AddDefaultPolicy(
+                    policy =>
+                    {
+                        policy.AllowAnyOrigin();
+                        policy.AllowAnyMethod();
+                        policy.AllowAnyHeader();
+                    }));
 
             // Sets up the MongoDB store
-            services.AddMongoFhirStore(storeSettings);
-
+            //services.AddMongoFhirStore(storeSettings);
+            services.AddPostgresFhirStore(storeSettings);
             // AddFhir also calls AddMvcCore
             services.AddFhir(sparkSettings);
 
             services.AddTransient<ServerMetadata>();
 
             // AddMvc needs to be called since we are using a Home page that is reliant on the full MVC framework
-            services.AddMvc(options =>
-            {
-                options.InputFormatters.RemoveType<SystemTextJsonInputFormatter>();
-                options.OutputFormatters.RemoveType<SystemTextJsonOutputFormatter>();
-                options.EnableEndpointRouting = false;
-            }).SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+            services.AddMvc(
+                    options =>
+                    {
+                        options.InputFormatters.RemoveType<SystemTextJsonInputFormatter>();
+                        options.OutputFormatters.RemoveType<SystemTextJsonOutputFormatter>();
+                        options.EnableEndpointRouting = false;
+                    })
+                .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
 
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Spark API", Version = "v1" });
-            });
+            services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo {Title = "Spark API", Version = "v1"}); });
 
             services.AddSignalR();
 
-            // Make validation errors to be returned as application/json or application/xml
-            // instead of application/problem+json and application/problem+xml.
-            // (https://github.com/FirelyTeam/spark/issues/282)
-            services.Configure<ApiBehaviorOptions>(options =>
-            {
-                var defaultInvalidModelStateResponseFactory = options.InvalidModelStateResponseFactory;
-                options.InvalidModelStateResponseFactory = context =>
+            //// Make validation errors to be returned as application/json or application/xml
+            //// instead of application/problem+json and application/problem+xml.
+            //// (https://github.com/FirelyTeam/spark/issues/282)
+            services.Configure<ApiBehaviorOptions>(
+                options =>
                 {
-                    var actionResult = defaultInvalidModelStateResponseFactory(context) as ObjectResult;
-                    if (actionResult != null)
+                    var defaultInvalidModelStateResponseFactory = options.InvalidModelStateResponseFactory;
+                    options.InvalidModelStateResponseFactory = context =>
                     {
-                        actionResult.ContentTypes.Clear();
-                        foreach (var mediaType in ResourceJsonOutputFormatter.JsonMediaTypes
-                            .Concat(ResourceXmlOutputFormatter.XmlMediaTypes))
+                        var actionResult = defaultInvalidModelStateResponseFactory(context) as ObjectResult;
+                        if (actionResult != null)
                         {
-                            actionResult.ContentTypes.Add(mediaType);
+                            actionResult.ContentTypes.Clear();
+                            foreach (var mediaType in JsonFhirOutputFormatter.JsonMediaTypes.Concat(
+                                XmlFhirOutputFormatter.XmlMediaTypes))
+                            {
+                                actionResult.ContentTypes.Add(mediaType);
+                            }
                         }
-                    }
-                    return actionResult;
-                };
-            });
+
+                        return actionResult;
+                    };
+                });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -152,23 +152,21 @@ namespace Spark.Web
             app.UseStaticFiles();
 
             app.UseSwagger();
-            app.UseSwaggerUI(c =>
-            {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Spark API");
-            });
+            app.UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", "Spark API"); });
 
             app.UseAuthentication();
             app.UseCors();
 
             app.UseRouting();
 
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapHub<MaintenanceHub>("/maintenanceHub");
-            });
+            app.UseEndpoints(endpoints => { endpoints.MapHub<MaintenanceHub>("/maintenanceHub"); });
 
             // UseFhir also calls UseMvc
-            app.UseFhir(r => r.MapRoute(name: "default", template: "{controller}/{action}/{id?}", defaults: new { controller = "Home", action = "Index" }));
+            app.UseFhir(
+                r => r.MapRoute(
+                    name: "default",
+                    template: "{controller}/{action}/{id?}",
+                    defaults: new {controller = "Home", action = "Index"}));
         }
     }
 }
