@@ -6,27 +6,27 @@
  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
  */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
 //using Hl7.Fhir.Support;
-using MongoDB.Bson;
-using MongoDB.Driver;
-using Hl7.Fhir.Model;
-using Hl7.Fhir.Rest;
-using Spark.Engine.Core;
-using Spark.Mongo.Search.Common;
-using Spark.Engine.Extensions;
-using Spark.Engine.Search;
 using SM = Spark.Engine.Search.Model;
-using Task = System.Threading.Tasks.Task;
 
-namespace Spark.Search.Mongo
+namespace Spark.Mongo.Search.Searcher
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Threading.Tasks;
+    using Common;
+    using Engine.Core;
+    using Engine.Extensions;
+    using Engine.Search;
     using Engine.Search.ValueExpressionTypes;
-    using Spark.Mongo.Search.Searcher;
+    using Hl7.Fhir.Model;
+    using Hl7.Fhir.Rest;
+    using Infrastructure;
+    using MongoDB.Bson;
+    using MongoDB.Driver;
+    using Modifier = Common.Modifier;
+    using Task = System.Threading.Tasks.Task;
 
     public class MongoSearcher
     {

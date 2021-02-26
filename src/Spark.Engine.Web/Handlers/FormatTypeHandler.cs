@@ -7,7 +7,7 @@
     using Microsoft.AspNetCore.Http;
     using Microsoft.Extensions.Primitives;
 
-    public class FormatTypeHandler
+    public class FormatTypeHandler : IMiddleware
     {
         public async Task InvokeAsync(HttpContext context, RequestDelegate next)
         {

@@ -1,16 +1,14 @@
-﻿namespace Spark.Store.Mongo
+﻿namespace Spark.Mongo.Store
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
+    using Engine.Core;
+    using Engine.Store.Interfaces;
     using MongoDB.Bson;
     using MongoDB.Driver;
-    using Spark.Engine.Core;
-    using Spark.Engine.Store.Interfaces;
-
-    using Spark.Mongo.Search.Infrastructure;
-    using Spark.Mongo.Store;
+    using Search.Infrastructure;
 
     //TODO: decide if we still need this
     [Obsolete("Don't use it at all")]

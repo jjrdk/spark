@@ -1,8 +1,8 @@
-﻿namespace Spark.Service
+﻿namespace Spark.Engine.Service
 {
     using System;
     using System.Threading.Tasks;
-    using Spark.Engine.Core;
+    using Core;
 
     public interface IServiceListener
     {

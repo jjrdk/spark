@@ -2,7 +2,6 @@
 {
     using System.Threading.Tasks;
     using Core;
-    using Spark.Service;
 
     public interface ICompositeServiceListener : IServiceListener
     {

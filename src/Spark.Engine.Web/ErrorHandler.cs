@@ -8,7 +8,7 @@
     using Task = System.Threading.Tasks.Task;
 
     // https://stackoverflow.com/a/38935583
-    public class ErrorHandler
+    public class ErrorHandler : IMiddleware
     {
         public async Task InvokeAsync(HttpContext context, RequestDelegate next)
         {
@@ -37,7 +37,7 @@
             }
 
             // Set HTTP status code
-            context.Response.StatusCode = (int) code;
+            context.Response.StatusCode = (int)code;
             var writeContext = context.GetOutputFormatterWriteContext(outcome);
             var formatter = context.SelectFormatter(writeContext);
             // Write the OperationOutcome to the Response using an OutputFormatter from the request pipeline

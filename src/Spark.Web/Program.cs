@@ -1,15 +1,15 @@
-﻿using System;
-using System.IO;
-using Microsoft.AspNetCore;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Spark.Web.Data;
-
-namespace Spark.Web
+﻿namespace Spark.Web
 {
+    using System;
+    using System.IO;
+    using Microsoft.AspNetCore;
+    using Microsoft.AspNetCore.Hosting;
+    using Microsoft.AspNetCore.Identity;
+    using Microsoft.Extensions.Configuration;
+    using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.Logging;
+    using Spark.Web.Data;
+
     using Microsoft.AspNetCore.Server.Kestrel.Core;
 
     public class Program
@@ -48,7 +48,7 @@ namespace Spark.Web
                     k =>
                     {
                         k.AddServerHeader = false;
-                        k.ListenAnyIP(80, options => options.Protocols = HttpProtocols.Http1AndHttp2AndHttp3);
+                        k.ListenAnyIP(80, options => options.Protocols = HttpProtocols.Http1AndHttp2);
                     })
                 .UseStartup<Startup>()
                 .ConfigureLogging(logging =>

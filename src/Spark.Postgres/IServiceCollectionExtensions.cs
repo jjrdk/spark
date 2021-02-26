@@ -1,7 +1,6 @@
 ﻿namespace Spark.Postgres
 {
     using System;
-    using Core;
     using Engine;
     using Engine.Interfaces;
     using Engine.Store.Interfaces;

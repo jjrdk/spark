@@ -6,20 +6,20 @@
  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
  */
 
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Spark.Core;
-using Hl7.Fhir.Rest;
-using Spark.Engine;
-using Spark.Engine.Core;
-using Spark.Engine.Search;
-using Spark.Search.Mongo;
-using Spark.Engine.Store.Interfaces;
-
-namespace Spark.Mongo.Search.Common
+namespace Spark.Mongo.Search.Infrastructure
 {
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Threading;
+    using System.Threading.Tasks;
+    using Engine;
+    using Engine.Core;
+    using Engine.Interfaces;
+    using Engine.Search;
+    using Engine.Store.Interfaces;
+    using Hl7.Fhir.Rest;
+    using Searcher;
+
     public class MongoFhirIndex : IFhirIndex
     {
         private readonly MongoSearcher _searcher;

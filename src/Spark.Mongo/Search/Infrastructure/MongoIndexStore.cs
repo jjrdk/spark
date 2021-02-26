@@ -1,15 +1,14 @@
-﻿using MongoDB.Bson;
-using MongoDB.Driver;
-using Spark.Engine.Core;
-using System.Threading.Tasks;
-using Spark.Engine.Model;
-using Spark.Mongo.Search.Indexer;
-using Spark.Engine.Store.Interfaces;
-
-namespace Spark.Mongo.Search.Common
+﻿namespace Spark.Mongo.Search.Infrastructure
 {
+    using System.Threading.Tasks;
+    using Common;
+    using Engine.Core;
     using Engine.Extensions;
-    using Infrastructure;
+    using Engine.Model;
+    using Engine.Store.Interfaces;
+    using Indexer;
+    using MongoDB.Bson;
+    using MongoDB.Driver;
 
     public class MongoIndexStore : IIndexStore
     {

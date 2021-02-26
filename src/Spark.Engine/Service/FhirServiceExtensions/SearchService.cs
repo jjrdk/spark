@@ -7,10 +7,9 @@ namespace Spark.Engine.Service.FhirServiceExtensions
     using System.Threading.Tasks;
     using Hl7.Fhir.Model;
     using Hl7.Fhir.Rest;
-    using Spark.Core;
+    using Interfaces;
     using Spark.Engine.Core;
     using Spark.Engine.Extensions;
-    using Spark.Service;
     using Task = System.Threading.Tasks.Task;
 
     public class SearchService : ISearchService, IServiceListener

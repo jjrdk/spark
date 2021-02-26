@@ -14,7 +14,6 @@
     using Search;
     using Service;
     using Service.FhirServiceExtensions;
-    using Spark.Service;
     using Store.Interfaces;
 
     public static class ServiceCollectionExtensions

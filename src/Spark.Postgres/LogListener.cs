@@ -3,8 +3,8 @@
     using System;
     using System.Threading.Tasks;
     using Engine.Core;
+    using Engine.Service;
     using Microsoft.Extensions.Logging;
-    using Service;
 
     public class LogListener : IServiceListener
     {

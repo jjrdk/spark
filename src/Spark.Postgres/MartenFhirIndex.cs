@@ -5,9 +5,9 @@
     using System.Linq;
     using System.Text;
     using System.Threading.Tasks;
-    using Core;
     using Engine.Core;
     using Engine.Extensions;
+    using Engine.Interfaces;
     using Engine.Model;
     using Engine.Search.ValueExpressionTypes;
     using Engine.Store.Interfaces;
