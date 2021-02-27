@@ -65,7 +65,7 @@ namespace Spark.Engine.Service.FhirServiceExtensions
             return await HandleTransaction(entries, interactionHandler, mapper).ConfigureAwait(false);
         }
 
-        public async Task<FhirResponse> HandleOperation(
+        private async Task<FhirResponse> HandleOperation(
             ResourceManipulationOperation operation,
             IInteractionHandler interactionHandler,
             Mapper<string, IKey> mapper = null)
@@ -73,7 +73,7 @@ namespace Spark.Engine.Service.FhirServiceExtensions
             IList<Entry> interactions = operation.GetEntries().ToList();
             if (mapper != null)
             {
-                _transfer.Internalize(interactions, mapper);
+                await _transfer.Internalize(interactions, mapper).ConfigureAwait(false);
             }
 
             FhirResponse response = null;
@@ -177,9 +177,9 @@ namespace Spark.Engine.Service.FhirServiceExtensions
                 responses.Add(
                     new Tuple<Entry, FhirResponse>(
                         interaction,
-                        response)); //CCR: How to handle responses for transactions? 
-                //The specifications says only one response should be sent per EntryComponent, 
-                //but one EntryComponent might correpond to multiple atomic entries (Entry)
+                        response)); //CCR: How to handle responses for transactions?
+                //The specifications says only one response should be sent per EntryComponent,
+                //but one EntryComponent might correspond to multiple atomic entries (Entry)
                 //Example: conditional delete
             }
 

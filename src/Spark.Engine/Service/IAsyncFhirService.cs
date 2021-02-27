@@ -41,7 +41,7 @@ namespace Spark.Engine.Service
         Task<FhirResponse> Read(IKey key, ConditionalHeaderParameters parameters = null);
         Task<FhirResponse> ReadMeta(IKey key);
         Task<FhirResponse> Search(string type, SearchParams searchCommand, int pageIndex = 0);
-        Task<FhirResponse> Transaction(IList<Entry> interactions);
+        Task<FhirResponse> Transaction(params Entry[] interactions);
         Task<FhirResponse> Transaction(Bundle bundle);
         Task<FhirResponse> Update(IKey key, Resource resource);
         Task<FhirResponse> ValidateOperation(IKey key, Resource resource);

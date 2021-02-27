@@ -29,7 +29,8 @@ namespace Spark.Engine.Web
         public static IMvcCoreBuilder AddFhir(
             this IServiceCollection services,
             SparkSettings settings,
-            Action<MvcOptions> setupAction = null)
+            Action<MvcOptions> setupAction = null,
+            Func<IServiceProvider, IInteractionHandler> interactionHandler = null)
         {
             if (settings == null)
             {
@@ -62,7 +63,7 @@ namespace Spark.Engine.Web
             services.TryAddTransient<ISnapshotPaginationProvider, SnapshotPaginationProvider>();
             services.TryAddTransient<ISnapshotPaginationCalculator, SnapshotPaginationCalculator>();
             services.TryAddTransient<IServiceListener, SearchService>(); // searchListener
-            services.TryAddTransient(provider => new[] {provider.GetRequiredService<IServiceListener>()});
+            services.TryAddTransient(provider => new[] { provider.GetRequiredService<IServiceListener>() });
             services.TryAddTransient<SearchService>(); // search
             services.TryAddTransient<TransactionService>(); // transaction
             //services.TryAddTransient<HistoryService>();                    // history
@@ -74,7 +75,14 @@ namespace Spark.Engine.Web
             services.TryAddTransient<JsonFhirOutputFormatter>();
             services.TryAddTransient<XmlFhirInputFormatter>();
             services.TryAddTransient<XmlFhirOutputFormatter>();
-
+            if (interactionHandler == null)
+            {
+                services.TryAddTransient<IInteractionHandler, DefaultInteractionHandler>();
+            }
+            else
+            {
+                services.TryAddTransient(interactionHandler);
+            }
             services.AddTransient(
                 provider => new IFhirServiceExtension[]
                 {
