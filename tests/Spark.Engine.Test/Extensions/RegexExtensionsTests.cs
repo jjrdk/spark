@@ -1,13 +1,20 @@
-﻿using System.Text.RegularExpressions;
-using Spark.Engine.Extensions;
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
 
 namespace Spark.Engine.Test.Extensions
 {
+    using System.Text.RegularExpressions;
+    using Engine.Extensions;
     using Xunit;
 
     public class RegexExtensionsTests
     {
-        public static readonly Regex Sut = new Regex(@"[^a]*(?<alpha>a)[^a]*");
+        public static readonly Regex Sut = new(@"[^a]*(?<alpha>a)[^a]*");
 
         [Fact]
         public void TestReplaceNamedGroupNoSuchGroup()

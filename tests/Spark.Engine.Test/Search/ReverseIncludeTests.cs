@@ -1,8 +1,15 @@
-﻿using System;
-using Spark.Engine.Search.Model;
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
 
 namespace Spark.Engine.Test.Search
 {
+    using System;
+    using Engine.Search.Model;
     using Xunit;
 
     public class ReverseIncludeTests
@@ -15,6 +22,7 @@ namespace Spark.Engine.Test.Search
             Assert.Equal("Patient", sut.ResourceType);
             Assert.Equal("actor", sut.SearchPath);
         }
+
         [Fact]
         public void TestParseValidLongerPath()
         {
@@ -23,6 +31,7 @@ namespace Spark.Engine.Test.Search
             Assert.Equal("Provenance", sut.ResourceType);
             Assert.Equal("target.patient", sut.SearchPath);
         }
+
         [Fact]
         public void TestParseNull()
         {

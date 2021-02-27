@@ -1,4 +1,12 @@
-﻿namespace Spark.Postgres
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
+
+namespace Spark.Postgres
 {
     using System;
     using System.Collections.Generic;
@@ -15,10 +23,7 @@
     {
         private readonly Func<IDocumentSession> _sessionFunc;
 
-        public MartenHistoryStore(Func<IDocumentSession> sessionFunc)
-        {
-            _sessionFunc = sessionFunc;
-        }
+        public MartenHistoryStore(Func<IDocumentSession> sessionFunc) => _sessionFunc = sessionFunc;
 
         /// <inheritdoc />
         public async Task<Snapshot> History(string typename, HistoryParameters parameters)
@@ -37,7 +42,7 @@
                 query = query.Take(parameters.Count.Value);
             }
 
-            var result = await query.Select(x => new { x.Key.TypeName, x.Key.Base, x.Key.ResourceId, x.Key.VersionId })
+            var result = await query.Select(x => new {x.Key.TypeName, x.Key.Base, x.Key.ResourceId, x.Key.VersionId})
                 .ToListAsync()
                 .ConfigureAwait(false);
             var keys = result.Select(x => new Key(x.Base, x.TypeName, x.ResourceId, x.VersionId).ToString()).ToList();
@@ -62,7 +67,7 @@
                 query = query.Take(parameters.Count.Value);
             }
 
-            var result = await query.Select(x => new { x.Key.TypeName, x.Key.Base, x.Key.ResourceId, x.Key.VersionId })
+            var result = await query.Select(x => new {x.Key.TypeName, x.Key.Base, x.Key.ResourceId, x.Key.VersionId})
                 .ToListAsync()
                 .ConfigureAwait(false);
             return CreateSnapshot(
@@ -87,7 +92,7 @@
                 query = query.Take(parameters.Count.Value);
             }
 
-            var result = await query.Select(x => new { x.Key.TypeName, x.Key.Base, x.Key.ResourceId, x.Key.VersionId })
+            var result = await query.Select(x => new {x.Key.TypeName, x.Key.Base, x.Key.ResourceId, x.Key.VersionId})
                 .ToListAsync()
                 .ConfigureAwait(false);
             return CreateSnapshot(
@@ -99,9 +104,8 @@
             IList<string> keys,
             int? count = null,
             IList<string> includes = null,
-            IList<string> reverseIncludes = null)
-        {
-            return Snapshot.Create(
+            IList<string> reverseIncludes = null) =>
+            Snapshot.Create(
                 Bundle.BundleType.History,
                 new Uri(RestOperation.History, UriKind.Relative),
                 keys,
@@ -109,6 +113,5 @@
                 count,
                 includes,
                 reverseIncludes);
-        }
     }
 }

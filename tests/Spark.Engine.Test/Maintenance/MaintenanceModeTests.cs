@@ -1,12 +1,38 @@
-﻿using Spark.Engine.Maintenance;
-using System.Linq;
-using System.Net;
-using Xunit;
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
 
 namespace Spark.Engine.Test.Maintenance
 {
+    using System.Linq;
+    using System.Net;
+    using Engine.Maintenance;
+    using Xunit;
+
     public class MaintenanceModeTests
     {
+        public static object[][] ReadHttpMethods =>
+            new[] {new object[] {"GET"}, new object[] {"HEAD"}, new object[] {"OPTIONS"}};
+
+        public static object[][] WriteHttpMethods =>
+            new[] {new object[] {"POST"}, new object[] {"PUT"}, new object[] {"PATCH"}, new object[] {"DELETE"}};
+
+        public static object[][] AllHttpMethods => ReadHttpMethods.Concat(WriteHttpMethods).ToArray();
+
+        public static object[][] AllLockModes =>
+            ((MaintenanceLockMode[]) typeof(MaintenanceLockMode).GetEnumValues()).Select(v => new object[] {v})
+            .ToArray();
+
+        public static object[][] ActualLockModes =>
+            ((MaintenanceLockMode[]) typeof(MaintenanceLockMode).GetEnumValues())
+            .Where(m => m != MaintenanceLockMode.None)
+            .Select(v => new object[] {v})
+            .ToArray();
+
         [Theory]
         [MemberData(nameof(AllLockModes))]
         internal void IsEnabled_Should_Return_False_If_Maintenance_Mode_Is_Not_Enabled(MaintenanceLockMode mode)
@@ -103,31 +129,5 @@ namespace Spark.Engine.Test.Maintenance
                 Assert.True(MaintenanceMode.IsEnabledForHttpMethod(method));
             }
         }
-
-        public static object[][] ReadHttpMethods => new[]
-        {
-            new object[] {"GET"},
-            new object[] {"HEAD"},
-            new object[] {"OPTIONS"}
-        };
-
-        public static object[][] WriteHttpMethods => new[]
-        {
-            new object[] {"POST"},
-            new object[] {"PUT"},
-            new object[] {"PATCH"},
-            new object[] {"DELETE"}
-        };
-
-        public static object[][] AllHttpMethods => ReadHttpMethods.Concat(WriteHttpMethods).ToArray();
-
-        public static object[][] AllLockModes => ((MaintenanceLockMode[])typeof(MaintenanceLockMode).GetEnumValues())
-            .Select(v => new object[] { v })
-            .ToArray();
-
-        public static object[][] ActualLockModes => ((MaintenanceLockMode[])typeof(MaintenanceLockMode).GetEnumValues())
-            .Where(m => m != MaintenanceLockMode.None)
-            .Select(v => new object[] { v })
-            .ToArray();
     }
 }

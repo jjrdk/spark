@@ -1,32 +1,34 @@
-﻿using System;
-using Hl7.Fhir.Model;
-using MongoDB.Bson;
-using MongoDB.Driver;
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
 
 namespace Spark.Mongo.Store
 {
+    using System;
     using System.Threading.Tasks;
     using Engine.Interfaces;
+    using Hl7.Fhir.Model;
+    using MongoDB.Bson;
+    using MongoDB.Driver;
     using Search.Infrastructure;
 
     public class MongoIdGenerator : IGenerator
     {
         private readonly IMongoDatabase _database;
 
-        public MongoIdGenerator(string mongoUrl)
-        {
-            this._database = MongoDatabaseFactory.GetMongoDatabase(mongoUrl);
-        }
+        public MongoIdGenerator(string mongoUrl) => _database = MongoDatabaseFactory.GetMongoDatabase(mongoUrl);
+
         async Task<string> IGenerator.NextResourceId(Resource resource)
         {
             var id = await Next(resource.TypeName).ConfigureAwait(false);
             return id;
         }
 
-        Task<string> IGenerator.NextVersionId(string resourceIdentifier)
-        {
-            throw new NotImplementedException();
-        }
+        Task<string> IGenerator.NextVersionId(string resourceIdentifier) => throw new NotImplementedException();
 
         async Task<string> IGenerator.NextVersionId(string resourceType, string resourceIdentifier)
         {

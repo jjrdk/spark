@@ -1,11 +1,18 @@
-﻿using MongoDB.Bson;
-using MongoDB.Driver;
-using Spark.Engine.Core;
-using Spark.Engine.Store.Interfaces;
-using System.Threading.Tasks;
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
 
 namespace Spark.Mongo.Store
 {
+    using System.Threading.Tasks;
+    using Engine.Core;
+    using Engine.Store.Interfaces;
+    using MongoDB.Bson;
+    using MongoDB.Driver;
     using Search.Infrastructure;
 
     public class MongoFhirStorePagedReader : IFhirStorePagedReader
@@ -24,11 +31,13 @@ namespace Spark.Mongo.Store
 
             var filter = Builders<BsonDocument>.Filter.Empty;
 
-            var totalRecords = await _collection.CountDocumentsAsync(filter)
-                .ConfigureAwait(false);
+            var totalRecords = await _collection.CountDocumentsAsync(filter).ConfigureAwait(false);
 
-            return new MongoCollectionPageResult<Entry>(_collection, filter,
-                options.PageSize, totalRecords,
+            return new MongoCollectionPageResult<Entry>(
+                _collection,
+                filter,
+                options.PageSize,
+                totalRecords,
                 document => document.ToEntry());
         }
     }

@@ -1,25 +1,31 @@
-﻿namespace Spark.Web
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
+
+namespace Spark.Web
 {
     using System;
     using System.IO;
+    using Data;
     using Microsoft.AspNetCore;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.Identity;
+    using Microsoft.AspNetCore.Server.Kestrel.Core;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Logging;
-    using Spark.Web.Data;
-
-    using Microsoft.AspNetCore.Server.Kestrel.Core;
 
     public class Program
     {
         public static void Main(string[] args)
         {
             var host = CreateWebHostBuilder(args).Build();
-            var config = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json", optional: false)
+            var config = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", false)
                 .AddEnvironmentVariables()
                 .AddUserSecrets<Startup>()
                 .Build();
@@ -44,16 +50,14 @@
         }
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
-            WebHost.CreateDefaultBuilder(args).ConfigureKestrel(
+            WebHost.CreateDefaultBuilder(args)
+                .ConfigureKestrel(
                     k =>
                     {
                         k.AddServerHeader = false;
                         k.ListenAnyIP(80, options => options.Protocols = HttpProtocols.Http1AndHttp2);
                     })
                 .UseStartup<Startup>()
-                .ConfigureLogging(logging =>
-                {
-                    logging.AddConsole();
-                });
+                .ConfigureLogging(logging => { logging.AddConsole(); });
     }
 }

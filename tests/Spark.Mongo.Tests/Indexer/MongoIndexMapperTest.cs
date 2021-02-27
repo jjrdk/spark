@@ -1,43 +1,26 @@
-﻿using Spark.Mongo.Search.Indexer;
-using Spark.Engine.Model;
-using Xunit;
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
 
 namespace Spark.Mongo.Tests.Indexer
 {
+    using Engine.Model;
     using Engine.Search.ValueExpressionTypes;
+    using Mongo.Search.Indexer;
+    using Xunit;
 
     /// <summary>
-    /// Summary description for MongoIndexMapperTest
+    ///     Summary description for MongoIndexMapperTest
     /// </summary>
     public class MongoIndexMapperTest
     {
         private readonly MongoIndexMapper _sut;
-        public MongoIndexMapperTest()
-        {
-            _sut = new MongoIndexMapper();
-        }
 
-        #region Additional test attributes
-        //
-        // You can use the following additional attributes as you write your tests:
-        //
-        // Use ClassInitialize to run code before running the first test in the class
-        // [ClassInitialize()]
-        // public static void MyClassInitialize(TestContext testContext) { }
-        //
-        // Use ClassCleanup to run code after all tests in a class have run
-        // [ClassCleanup()]
-        // public static void MyClassCleanup() { }
-        //
-        // Use TestInitialize to run code before running each test
-        // [TestInitialize()]
-        // public void MyTestInitialize() { }
-        //
-        // Use TestCleanup to run code after each test has run
-        // [TestCleanup()]
-        // public void MyTestCleanup() { }
-        //
-        #endregion
+        public MongoIndexMapperTest() => _sut = new MongoIndexMapper();
 
         [Fact]
         public void TestMapRootIndexValue()
@@ -58,5 +41,29 @@ namespace Spark.Mongo.Tests.Indexer
             Assert.True(secondElement.Value.IsString);
             Assert.Equal("Patient", secondElement.Value.AsString);
         }
+
+        #region Additional test attributes
+
+        //
+        // You can use the following additional attributes as you write your tests:
+        //
+        // Use ClassInitialize to run code before running the first test in the class
+        // [ClassInitialize()]
+        // public static void MyClassInitialize(TestContext testContext) { }
+        //
+        // Use ClassCleanup to run code after all tests in a class have run
+        // [ClassCleanup()]
+        // public static void MyClassCleanup() { }
+        //
+        // Use TestInitialize to run code before running each test
+        // [TestInitialize()]
+        // public void MyTestInitialize() { }
+        //
+        // Use TestCleanup to run code after each test has run
+        // [TestCleanup()]
+        // public void MyTestCleanup() { }
+        //
+
+        #endregion
     }
 }

@@ -1,4 +1,12 @@
-﻿namespace Spark.Mongo.Store
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
+
+namespace Spark.Mongo.Store
 {
     public static class Field
     {
@@ -19,7 +27,9 @@
         public const string WHEN = "@when";
         public const string METHOD = "@method"; // Present / Gone
         public const string TYPENAME = "@typename"; // Patient, Organization, etc.
-        public const string VERSIONID = "@VersionId"; // The resource versionid is in Resource.Meta. This is a administrative copy
+
+        public const string
+            VERSIONID = "@VersionId"; // The resource versionid is in Resource.Meta. This is a administrative copy
 
         internal const string TRANSACTION = "@transaction";
         //internal const string TransactionState = "@transstate";

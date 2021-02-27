@@ -1,10 +1,10 @@
-﻿/* 
- * Copyright (c) 2014, Furore (info@furore.com) and contributors
- * See the file CONTRIBUTORS for details.
- * 
- * This file is licensed under the BSD 3-Clause license
- * available at https://raw.githubusercontent.com/ewoutkramer/fhir-net-api/master/LICENSE
- */
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
 
 namespace Spark.Engine.Test.Search
 {
@@ -20,31 +20,36 @@ namespace Spark.Engine.Test.Search
         [Fact]
 		public void ParseCriteriumDSTU1()
 		{
-			var crit = Criterium.Parse("paramX=18");
+			var crit
+ = Criterium.Parse("paramX=18");
 			Assert.Equal("paramX", crit.ParamName);
 			Assert.Null(crit.Modifier);
 			Assert.Equal("18", crit.Operand.ToString());
 			Assert.Equal(Operator.EQ, crit.Operator);
 
-			crit = Criterium.Parse("paramX=>18");
+			crit
+ = Criterium.Parse("paramX=>18");
 			Assert.Equal("paramX", crit.ParamName);
 			Assert.Null(crit.Modifier);
 			Assert.Equal("18", crit.Operand.ToString());
 			Assert.Equal(Operator.GT, crit.Operator);
 
-			crit = Criterium.Parse("paramX:modif1=~18");
+			crit
+ = Criterium.Parse("paramX:modif1=~18");
 			Assert.Equal("paramX", crit.ParamName);
 			Assert.Equal("18", crit.Operand.ToString());
 			Assert.Equal("modif1", crit.Modifier);
 			Assert.Equal(Operator.APPROX, crit.Operator);
 
-			crit = Criterium.Parse("paramX:missing=true");
+			crit
+ = Criterium.Parse("paramX:missing=true");
 			Assert.Equal("paramX", crit.ParamName);
 			Assert.Null(crit.Operand);
 			Assert.Null(crit.Modifier);
 			Assert.Equal(Operator.ISNULL, crit.Operator);
 
-			crit = Criterium.Parse("paramX:missing=false");
+			crit
+ = Criterium.Parse("paramX:missing=false");
 			Assert.Equal("paramX", crit.ParamName);
 			Assert.Null(crit.Operand);
 			Assert.Null(crit.Modifier);
@@ -52,7 +57,7 @@ namespace Spark.Engine.Test.Search
 		}
 #endif
         /// <summary>
-        /// In DSTU2, prefixes have changed from > to gt, < to lt etc.
+        ///     In DSTU2, prefixes have changed from > to gt, < to lt etc.
         /// </summary>
         [Fact]
         public void ParseCriteriumDstu2()
@@ -166,14 +171,18 @@ namespace Spark.Engine.Test.Search
                 ParamName = "par1",
                 Modifier = "type1",
                 Operator = Operator.CHAIN,
-                Operand =
-                    new Criterium
+                Operand = new Criterium
+                {
+                    ParamName = "par2",
+                    Operator = Operator.CHAIN,
+                    Operand = new Criterium
                     {
-                        ParamName = "par2",
-                        Operator = Operator.CHAIN,
-                        Operand =
-                            new Criterium { ParamName = "par3", Modifier = "text", Operator = Operator.EQ, Operand = new StringValue("hoi") }
+                        ParamName = "par3",
+                        Modifier = "text",
+                        Operator = Operator.EQ,
+                        Operand = new StringValue("hoi")
                     }
+                }
             };
 
             Assert.Equal("par1:type1.par2.par3:text=hoi", crit.ToString());
@@ -183,16 +192,19 @@ namespace Spark.Engine.Test.Search
         [Fact]
         public void SerializeCriterium()
         {
-            var crit = new Criterium { ParamName = "paramX", Modifier = "modif1", Operand = new NumberValue(18), Operator = Operator.GTE };
+            var crit = new Criterium
+            {
+                ParamName = "paramX", Modifier = "modif1", Operand = new NumberValue(18), Operator = Operator.GTE
+            };
             Assert.Equal("paramX:modif1=ge18", crit.ToString());
 
-            crit = new Criterium { ParamName = "paramX", Operand = new NumberValue(18) };
+            crit = new Criterium {ParamName = "paramX", Operand = new NumberValue(18)};
             Assert.Equal("paramX=18", crit.ToString());
 
-            crit = new Criterium { ParamName = "paramX", Operator = Operator.ISNULL };
+            crit = new Criterium {ParamName = "paramX", Operator = Operator.ISNULL};
             Assert.Equal("paramX:missing=true", crit.ToString());
 
-            crit = new Criterium { ParamName = "paramX", Operator = Operator.NOTNULL };
+            crit = new Criterium {ParamName = "paramX", Operator = Operator.NOTNULL};
             Assert.Equal("paramX:missing=false", crit.ToString());
         }
 
@@ -210,7 +222,7 @@ namespace Spark.Engine.Test.Search
             Assert.Equal(18.00M, p3.Value);
 
             var crit = Criterium.Parse("paramX=18.34");
-            var p4 = ((UntypedValue)crit.Operand).AsNumberValue();
+            var p4 = ((UntypedValue) crit.Operand).AsNumberValue();
             Assert.Equal(18.34M, p4.Value);
         }
 
@@ -228,7 +240,7 @@ namespace Spark.Engine.Test.Search
             Assert.Equal("1972-11-30", p2.ToString());
 
             var crit = Criterium.Parse("paramX=1972-11-30");
-            var p3 = ((UntypedValue)crit.Operand).AsDateValue();
+            var p3 = ((UntypedValue) crit.Operand).AsDateValue();
             Assert.Equal("1972-11-30", p3.Value);
 
             // Test with an invalid FHIR datetime (no timezone specified)
@@ -240,13 +252,13 @@ namespace Spark.Engine.Test.Search
         public void HandleDateTimeParam()
         {
             var p1 = new FhirDateTime(new DateTimeOffset(1972, 11, 30, 15, 20, 49, TimeSpan.Zero));
-            Assert.Equal("1972-11-30T15:20:49+00:00", p1.Value.ToString());
+            Assert.Equal("1972-11-30T15:20:49+00:00", p1.Value);
 
             var crit = Criterium.Parse("paramX=1972-11-30T18:45:36Z");
-            var p3 = ((UntypedValue)crit.Operand).AsDateValue();
+            var p3 = ((UntypedValue) crit.Operand).AsDateValue();
             Assert.Equal("1972-11-30", p3.Value);
 
-            var p4 = ((UntypedValue)crit.Operand).AsDateTimeValue();
+            var p4 = ((UntypedValue) crit.Operand).AsDateTimeValue();
             Assert.Equal("1972-11-30T18:45:36Z", p4.Value);
         }
 
@@ -263,7 +275,7 @@ namespace Spark.Engine.Test.Search
             Assert.Equal("Pay $300|Pay $100|", p3.Value);
 
             var crit = Criterium.Parse(@"paramX=Hello\, world");
-            var p4 = ((UntypedValue)crit.Operand).AsStringValue();
+            var p4 = ((UntypedValue) crit.Operand).AsStringValue();
             Assert.Equal("Hello, world", p4.Value);
         }
 
@@ -277,10 +289,10 @@ namespace Spark.Engine.Test.Search
             var p2 = new TokenValue("y|n", "http://some|where.nl/codes");
             Assert.Equal(@"http://some\|where.nl/codes|y\|n", p2.ToString());
 
-            var p3 = new TokenValue("NOK", matchAnyNamespace: true);
+            var p3 = new TokenValue("NOK", true);
             Assert.Equal("NOK", p3.ToString());
 
-            var p4 = new TokenValue("NOK", matchAnyNamespace: false);
+            var p4 = new TokenValue("NOK", false);
             Assert.Equal("|NOK", p4.ToString());
 
             var p5 = TokenValue.Parse("http://somewhere.nl/codes|NOK");
@@ -304,7 +316,7 @@ namespace Spark.Engine.Test.Search
             Assert.True(p8.AnyNamespace);
 
             var crit = Criterium.Parse("paramX=|NOK");
-            var p9 = ((UntypedValue)crit.Operand).AsTokenValue();
+            var p9 = ((UntypedValue) crit.Operand).AsTokenValue();
             Assert.Equal("NOK", p9.Value);
             Assert.False(p9.AnyNamespace);
         }
@@ -338,7 +350,7 @@ namespace Spark.Engine.Test.Search
             Assert.Equal("$/d", p6.Unit);
 
             var crit = Criterium.Parse("paramX=3.14||mg");
-            var p7 = ((UntypedValue)crit.Operand).AsQuantityValue();
+            var p7 = ((UntypedValue) crit.Operand).AsQuantityValue();
             Assert.Equal(3.14M, p7.Number);
             Assert.Null(p7.Namespace);
             Assert.Equal("mg", p7.Unit);
@@ -349,31 +361,31 @@ namespace Spark.Engine.Test.Search
         public void SplitNotEscaped()
         {
             var res = "hallo".SplitNotEscaped('$');
-            Assert.Equal(res, new[] { "hallo" });
+            Assert.Equal(res, new[] {"hallo"});
 
             res = "part1$part2".SplitNotEscaped('$');
-            Assert.Equal(res, new[] { "part1", "part2" });
+            Assert.Equal(res, new[] {"part1", "part2"});
 
             res = "part1$".SplitNotEscaped('$');
-            Assert.Equal(res, new[] { "part1", string.Empty });
+            Assert.Equal(res, new[] {"part1", string.Empty});
 
             res = "$part2".SplitNotEscaped('$');
-            Assert.Equal(res, new[] { string.Empty, "part2" });
+            Assert.Equal(res, new[] {string.Empty, "part2"});
 
             res = "$".SplitNotEscaped('$');
-            Assert.Equal(res, new[] { string.Empty, string.Empty });
+            Assert.Equal(res, new[] {string.Empty, string.Empty});
 
             res = "a$$c".SplitNotEscaped('$');
-            Assert.Equal(res, new[] { "a", string.Empty, "c" });
+            Assert.Equal(res, new[] {"a", string.Empty, "c"});
 
             res = @"p\@rt1$p\@rt2".SplitNotEscaped('$');
-            Assert.Equal(res, new[] { @"p\@rt1", @"p\@rt2" });
+            Assert.Equal(res, new[] {@"p\@rt1", @"p\@rt2"});
 
             res = @"mes\$age1$mes\$age2".SplitNotEscaped('$');
-            Assert.Equal(res, new[] { @"mes\$age1", @"mes\$age2" });
+            Assert.Equal(res, new[] {@"mes\$age1", @"mes\$age2"});
 
             res = string.Empty.SplitNotEscaped('$');
-            Assert.Equal(res, new[] { string.Empty });
+            Assert.Equal(res, new[] {string.Empty});
         }
 
 
@@ -387,28 +399,29 @@ namespace Spark.Engine.Test.Search
             Assert.Equal("http://server.org/fhir/Patient/1", p2.Value);
 
             var crit = Criterium.Parse(@"paramX=http://server.org/\$4/fhir/Patient/1");
-            var p3 = ((UntypedValue)crit.Operand).AsReferenceValue();
+            var p3 = ((UntypedValue) crit.Operand).AsReferenceValue();
             Assert.Equal("http://server.org/$4/fhir/Patient/1", p3.Value);
         }
 
         [Fact]
         public void HandleMultiValueParam()
         {
-            var p1 = new ChoiceValue(new ValueExpression[] { new StringValue("hello, world!"), new NumberValue(18.4M) });
+            var p1 = new ChoiceValue(new ValueExpression[] {new StringValue("hello, world!"), new NumberValue(18.4M)});
             Assert.Equal(@"hello\, world!,18.4", p1.ToString());
 
             var p2 = ChoiceValue.Parse(@"hello\, world!,18.4");
             Assert.Equal(2, p2.Choices.Length);
-            Assert.Equal("hello, world!", ((UntypedValue)p2.Choices[0]).AsStringValue().Value);
-            Assert.Equal(18.4M, ((UntypedValue)p2.Choices[1]).AsNumberValue().Value);
+            Assert.Equal("hello, world!", ((UntypedValue) p2.Choices[0]).AsStringValue().Value);
+            Assert.Equal(18.4M, ((UntypedValue) p2.Choices[1]).AsNumberValue().Value);
         }
 
         [Fact]
         public void HandleComposites()
         {
-            var pX = new CompositeValue(new ValueExpression[] { new StringValue("hello, world!"), new NumberValue(14.8M) });
+            var pX = new CompositeValue(
+                new ValueExpression[] {new StringValue("hello, world!"), new NumberValue(14.8M)});
             var pY = new TokenValue("NOK", "http://somesuch.org");
-            var p1 = new ChoiceValue(new ValueExpression[] { pX, pY });
+            var p1 = new ChoiceValue(new ValueExpression[] {pX, pY});
             Assert.Equal(@"hello\, world!$14.8,http://somesuch.org|NOK", p1.ToString());
 
             var crit1 = ChoiceValue.Parse(@"hello\, world$14.8,http://somesuch.org|NOK");
@@ -416,9 +429,9 @@ namespace Spark.Engine.Test.Search
             Assert.True(crit1.Choices[0] is CompositeValue);
             var comp1 = crit1.Choices[0] as CompositeValue;
             Assert.Equal(2, comp1.Components.Length);
-            Assert.Equal("hello, world", ((UntypedValue)comp1.Components[0]).AsStringValue().Value);
-            Assert.Equal(14.8M, ((UntypedValue)comp1.Components[1]).AsNumberValue().Value);
-            Assert.Equal("http://somesuch.org|NOK", ((UntypedValue)crit1.Choices[1]).AsTokenValue().ToString());
+            Assert.Equal("hello, world", ((UntypedValue) comp1.Components[0]).AsStringValue().Value);
+            Assert.Equal(14.8M, ((UntypedValue) comp1.Components[1]).AsNumberValue().Value);
+            Assert.Equal("http://somesuch.org|NOK", ((UntypedValue) crit1.Choices[1]).AsTokenValue().ToString());
         }
     }
 }

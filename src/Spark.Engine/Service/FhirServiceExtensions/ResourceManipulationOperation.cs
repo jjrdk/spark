@@ -1,29 +1,42 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Hl7.Fhir.Model;
-using Hl7.Fhir.Rest;
-using Spark.Engine.Core;
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
 
 namespace Spark.Engine.Service.FhirServiceExtensions
 {
-    public abstract partial class ResourceManipulationOperation
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using Core;
+    using Hl7.Fhir.Model;
+    using Hl7.Fhir.Rest;
+
+    public abstract class ResourceManipulationOperation
     {
         private readonly SearchParams _searchCommand;
-        public IKey OperationKey { get; }
-        public Resource Resource { get; }
-        public SearchResults SearchResults { get; }
 
 
         private IEnumerable<Entry> _interactions;
 
-        protected ResourceManipulationOperation(Resource resource, IKey operationKey, SearchResults searchResults, SearchParams searchCommand = null)
+        protected ResourceManipulationOperation(
+            Resource resource,
+            IKey operationKey,
+            SearchResults searchResults,
+            SearchParams searchCommand = null)
         {
-            this._searchCommand = searchCommand;
-            this.Resource = resource;
-            this.OperationKey = operationKey;
-            this.SearchResults = searchResults;
+            _searchCommand = searchCommand;
+            Resource = resource;
+            OperationKey = operationKey;
+            SearchResults = searchResults;
         }
+
+        public IKey OperationKey { get; }
+        public Resource Resource { get; }
+        public SearchResults SearchResults { get; }
 
         public IEnumerable<Entry> GetEntries()
         {
@@ -44,9 +57,10 @@ namespace Spark.Engine.Service.FhirServiceExtensions
             messageBuilder.AppendLine();
             if (_searchCommand != null)
             {
-                var parametersNotUsed =
-                    _searchCommand.Parameters.Where(p => SearchResults.UsedParameters.Contains(p.Item1) == false)
-                        .Select(t => t.Item1).ToArray();
+                var parametersNotUsed = _searchCommand.Parameters
+                    .Where(p => SearchResults.UsedParameters.Contains(p.Item1) == false)
+                    .Select(t => t.Item1)
+                    .ToArray();
                 messageBuilder.AppendFormat("Search parameters not used:{0}", string.Join(",", parametersNotUsed));
                 messageBuilder.AppendLine();
             }

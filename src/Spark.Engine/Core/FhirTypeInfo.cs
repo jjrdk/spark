@@ -1,20 +1,27 @@
-﻿namespace Spark.Engine.Core
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
+
+namespace Spark.Engine.Core
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
 
     /// <summary>
-    /// Class with info about a Fhir Type (Resource or Element).
-    /// Works on other types as well, but is not intended for it.
+    ///     Class with info about a Fhir Type (Resource or Element).
+    ///     Works on other types as well, but is not intended for it.
     /// </summary>
     public class FhirTypeInfo
     {
+        internal List<FhirPropertyInfo> Properties;
         public string TypeName { get; internal set; }
 
         public Type FhirType { get; internal set; }
-
-        internal List<FhirPropertyInfo> Properties;
 
         public IEnumerable<FhirPropertyInfo> FindPropertyInfos(Predicate<FhirPropertyInfo> propertyPredicate)
         {
@@ -22,8 +29,8 @@
         }
 
         /// <summary>
-        /// Find the first property that matches the <paramref name="propertyPredicate"/>.
-        /// Properties that are FhirElements are preferred over properties that are not.
+        ///     Find the first property that matches the <paramref name="propertyPredicate" />.
+        ///     Properties that are FhirElements are preferred over properties that are not.
         /// </summary>
         /// <param name="propertyPredicate"></param>
         /// <returns>PropertyInfo for property that matches the predicate. Null if none matches.</returns>
@@ -39,12 +46,14 @@
             {
                 preferredMatches = allMatches;
             }
+
             return preferredMatches?.FirstOrDefault();
         }
 
         /// <summary>
-        /// Find the first property with the name <paramref name="propertyName"/>, or where one of the TypedNames matches <paramref name="propertName"/>.
-        /// Properties that are FhirElements are preferred over properties that are not.
+        ///     Find the first property with the name <paramref name="propertyName" />, or where one of the TypedNames matches
+        ///     <paramref name="propertName" />.
+        ///     Properties that are FhirElements are preferred over properties that are not.
         /// </summary>
         /// <param name="propertyName"></param>
         /// <returns>PropertyInofo for property that matches this name.</returns>
@@ -56,6 +65,7 @@
                 //try it by typed name
                 result = FindPropertyInfo(pi => pi.TypedNames.Contains(propertyName));
             }
+
             return result;
         }
     }

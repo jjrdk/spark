@@ -1,4 +1,12 @@
-﻿namespace Spark.Engine.Web.Tests.Formatters
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
+
+namespace Spark.Engine.Web.Tests.Formatters
 {
     using System;
     using System.IO;
@@ -14,12 +22,8 @@
             return reader.ReadToEnd();
         }
 
-        protected static HttpContext GetHttpContext(
-            byte[] contentBytes,
-            string contentType)
-        {
-            return GetHttpContext(new MemoryStream(contentBytes), contentType);
-        }
+        protected static HttpContext GetHttpContext(byte[] contentBytes, string contentType) =>
+            GetHttpContext(new MemoryStream(contentBytes), contentType);
 
         protected static HttpContext GetHttpContext(Stream requestStream, string contentType)
         {
@@ -31,21 +35,21 @@
         }
 
         protected static InputFormatterContext CreateInputFormatterContext(
-           Type modelType,
-           HttpContext httpContext,
-           string modelName = null,
-           bool treatEmptyInputAsDefaultValue = false)
+            Type modelType,
+            HttpContext httpContext,
+            string modelName = null,
+            bool treatEmptyInputAsDefaultValue = false)
         {
             var provider = new EmptyModelMetadataProvider();
             var metadata = provider.GetMetadataForType(modelType);
 
             return new InputFormatterContext(
                 httpContext,
-                modelName: modelName ?? string.Empty,
-                modelState: new ModelStateDictionary(),
-                metadata: metadata,
-                readerFactory: new TestHttpRequestStreamReaderFactory().CreateReader,
-                treatEmptyInputAsDefaultValue: treatEmptyInputAsDefaultValue);
+                modelName ?? string.Empty,
+                new ModelStateDictionary(),
+                metadata,
+                new TestHttpRequestStreamReaderFactory().CreateReader,
+                treatEmptyInputAsDefaultValue);
         }
     }
 }

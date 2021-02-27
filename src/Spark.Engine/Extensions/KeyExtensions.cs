@@ -1,14 +1,11 @@
-﻿/* 
- * Copyright (c) 2014, Furore (info@furore.com) and contributors
- * See the file CONTRIBUTORS for details.
- * 
- * This file is licensed under the BSD 3-Clause license
- * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
- */
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
 
-
-
-// mh: KeyExtensions terugverplaatst naar Spark.Engine.Core omdat ze in dezelfde namespace moeten zitten als Key.
 namespace Spark.Engine.Extensions
 {
     using System;
@@ -56,10 +53,7 @@ namespace Spark.Engine.Extensions
             return key;
         }
 
-        public static bool HasBase(this IKey key)
-        {
-            return !string.IsNullOrEmpty(key.Base);
-        }
+        public static bool HasBase(this IKey key) => !string.IsNullOrEmpty(key.Base);
 
         public static Key WithBase(this IKey self, string @base)
         {
@@ -82,15 +76,9 @@ namespace Spark.Engine.Extensions
             return key;
         }
 
-        public static bool HasVersionId(this IKey self)
-        {
-            return !string.IsNullOrEmpty(self.VersionId);
-        }
+        public static bool HasVersionId(this IKey self) => !string.IsNullOrEmpty(self.VersionId);
 
-        public static bool HasResourceId(this IKey self)
-        {
-            return !string.IsNullOrEmpty(self.ResourceId);
-        }
+        public static bool HasResourceId(this IKey self) => !string.IsNullOrEmpty(self.ResourceId);
 
         public static IKey WithoutResourceId(this IKey self)
         {
@@ -100,11 +88,11 @@ namespace Spark.Engine.Extensions
         }
 
         /// <summary>
-        /// If an id is provided, the server SHALL ignore it.
-        /// If the request body includes a meta, the server SHALL ignore
-        /// the existing versionId and lastUpdated values.
-        /// http://hl7.org/fhir/STU3/http.html#create
-        /// http://hl7.org/fhir/R4/http.html#create
+        ///     If an id is provided, the server SHALL ignore it.
+        ///     If the request body includes a meta, the server SHALL ignore
+        ///     the existing versionId and lastUpdated values.
+        ///     http://hl7.org/fhir/STU3/http.html#create
+        ///     http://hl7.org/fhir/R4/http.html#create
         /// </summary>
         public static IKey CleanupForCreate(this IKey key)
         {
@@ -158,16 +146,13 @@ namespace Spark.Engine.Extensions
         }
 
         /// <summary>
-        /// A storage key is a resource reference string that is ensured to be server wide unique.
-        /// This way resource can refer to eachother at a database level.
-        /// These references are also used in SearchResult lists.
-        /// The format is "resource/id/_history/vid"
+        ///     A storage key is a resource reference string that is ensured to be server wide unique.
+        ///     This way resource can refer to eachother at a database level.
+        ///     These references are also used in SearchResult lists.
+        ///     The format is "resource/id/_history/vid"
         /// </summary>
         /// <returns>a string</returns>
-        public static string ToStorageKey(this IKey key)
-        {
-            return key.WithoutBase().ToUriString();
-        }
+        public static string ToStorageKey(this IKey key) => key.WithoutBase().ToUriString();
 
         public static Uri ToRelativeUri(this IKey key)
         {
@@ -175,10 +160,7 @@ namespace Spark.Engine.Extensions
             return new Uri(path, UriKind.Relative);
         }
 
-        public static Uri ToUri(this IKey self)
-        {
-            return new Uri(self.ToUriString(), UriKind.RelativeOrAbsolute);
-        }
+        public static Uri ToUri(this IKey self) => new Uri(self.ToUriString(), UriKind.RelativeOrAbsolute);
 
         public static Uri ToUri(this IKey key, Uri endpoint)
         {
@@ -188,11 +170,9 @@ namespace Spark.Engine.Extensions
         }
 
         /// <summary>
-        /// Determines if the Key was constructed from a temporary id. 
+        ///     Determines if the Key was constructed from a temporary id.
         /// </summary>
-        public static bool IsTemporary(this IKey key)
-        {
-            return key.ResourceId != null ? UriHelper.IsTemporaryUri(key.ResourceId) : false;
-        }
+        public static bool IsTemporary(this IKey key) =>
+            key.ResourceId != null ? UriHelper.IsTemporaryUri(key.ResourceId) : false;
     }
 }

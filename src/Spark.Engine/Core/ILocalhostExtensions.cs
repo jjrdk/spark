@@ -1,22 +1,24 @@
-﻿using Hl7.Fhir.Model;
-using Hl7.Fhir.Rest;
-using System;
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
 
 namespace Spark.Engine.Core
 {
+    using System;
     using Extensions;
+    using Hl7.Fhir.Model;
+    using Hl7.Fhir.Rest;
 
     public static class LocalhostExtensions
     {
-        public static bool IsLocal(this ILocalhost localhost, IKey key)
-        {
-            return key.Base == null || localhost.IsBaseOf(key.Base);
-        }
+        public static bool IsLocal(this ILocalhost localhost, IKey key) =>
+            key.Base == null || localhost.IsBaseOf(key.Base);
 
-        public static bool IsForeign(this ILocalhost localhost, IKey key)
-        {
-            return !localhost.IsLocal(key);
-        }
+        public static bool IsForeign(this ILocalhost localhost, IKey key) => !localhost.IsLocal(key);
 
         public static Uri RemoveBase(this ILocalhost localhost, Uri uri)
         {
@@ -42,7 +44,6 @@ namespace Spark.Engine.Core
 
         public static Key UriToKey(this ILocalhost localhost, Uri uri)
         {
-
             if (uri.IsAbsoluteUri && uri.IsTemporaryUri() == false)
             {
                 return localhost.IsBaseOf(uri)
@@ -52,22 +53,20 @@ namespace Spark.Engine.Core
 
             if (uri.IsTemporaryUri())
             {
-                return   Key.Create(null, uri.ToString());
+                return Key.Create(null, uri.ToString());
             }
+
             var path = uri.ToString();
             return Key.ParseOperationPath(path);
         }
-        
+
         public static Key UriToKey(this ILocalhost localhost, string uristring)
         {
             var uri = new Uri(uristring, UriKind.RelativeOrAbsolute);
             return localhost.UriToKey(uri);
         }
 
-        public static Uri GetAbsoluteUri(this ILocalhost localhost, IKey key)
-        {
-            return key.ToUri(localhost.DefaultBase);
-        }
+        public static Uri GetAbsoluteUri(this ILocalhost localhost, IKey key) => key.ToUri(localhost.DefaultBase);
 
         public static KeyKind GetKeyKind(this ILocalhost localhost, IKey key)
         {
@@ -80,6 +79,7 @@ namespace Spark.Engine.Core
             {
                 return KeyKind.Internal;
             }
+
             return localhost.IsLocal(key) ? KeyKind.Local : KeyKind.Foreign;
         }
 
@@ -100,24 +100,15 @@ namespace Spark.Engine.Core
         //    //return path;
         //}
 
-        public static Uri Uri(this ILocalhost localhost, params string[] segments)
-        {
-            return new RestUrl(localhost.DefaultBase).AddPath(segments).Uri;
-        }
+        public static Uri Uri(this ILocalhost localhost, params string[] segments) =>
+            new RestUrl(localhost.DefaultBase).AddPath(segments).Uri;
 
-        public static Uri Uri(this ILocalhost localhost, IKey key)
-        {
-            return key.ToUri(localhost.DefaultBase);
-        }
+        public static Uri Uri(this ILocalhost localhost, IKey key) => key.ToUri(localhost.DefaultBase);
 
         public static Bundle CreateBundle(this ILocalhost localhost, Bundle.BundleType type)
         {
-            var bundle = new Bundle
-            {
-                Type = type
-            };
+            var bundle = new Bundle {Type = type};
             return bundle;
         }
     }
-
 }

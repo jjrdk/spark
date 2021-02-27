@@ -1,4 +1,12 @@
-﻿namespace Spark.Engine.Web
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
+
+namespace Spark.Engine.Web
 {
     using System;
     using System.Collections.Generic;
@@ -18,7 +26,10 @@
 
     public static class ServiceCollectionExtensions
     {
-        public static IMvcCoreBuilder AddFhir(this IServiceCollection services, SparkSettings settings, Action<MvcOptions> setupAction = null)
+        public static IMvcCoreBuilder AddFhir(
+            this IServiceCollection services,
+            SparkSettings settings,
+            Action<MvcOptions> setupAction = null)
         {
             if (settings == null)
             {
@@ -39,36 +50,41 @@
             services.TryAddTransient(provider => new FhirPropertyIndex(provider.GetRequiredService<IFhirModel>()));
             services.TryAddTransient<ITransfer, Transfer>();
             services.TryAddTransient<ConditionalHeaderFhirResponseInterceptor>();
-            services.TryAddTransient(provider => new IFhirResponseInterceptor[] { provider.GetRequiredService<ConditionalHeaderFhirResponseInterceptor>() });
+            services.TryAddTransient(
+                provider => new IFhirResponseInterceptor[]
+                {
+                    provider.GetRequiredService<ConditionalHeaderFhirResponseInterceptor>()
+                });
             services.TryAddTransient<IFhirResponseInterceptorRunner, FhirResponseInterceptorRunner>();
             services.TryAddTransient<IFhirResponseFactory, FhirResponseFactory>();
             services.TryAddTransient<IIndexRebuildService, IndexRebuildService>();
             services.TryAddTransient<ISearchService, SearchService>();
             services.TryAddTransient<ISnapshotPaginationProvider, SnapshotPaginationProvider>();
             services.TryAddTransient<ISnapshotPaginationCalculator, SnapshotPaginationCalculator>();
-            services.TryAddTransient<IServiceListener, SearchService>();   // searchListener
-            services.TryAddTransient(provider => new[] { provider.GetRequiredService<IServiceListener>() });
-            services.TryAddTransient<SearchService>();                     // search
-            services.TryAddTransient<TransactionService>();                // transaction
+            services.TryAddTransient<IServiceListener, SearchService>(); // searchListener
+            services.TryAddTransient(provider => new[] {provider.GetRequiredService<IServiceListener>()});
+            services.TryAddTransient<SearchService>(); // search
+            services.TryAddTransient<TransactionService>(); // transaction
             //services.TryAddTransient<HistoryService>();                    // history
-            services.TryAddTransient<PagingService>();                     // paging
-            services.TryAddTransient<ResourceStorageService>();            // storage
-            services.TryAddTransient<CapabilityStatementService>();        // conformance
+            services.TryAddTransient<PagingService>(); // paging
+            services.TryAddTransient<ResourceStorageService>(); // storage
+            services.TryAddTransient<CapabilityStatementService>(); // conformance
             services.TryAddTransient<ICompositeServiceListener, ServiceListener>();
             services.TryAddTransient<JsonFhirInputFormatter>();
             services.TryAddTransient<JsonFhirOutputFormatter>();
             services.TryAddTransient<XmlFhirInputFormatter>();
             services.TryAddTransient<XmlFhirOutputFormatter>();
 
-            services.AddTransient(provider => new IFhirServiceExtension[]
-            {
-                provider.GetRequiredService<SearchService>(),
-                provider.GetRequiredService<TransactionService>(),
-                provider.GetRequiredService<IHistoryStore>(),
-                provider.GetRequiredService<PagingService>(),
-                provider.GetRequiredService<ResourceStorageService>(),
-                provider.GetRequiredService<CapabilityStatementService>(),
-            });
+            services.AddTransient(
+                provider => new IFhirServiceExtension[]
+                {
+                    provider.GetRequiredService<SearchService>(),
+                    provider.GetRequiredService<TransactionService>(),
+                    provider.GetRequiredService<IHistoryStore>(),
+                    provider.GetRequiredService<PagingService>(),
+                    provider.GetRequiredService<ResourceStorageService>(),
+                    provider.GetRequiredService<CapabilityStatementService>()
+                });
 
             services.TryAddSingleton(_ => new FhirJsonParser(settings.ParserSettings));
             services.TryAddSingleton(_ => new FhirXmlParser(settings.ParserSettings));
@@ -82,26 +98,36 @@
             return builder;
         }
 
-        public static IMvcCoreBuilder AddFhirFormatters(this IServiceCollection services, SparkSettings settings, Action<MvcOptions> setupAction = null)
+        public static IMvcCoreBuilder AddFhirFormatters(
+            this IServiceCollection services,
+            SparkSettings settings,
+            Action<MvcOptions> setupAction = null)
         {
             return settings == null
                 ? throw new ArgumentNullException(nameof(settings))
-                : services.AddMvcCore(options =>
-            {
-                options.InputFormatters.Add(new JsonFhirInputFormatter(new FhirJsonParser(settings.ParserSettings)));
-                options.InputFormatters.Add(new XmlFhirInputFormatter(new FhirXmlParser(settings.ParserSettings)));
-                options.InputFormatters.Add(new BinaryFhirInputFormatter());
-                options.OutputFormatters.Add(new JsonFhirOutputFormatter(new FhirJsonSerializer(settings.SerializerSettings)));
-                options.OutputFormatters.Add(new XmlFhirOutputFormatter(new FhirXmlSerializer(settings.SerializerSettings)));
-                options.OutputFormatters.Add(new BinaryFhirOutputFormatter());
+                : services.AddMvcCore(
+                    options =>
+                    {
+                        options.InputFormatters.Add(
+                            new JsonFhirInputFormatter(new FhirJsonParser(settings.ParserSettings)));
+                        options.InputFormatters.Add(
+                            new XmlFhirInputFormatter(new FhirXmlParser(settings.ParserSettings)));
+                        options.InputFormatters.Add(new BinaryFhirInputFormatter());
+                        options.OutputFormatters.Add(
+                            new JsonFhirOutputFormatter(new FhirJsonSerializer(settings.SerializerSettings)));
+                        options.OutputFormatters.Add(
+                            new XmlFhirOutputFormatter(new FhirXmlSerializer(settings.SerializerSettings)));
+                        options.OutputFormatters.Add(new BinaryFhirOutputFormatter());
 
-                options.RespectBrowserAcceptHeader = true;
+                        options.RespectBrowserAcceptHeader = true;
 
-                setupAction?.Invoke(options);
-            });
+                        setupAction?.Invoke(options);
+                    });
         }
 
-        public static void AddCustomSearchParameters(this IServiceCollection _, IEnumerable<ModelInfo.SearchParamDefinition> searchParameters)
+        public static void AddCustomSearchParameters(
+            this IServiceCollection _,
+            IEnumerable<ModelInfo.SearchParamDefinition> searchParameters)
         {
             // Add any user-supplied SearchParameters
             ModelInfo.SearchParameters.AddRange(searchParameters);
@@ -109,14 +135,45 @@
 
         private static void AddFhirHttpSearchParameters(this IServiceCollection _)
         {
-            ModelInfo.SearchParameters.AddRange(new[]
-            {
-                new ModelInfo.SearchParamDefinition { Resource = "Resource", Name = "_id", Type = SearchParamType.String, Path = new[] { "Resource.id" } }
-                , new ModelInfo.SearchParamDefinition { Resource = "Resource", Name = "_lastUpdated", Type = SearchParamType.Date, Path = new[] { "Resource.meta.lastUpdated" } }
-                , new ModelInfo.SearchParamDefinition { Resource = "Resource", Name = "_tag", Type = SearchParamType.Token, Path = new[] { "Resource.meta.tag" } }
-                , new ModelInfo.SearchParamDefinition { Resource = "Resource", Name = "_profile", Type = SearchParamType.Uri, Path = new[] { "Resource.meta.profile" } }
-                , new ModelInfo.SearchParamDefinition { Resource = "Resource", Name = "_security", Type = SearchParamType.Token, Path = new[] { "Resource.meta.security" } }
-            });
+            ModelInfo.SearchParameters.AddRange(
+                new[]
+                {
+                    new ModelInfo.SearchParamDefinition
+                    {
+                        Resource = "Resource",
+                        Name = "_id",
+                        Type = SearchParamType.String,
+                        Path = new[] {"Resource.id"}
+                    },
+                    new ModelInfo.SearchParamDefinition
+                    {
+                        Resource = "Resource",
+                        Name = "_lastUpdated",
+                        Type = SearchParamType.Date,
+                        Path = new[] {"Resource.meta.lastUpdated"}
+                    },
+                    new ModelInfo.SearchParamDefinition
+                    {
+                        Resource = "Resource",
+                        Name = "_tag",
+                        Type = SearchParamType.Token,
+                        Path = new[] {"Resource.meta.tag"}
+                    },
+                    new ModelInfo.SearchParamDefinition
+                    {
+                        Resource = "Resource",
+                        Name = "_profile",
+                        Type = SearchParamType.Uri,
+                        Path = new[] {"Resource.meta.profile"}
+                    },
+                    new ModelInfo.SearchParamDefinition
+                    {
+                        Resource = "Resource",
+                        Name = "_security",
+                        Type = SearchParamType.Token,
+                        Path = new[] {"Resource.meta.security"}
+                    }
+                });
         }
     }
 }

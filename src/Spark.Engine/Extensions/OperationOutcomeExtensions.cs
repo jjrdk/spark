@@ -1,18 +1,19 @@
-﻿/*
- * Copyright (c) 2014, Furore (info@furore.com) and contributors
- * See the file CONTRIBUTORS for details.
- *
- * This file is licensed under the BSD 3-Clause license
- * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
- */
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
+
 namespace Spark.Engine.Extensions
 {
-    using Hl7.Fhir.Model;
     using System;
     using System.Collections.Generic;
-    using System.Net;
-    using Spark.Engine.Core;
     using System.Diagnostics;
+    using System.Net;
+    using Core;
+    using Hl7.Fhir.Model;
 
     public static class OperationOutcomeExtensions
     {
@@ -42,7 +43,7 @@ namespace Spark.Engine.Extensions
 
         internal static OperationOutcome.IssueSeverity IssueSeverityOf(HttpStatusCode code)
         {
-            var range = (int)code / 100;
+            var range = (int) code / 100;
             return range switch
             {
                 1 => OperationOutcome.IssueSeverity.Information,
@@ -64,7 +65,9 @@ namespace Spark.Engine.Extensions
         {
             string message;
 
-            message = exception is SparkException ? exception.Message : $"{exception.GetType().Name}: {exception.Message}";
+            message = exception is SparkException
+                ? exception.Message
+                : $"{exception.GetType().Name}: {exception.Message}";
 
             outcome.AddError(message);
 
@@ -73,8 +76,7 @@ namespace Spark.Engine.Extensions
             {
                 var stackTrace = new OperationOutcome.IssueComponent
                 {
-                    Severity = OperationOutcome.IssueSeverity.Information,
-                    Diagnostics = exception.StackTrace
+                    Severity = OperationOutcome.IssueSeverity.Information, Diagnostics = exception.StackTrace
                 };
                 outcome.Issue.Add(stackTrace);
             }
@@ -94,23 +96,20 @@ namespace Spark.Engine.Extensions
             return outcome;
         }
 
-        public static OperationOutcome AddError(this OperationOutcome outcome, string message)
-        {
-            return outcome.AddIssue(OperationOutcome.IssueSeverity.Error, message);
-        }
+        public static OperationOutcome AddError(this OperationOutcome outcome, string message) =>
+            outcome.AddIssue(OperationOutcome.IssueSeverity.Error, message);
 
-        private static OperationOutcome AddIssue(this OperationOutcome outcome, OperationOutcome.IssueSeverity severity, string message)
+        private static OperationOutcome AddIssue(
+            this OperationOutcome outcome,
+            OperationOutcome.IssueSeverity severity,
+            string message)
         {
             if (outcome.Issue == null)
             {
                 outcome.Init();
             }
 
-            var item = new OperationOutcome.IssueComponent
-            {
-                Severity = severity,
-                Diagnostics = message
-            };
+            var item = new OperationOutcome.IssueComponent {Severity = severity, Diagnostics = message};
             outcome.Issue.Add(item);
             return outcome;
         }

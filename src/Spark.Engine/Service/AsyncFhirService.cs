@@ -1,17 +1,25 @@
-﻿namespace Spark.Engine.Service
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
+
+namespace Spark.Engine.Service
 {
-    using Hl7.Fhir.Model;
-    using Hl7.Fhir.Rest;
-    using Spark.Engine.Core;
-    using Spark.Engine.FhirResponseFactory;
-    using Spark.Engine.Service.FhirServiceExtensions;
     using System;
     using System.Collections.Generic;
     using System.Net;
     using System.Threading.Tasks;
-    using Spark.Engine.Extensions;
-    using Task = System.Threading.Tasks.Task;
+    using Core;
+    using Extensions;
+    using FhirResponseFactory;
+    using FhirServiceExtensions;
+    using Hl7.Fhir.Model;
+    using Hl7.Fhir.Rest;
     using Store;
+    using Task = System.Threading.Tasks.Task;
 
     public class AsyncFhirService : ExtendableWith<IFhirServiceExtension>, IAsyncFhirService, IInteractionHandler
     {
@@ -45,13 +53,15 @@
                 entry.Resource.AffixTags(parameters);
                 await storageService.Add(entry).ConfigureAwait(false);
             }
+
             return _responseFactory.GetMetadataResponse(entry, key);
         }
 
-        public Task<FhirResponse> ConditionalCreate(IKey key, Resource resource, IEnumerable<Tuple<string, string>> parameters)
-        {
-            return ConditionalCreate(key, resource, SearchParams.FromUriParamList(parameters));
-        }
+        public Task<FhirResponse> ConditionalCreate(
+            IKey key,
+            Resource resource,
+            IEnumerable<Tuple<string, string>> parameters) =>
+            ConditionalCreate(key, resource, SearchParams.FromUriParamList(parameters));
 
         public async Task<FhirResponse> ConditionalCreate(IKey key, Resource resource, SearchParams parameters)
         {
@@ -65,9 +75,10 @@
         {
             var searchStore = GetFeature<ISearchService>();
             var transactionService = GetFeature<ITransactionService>();
-            var deleteOperation = await key.CreateDelete(searchStore, SearchParams.FromUriParamList(parameters)).ConfigureAwait(false);
-            return await transactionService.HandleTransaction(deleteOperation, this)
-                .ConfigureAwait(false) ?? Respond.WithCode(HttpStatusCode.NotFound);
+            var deleteOperation = await key.CreateDelete(searchStore, SearchParams.FromUriParamList(parameters))
+                .ConfigureAwait(false);
+            return await transactionService.HandleTransaction(deleteOperation, this).ConfigureAwait(false)
+                   ?? Respond.WithCode(HttpStatusCode.NotFound);
         }
 
         public async Task<FhirResponse> ConditionalUpdate(IKey key, Resource resource, SearchParams parameters)
@@ -148,15 +159,13 @@
             {
                 return Respond.NotFound(key);
             }
+
             var historyExtension = GetFeature<IHistoryService>();
             var snapshot = await historyExtension.History(key, parameters).ConfigureAwait(false);
             return await CreateSnapshotResponse(snapshot).ConfigureAwait(false);
         }
 
-        public Task<FhirResponse> Mailbox(Bundle bundle, Binary body)
-        {
-            throw new NotImplementedException();
-        }
+        public Task<FhirResponse> Mailbox(Bundle bundle, Binary body) => throw new NotImplementedException();
 
         public Task<FhirResponse> Put(IKey key, Resource resource)
         {
@@ -213,12 +222,10 @@
             return _responseFactory.GetFhirResponse(responses, Bundle.BundleType.TransactionResponse);
         }
 
-        public async Task<FhirResponse> Update(IKey key, Resource resource)
-        {
-            return key.HasVersionId()
+        public async Task<FhirResponse> Update(IKey key, Resource resource) =>
+            key.HasVersionId()
                 ? await VersionSpecificUpdate(key, resource).ConfigureAwait(false)
                 : await Put(key, resource).ConfigureAwait(false);
-        }
 
         public Task<FhirResponse> ValidateOperation(IKey key, Resource resource)
         {
@@ -230,9 +237,8 @@
             Validate.ResourceType(key, resource);
 
             var outcome = Validate.AgainstSchema(resource);
-            return Task.FromResult(outcome == null
-                ? Respond.WithCode(HttpStatusCode.OK)
-                : Respond.WithResource(422, outcome));
+            return Task.FromResult(
+                outcome == null ? Respond.WithCode(HttpStatusCode.OK) : Respond.WithResource(422, outcome));
         }
 
         public async Task<FhirResponse> VersionRead(IKey key)
@@ -265,21 +271,51 @@
 
             var searchCommand = new SearchParams();
             searchCommand.Add("_id", key.ResourceId);
-            var includes = new List<string>()
+            var includes = new List<string>
             {
-                "Composition:subject"
-                , "Composition:author"
-                , "Composition:attester" //Composition.attester.party
-                , "Composition:custodian"
-                , "Composition:eventdetail" //Composition.event.detail
-                , "Composition:encounter"
-                , "Composition:entry" //Composition.section.entry
+                "Composition:subject",
+                "Composition:author",
+                "Composition:attester" //Composition.attester.party
+                ,
+                "Composition:custodian",
+                "Composition:eventdetail" //Composition.event.detail
+                ,
+                "Composition:encounter",
+                "Composition:entry" //Composition.section.entry
             };
             foreach (var inc in includes)
             {
                 searchCommand.Include.Add((inc, IncludeModifier.None));
             }
+
             return await Search(key.TypeName, searchCommand).ConfigureAwait(false);
+        }
+
+        public async Task<FhirResponse> HandleInteraction(Entry interaction)
+        {
+            switch (interaction.Method)
+            {
+                case Bundle.HTTPVerb.PUT:
+                    return await Put(interaction).ConfigureAwait(false);
+                case Bundle.HTTPVerb.POST:
+                    return await Create(interaction).ConfigureAwait(false);
+                case Bundle.HTTPVerb.DELETE:
+                    var resourceStorage = GetFeature<IResourceStorageService>();
+                    var current = await resourceStorage.Get(interaction.Key.WithoutVersion()).ConfigureAwait(false);
+                    if (current != null && current.IsPresent)
+                    {
+                        return await Delete(interaction).ConfigureAwait(false);
+                    }
+
+                    // FIXME: there's no way to distinguish between "successfully deleted"
+                    // and "resource not deleted because it doesn't exist" responses, all return NoContent.
+                    // Same with Delete method above.
+                    return Respond.WithCode(HttpStatusCode.NoContent);
+                case Bundle.HTTPVerb.GET:
+                    return await VersionRead((Key) interaction.Key).ConfigureAwait(false);
+                default:
+                    return Respond.Success;
+            }
         }
 
         private async Task<FhirResponse> Create(Entry entry)
@@ -297,32 +333,6 @@
             var result = await Store(entry).ConfigureAwait(false);
             return Respond.WithResource(HttpStatusCode.Created, result);
         }
-        
-        public async Task<FhirResponse> HandleInteraction(Entry interaction)
-        {
-            switch (interaction.Method)
-            {
-                case Bundle.HTTPVerb.PUT:
-                    return await Put(interaction).ConfigureAwait(false);
-                case Bundle.HTTPVerb.POST:
-                    return await Create(interaction).ConfigureAwait(false);
-                case Bundle.HTTPVerb.DELETE:
-                    var resourceStorage = GetFeature<IResourceStorageService>();
-                    var current = await resourceStorage.Get(interaction.Key.WithoutVersion()).ConfigureAwait(false);
-                    if (current != null && current.IsPresent)
-                    {
-                        return await Delete(interaction).ConfigureAwait(false);
-                    }
-                    // FIXME: there's no way to distinguish between "successfully deleted"
-                    // and "resource not deleted because it doesn't exist" responses, all return NoContent.
-                    // Same with Delete method above.
-                    return Respond.WithCode(HttpStatusCode.NoContent);
-                case Bundle.HTTPVerb.GET:
-                    return await VersionRead((Key)interaction.Key).ConfigureAwait(false);
-                default:
-                    return Respond.Success;
-            }
-        }
 
         private static void ValidateKey(IKey key, bool withVersion = false)
         {
@@ -336,6 +346,7 @@
             {
                 Validate.HasNoVersion(key);
             }
+
             Validate.Key(key);
         }
 
@@ -344,11 +355,7 @@
             var pagingExtension = FindExtension<IPagingService>();
             if (pagingExtension == null)
             {
-                var bundle = new Bundle
-                {
-                    Type = snapshot.Type,
-                    Total = snapshot.Count
-                };
+                var bundle = new Bundle {Type = snapshot.Type, Total = snapshot.Count};
                 var resourceStorage = FindExtension<IResourceStorageService>();
                 bundle.Append(await resourceStorage.Get(snapshot.Keys).ConfigureAwait(false));
                 return _responseFactory.GetFhirResponse(bundle);
@@ -361,16 +368,13 @@
             }
         }
 
-        private T GetFeature<T>() where T : IFhirServiceExtension
-        {
-            return FindExtension<T>() ??
-                   throw new NotSupportedException($"Feature {typeof(T)} not supported");
-        }
+        private T GetFeature<T>()
+            where T : IFhirServiceExtension =>
+            FindExtension<T>() ?? throw new NotSupportedException($"Feature {typeof(T)} not supported");
 
         internal async Task<Entry> Store(Entry entry)
         {
-            var result = await GetFeature<IResourceStorageService>()
-                .Add(entry).ConfigureAwait(false);
+            var result = await GetFeature<IResourceStorageService>().Add(entry).ConfigureAwait(false);
             await _serviceListener.Inform(entry).ConfigureAwait(false);
             return result;
         }

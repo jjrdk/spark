@@ -1,4 +1,12 @@
-﻿namespace Spark.Engine.Web.Controllers
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
+
+namespace Spark.Engine.Web.Controllers
 {
     using System;
     using System.Linq;
@@ -17,15 +25,15 @@
     using Service;
     using Utility;
 
-    [Route("fhir"), ApiController, EnableCors]
+    [Route("fhir")]
+    [ApiController]
+    [EnableCors]
     public class FhirController : ControllerBase
     {
         private readonly IAsyncFhirService _fhirService;
 
-        public FhirController(IAsyncFhirService fhirService)
-        {
+        public FhirController(IAsyncFhirService fhirService) =>
             _fhirService = fhirService ?? throw new ArgumentNullException(nameof(fhirService));
-        }
 
         [HttpGet("{type}/{id}")]
         public async Task<ActionResult<FhirResponse>> Read(string type, string id)
@@ -78,9 +86,8 @@
             if (Request.Headers.ContainsKey(FhirHttpHeaders.IF_NONE_EXIST))
             {
                 var searchQueryString = HttpUtility.ParseQueryString(Request.GetTypedHeaders().IfNoneExist());
-                var searchValues =
-                    searchQueryString.Keys.Cast<string>()
-                        .Select(k => new Tuple<string, string>(k, searchQueryString[k]));
+                var searchValues = searchQueryString.Keys.Cast<string>()
+                    .Select(k => new Tuple<string, string>(k, searchQueryString[k]));
 
                 return _fhirService.ConditionalCreate(key, resource, SearchParams.FromUriParamList(searchValues));
             }
@@ -158,23 +165,17 @@
 
         // ============= Whole System Interactions
 
-        [HttpGet, Route("metadata")]
-        public Task<FhirResponse> Metadata()
-        {
-            return _fhirService.CapabilityStatement(SparkSettings.Version);
-        }
+        [HttpGet]
+        [Route("metadata")]
+        public Task<FhirResponse> Metadata() => _fhirService.CapabilityStatement(SparkSettings.Version);
 
-        [HttpOptions, Route("")]
-        public Task<FhirResponse> Options()
-        {
-            return _fhirService.CapabilityStatement(SparkSettings.Version);
-        }
+        [HttpOptions]
+        [Route("")]
+        public Task<FhirResponse> Options() => _fhirService.CapabilityStatement(SparkSettings.Version);
 
-        [HttpPost, Route("")]
-        public Task<FhirResponse> Transaction(Bundle bundle)
-        {
-            return _fhirService.Transaction(bundle);
-        }
+        [HttpPost]
+        [Route("")]
+        public Task<FhirResponse> Transaction(Bundle bundle) => _fhirService.Transaction(bundle);
 
         //[HttpPost, Route("Mailbox")]
         //public FhirResponse Mailbox(Bundle document)
@@ -183,14 +184,16 @@
         //    return service.Mailbox(document, b);
         //}
 
-        [HttpGet, Route("_history")]
+        [HttpGet]
+        [Route("_history")]
         public Task<FhirResponse> History()
         {
             var parameters = GetHistoryParameters(Request);
             return _fhirService.History(parameters);
         }
 
-        [HttpGet, Route("_snapshot")]
+        [HttpGet]
+        [Route("_snapshot")]
         public Task<FhirResponse> Snapshot()
         {
             var snapshot = Request.GetParameter(FhirParameter.SNAPSHOT_ID);
@@ -200,7 +203,8 @@
 
         // Operations
 
-        [HttpPost, Route("${operation}")]
+        [HttpPost]
+        [Route("${operation}")]
 #pragma warning disable CA1822 // Mark members as static
         public FhirResponse ServerOperation(string operation)
 #pragma warning restore CA1822 // Mark members as static
@@ -212,8 +216,13 @@
             };
         }
 
-        [HttpPost, Route("{type}/{id}/${operation}")]
-        public async Task<FhirResponse> InstanceOperation(string type, string id, string operation, Parameters parameters)
+        [HttpPost]
+        [Route("{type}/{id}/${operation}")]
+        public async Task<FhirResponse> InstanceOperation(
+            string type,
+            string id,
+            string operation,
+            Parameters parameters)
         {
             var key = Key.Create(type, id);
             return operation.ToLower() switch
@@ -225,21 +234,27 @@
             };
         }
 
-        [HttpPost, HttpGet, Route("{type}/{id}/$everything")]
+        [HttpPost]
+        [HttpGet]
+        [Route("{type}/{id}/$everything")]
         public Task<FhirResponse> Everything(string type, string id)
         {
             var key = Key.Create(type, id);
             return _fhirService.Everything(key);
         }
 
-        [HttpPost, HttpGet, Route("{type}/$everything")]
+        [HttpPost]
+        [HttpGet]
+        [Route("{type}/$everything")]
         public Task<FhirResponse> Everything(string type)
         {
             var key = Key.Create(type);
             return _fhirService.Everything(key);
         }
 
-        [HttpPost, HttpGet, Route("Composition/{id}/$document")]
+        [HttpPost]
+        [HttpGet]
+        [Route("Composition/{id}/$document")]
         public Task<FhirResponse> Document(string id)
         {
             var key = Key.Create("Composition", id);

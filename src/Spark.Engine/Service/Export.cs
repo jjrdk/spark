@@ -1,10 +1,10 @@
-﻿/*
- * Copyright (c) 2014, Furore (info@furore.com) and contributors
- * See the file CONTRIBUTORS for details.
- *
- * This file is licensed under the BSD 3-Clause license
- * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
- */
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
 
 namespace Spark.Engine.Service
 {
@@ -12,23 +12,23 @@ namespace Spark.Engine.Service
     using System.Collections.Generic;
     using System.Xml.Linq;
     using Core;
-    using Engine;
     using Extensions;
     using Hl7.Fhir.Model;
 
     /// <summary>
-    /// Import can map id's and references  that are local to the Spark Server to absolute id's and references in outgoing Interactions.
+    ///     Import can map id's and references  that are local to the Spark Server to absolute id's and references in outgoing
+    ///     Interactions.
     /// </summary>
     internal class Export
     {
-        private readonly ILocalhost _localhost;
         private readonly List<Entry> _entries;
         private readonly ExportSettings _exportSettings;
+        private readonly ILocalhost _localhost;
 
         public Export(ILocalhost localhost, ExportSettings exportSettings)
         {
-            this._localhost = localhost;
-            this._exportSettings = exportSettings;
+            _localhost = localhost;
+            _exportSettings = exportSettings;
             _entries = new List<Entry>();
         }
 
@@ -57,7 +57,7 @@ namespace Spark.Engine.Service
 
         private void ExternalizeState()
         {
-            foreach (var entry in this._entries)
+            foreach (var entry in _entries)
             {
                 entry.State = EntryState.External;
             }
@@ -65,7 +65,7 @@ namespace Spark.Engine.Service
 
         private void ExternalizeKeys()
         {
-            foreach (var entry in this._entries)
+            foreach (var entry in _entries)
             {
                 ExternalizeKey(entry);
             }
@@ -73,7 +73,7 @@ namespace Spark.Engine.Service
 
         private void ExternalizeReferences()
         {
-            foreach (var entry in this._entries)
+            foreach (var entry in _entries)
             {
                 if (entry.Resource != null)
                 {
@@ -96,14 +96,16 @@ namespace Spark.Engine.Service
                     case null:
                         return;
                     case ResourceReference reference:
+                    {
+                        if (reference.Url != null)
                         {
-                            if (reference.Url != null)
-                            {
-                                reference.Url = new Uri(ExternalizeReference(reference.Url.ToString()), UriKind.RelativeOrAbsolute);
-                            }
-
-                            break;
+                            reference.Url = new Uri(
+                                ExternalizeReference(reference.Url.ToString()),
+                                UriKind.RelativeOrAbsolute);
                         }
+
+                        break;
+                    }
                     case FhirUri uri:
                         uri.Value = ExternalizeReference(uri.Value);
                         //((FhirUri)element).Value = LocalizeReference(new Uri(((FhirUri)element).Value, UriKind.RelativeOrAbsolute)).ToString();
@@ -114,7 +116,7 @@ namespace Spark.Engine.Service
                 }
             }
 
-            Type[] types = { typeof(ResourceReference), typeof(FhirUri), typeof(Narrative) };
+            Type[] types = {typeof(ResourceReference), typeof(FhirUri), typeof(Narrative)};
 
             Auxiliary.ResourceVisitor.VisitByType(resource, Action, types);
         }
@@ -148,7 +150,6 @@ namespace Spark.Engine.Service
                 xdoc.VisitAttributes("img", "src", n => n.Value = ExternalizeReference(n.Value));
                 xdoc.VisitAttributes("a", "href", n => n.Value = ExternalizeReference(n.Value));
                 return xdoc.ToString();
-
             }
             catch
             {
@@ -156,7 +157,6 @@ namespace Spark.Engine.Service
                 // todo: should we really allow illegal xml ? /mh
                 return div;
             }
-
         }
 
         /*

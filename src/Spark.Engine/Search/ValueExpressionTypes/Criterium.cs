@@ -1,10 +1,10 @@
-﻿/* 
- * Copyright (c) 2014, Furore (info@furore.com) and contributors
- * See the file CONTRIBUTORS for details.
- * 
- * This file is licensed under the BSD 3-Clause license
- * available at https://raw.githubusercontent.com/ewoutkramer/fhir-net-api/master/LICENSE
- */
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
 
 namespace Spark.Engine.Search.ValueExpressionTypes
 {
@@ -23,6 +23,33 @@ namespace Spark.Engine.Search.ValueExpressionTypes
         public const string MISSINGFALSE = "false";
         public const string NOT_MODIFIER = "not";
 
+        //CK: Order of these mappings is important for string matching. From more specific to less specific.
+        private static readonly List<Tuple<string, Operator>> _operatorMapping = new List<Tuple<string, Operator>>
+        {
+            new Tuple<string, Operator>("ne", Operator.NOT_EQUAL),
+            new Tuple<string, Operator>("ge", Operator.GTE),
+            new Tuple<string, Operator>("le", Operator.LTE),
+            new Tuple<string, Operator>("gt", Operator.GT),
+            new Tuple<string, Operator>("lt", Operator.LT),
+            new Tuple<string, Operator>("sa", Operator.STARTS_AFTER),
+            new Tuple<string, Operator>("eb", Operator.ENDS_BEFORE),
+            new Tuple<string, Operator>("ap", Operator.APPROX),
+            new Tuple<string, Operator>("eq", Operator.EQ)
+
+            // This operator is not allowed on the REST interface: IN(a,b,c) should be formatted as =a,b,c. It is added to allow reporting on criteria.
+            ,
+            new Tuple<string, Operator>("IN", Operator.IN),
+            new Tuple<string, Operator>("", Operator.EQ)
+            //CK: Old DSTU1 mapping, will be obsolete in the near future.
+            //, new Tuple<string, Operator>( ">=", Operator.GTE)
+            //, new Tuple<string, Operator>( "<=", Operator.LTE)
+            //, new Tuple<string, Operator>( ">", Operator.GT)
+            //, new Tuple<string, Operator>( "<", Operator.LT)
+            //, new Tuple<string, Operator>( "~", Operator.APPROX)
+        };
+
+        private List<ModelInfo.SearchParamDefinition> _searchParameters;
+
         public string ParamName { get; set; }
 
         public Operator Operator { get; set; } = Operator.EQ;
@@ -30,8 +57,6 @@ namespace Spark.Engine.Search.ValueExpressionTypes
         public string Modifier { get; set; }
 
         public Expression Operand { get; set; }
-
-        private List<ModelInfo.SearchParamDefinition> _searchParameters;
 
         //CK: TODO: This should be SearchParameter, but that does not support Composite parameters very well.
         public List<ModelInfo.SearchParamDefinition> SearchParameters
@@ -46,6 +71,8 @@ namespace Spark.Engine.Search.ValueExpressionTypes
                 return _searchParameters;
             }
         }
+
+        object ICloneable.Clone() => Clone();
 
         public static Criterium Parse(string key, string value)
         {
@@ -101,7 +128,7 @@ namespace Spark.Engine.Search.ValueExpressionTypes
             if (Operator == Operator.CHAIN)
             {
                 return Operand is Criterium
-                    ? result + SearchParams.SEARCH_CHAINSEPARATOR + Operand.ToString()
+                    ? result + SearchParams.SEARCH_CHAINSEPARATOR + Operand
                     : result
                       + SearchParams.SEARCH_CHAINSEPARATOR
                       + " ** INVALID CHAIN OPERATION ** Chain operation must have a Criterium as operand";
@@ -197,7 +224,7 @@ namespace Spark.Engine.Search.ValueExpressionTypes
             }
 
             // Construct the new criterium based on the parsed values
-            return new Criterium() {ParamName = name, Operator = type, Modifier = modifier, Operand = operand};
+            return new Criterium {ParamName = name, Operator = type, Modifier = modifier, Operand = operand};
         }
 
 
@@ -250,35 +277,5 @@ namespace Spark.Engine.Search.ValueExpressionTypes
 
             return result;
         }
-
-        object ICloneable.Clone()
-        {
-            return Clone();
-        }
-
-        //CK: Order of these mappings is important for string matching. From more specific to less specific.
-        private static readonly List<Tuple<string, Operator>> _operatorMapping = new List<Tuple<string, Operator>>
-        {
-            new Tuple<string, Operator>("ne", Operator.NOT_EQUAL),
-            new Tuple<string, Operator>("ge", Operator.GTE),
-            new Tuple<string, Operator>("le", Operator.LTE),
-            new Tuple<string, Operator>("gt", Operator.GT),
-            new Tuple<string, Operator>("lt", Operator.LT),
-            new Tuple<string, Operator>("sa", Operator.STARTS_AFTER),
-            new Tuple<string, Operator>("eb", Operator.ENDS_BEFORE),
-            new Tuple<string, Operator>("ap", Operator.APPROX),
-            new Tuple<string, Operator>("eq", Operator.EQ)
-
-            // This operator is not allowed on the REST interface: IN(a,b,c) should be formatted as =a,b,c. It is added to allow reporting on criteria.
-            ,
-            new Tuple<string, Operator>("IN", Operator.IN),
-            new Tuple<string, Operator>("", Operator.EQ)
-            //CK: Old DSTU1 mapping, will be obsolete in the near future.
-            //, new Tuple<string, Operator>( ">=", Operator.GTE)
-            //, new Tuple<string, Operator>( "<=", Operator.LTE)
-            //, new Tuple<string, Operator>( ">", Operator.GT)
-            //, new Tuple<string, Operator>( "<", Operator.LT)
-            //, new Tuple<string, Operator>( "~", Operator.APPROX)
-        };
     }
 }

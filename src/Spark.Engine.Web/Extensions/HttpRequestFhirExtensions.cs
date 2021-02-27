@@ -1,14 +1,15 @@
-﻿/*
- * Copyright (c) 2014, Furore (info@furore.com) and contributors
- * See the file CONTRIBUTORS for details.
- *
- * This file is licensed under the BSD 3-Clause license
- * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
- */
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
 
 using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("Spark.Engine.Test")]
+
 namespace Spark.Engine.Web.Extensions
 {
     using System;
@@ -23,17 +24,14 @@ namespace Spark.Engine.Web.Extensions
     using Microsoft.AspNetCore.Http.Headers;
     using Microsoft.Net.Http.Headers;
     using Utility;
-    using MediaTypeHeaderValue = Microsoft.Net.Http.Headers.MediaTypeHeaderValue;
 
     public static class HttpRequestFhirExtensions
     {
-        public static HistoryParameters ToHistoryParameters(this HttpRequest request)
-        {
-            return new HistoryParameters(
+        public static HistoryParameters ToHistoryParameters(this HttpRequest request) =>
+            new(
                 request.GetParameter("_count").ParseIntParameter(),
                 request.GetParameter("_since").ParseDateParameter(),
                 request.GetParameter("_sort"));
-        }
 
         internal static SummaryType RequestSummary(this HttpRequest request)
         {
@@ -42,11 +40,11 @@ namespace Spark.Engine.Web.Extensions
         }
 
         /// <summary>
-        /// Transfers the id to the <see cref="Hl7.Fhir.Model.Resource"/>.
+        ///     Transfers the id to the <see cref="Hl7.Fhir.Model.Resource" />.
         /// </summary>
-        /// <param name="request">An instance of <see cref="HttpRequest"/>.</param>
-        /// <param name="resource">An instance of <see cref="Hl7.Fhir.Model.Resource"/>.</param>
-        /// <param name="id">A <see cref="string"/> containing the id to transfer to Resource.Id.</param>
+        /// <param name="request">An instance of <see cref="HttpRequest" />.</param>
+        /// <param name="resource">An instance of <see cref="Hl7.Fhir.Model.Resource" />.</param>
+        /// <param name="id">A <see cref="string" /> containing the id to transfer to Resource.Id.</param>
         public static void TransferResourceIdIfRawBinary(this HttpRequest request, Resource resource, string id)
         {
             if (request.Headers.TryGetValue("Content-Type", out var value))
@@ -63,6 +61,7 @@ namespace Spark.Engine.Web.Extensions
             {
                 ifNoneExist = values.FirstOrDefault();
             }
+
             return ifNoneExist;
         }
 
@@ -83,12 +82,15 @@ namespace Spark.Engine.Web.Extensions
             {
                 list.AddRange(request.Query[currentKey].Select(v => Tuple.Create(currentKey, v)));
             }
+
             return list;
         }
 
         private static SummaryType GetSummary(string summary)
         {
-            var summaryType = string.IsNullOrWhiteSpace(summary) ? SummaryType.False : EnumUtility.ParseLiteral<SummaryType>(summary, true);
+            var summaryType = string.IsNullOrWhiteSpace(summary)
+                ? SummaryType.False
+                : EnumUtility.ParseLiteral<SummaryType>(summary, true);
 
             return summaryType ?? SummaryType.False;
         }
@@ -97,7 +99,8 @@ namespace Spark.Engine.Web.Extensions
         {
             if (!string.IsNullOrEmpty(contentType) && resource is Binary && resource.Id == null && id != null)
             {
-                if (!ContentType.XML_CONTENT_HEADERS.Contains(contentType) && !ContentType.JSON_CONTENT_HEADERS.Contains(contentType))
+                if (!ContentType.XML_CONTENT_HEADERS.Contains(contentType)
+                    && !ContentType.JSON_CONTENT_HEADERS.Contains(contentType))
                 {
                     resource.Id = id;
                 }
@@ -106,8 +109,7 @@ namespace Spark.Engine.Web.Extensions
 
         public static string GetAcceptHeaderValue(this HttpRequest request)
         {
-            var headers =
-                MediaTypeHeaderValue.ParseList(request.Headers[HeaderNames.Accept]);
+            var headers = MediaTypeHeaderValue.ParseList(request.Headers[HeaderNames.Accept]);
             return headers.FirstOrDefault()?.MediaType.Value;
         }
 
@@ -153,12 +155,13 @@ namespace Spark.Engine.Web.Extensions
             {
                 return false;
             }
+
             //var ub = new UriBuilder(request.RequestUri);
             // TODO: KM: Path matching is not optimal should be replaced by a more solid solution.
             return pathValue.Contains("Binary")
-                && !pathValue.EndsWith("_search")
-                && !request.ContentType.IsContentTypeHeaderFhirMediaType()
-                && (request.Method == HttpMethod.Post.Method || request.Method == HttpMethod.Put.Method);
+                   && !pathValue.EndsWith("_search")
+                   && !request.ContentType.IsContentTypeHeaderFhirMediaType()
+                   && (request.Method == HttpMethod.Post.Method || request.Method == HttpMethod.Put.Method);
         }
     }
 }

@@ -1,24 +1,31 @@
-﻿namespace Spark.Mongo.Store
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
+
+namespace Spark.Mongo.Store
 {
     using System.Collections.Generic;
     using System.Threading.Tasks;
+    using Engine.Interfaces;
     using MongoDB.Bson;
     using MongoDB.Driver;
-    using Spark.Engine.Interfaces;
-
     using Search.Infrastructure;
 
     public class MongoStoreAdministration : IFhirStoreAdministration
     {
-        readonly IMongoDatabase _database;
-        readonly IMongoCollection<BsonDocument> _collection;
+        private readonly IMongoCollection<BsonDocument> _collection;
+        private readonly IMongoDatabase _database;
 
         public MongoStoreAdministration(string mongoUrl)
         {
-            this._database = MongoDatabaseFactory.GetMongoDatabase(mongoUrl);
-            this._collection = _database.GetCollection<BsonDocument>(Collection.RESOURCE);
+            _database = MongoDatabaseFactory.GetMongoDatabase(mongoUrl);
+            _collection = _database.GetCollection<BsonDocument>(Collection.RESOURCE);
         }
-        
+
         public async Task Clean()
         {
             await EraseDataAsync().ConfigureAwait(false);
@@ -30,7 +37,7 @@
         private async Task EraseDataAsync()
         {
             // Don't try this at home
-            var collectionsToDrop = new[] { Collection.RESOURCE, Collection.COUNTERS, Collection.SNAPSHOT };
+            var collectionsToDrop = new[] {Collection.RESOURCE, Collection.COUNTERS, Collection.SNAPSHOT};
             await DropCollectionsAsync(collectionsToDrop).ConfigureAwait(false);
 
             /*
@@ -49,6 +56,7 @@
             }
             */
         }
+
         private async Task DropCollectionsAsync(IEnumerable<string> collections)
         {
             foreach (var name in collections)
@@ -58,14 +66,18 @@
         }
 
 
-
         private async Task EnsureIndicesAsync()
         {
             var indices = new List<CreateIndexModel<BsonDocument>>
             {
-                new CreateIndexModel<BsonDocument>(Builders<BsonDocument>.IndexKeys.Ascending(Field.STATE).Ascending(Field.METHOD).Ascending(Field.TYPENAME)),
-                new CreateIndexModel<BsonDocument>(Builders<BsonDocument>.IndexKeys.Ascending(Field.PRIMARYKEY).Ascending(Field.STATE)),
-                new CreateIndexModel<BsonDocument>(Builders<BsonDocument>.IndexKeys.Descending(Field.WHEN).Ascending(Field.TYPENAME)),
+                new CreateIndexModel<BsonDocument>(
+                    Builders<BsonDocument>.IndexKeys.Ascending(Field.STATE)
+                        .Ascending(Field.METHOD)
+                        .Ascending(Field.TYPENAME)),
+                new CreateIndexModel<BsonDocument>(
+                    Builders<BsonDocument>.IndexKeys.Ascending(Field.PRIMARYKEY).Ascending(Field.STATE)),
+                new CreateIndexModel<BsonDocument>(
+                    Builders<BsonDocument>.IndexKeys.Descending(Field.WHEN).Ascending(Field.TYPENAME))
             };
             await _collection.Indexes.CreateManyAsync(indices).ConfigureAwait(false);
         }

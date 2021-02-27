@@ -1,3 +1,11 @@
+// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
+
 namespace Spark.Web.Hubs
 {
     using Engine.Service.FhirServiceExtensions;
@@ -5,9 +13,9 @@ namespace Spark.Web.Hubs
     using Microsoft.Extensions.Logging;
 
     /// <summary>
-    /// SignalR hub is a short-living object while
-    /// hub context lives longer and can be used for
-    /// accessing Clients collection between requests.
+    ///     SignalR hub is a short-living object while
+    ///     hub context lives longer and can be used for
+    ///     accessing Clients collection between requests.
     /// </summary>
     internal class HubContextProgressNotifier : IIndexBuildProgressReporter
     {
@@ -16,12 +24,20 @@ namespace Spark.Web.Hubs
 
         private int _progress;
 
-        public HubContextProgressNotifier(
-            IHubContext<MaintenanceHub> hubContext,
-            ILogger<MaintenanceHub> logger)
+        public HubContextProgressNotifier(IHubContext<MaintenanceHub> hubContext, ILogger<MaintenanceHub> logger)
         {
             _hubContext = hubContext;
             _logger = logger;
+        }
+
+        public async System.Threading.Tasks.Task ReportProgressAsync(int progress, string message)
+        {
+            await SendProgressUpdate(progress, message).ConfigureAwait(false);
+        }
+
+        public async System.Threading.Tasks.Task ReportErrorAsync(string message)
+        {
+            await Progress(message).ConfigureAwait(false);
         }
 
         public async System.Threading.Tasks.Task SendProgressUpdate(int progress, string message)
@@ -30,11 +46,7 @@ namespace Spark.Web.Hubs
 
             _progress = progress;
 
-            var msg = new ImportProgressMessage
-            {
-                Message = message,
-                Progress = progress
-            };
+            var msg = new ImportProgressMessage {Message = message, Progress = progress};
 
             await _hubContext.Clients.All.SendAsync("UpdateProgress", msg).ConfigureAwait(false);
         }
@@ -42,18 +54,6 @@ namespace Spark.Web.Hubs
         public async System.Threading.Tasks.Task Progress(string message)
         {
             await SendProgressUpdate(_progress, message).ConfigureAwait(false);
-        }
-
-        public async System.Threading.Tasks.Task ReportProgressAsync(int progress, string message)
-        {
-            await SendProgressUpdate(progress, message)
-                .ConfigureAwait(false);
-        }
-
-        public async System.Threading.Tasks.Task ReportErrorAsync(string message)
-        {
-            await Progress(message)
-                .ConfigureAwait(false);
         }
     }
 }

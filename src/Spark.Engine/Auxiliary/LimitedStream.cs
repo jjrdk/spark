@@ -1,18 +1,27 @@
-﻿using System;
-using System.IO;
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
 
 namespace Spark.Engine.Auxiliary
 {
+    using System;
+    using System.IO;
+
     public class LimitedStream : Stream
     {
         private readonly Stream _innerStream;
 
         /// <summary>
-        /// Creates a write limit on the underlying <paramref name="stream"/> of <paramref name="sizeLimitInBytes"/>, which has a default of 2048 (2kB).
+        ///     Creates a write limit on the underlying <paramref name="stream" /> of <paramref name="sizeLimitInBytes" />, which
+        ///     has a default of 2048 (2kB).
         /// </summary>
         /// <param name="stream"></param>
         /// <param name="sizeLimitInBytes"></param>
-        public LimitedStream (Stream stream, long sizeLimitInBytes = 2048)
+        public LimitedStream(Stream stream, long sizeLimitInBytes = 2048)
         {
             _innerStream = stream ?? throw new ArgumentNullException("stream cannot be null");
             SizeLimitInBytes = sizeLimitInBytes;
@@ -40,15 +49,9 @@ namespace Spark.Engine.Auxiliary
             _innerStream.Flush();
         }
 
-        public override int Read(byte[] buffer, int offset, int count)
-        {
-            return _innerStream.Read(buffer, offset, count);
-        }
+        public override int Read(byte[] buffer, int offset, int count) => _innerStream.Read(buffer, offset, count);
 
-        public override long Seek(long offset, SeekOrigin origin)
-        {
-            return _innerStream.Seek(offset, origin);
-        }
+        public override long Seek(long offset, SeekOrigin origin) => _innerStream.Seek(offset, origin);
 
         public override void SetLength(long value)
         {
@@ -60,7 +63,9 @@ namespace Spark.Engine.Auxiliary
             var bytesToBeAdded = Math.Min(buffer.Length - offset, count);
             if (Length + bytesToBeAdded > SizeLimitInBytes)
             {
-                throw new ArgumentOutOfRangeException(nameof(buffer), $"Adding {bytesToBeAdded} bytes to the stream would exceed the size limit of {SizeLimitInBytes} bytes.");
+                throw new ArgumentOutOfRangeException(
+                    nameof(buffer),
+                    $"Adding {bytesToBeAdded} bytes to the stream would exceed the size limit of {SizeLimitInBytes} bytes.");
             }
 
             _innerStream.Write(buffer, offset, count);

@@ -1,12 +1,10 @@
-﻿/*
- * Copyright (c) 2014, Furore (info@furore.com) and contributors
- * See the file CONTRIBUTORS for details.
- *
- * This file is licensed under the BSD 3-Clause license
- * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
- */
-
-using Tasks = System.Threading.Tasks;
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
 
 namespace Spark.Engine.Web.Formatters
 {
@@ -21,7 +19,8 @@ namespace Spark.Engine.Web.Formatters
     {
         public BinaryFhirInputFormatter()
         {
-            SupportedMediaTypes.Add(new Microsoft.Net.Http.Headers.MediaTypeHeaderValue(FhirMediaType.OCTET_STREAM_CONTENT_HEADER));
+            SupportedMediaTypes.Add(
+                new Microsoft.Net.Http.Headers.MediaTypeHeaderValue(FhirMediaType.OCTET_STREAM_CONTENT_HEADER));
         }
 
         /// <inheritdoc />
@@ -32,13 +31,11 @@ namespace Spark.Engine.Web.Formatters
         }
 
         /// <inheritdoc />
-        protected override bool CanReadType(Type type)
-        {
-            return typeof(Resource).IsAssignableFrom(type);
-        }
+        protected override bool CanReadType(Type type) => typeof(Resource).IsAssignableFrom(type);
 
         /// <inheritdoc />
-        public override async Tasks.Task<InputFormatterResult> ReadRequestBodyAsync(InputFormatterContext context)
+        public override async System.Threading.Tasks.Task<InputFormatterResult> ReadRequestBodyAsync(
+            InputFormatterContext context)
         {
             var success = context.HttpContext.Request.Headers.ContainsKey("X-Content-Type");
             if (!success)
@@ -50,11 +47,7 @@ namespace Spark.Engine.Web.Formatters
             var contentType = context.HttpContext.Request.Headers["X-Content-Type"].First();
             var stream = new MemoryStream();
             await context.HttpContext.Request.Body.CopyToAsync(stream).ConfigureAwait(false);
-            var binary = new Binary
-            {
-                Data = stream.ToArray(),
-                ContentType = contentType
-            };
+            var binary = new Binary {Data = stream.ToArray(), ContentType = contentType};
 
             return await InputFormatterResult.SuccessAsync(binary).ConfigureAwait(false);
         }

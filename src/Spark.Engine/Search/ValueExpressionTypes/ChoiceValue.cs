@@ -1,10 +1,10 @@
-﻿/* 
- * Copyright (c) 2014, Furore (info@furore.com) and contributors
- * See the file CONTRIBUTORS for details.
- * 
- * This file is licensed under the BSD 3-Clause license
- * available at https://raw.githubusercontent.com/ewoutkramer/fhir-net-api/master/LICENSE
- */
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
 
 namespace Spark.Engine.Search.ValueExpressionTypes
 {
@@ -15,8 +15,6 @@ namespace Spark.Engine.Search.ValueExpressionTypes
     public class ChoiceValue : ValueExpression
     {
         private const char VALUESEPARATOR = ',';
-
-        public ValueExpression[]  Choices { get; }
 
         public ChoiceValue(ValueExpression[] choices)
         {
@@ -38,10 +36,12 @@ namespace Spark.Engine.Search.ValueExpressionTypes
             Choices = choices.ToArray();
         }
 
+        public ValueExpression[] Choices { get; }
+
         public override string ToString()
         {
             var values = Choices.Select(v => v.ToString());
-            return string.Join(VALUESEPARATOR.ToString(),values);
+            return string.Join(VALUESEPARATOR.ToString(), values);
         }
 
         public static ChoiceValue Parse(string text)

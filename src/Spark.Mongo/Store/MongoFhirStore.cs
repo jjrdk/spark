@@ -1,10 +1,10 @@
-﻿/*
- * Copyright (c) 2014, Furore (info@furore.com) and contributors
- * See the file CONTRIBUTORS for details.
- *
- * This file is licensed under the BSD 3-Clause license
- * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
- */
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
 
 namespace Spark.Mongo.Store
 {
@@ -21,13 +21,13 @@ namespace Spark.Mongo.Store
 
     public class MongoFhirStore : IFhirStore
     {
-        readonly IMongoDatabase _database;
-        readonly IMongoCollection<BsonDocument> _collection;
+        private readonly IMongoCollection<BsonDocument> _collection;
+        private readonly IMongoDatabase _database;
 
         public MongoFhirStore(string mongoUrl)
         {
-            this._database = MongoDatabaseFactory.GetMongoDatabase(mongoUrl);
-            this._collection = _database.GetCollection<BsonDocument>(Collection.RESOURCE);
+            _database = MongoDatabaseFactory.GetMongoDatabase(mongoUrl);
+            _collection = _database.GetCollection<BsonDocument>(Collection.RESOURCE);
             //this.transaction = new MongoSimpleTransaction(collection);
         }
 
@@ -58,7 +58,6 @@ namespace Spark.Mongo.Store
 
             var document = (await _collection.FindAsync(query).ConfigureAwait(false)).FirstOrDefault();
             return document.ToEntry();
-
         }
 
         public async Task<IList<Entry>> Get(IEnumerable<IKey> identifiers)
@@ -92,7 +91,7 @@ namespace Spark.Mongo.Store
 
         private IEnumerable<BsonValue> GetBsonValues(IEnumerable<IKey> identifiers, Func<IKey, bool> keyCondition)
         {
-            return identifiers.Where(keyCondition).Select(k => (BsonValue)k.ToString());
+            return identifiers.Where(keyCondition).Select(k => (BsonValue) k.ToString());
         }
 
         private FilterDefinition<BsonDocument> GetCurrentVersionQuery(IEnumerable<BsonValue> ids)
@@ -101,7 +100,6 @@ namespace Spark.Mongo.Store
             clauses.Add(Builders<BsonDocument>.Filter.In(Field.REFERENCE, ids));
             clauses.Add(Builders<BsonDocument>.Filter.Eq(Field.STATE, Value.CURRENT));
             return Builders<BsonDocument>.Filter.And(clauses);
-
         }
 
         private FilterDefinition<BsonDocument> GetSpecificVersionQuery(IEnumerable<BsonValue> ids)
@@ -117,13 +115,11 @@ namespace Spark.Mongo.Store
             var pk = key.ToBsonReferenceKey();
             var query = Builders<BsonDocument>.Filter.And(
                 Builders<BsonDocument>.Filter.Eq(Field.REFERENCE, pk),
-                Builders<BsonDocument>.Filter.Eq(Field.STATE, Value.CURRENT)
-            );
+                Builders<BsonDocument>.Filter.Eq(Field.STATE, Value.CURRENT));
 
             var update = Builders<BsonDocument>.Update.Set(Field.STATE, Value.SUPERCEDED);
             // A single delete on a sharded collection must contain an exact match on _id (and have the collection default collation) or contain the shard key (and have the simple collation).
             await _collection.UpdateManyAsync(query, update).ConfigureAwait(false);
         }
-
     }
 }

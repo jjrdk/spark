@@ -1,38 +1,51 @@
-﻿namespace Spark.Engine.Test.Service
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
+
+namespace Spark.Engine.Test.Service
 {
-    using Hl7.Fhir.Model;
-    using Hl7.Fhir.Serialization;
-    using Moq;
-    using Spark.Engine.Core;
-    using Spark.Engine.Model;
-    using Spark.Engine.Search;
-    using Spark.Engine.Service.FhirServiceExtensions;
-    using Spark.Engine.Store.Interfaces;
     using System;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
+    using Engine.Core;
+    using Engine.Search;
     using Engine.Search.ValueExpressionTypes;
+    using Engine.Service.FhirServiceExtensions;
+    using Hl7.Fhir.Model;
+    using Hl7.Fhir.Serialization;
+    using Microsoft.Extensions.Logging;
+    using Model;
+    using Moq;
+    using Store.Interfaces;
     using Xunit;
     using static Hl7.Fhir.Model.ModelInfo;
     using Task = System.Threading.Tasks.Task;
 
     public class IndexServiceTests
     {
-        private readonly IndexService _limitedIndexService;
-        private readonly IndexService _fullIndexService;
-        private readonly string _examplePatientJson;
-        private readonly string _exampleAppointmentJson;
         private readonly string _carePlanWithContainedGoal;
+        private readonly string _exampleAppointmentJson;
         private readonly string _exampleObservationJson;
+        private readonly string _examplePatientJson;
+        private readonly IndexService _fullIndexService;
+        private readonly IndexService _limitedIndexService;
 
         public IndexServiceTests()
         {
             var indexStoreMock = new Mock<IIndexStore>();
-            _examplePatientJson = TextFileHelper.ReadTextFileFromDisk($".{Path.DirectorySeparatorChar}Examples{Path.DirectorySeparatorChar}patient-example.json");
-            _exampleAppointmentJson = TextFileHelper.ReadTextFileFromDisk($".{Path.DirectorySeparatorChar}Examples{Path.DirectorySeparatorChar}appointment-example2doctors.json");
-            _carePlanWithContainedGoal = TextFileHelper.ReadTextFileFromDisk($".{Path.DirectorySeparatorChar}Examples{Path.DirectorySeparatorChar}careplan-example-f201-renal.json");
-            _exampleObservationJson = TextFileHelper.ReadTextFileFromDisk($".{Path.DirectorySeparatorChar}Examples{Path.DirectorySeparatorChar}observation-example-bloodpressure.json");
+            _examplePatientJson = TextFileHelper.ReadTextFileFromDisk(
+                $".{Path.DirectorySeparatorChar}Examples{Path.DirectorySeparatorChar}patient-example.json");
+            _exampleAppointmentJson = TextFileHelper.ReadTextFileFromDisk(
+                $".{Path.DirectorySeparatorChar}Examples{Path.DirectorySeparatorChar}appointment-example2doctors.json");
+            _carePlanWithContainedGoal = TextFileHelper.ReadTextFileFromDisk(
+                $".{Path.DirectorySeparatorChar}Examples{Path.DirectorySeparatorChar}careplan-example-f201-renal.json");
+            _exampleObservationJson = TextFileHelper.ReadTextFileFromDisk(
+                $".{Path.DirectorySeparatorChar}Examples{Path.DirectorySeparatorChar}observation-example-bloodpressure.json");
             var spPatientName = new SearchParamDefinition
             {
                 Resource = "Patient",
@@ -47,20 +60,25 @@
                 Resource = "Patient",
                 Name = "middlename",
                 Type = SearchParamType.String,
-                Path = new[] { "Patient.name.extension.where(url='http://hl7.no/fhir/StructureDefinition/no-basis-middlename')" },
-                Expression = "Patient.name.extension.where(url='http://hl7.no/fhir/StructureDefinition/no-basis-middlename')"
+                Path = new[]
+                {
+                    "Patient.name.extension.where(url='http://hl7.no/fhir/StructureDefinition/no-basis-middlename')"
+                },
+                Expression =
+                    "Patient.name.extension.where(url='http://hl7.no/fhir/StructureDefinition/no-basis-middlename')"
             };
             var searchParameters = new List<SearchParamDefinition> { spPatientName, spMiddleName };
-            var resources = new Dictionary<Type, string> { { typeof(Patient), "Patient" }, { typeof(HumanName), "HumanName" } };
+            var resources =
+                new Dictionary<Type, string> { { typeof(Patient), "Patient" }, { typeof(HumanName), "HumanName" } };
 
             // For this test setup we want a limited available types and search parameters.
             IFhirModel limitedFhirModel = new FhirModel(resources, searchParameters);
-            var limitedElementIndexer = new ElementIndexer(limitedFhirModel);
+            var limitedElementIndexer = new ElementIndexer(limitedFhirModel, new Mock<ILogger<ElementIndexer>>().Object);
             _limitedIndexService = new IndexService(limitedFhirModel, indexStoreMock.Object, limitedElementIndexer);
 
             // For this test setup we want all available types and search parameters.
             IFhirModel fullFhirModel = new FhirModel();
-            var fullElementIndexer = new ElementIndexer(fullFhirModel);
+            var fullElementIndexer = new ElementIndexer(fullFhirModel, new Mock<ILogger<ElementIndexer>>().Object);
             _fullIndexService = new IndexService(fullFhirModel, indexStoreMock.Object, fullElementIndexer);
         }
 
@@ -93,7 +111,9 @@
             var result = await _limitedIndexService.IndexResource(patient, patientKey).ConfigureAwait(false);
 
             Assert.Equal("root", result.Name);
-            Assert.Equal(1, result.NonInternalValues().Count());//, "Expected 1 non-internal result for searchparameter 'name'");
+            Assert.Equal(
+                1,
+                result.NonInternalValues().Count()); //, "Expected 1 non-internal result for searchparameter 'name'");
             var first = result.NonInternalValues().First();
             Assert.Equal("name", first.Name);
             Assert.Equal(2, first.Values.Count);
@@ -157,10 +177,7 @@
         [Fact]
         public async Task TestMultiValueIndexCanIndexFhirDateTime()
         {
-            var cd = new Condition
-            {
-                Onset = new FhirDateTime(2015, 6, 15)
-            };
+            var cd = new Condition { Onset = new FhirDateTime(2015, 6, 15) };
 
             IKey cdKey = new Key("http://localhost/", "Condition", "test", null);
 
@@ -175,10 +192,7 @@
         public async Task TestMultiValueIndexCanIndexFhirString()
         {
             var onsetInfo = "approximately November 2012";
-            var cd = new Condition
-            {
-                Onset = new FhirString(onsetInfo)
-            };
+            var cd = new Condition { Onset = new FhirString(onsetInfo) };
 
             IKey cdKey = new Key("http://localhost/", "Condition", "test", null);
 
@@ -198,12 +212,7 @@
             decimal onsetAge = 73;
             var cd = new Condition
             {
-                Onset = new Age
-                {
-                    System = "http://unitsofmeasure.org/",
-                    Code = "a",
-                    Value = onsetAge
-                }
+                Onset = new Age { System = "http://unitsofmeasure.org/", Code = "a", Value = onsetAge }
             };
 
             IKey cdKey = new Key("http://localhost/", "Condition", "test", null);
@@ -214,9 +223,11 @@
             var onsetIndex = result.Values.Single(iv => (iv as IndexValue).Name == "onset-age") as IndexValue;
             Assert.NotNull(onsetIndex);
             Assert.True(onsetIndex.Values.First() is CompositeValue);
-            CompositeValue composite = onsetIndex.Values.First() as CompositeValue;
-            Assert.True(composite.Components.Cast<IndexValue>().First(c => c.Name == "value").Values.First() is NumberValue);
-            NumberValue value = composite.Components.Cast<IndexValue>().First(c => c.Name == "value").Values.First() as NumberValue;
+            var composite = onsetIndex.Values.First() as CompositeValue;
+            Assert.True(
+                composite.Components.Cast<IndexValue>().First(c => c.Name == "value").Values.First() is NumberValue);
+            var value =
+                composite.Components.Cast<IndexValue>().First(c => c.Name == "value").Values.First() as NumberValue;
 
             // TODO: Need to convert back to years for this to work, base unit of time is seconds if I am not mistaken.
             //Assert.Equal(onsetAge, value.Value);

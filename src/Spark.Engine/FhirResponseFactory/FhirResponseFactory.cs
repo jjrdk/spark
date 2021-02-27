@@ -1,13 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Hl7.Fhir.Model;
-using Spark.Engine.Core;
-using Spark.Engine.Extensions;
-using Spark.Engine.Interfaces;
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
 
 namespace Spark.Engine.FhirResponseFactory
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using Core;
+    using Extensions;
+    using Hl7.Fhir.Model;
+    using Interfaces;
+
     public class FhirResponseFactory : IFhirResponseFactory
     {
         private readonly IFhirResponseInterceptorRunner _interceptorRunner;
@@ -15,8 +23,8 @@ namespace Spark.Engine.FhirResponseFactory
 
         public FhirResponseFactory(ILocalhost localhost, IFhirResponseInterceptorRunner interceptorRunner)
         {
-            this._localhost = localhost;
-            this._interceptorRunner = interceptorRunner;
+            _localhost = localhost;
+            _interceptorRunner = interceptorRunner;
         }
 
         public FhirResponse GetFhirResponse(Entry entry, IKey key = null, IEnumerable<object> parameters = null)
@@ -25,6 +33,7 @@ namespace Spark.Engine.FhirResponseFactory
             {
                 return Respond.NotFound(key);
             }
+
             if (entry.IsDeleted())
             {
                 return Respond.Gone(entry);
@@ -40,10 +49,8 @@ namespace Spark.Engine.FhirResponseFactory
             return response ?? Respond.WithResource(entry);
         }
 
-        public FhirResponse GetFhirResponse(Entry entry, IKey key = null, params object[] parameters)
-        {
-            return GetFhirResponse(entry, key, parameters.ToList());
-        }
+        public FhirResponse GetFhirResponse(Entry entry, IKey key = null, params object[] parameters) =>
+            GetFhirResponse(entry, key, parameters.ToList());
 
         public FhirResponse GetMetadataResponse(Entry entry, IKey key = null)
         {
@@ -60,7 +67,9 @@ namespace Spark.Engine.FhirResponseFactory
             return Respond.WithMeta(entry);
         }
 
-        public FhirResponse GetFhirResponse(IEnumerable<Tuple<Entry, FhirResponse>> responses, Bundle.BundleType bundleType)
+        public FhirResponse GetFhirResponse(
+            IEnumerable<Tuple<Entry, FhirResponse>> responses,
+            Bundle.BundleType bundleType)
         {
             var bundle = _localhost.CreateBundle(bundleType);
             foreach (var response in responses)
@@ -71,9 +80,6 @@ namespace Spark.Engine.FhirResponseFactory
             return Respond.WithBundle(bundle);
         }
 
-        public FhirResponse GetFhirResponse(Bundle bundle)
-        {
-            return Respond.WithBundle(bundle);
-        }
+        public FhirResponse GetFhirResponse(Bundle bundle) => Respond.WithBundle(bundle);
     }
 }

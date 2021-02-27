@@ -1,4 +1,12 @@
-﻿namespace Spark.Engine.Service
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
+
+namespace Spark.Engine.Service
 {
     using System;
     using System.Collections.Generic;
@@ -8,21 +16,21 @@
 
     public class ServiceListener : ICompositeServiceListener
     {
+        private readonly List<IServiceListener> _listeners;
         private readonly ILocalhost _localhost;
-        readonly List<IServiceListener> _listeners;
 
         public ServiceListener(ILocalhost localhost, IServiceListener[] listeners = null)
         {
-            this._localhost = localhost;
+            _localhost = localhost;
             if (listeners != null)
             {
-                this._listeners = new List<IServiceListener>(listeners.AsEnumerable());
+                _listeners = new List<IServiceListener>(listeners.AsEnumerable());
             }
         }
 
         public void Add(IServiceListener listener)
         {
-            this._listeners.Add(listener);
+            _listeners.Add(listener);
         }
 
         public void Clear()
@@ -35,7 +43,8 @@
             // todo: what we want is not to send localhost to the listener, but to add the Resource.Base. But that is not an option in the current infrastructure.
             // It would modify interaction.Resource, while
             return Task.WhenAll(
-                _listeners.Select(listener => listener.Inform(_localhost.GetAbsoluteUri(interaction.Key), interaction)));
+                _listeners.Select(
+                    listener => listener.Inform(_localhost.GetAbsoluteUri(interaction.Key), interaction)));
         }
 
         public Task Inform(Uri location, Entry entry)

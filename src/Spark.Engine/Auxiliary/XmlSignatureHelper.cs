@@ -1,17 +1,17 @@
-﻿/*
- * Copyright (c) 2014, Furore (info@furore.com) and contributors
- * See the file CONTRIBUTORS for details.
- *
- * This file is licensed under the BSD 3-Clause license
- * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
- */
-
-using System;
-using System.Security.Cryptography.Xml;
-using System.Xml;
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
 
 namespace Spark.Engine.Auxiliary
 {
+    using System;
+    using System.Security.Cryptography.Xml;
+    using System.Xml;
+
     // This code contains parts of the code found at
     // http://www.wiktorzychla.com/2012/12/interoperable-xml-digital-signatures-c_20.html
 
@@ -35,7 +35,7 @@ namespace Spark.Engine.Auxiliary
             }
 
             var signedXml = new SignedXml(doc);
-            signedXml.LoadXml((XmlElement)signatureNode);
+            signedXml.LoadXml((XmlElement) signatureNode);
 
             //var x509Certificates = signedXml.KeyInfo.OfType<KeyInfoX509Data>();
             //var certificate = x509Certificates.SelectMany(cert => cert.Certificates.Cast<X509Certificate2>()).FirstOrDefault();
@@ -49,13 +49,17 @@ namespace Spark.Engine.Auxiliary
 
         private static XmlNode FindSignatureElement(XmlDocument doc)
         {
-            var signatureElements = doc.DocumentElement.GetElementsByTagName("Signature", "http://www.w3.org/2000/09/xmldsig#");
+            var signatureElements = doc.DocumentElement.GetElementsByTagName(
+                "Signature",
+                "http://www.w3.org/2000/09/xmldsig#");
             if (signatureElements.Count == 1)
             {
                 return signatureElements[0];
             }
 
-            return signatureElements.Count == 0 ? (XmlNode)null : throw new InvalidOperationException("Document has multiple xmldsig Signature elements");
+            return signatureElements.Count == 0
+                ? (XmlNode) null
+                : throw new InvalidOperationException("Document has multiple xmldsig Signature elements");
         }
 
 
@@ -76,7 +80,7 @@ namespace Spark.Engine.Auxiliary
             doc.LoadXml(xml);
             return FindSignatureElement(doc) != null;
         }
-        
+
         //public static string Sign(string xml, X509Certificate2 certificate)
         //{
         //    if (xml == null)
@@ -121,7 +125,5 @@ namespace Spark.Engine.Auxiliary
 
         //    return doc.OuterXml;
         //}
-
     }
-
 }

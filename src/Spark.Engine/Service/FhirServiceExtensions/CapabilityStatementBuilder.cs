@@ -1,32 +1,31 @@
-/* 
- * Copyright (c) 2014, Furore (info@furore.com) and contributors
- * See the file CONTRIBUTORS for details.
- * 
- * This file is licensed under the BSD 3-Clause license
- * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
- */
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using Hl7.Fhir.Model;
-using Spark.Engine.Core;
-using Hl7.Fhir.Utility;
+// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
 
 namespace Spark.Engine.Service.FhirServiceExtensions
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using Core;
+    using Hl7.Fhir.Model;
+    using Hl7.Fhir.Utility;
 
     public static class CapabilityStatementBuilder
     {
         public static CapabilityStatement GetSparkCapabilityStatement(string sparkVersion, ILocalhost localhost)
         {
             var vsn = FHIRVersion.N4_0_0;
-            var capabilityStatement = CreateServer("Spark", sparkVersion, "Kufu", fhirVersion: vsn);
+            var capabilityStatement = CreateServer("Spark", sparkVersion, "Kufu", vsn);
 
             capabilityStatement.AddAllCoreResources(
-                readhistory: true,
-                updatecreate: true,
-                versioning: CapabilityStatement.ResourceVersionPolicy.VersionedUpdate);
+                true,
+                true,
+                CapabilityStatement.ResourceVersionPolicy.VersionedUpdate);
             capabilityStatement.AddAllSystemInteractions()
                 .AddAllInteractionsForAllResources()
                 .AddCoreSearchParamsAllResources();
@@ -48,9 +47,9 @@ namespace Spark.Engine.Service.FhirServiceExtensions
         }
 
         public static CapabilityStatement CreateServer(
-            String server,
-            String serverVersion,
-            String publisher,
+            string server,
+            string serverVersion,
+            string publisher,
             FHIRVersion fhirVersion)
         {
             var capabilityStatement = new CapabilityStatement
@@ -68,7 +67,7 @@ namespace Spark.Engine.Service.FhirServiceExtensions
 
         public static CapabilityStatement.RestComponent AddRestComponent(
             this CapabilityStatement capabilityStatement,
-            Boolean isServer,
+            bool isServer,
             Markdown documentation = null)
         {
             var server = new CapabilityStatement.RestComponent
@@ -89,7 +88,7 @@ namespace Spark.Engine.Service.FhirServiceExtensions
 
         public static CapabilityStatement AddServer(this CapabilityStatement capabilityStatement)
         {
-            capabilityStatement.AddRestComponent(isServer: true);
+            capabilityStatement.AddRestComponent(true);
             return capabilityStatement;
         }
 
@@ -98,18 +97,16 @@ namespace Spark.Engine.Service.FhirServiceExtensions
             var server =
                 capabilityStatement.Rest.FirstOrDefault(
                     r => r.Mode == CapabilityStatement.RestfulCapabilityMode.Server);
-            return server ?? capabilityStatement.AddRestComponent(isServer: true);
+            return server ?? capabilityStatement.AddRestComponent(true);
         }
 
-        public static CapabilityStatement.RestComponent Rest(this CapabilityStatement capabilityStatement)
-        {
-            return capabilityStatement.Rest.FirstOrDefault();
-        }
+        public static CapabilityStatement.RestComponent Rest(this CapabilityStatement capabilityStatement) =>
+            capabilityStatement.Rest.FirstOrDefault();
 
         public static CapabilityStatement AddAllCoreResources(
             this CapabilityStatement capabilityStatement,
-            Boolean readhistory,
-            Boolean updatecreate,
+            bool readhistory,
+            bool updatecreate,
             CapabilityStatement.ResourceVersionPolicy versioning)
         {
             foreach (var resource in ModelInfo.SupportedResources)
@@ -122,9 +119,9 @@ namespace Spark.Engine.Service.FhirServiceExtensions
 
         public static CapabilityStatement AddMultipleResourceComponents(
             this CapabilityStatement capabilityStatement,
-            List<String> resourcetypes,
-            Boolean readhistory,
-            Boolean updatecreate,
+            List<string> resourcetypes,
+            bool readhistory,
+            bool updatecreate,
             CapabilityStatement.ResourceVersionPolicy versioning)
         {
             foreach (var type in resourcetypes)
@@ -137,9 +134,9 @@ namespace Spark.Engine.Service.FhirServiceExtensions
 
         public static CapabilityStatement AddSingleResourceComponent(
             this CapabilityStatement capabilityStatement,
-            String resourcetype,
-            Boolean readhistory,
-            Boolean updatecreate,
+            string resourcetype,
+            bool readhistory,
+            bool updatecreate,
             CapabilityStatement.ResourceVersionPolicy versioning,
             Canonical profile = null)
         {
@@ -228,7 +225,6 @@ namespace Spark.Engine.Service.FhirServiceExtensions
         {
             var interaction = new CapabilityStatement.ResourceInteractionComponent {Code = type};
             return interaction;
-
         }
 
         public static CapabilityStatement AddAllSystemInteractions(this CapabilityStatement capabilityStatement)
@@ -251,7 +247,7 @@ namespace Spark.Engine.Service.FhirServiceExtensions
             capabilityStatement.Rest().Interaction.Add(interaction);
         }
 
-        public static void AddOperation(this CapabilityStatement capabilityStatement, String name, string definition)
+        public static void AddOperation(this CapabilityStatement capabilityStatement, string name, string definition)
         {
             var operation = new CapabilityStatement.OperationComponent {Name = name, Definition = definition};
 

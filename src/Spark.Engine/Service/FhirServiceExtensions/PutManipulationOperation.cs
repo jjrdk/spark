@@ -1,28 +1,36 @@
-﻿namespace Spark.Engine.Service.FhirServiceExtensions
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
+
+namespace Spark.Engine.Service.FhirServiceExtensions
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Net;
+    using Core;
     using Hl7.Fhir.Model;
     using Hl7.Fhir.Rest;
-    using Spark.Engine.Core;
 
     public static partial class ResourceManipulationOperationFactory
     {
         private class PutManipulationOperation : ResourceManipulationOperation
         {
-            public PutManipulationOperation(Resource resource, IKey operationKey, SearchResults searchResults, SearchParams searchCommand = null)
+            public PutManipulationOperation(
+                Resource resource,
+                IKey operationKey,
+                SearchResults searchResults,
+                SearchParams searchCommand = null)
                 : base(resource, operationKey, searchResults, searchCommand)
             {
             }
 
-            public static Uri ReadSearchUri(Bundle.EntryComponent entry)
-            {
-                return entry.Request != null
-                    ? new Uri(entry.Request.Url, UriKind.RelativeOrAbsolute)
-                    : null;
-            }
+            public static Uri ReadSearchUri(Bundle.EntryComponent entry) =>
+                entry.Request != null ? new Uri(entry.Request.Url, UriKind.RelativeOrAbsolute) : null;
 
             protected override IEnumerable<Entry> ComputeEntries()
             {
@@ -30,9 +38,11 @@
 
                 if (SearchResults != null)
                 {
-                    if(SearchResults.Count > 1)
+                    if (SearchResults.Count > 1)
                     {
-                        throw new SparkException(HttpStatusCode.PreconditionFailed, "Multiple matches found when trying to resolve conditional update. Client's criteria were not selective enough");
+                        throw new SparkException(
+                            HttpStatusCode.PreconditionFailed,
+                            "Multiple matches found when trying to resolve conditional update. Client's criteria were not selective enough");
                     }
 
                     var localKeyValue = SearchResults.SingleOrDefault();

@@ -1,4 +1,12 @@
-﻿namespace Spark.Postgres
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
+
+namespace Spark.Postgres
 {
     using System;
     using System.Collections.Generic;
@@ -13,10 +21,7 @@
     {
         private readonly Func<IDocumentSession> _sessionFunc;
 
-        public MartenFhirStore(Func<IDocumentSession> sessionFunc)
-        {
-            _sessionFunc = sessionFunc;
-        }
+        public MartenFhirStore(Func<IDocumentSession> sessionFunc) => _sessionFunc = sessionFunc;
 
         /// <inheritdoc />
         public async Task Add(Entry entry)
@@ -24,9 +29,9 @@
             using var session = _sessionFunc();
             if (entry.IsPresent)
             {
-                session.Patch<EntryEnvelope>(x => x.Id == entry.Key.ToStorageKey())
-                    .Set(x => x.IsPresent, false);
+                session.Patch<EntryEnvelope>(x => x.Id == entry.Key.ToStorageKey()).Set(x => x.IsPresent, false);
             }
+
             session.Store(
                 new EntryEnvelope
                 {

@@ -1,10 +1,10 @@
-﻿/*
- * Copyright (c) 2014, Furore (info@furore.com) and contributors
- * See the file CONTRIBUTORS for details.
- *
- * This file is licensed under the BSD 3-Clause license
- * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
- */
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
 
 namespace Spark.Mongo.Search.Infrastructure
 {
@@ -22,9 +22,11 @@ namespace Spark.Mongo.Search.Infrastructure
 
     public class MongoFhirIndex : IFhirIndex
     {
-        private readonly MongoSearcher _searcher;
         private readonly IIndexStore _indexStore;
+        private readonly MongoSearcher _searcher;
         private readonly SearchSettings _searchSettings;
+
+        private readonly SemaphoreSlim _transaction = new SemaphoreSlim(1, 1);
 
         public MongoFhirIndex(IIndexStore indexStore, MongoSearcher searcher, SparkSettings sparkSettings = null)
         {
@@ -32,8 +34,6 @@ namespace Spark.Mongo.Search.Infrastructure
             _searcher = searcher;
             _searchSettings = sparkSettings?.Search ?? new SearchSettings();
         }
-
-        private readonly SemaphoreSlim _transaction = new SemaphoreSlim(1, 1);
 
         public async Task Clean()
         {
@@ -48,10 +48,8 @@ namespace Spark.Mongo.Search.Infrastructure
             }
         }
 
-        public async Task<SearchResults> Search(string resource, SearchParams searchCommand)
-        {
-            return await _searcher.SearchAsync(resource, searchCommand, _searchSettings).ConfigureAwait(false);
-        }
+        public async Task<SearchResults> Search(string resource, SearchParams searchCommand) =>
+            await _searcher.SearchAsync(resource, searchCommand, _searchSettings).ConfigureAwait(false);
 
         public async Task<Key> FindSingle(string resource, SearchParams searchCommand)
         {
@@ -72,9 +70,7 @@ namespace Spark.Mongo.Search.Infrastructure
             return Key.ParseOperationPath(location);
         }
 
-        public async Task<SearchResults> GetReverseIncludes(IList<IKey> keys, IList<string> revIncludes)
-        {
-            return await _searcher.GetReverseIncludesAsync(keys, revIncludes).ConfigureAwait(false);
-        }
+        public async Task<SearchResults> GetReverseIncludes(IList<IKey> keys, IList<string> revIncludes) =>
+            await _searcher.GetReverseIncludesAsync(keys, revIncludes).ConfigureAwait(false);
     }
 }

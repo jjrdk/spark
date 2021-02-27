@@ -1,33 +1,42 @@
-﻿namespace Spark.Engine.Core
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
+
+namespace Spark.Engine.Core
 {
     using System;
     using System.Collections.Generic;
     using System.Reflection;
 
     /// <summary>
-    /// Class with info about properties in Fhir Types (Resource or Element)
+    ///     Class with info about properties in Fhir Types (Resource or Element)
     /// </summary>
     public class FhirPropertyInfo
     {
         /// <summary>
-        /// Name of the property, either drawn from FhirElementAttribute.Name or PropertyInfo.Name (in that order).
+        ///     Name of the property, either drawn from FhirElementAttribute.Name or PropertyInfo.Name (in that order).
         /// </summary>
         public string PropertyName { get; internal set; }
 
         /// <summary>
-        /// True if the property has the FhirElementAttribute.
+        ///     True if the property has the FhirElementAttribute.
         /// </summary>
         public bool IsFhirElement { get; internal set; }
 
         /// <summary>
-        /// Some elements are multi-typed.
-        /// This is the list of types that this property may contain, or refer to (in case of <see cref="IsReference"/> = true).
-        /// Contains at least 1 type.
+        ///     Some elements are multi-typed.
+        ///     This is the list of types that this property may contain, or refer to (in case of <see cref="IsReference" /> =
+        ///     true).
+        ///     Contains at least 1 type.
         /// </summary>
         public List<Type> AllowedTypes { get; internal set; }
 
         /// <summary>
-        /// True if the property has the ResourceReferenceAttribute.
+        ///     True if the property has the ResourceReferenceAttribute.
         /// </summary>
         public bool IsReference { get; internal set; }
 
@@ -47,7 +56,7 @@
         //}
 
         /// <summary>
-        /// Normal .Net PropertyInfo for this property.
+        ///     Normal .Net PropertyInfo for this property.
         /// </summary>
         public PropertyInfo PropInfo { get; internal set; }
     }

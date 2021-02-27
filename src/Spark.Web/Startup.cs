@@ -1,33 +1,38 @@
-﻿namespace Spark.Web
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
+
+namespace Spark.Web
 {
+    using System.Linq;
+    using Data;
+    using Engine;
+    using Engine.Web;
+    using Engine.Web.Formatters;
+    using Hubs;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Identity;
     using Microsoft.AspNetCore.Mvc;
+    using Microsoft.AspNetCore.Mvc.Formatters;
+    using Microsoft.AspNetCore.ResponseCompression;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
-    using Microsoft.OpenApi.Models;
-    using Engine;
-    using Data;
-    using Models.Config;
-    using Services;
-    using Hubs;
-    using Microsoft.AspNetCore.ResponseCompression;
-    using System.Linq;
-    using Microsoft.AspNetCore.Mvc.Formatters;
     using Microsoft.Extensions.Hosting;
-    using Engine.Web;
-    using Engine.Web.Formatters;
+    using Microsoft.OpenApi.Models;
+    using Models.Config;
     using Postgres;
+    using Services;
 
     public class Startup
     {
-        public Startup(IConfiguration configuration)
-        {
-            Configuration = configuration;
-        }
+        public Startup(IConfiguration configuration) => Configuration = configuration;
 
         public IConfiguration Configuration { get; }
 
@@ -163,10 +168,7 @@
 
             // UseFhir also calls UseMvc
             app.UseFhir(
-                r => r.MapRoute(
-                    name: "default",
-                    template: "{controller}/{action}/{id?}",
-                    defaults: new {controller = "Home", action = "Index"}));
+                r => r.MapRoute("default", "{controller}/{action}/{id?}", new {controller = "Home", action = "Index"}));
         }
     }
 }

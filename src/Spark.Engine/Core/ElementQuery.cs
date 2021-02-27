@@ -1,42 +1,42 @@
-﻿/*
- * Copyright (c) 2014, Furore (info@furore.com) and contributors
- * See the file CONTRIBUTORS for details.
- *
- * This file is licensed under the BSD 3-Clause license
- * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
- */
-
-using Hl7.Fhir.Introspection;
-using Hl7.Fhir.Model;
-using Hl7.Fhir.Validation;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text.RegularExpressions;
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
 
 namespace Spark.Engine.Core
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Reflection;
+    using System.Text.RegularExpressions;
+    using Hl7.Fhir.Introspection;
+    using Hl7.Fhir.Model;
+    using Hl7.Fhir.Validation;
+
     public class ElementQuery
     {
         private readonly List<Chain> _chains = new List<Chain>();
-
-        public void Add(string path)
-        {
-            _chains.Add(new Chain(path));
-        }
 
         public ElementQuery(params string[] paths)
         {
             foreach (var path in paths)
             {
-                this.Add(path);
+                Add(path);
             }
         }
 
         public ElementQuery(string path)
         {
-            this.Add(path);
+            Add(path);
+        }
+
+        public void Add(string path)
+        {
+            _chains.Add(new Chain(path));
         }
 
         public void Visit(object field, Action<object> action)
@@ -47,21 +47,23 @@ namespace Spark.Engine.Core
             }
         }
 
+        public override string ToString()
+        {
+            return string.Join(", ", _chains.Select(chain => string.Join(".", chain)));
+        }
+
         // Legenda:
         // path:  string path  = "person.family.name";
         // string chain: List<string> chain = { "person", "family", "name" };
         // Segment Chain : List<Segment> Chain;
         public class Segment
         {
-            public string Name;
-            public PropertyInfo Property;
             public Type AllowedType;
             public Predicate<object> Filter;
+            public string Name;
+            public PropertyInfo Property;
 
-            public object GetValue(object field)
-            {
-                return field == null || Property == null ? null : Property.GetValue(field);
-            }
+            public object GetValue(object field) => field == null || Property == null ? null : Property.GetValue(field);
         }
 
         public class Chain
@@ -161,7 +163,7 @@ namespace Spark.Engine.Core
                                         var curTypeName = segment.Name.Remove(0, feAtt.Name.Length);
                                         var curType = ModelInfo.GetTypeForFhirType(curTypeName);
                                         if (allowedType.IsAssignableFrom(curType))
-                                        //if (link.propertyName.Equals(feAtt.Name + ModelInfo.FhirCsTypeToString[allowedType], StringComparison.InvariantCultureIgnoreCase))
+                                            //if (link.propertyName.Equals(feAtt.Name + ModelInfo.FhirCsTypeToString[allowedType], StringComparison.InvariantCultureIgnoreCase))
                                         {
                                             segment.AllowedType = allowedType;
                                         }
@@ -169,7 +171,6 @@ namespace Spark.Engine.Core
                                 }
                             }
                         }
-
                     }
                     else
                     {
@@ -237,7 +238,7 @@ namespace Spark.Engine.Core
 
             private static bool IsFhirElement(MemberInfo member, object criterium)
             {
-                var fhirElementName = (string)criterium;
+                var fhirElementName = (string) criterium;
                 var feAtt = member.GetCustomAttribute<FhirElementAttribute>();
 
                 if (feAtt != null)
@@ -259,7 +260,7 @@ namespace Spark.Engine.Core
                                     var curTypeName = fhirElementName.Remove(0, feAtt.Name.Length);
                                     var curType = ModelInfo.GetTypeForFhirType(curTypeName);
                                     if (allowedType.IsAssignableFrom(curType))
-                                    //                                        if (link.propertyName.Equals(feAtt.Name + ModelInfo.FhirCsTypeToString[allowedType], StringComparison.InvariantCultureIgnoreCase))
+                                        //                                        if (link.propertyName.Equals(feAtt.Name + ModelInfo.FhirCsTypeToString[allowedType], StringComparison.InvariantCultureIgnoreCase))
                                     {
                                         return true;
                                     }
@@ -278,11 +279,11 @@ namespace Spark.Engine.Core
 
             public void Visit(object field, Action<object> action)
             {
-                Visit(field, this._segments, action, null);
+                Visit(field, _segments, action, null);
             }
 
             /// <summary>
-            /// Test if a type derives from IList of T, for any T.
+            ///     Test if a type derives from IList of T, for any T.
             /// </summary>
             private bool TestIfGenericList(Type type)
             {
@@ -368,7 +369,8 @@ namespace Spark.Engine.Core
             }
 
             /// <summary>
-            /// Returns the property matching the propertyname, and if it is a FhirElement with DatatypeChoice or ResourceChoice, the allowed type as stated in the path.
+            ///     Returns the property matching the propertyname, and if it is a FhirElement with DatatypeChoice or ResourceChoice,
+            ///     the allowed type as stated in the path.
             /// </summary>
             /// <param name="x"></param>
             /// <param name="propertyname"></param>
@@ -405,16 +407,10 @@ namespace Spark.Engine.Core
             //        return null;
 
             //}
-
             public override string ToString()
             {
                 return string.Join(".", _segments.Select(l => l.Name));
             }
-        }
-
-        public override string ToString()
-        {
-            return string.Join(", ", _chains.Select(chain => string.Join(".", chain)));
         }
     }
 }

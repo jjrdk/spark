@@ -1,4 +1,12 @@
-﻿namespace Spark.Engine.Core
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
+
+namespace Spark.Engine.Core
 {
     using Extensions;
 
@@ -7,37 +15,30 @@
 
     public class Key : IKey
     {
+        public Key()
+        {
+        }
+
+        public Key(string @base, string type, string resourceId, string versionId)
+        {
+            Base = @base?.TrimEnd('/');
+            TypeName = type;
+            ResourceId = resourceId;
+            VersionId = versionId;
+        }
+
+        public static Key Null => default;
         public string Base { get; set; }
         public string TypeName { get; set; }
         public string ResourceId { get; set; }
         public string VersionId { get; set; }
 
-        public Key() { }
+        public static Key Create(string type) => new Key(null, type, null, null);
 
-        public Key(string @base, string type, string resourceId, string versionId)
-        {
-            this.Base = @base?.TrimEnd('/');
-            this.TypeName = type;
-            this.ResourceId = resourceId;
-            this.VersionId = versionId;
-        }
+        public static Key Create(string type, string resourceId) => new Key(null, type, resourceId, null);
 
-        public static Key Create(string type)
-        {
-            return new Key(null, type, null, null);
-        }
-
-        public static Key Create(string type, string resourceId)
-        {
-            return new Key(null, type, resourceId, null);
-        }
-
-        public static Key Create(string type, string resourceId, string versionId)
-        {
-            return new Key(null, type, resourceId, versionId);
-        }
-
-        public static Key Null => default;
+        public static Key Create(string type, string resourceId, string versionId) =>
+            new Key(null, type, resourceId, versionId);
 
         public override bool Equals(object obj)
         {
@@ -46,14 +47,11 @@
                 return false;
             }
 
-            var other = (Key)obj;
+            var other = (Key) obj;
             return this.ToUriString() == other.ToUriString();
         }
 
-        public override int GetHashCode()
-        {
-            return this.ToUriString().GetHashCode();
-        }
+        public override int GetHashCode() => this.ToUriString().GetHashCode();
 
         public static Key ParseOperationPath(string path)
         {
@@ -64,6 +62,7 @@
             {
                 path = path.Substring(0, indexOfQueryString);
             }
+
             var segments = path.Split('/');
             if (segments.Length >= 1)
             {
@@ -83,10 +82,6 @@
             return key;
         }
 
-        public override string ToString()
-        {
-            return this.ToUriString();
-        }
+        public override string ToString() => this.ToUriString();
     }
-
 }

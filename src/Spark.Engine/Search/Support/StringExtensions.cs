@@ -1,10 +1,10 @@
-﻿/* 
- * Copyright (c) 2014, Furore (info@furore.com) and contributors
- * See the file CONTRIBUTORS for details.
- * 
- * This file is licensed under the BSD 3-Clause license
- * available at https://raw.githubusercontent.com/ewoutkramer/fhir-net-api/master/LICENSE
- */
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
 
 namespace Spark.Engine.Search.Support
 {
@@ -55,7 +55,7 @@ namespace Spark.Engine.Search.Support
 
             if (pos == -1)
             {
-                return Tuple.Create(text, (string)null);     // Nothing to split
+                return Tuple.Create(text, (string) null); // Nothing to split
             }
 
             var key = text.Substring(0, pos);

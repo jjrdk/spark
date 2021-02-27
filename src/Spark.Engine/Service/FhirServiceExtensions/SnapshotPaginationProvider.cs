@@ -1,20 +1,28 @@
+// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
+
 namespace Spark.Engine.Service.FhirServiceExtensions
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
+    using Core;
+    using Extensions;
     using Hl7.Fhir.Model;
-    using Spark.Engine.Core;
-    using Spark.Engine.Extensions;
-    using Spark.Engine.Store.Interfaces;
+    using Store.Interfaces;
 
     public class SnapshotPaginationProvider : ISnapshotPaginationProvider, ISnapshotPagination
     {
         private readonly IFhirStore _fhirStore;
-        private readonly ITransfer _transfer;
         private readonly ILocalhost _localhost;
         private readonly ISnapshotPaginationCalculator _snapshotPaginationCalculator;
+        private readonly ITransfer _transfer;
         private Snapshot _snapshot;
 
         public SnapshotPaginationProvider(
@@ -23,16 +31,10 @@ namespace Spark.Engine.Service.FhirServiceExtensions
             ILocalhost localhost,
             ISnapshotPaginationCalculator snapshotPaginationCalculator)
         {
-            this._fhirStore = fhirStore;
-            this._transfer = transfer;
-            this._localhost = localhost;
+            _fhirStore = fhirStore;
+            _transfer = transfer;
+            _localhost = localhost;
             _snapshotPaginationCalculator = snapshotPaginationCalculator;
-        }
-
-        public ISnapshotPagination StartPagination(Snapshot snapshot)
-        {
-            this._snapshot = snapshot;
-            return this;
         }
 
         public async Task<Bundle> GetPage(int? index = null, Action<Entry> transformElement = null)
@@ -48,6 +50,12 @@ namespace Spark.Engine.Service.FhirServiceExtensions
                     _snapshot.Keys.Count(),
                     _snapshot.Id)
                 : await CreateBundleAsync(index).ConfigureAwait(false);
+        }
+
+        public ISnapshotPagination StartPagination(Snapshot snapshot)
+        {
+            _snapshot = snapshot;
+            return this;
         }
 
         private async Task<Bundle> CreateBundleAsync(int? start = null)

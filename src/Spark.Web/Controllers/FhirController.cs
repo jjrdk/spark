@@ -1,32 +1,39 @@
-﻿using System;
-using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
-using System.Web;
-using Hl7.Fhir.Model;
-using Hl7.Fhir.Rest;
-using Microsoft.AspNetCore.Cors;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Spark.Engine;
-using Spark.Engine.Core;
-using Spark.Engine.Extensions;
-using Spark.Engine.Service;
-using Spark.Engine.Utility;
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
 
 namespace Spark.Web.Controllers
 {
+    using System;
+    using System.Linq;
+    using System.Net;
+    using System.Threading.Tasks;
+    using System.Web;
+    using Engine;
+    using Engine.Core;
+    using Engine.Extensions;
+    using Engine.Service;
+    using Engine.Utility;
     using Engine.Web.Extensions;
+    using Hl7.Fhir.Model;
+    using Hl7.Fhir.Rest;
+    using Microsoft.AspNetCore.Cors;
+    using Microsoft.AspNetCore.Http;
+    using Microsoft.AspNetCore.Mvc;
 
-    [Route("fhir"), ApiController, EnableCors]
+    [Route("fhir")]
+    [ApiController]
+    [EnableCors]
     public class FhirController : ControllerBase
     {
         private readonly IAsyncFhirService _fhirService;
 
-        public FhirController(IAsyncFhirService fhirService)
-        {
+        public FhirController(IAsyncFhirService fhirService) =>
             _fhirService = fhirService ?? throw new ArgumentNullException(nameof(fhirService));
-        }
 
         [HttpGet("{type}/{id}")]
         public async Task<ActionResult<FhirResponse>> Read(string type, string id)
@@ -56,8 +63,12 @@ namespace Spark.Web.Controllers
                 return new ActionResult<FhirResponse>(await _fhirService.Update(key, resource).ConfigureAwait(false));
             }
 
-            return new ActionResult<FhirResponse>(await _fhirService.ConditionalUpdate(key, resource,
-                SearchParams.FromUriParamList(Request.TupledParameters())).ConfigureAwait(false));
+            return new ActionResult<FhirResponse>(
+                await _fhirService.ConditionalUpdate(
+                        key,
+                        resource,
+                        SearchParams.FromUriParamList(Request.TupledParameters()))
+                    .ConfigureAwait(false));
         }
 
         [HttpPost("{type}")]
@@ -68,11 +79,11 @@ namespace Spark.Web.Controllers
             if (Request.Headers.ContainsKey(FhirHttpHeaders.IF_NONE_EXIST))
             {
                 var searchQueryString = HttpUtility.ParseQueryString(Request.GetTypedHeaders().IfNoneExist());
-                var searchValues =
-                    searchQueryString.Keys.Cast<string>()
-                        .Select(k => new Tuple<string, string>(k, searchQueryString[k]));
+                var searchValues = searchQueryString.Keys.Cast<string>()
+                    .Select(k => new Tuple<string, string>(k, searchQueryString[k]));
 
-                return await _fhirService.ConditionalCreate(key, resource, SearchParams.FromUriParamList(searchValues)).ConfigureAwait(false);
+                return await _fhirService.ConditionalCreate(key, resource, SearchParams.FromUriParamList(searchValues))
+                    .ConfigureAwait(false);
             }
 
             return await _fhirService.Create(key, resource).ConfigureAwait(false);
@@ -135,7 +146,7 @@ namespace Spark.Web.Controllers
         {
             // TODO: start index should be retrieved from the body.
             var start = Request.GetParameter(FhirParameter.SNAPSHOT_INDEX).ParseIntParameter() ?? 0;
-            SearchParams searchparams = Request.GetSearchParamsFromBody();
+            var searchparams = Request.GetSearchParamsFromBody();
 
             return await _fhirService.Search(type, searchparams, start).ConfigureAwait(false);
         }
@@ -149,23 +160,20 @@ namespace Spark.Web.Controllers
 
         // ============= Whole System Interactions
 
-        [HttpGet, Route("metadata")]
-        public async Task<FhirResponse> Metadata()
-        {
-            return await _fhirService.CapabilityStatement(SparkSettings.Version).ConfigureAwait(false);
-        }
+        [HttpGet]
+        [Route("metadata")]
+        public async Task<FhirResponse> Metadata() =>
+            await _fhirService.CapabilityStatement(SparkSettings.Version).ConfigureAwait(false);
 
-        [HttpOptions, Route("")]
-        public async Task<FhirResponse> Options()
-        {
-            return await _fhirService.CapabilityStatement(SparkSettings.Version).ConfigureAwait(false);
-        }
+        [HttpOptions]
+        [Route("")]
+        public async Task<FhirResponse> Options() =>
+            await _fhirService.CapabilityStatement(SparkSettings.Version).ConfigureAwait(false);
 
-        [HttpPost, Route("")]
-        public async Task<FhirResponse> Transaction(Bundle bundle)
-        {
-            return await _fhirService.Transaction(bundle).ConfigureAwait(false);
-        }
+        [HttpPost]
+        [Route("")]
+        public async Task<FhirResponse> Transaction(Bundle bundle) =>
+            await _fhirService.Transaction(bundle).ConfigureAwait(false);
 
         //[HttpPost, Route("Mailbox")]
         //public FhirResponse Mailbox(Bundle document)
@@ -174,24 +182,27 @@ namespace Spark.Web.Controllers
         //    return service.Mailbox(document, b);
         //}
 
-        [HttpGet, Route("_history")]
+        [HttpGet]
+        [Route("_history")]
         public async Task<FhirResponse> History()
         {
             var parameters = Request.ToHistoryParameters();
             return await _fhirService.History(parameters).ConfigureAwait(false);
         }
 
-        [HttpGet, Route("_snapshot")]
+        [HttpGet]
+        [Route("_snapshot")]
         public async Task<FhirResponse> Snapshot()
         {
-            string snapshot = Request.GetParameter(FhirParameter.SNAPSHOT_ID);
+            var snapshot = Request.GetParameter(FhirParameter.SNAPSHOT_ID);
             var start = Request.GetParameter(FhirParameter.SNAPSHOT_INDEX).ParseIntParameter() ?? 0;
             return await _fhirService.GetPage(snapshot, start).ConfigureAwait(false);
         }
 
         // Operations
 
-        [HttpPost, Route("${operation}")]
+        [HttpPost]
+        [Route("${operation}")]
         public FhirResponse ServerOperation(string operation)
         {
             switch (operation.ToLower())
@@ -201,8 +212,13 @@ namespace Spark.Web.Controllers
             }
         }
 
-        [HttpPost, Route("{type}/{id}/${operation}")]
-        public async Task<FhirResponse> InstanceOperation(string type, string id, string operation, Parameters parameters)
+        [HttpPost]
+        [Route("{type}/{id}/${operation}")]
+        public async Task<FhirResponse> InstanceOperation(
+            string type,
+            string id,
+            string operation,
+            Parameters parameters)
         {
             var key = Key.Create(type, id);
             switch (operation.ToLower())
@@ -215,21 +231,27 @@ namespace Spark.Web.Controllers
             }
         }
 
-        [HttpPost, HttpGet, Route("{type}/{id}/$everything")]
+        [HttpPost]
+        [HttpGet]
+        [Route("{type}/{id}/$everything")]
         public async Task<FhirResponse> Everything(string type, string id = null)
         {
             var key = Key.Create(type, id);
             return await _fhirService.Everything(key).ConfigureAwait(false);
         }
 
-        [HttpPost, HttpGet, Route("{type}/$everything")]
+        [HttpPost]
+        [HttpGet]
+        [Route("{type}/$everything")]
         public async Task<FhirResponse> Everything(string type)
         {
             var key = Key.Create(type);
             return await _fhirService.Everything(key).ConfigureAwait(false);
         }
 
-        [HttpPost, HttpGet, Route("Composition/{id}/$document")]
+        [HttpPost]
+        [HttpGet]
+        [Route("Composition/{id}/$document")]
         public async Task<FhirResponse> Document(string id)
         {
             var key = Key.Create("Composition", id);

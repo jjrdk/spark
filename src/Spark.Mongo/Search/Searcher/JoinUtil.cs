@@ -1,11 +1,10 @@
-﻿/* 
- * Copyright (c) 2014, Furore (info@furore.com) and contributors
- * See the file CONTRIBUTORS for details.
- * 
- * This file is licensed under the BSD 3-Clause license
- * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
- */
-
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
 
 namespace Spark.Mongo.Search.Searcher
 {
@@ -86,7 +85,8 @@ public final class JoinUtil {
                                       String toField,
                                       Query fromQuery,
                                       IndexSearcher fromSearcher) throws IOException {
-    TermsCollector termsCollector = new TermsCollector(fromField);
+    TermsCollector termsCollector
+ = new TermsCollector(fromField);
     fromSearcher.search(fromQuery, termsCollector);
     return new TermsQuery(toField, termsCollector.getCollectorTerms());
   }

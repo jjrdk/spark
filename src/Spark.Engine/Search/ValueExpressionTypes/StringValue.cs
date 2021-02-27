@@ -1,31 +1,22 @@
-﻿/*
- * Copyright (c) 2014, Furore (info@furore.com) and contributors
- * See the file CONTRIBUTORS for details.
- *
- * This file is licensed under the BSD 3-Clause license
- * available at https://raw.githubusercontent.com/ewoutkramer/fhir-net-api/master/LICENSE
- */
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
 
 namespace Spark.Engine.Search.ValueExpressionTypes
 {
     public class StringValue : ValueExpression
     {
+        public StringValue(string value) => Value = value;
+
         public string Value { get; }
 
-        public StringValue(string value)
-        {
-            Value = value;
-        }
+        public override string ToString() => EscapeString(Value);
 
-        public override string ToString()
-        {
-            return EscapeString(Value);
-        }
-
-        public static StringValue Parse(string text)
-        {
-            return new StringValue(UnescapeString(text));
-        }
+        public static StringValue Parse(string text) => new StringValue(UnescapeString(text));
 
 
         public static string EscapeString(string value)

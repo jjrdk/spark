@@ -1,13 +1,20 @@
-﻿namespace Spark.Engine.Extensions
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
+
+namespace Spark.Engine.Extensions
 {
-    using Fhir.Metrics;
-    using FM = Hl7.Fhir.Model;
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Spark.Engine.Model;
-
+    using Fhir.Metrics;
+    using Model;
     using Search.ValueExpressionTypes;
+    using FM = Hl7.Fhir.Model;
 
     public static class QuantityExtensions
     {
@@ -20,13 +27,10 @@
             Exponential value = input.Value ?? 1; //todo: is this assumption correct?
             return new Quantity(value, metric);
         }
+
         public static FM.Quantity ToFhirModelQuantity(this Quantity input)
         {
-            var output = new FM.Quantity
-            {
-                Value = (decimal)input.Value,
-                Code = input.Metric.ToString()
-            };
+            var output = new FM.Quantity {Value = (decimal) input.Value, Code = input.Metric.ToString()};
             output.Unit = output.Code;
             output.System = UcumUriString;
             return output;
@@ -80,10 +84,8 @@
             return quantity.NonUcumIndexedExpression();
         }
 
-        public static bool IsUcum(this FM.Quantity quantity)
-        {
-            return quantity.System != null && new Uri(UcumUriString).IsBaseOf(new Uri(quantity.System));
-        }
+        public static bool IsUcum(this FM.Quantity quantity) =>
+            quantity.System != null && new Uri(UcumUriString).IsBaseOf(new Uri(quantity.System));
 
         public static Quantity Canonical(this Quantity input)
         {
@@ -103,10 +105,7 @@
             return output;
         }
 
-        public static string SearchableString(this Quantity quantity)
-        {
-            return quantity.LeftSearchableString(); // extension access
-        }
-
+        public static string SearchableString(this Quantity quantity) =>
+            quantity.LeftSearchableString(); // extension access
     }
 }

@@ -1,4 +1,12 @@
-﻿namespace Spark.Engine.Web.Formatters
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
+
+namespace Spark.Engine.Web.Formatters
 {
     using System;
     using System.Text;
@@ -15,10 +23,7 @@
     {
         public static readonly string[] JsonMediaTypes =
         {
-            "application/json",
-            "application/fhir+json",
-            "application/json+fhir",
-            "text/json"
+            "application/json", "application/fhir+json", "application/json+fhir", "text/json"
         };
 
         private readonly FhirJsonSerializer _serializer;
@@ -34,25 +39,23 @@
         }
 
         /// <inheritdoc />
-        public override bool CanWriteResult(OutputFormatterCanWriteContext context)
-        {
-            return SupportedMediaTypes.Contains(context.ContentType.Value) && base.CanWriteResult(context);
-        }
+        public override bool CanWriteResult(OutputFormatterCanWriteContext context) =>
+            SupportedMediaTypes.Contains(context.ContentType.Value) && base.CanWriteResult(context);
 
         /// <inheritdoc />
-        protected override bool CanWriteType(Type type)
-        {
-            return typeof(Resource).IsAssignableFrom(type);
-        }
+        protected override bool CanWriteType(Type type) => typeof(Resource).IsAssignableFrom(type);
 
         /// <inheritdoc />
         public override void WriteResponseHeaders(OutputFormatterWriteContext context)
         {
-            context.ContentType = FhirMediaType.GetMediaTypeHeaderValue(context.ObjectType, ResourceFormat.Json).ToString();
+            context.ContentType = FhirMediaType.GetMediaTypeHeaderValue(context.ObjectType, ResourceFormat.Json)
+                .ToString();
         }
 
         /// <inheritdoc />
-        public override async Task WriteResponseBodyAsync(OutputFormatterWriteContext context, Encoding selectedEncoding)
+        public override async Task WriteResponseBodyAsync(
+            OutputFormatterWriteContext context,
+            Encoding selectedEncoding)
         {
             await using var bodyWriter = context.WriterFactory(context.HttpContext.Response.Body, selectedEncoding);
             using JsonWriter writer = new JsonTextWriter(bodyWriter);
@@ -62,12 +65,12 @@
             var value = context.Object;
             if (type == typeof(OperationOutcome))
             {
-                var resource = (Resource)value;
+                var resource = (Resource) value;
                 _serializer.Serialize(resource, writer, summary);
             }
             else if (typeof(Resource).IsAssignableFrom(type))
             {
-                var resource = (Resource)value;
+                var resource = (Resource) value;
                 _serializer.Serialize(resource, writer, summary);
             }
             else if (typeof(FhirResponse).IsAssignableFrom(type))

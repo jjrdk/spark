@@ -1,10 +1,18 @@
-﻿namespace Spark.Engine.Extensions
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
+
+namespace Spark.Engine.Extensions
 {
-    using Hl7.Fhir.Model;
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Spark.Engine.Core;
+    using Core;
+    using Hl7.Fhir.Model;
 
     public static class EntryExtensions
     {
@@ -51,10 +59,8 @@
         public static Bundle.HTTPVerb ExtrapolateMethod(
             this ILocalhost localhost,
             Bundle.EntryComponent entry,
-            IKey key)
-        {
-            return entry.Request?.Method ?? DetermineMethod(localhost, key);
-        }
+            IKey key) =>
+            entry.Request?.Method ?? DetermineMethod(localhost, key);
 
         public static Entry ToInteraction(this ILocalhost localhost, Bundle.EntryComponent bundleEntry)
         {
@@ -64,7 +70,6 @@
             return key != null
                 ? Entry.Create(method, key, bundleEntry.Resource)
                 : Entry.Create(method, bundleEntry.Resource);
-
         }
 
         public static Bundle.EntryComponent TranslateToSparseEntry(this Entry entry, FhirResponse response = null)
@@ -72,9 +77,9 @@
             var bundleEntry = new Bundle.EntryComponent();
             if (response != null)
             {
-                bundleEntry.Response = new Bundle.ResponseComponent()
+                bundleEntry.Response = new Bundle.ResponseComponent
                 {
-                    Status = $"{(int)response.StatusCode} {response.StatusCode}",
+                    Status = $"{(int) response.StatusCode} {response.StatusCode}",
                     Location = response.Key?.ToString(),
                     Etag = response.Key != null ? ETag.Create(response.Key.VersionId).ToString() : null,
                     LastModified = entry?.Resource?.Meta?.LastUpdated
@@ -108,16 +113,11 @@
             }
         }
 
-        public static bool HasResource(this Entry entry)
-        {
-            return entry.Resource != null;
-        }
+        public static bool HasResource(this Entry entry) => entry.Resource != null;
 
-        public static bool IsDeleted(this Entry entry)
-        {
+        public static bool IsDeleted(this Entry entry) =>
             // API: HTTPVerb should have a broader scope than Bundle.
-            return entry.Method == Bundle.HTTPVerb.DELETE;
-        }
+            entry.Method == Bundle.HTTPVerb.DELETE;
 
         public static void Append(this IList<Entry> list, IList<Entry> appendage)
         {

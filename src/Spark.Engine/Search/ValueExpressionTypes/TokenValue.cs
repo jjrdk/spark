@@ -1,10 +1,10 @@
-﻿/* 
- * Copyright (c) 2014, Furore (info@furore.com) and contributors
- * See the file CONTRIBUTORS for details.
- * 
- * This file is licensed under the BSD 3-Clause license
- * available at https://raw.githubusercontent.com/ewoutkramer/fhir-net-api/master/LICENSE
- */
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
 
 namespace Spark.Engine.Search.ValueExpressionTypes
 {
@@ -13,12 +13,6 @@ namespace Spark.Engine.Search.ValueExpressionTypes
 
     public class TokenValue : ValueExpression
     {
-        public string Namespace { get; }
-
-        public string Value { get; }
-
-        public bool AnyNamespace { get; }
-
         public TokenValue(string value, bool matchAnyNamespace)
         {
             Value = value;
@@ -32,13 +26,18 @@ namespace Spark.Engine.Search.ValueExpressionTypes
             Namespace = ns;
         }
 
+        public string Namespace { get; }
+
+        public string Value { get; }
+
+        public bool AnyNamespace { get; }
+
         public override string ToString()
         {
             if (!AnyNamespace)
             {
                 var ns = Namespace ?? string.Empty;
-                return StringValue.EscapeString(ns) + "|" +
-                                    StringValue.EscapeString(Value);
+                return StringValue.EscapeString(ns) + "|" + StringValue.EscapeString(Value);
             }
 
             return StringValue.EscapeString(Value);
@@ -64,20 +63,17 @@ namespace Spark.Engine.Search.ValueExpressionTypes
 
             if (hasNamespace)
             {
-                if(pair[1] == string.Empty)
+                if (pair[1] == string.Empty)
                 {
                     throw new FormatException("Token query parameters should at least specify a value after the '|'");
                 }
 
                 var pair1 = StringValue.UnescapeString(pair[1]);
 
-                return pair0 == string.Empty ? new TokenValue(pair1, matchAnyNamespace: false ) : new TokenValue(pair1, pair0);
+                return pair0 == string.Empty ? new TokenValue(pair1, false) : new TokenValue(pair1, pair0);
             }
 
-            return new TokenValue(pair0, matchAnyNamespace: true);
-        }     
+            return new TokenValue(pair0, true);
+        }
     }
-
-
-
 }

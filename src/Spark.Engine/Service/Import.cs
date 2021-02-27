@@ -1,10 +1,10 @@
-﻿/*
- * Copyright (c) 2014, Furore (info@furore.com) and contributors
- * See the file CONTRIBUTORS for details.
- *
- * This file is licensed under the BSD 3-Clause license
- * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
- */
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
 
 namespace Spark.Engine.Service
 {
@@ -20,19 +20,19 @@ namespace Spark.Engine.Service
     using Task = System.Threading.Tasks.Task;
 
     /// <summary>
-    /// Import can map id's and references in incoming entries to id's and references that are local to the Spark Server.
+    ///     Import can map id's and references in incoming entries to id's and references that are local to the Spark Server.
     /// </summary>
     internal class Import
     {
-        private readonly Mapper<string, IKey> _mapper;
         private readonly List<Entry> _entries;
-        private readonly ILocalhost _localhost;
         private readonly IGenerator _generator;
+        private readonly ILocalhost _localhost;
+        private readonly Mapper<string, IKey> _mapper;
 
         public Import(ILocalhost localhost, IGenerator generator)
         {
-            this._localhost = localhost;
-            this._generator = generator;
+            _localhost = localhost;
+            _generator = generator;
             _mapper = new Mapper<string, IKey>();
             _entries = new List<Entry>();
         }
@@ -49,6 +49,7 @@ namespace Spark.Engine.Service
         {
             _mapper.Merge(mappings);
         }
+
         public void Add(IEnumerable<Entry> interactions)
         {
             foreach (var interaction in interactions)
@@ -66,7 +67,7 @@ namespace Spark.Engine.Service
 
         private void InternalizeState()
         {
-            foreach (var interaction in this._entries.Transferable())
+            foreach (var interaction in _entries.Transferable())
             {
                 interaction.State = EntryState.Internal;
             }
@@ -74,7 +75,7 @@ namespace Spark.Engine.Service
 
         private async Task InternalizeKeys()
         {
-            foreach (var interaction in this._entries.Transferable())
+            foreach (var interaction in _entries.Transferable())
             {
                 await InternalizeKey(interaction).ConfigureAwait(false);
             }
@@ -121,34 +122,34 @@ namespace Spark.Engine.Service
             switch (_localhost.GetKeyKind(key))
             {
                 case KeyKind.Foreign:
-                    {
-                        entry.Key = await Remap(entry.Resource).ConfigureAwait(false);
-                        return;
-                    }
+                {
+                    entry.Key = await Remap(entry.Resource).ConfigureAwait(false);
+                    return;
+                }
                 case KeyKind.Temporary:
-                    {
-                        entry.Key = await Remap(entry.Resource).ConfigureAwait(false);
-                        return;
-                    }
+                {
+                    entry.Key = await Remap(entry.Resource).ConfigureAwait(false);
+                    return;
+                }
                 case KeyKind.Local:
                 case KeyKind.Internal:
+                {
+                    if (entry.Method == Bundle.HTTPVerb.PUT || entry.Method == Bundle.HTTPVerb.DELETE)
                     {
-                        if (entry.Method == Bundle.HTTPVerb.PUT || entry.Method == Bundle.HTTPVerb.DELETE)
-                        {
-                            entry.Key = await RemapHistoryOnly(key).ConfigureAwait(false);
-                        }
-                        else if (entry.Method == Bundle.HTTPVerb.POST)
-                        {
-                            entry.Key = await Remap(entry.Resource).ConfigureAwait(false);
-                        }
-                        return;
+                        entry.Key = await RemapHistoryOnly(key).ConfigureAwait(false);
+                    }
+                    else if (entry.Method == Bundle.HTTPVerb.POST)
+                    {
+                        entry.Key = await Remap(entry.Resource).ConfigureAwait(false);
+                    }
 
-                    }
+                    return;
+                }
                 default:
-                    {
-                        // switch can never get here.
-                        throw Error.Internal("Unexpected key for resource: " + entry.Key.ToString());
-                    }
+                {
+                    // switch can never get here.
+                    throw Error.Internal("Unexpected key for resource: " + entry.Key);
+                }
             }
         }
 
@@ -165,7 +166,9 @@ namespace Spark.Engine.Service
                 {
                     if (reference.Url != null)
                     {
-                        reference.Url = new Uri(InternalizeReference(reference.Url.ToString()), UriKind.RelativeOrAbsolute);
+                        reference.Url = new Uri(
+                            InternalizeReference(reference.Url.ToString()),
+                            UriKind.RelativeOrAbsolute);
                     }
                 }
                 else if (element is FhirUri uri)
@@ -178,7 +181,7 @@ namespace Spark.Engine.Service
                 }
             }
 
-            Type[] types = { typeof(ResourceReference), typeof(FhirUri), typeof(Narrative) };
+            Type[] types = {typeof(ResourceReference), typeof(FhirUri), typeof(Narrative)};
 
             Auxiliary.ResourceVisitor.VisitByType(resource, Visitor, types);
         }
@@ -216,7 +219,11 @@ namespace Spark.Engine.Service
                 }
             }
 
-            return replacement ?? throw Error.Create(HttpStatusCode.Conflict, "This reference does not point to a resource in the server or the current transaction: {0}", localkey);
+            return replacement
+                   ?? throw Error.Create(
+                       HttpStatusCode.Conflict,
+                       "This reference does not point to a resource in the server or the current transaction: {0}",
+                       localkey);
         }
 
         private string InternalizeReference(string uristring)
@@ -252,7 +259,6 @@ namespace Spark.Engine.Service
                 xdoc.VisitAttributes("img", "src", n => n.Value = InternalizeReference(n.Value));
                 xdoc.VisitAttributes("a", "href", n => n.Value = InternalizeReference(n.Value));
                 return xdoc.ToString();
-
             }
             catch
             {
@@ -260,10 +266,6 @@ namespace Spark.Engine.Service
                 // todo: should we really allow illegal xml ? /mh
                 return div;
             }
-
         }
-
     }
-
-
 }

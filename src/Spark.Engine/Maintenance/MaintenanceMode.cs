@@ -1,22 +1,30 @@
-﻿using System;
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
 
 namespace Spark.Engine.Maintenance
 {
+    using System;
+
     internal static class MaintenanceMode
     {
         private static readonly object _mutex = new object();
         private static volatile MaintenanceLock _lock;
 
         /// <summary>
-        /// Whether maintenance mode is enabled. If <code>true</code>
-        /// then all the data modifying requests should be responded
-        /// with <code>503</code> HTTP status code.
+        ///     Whether maintenance mode is enabled. If <code>true</code>
+        ///     then all the data modifying requests should be responded
+        ///     with <code>503</code> HTTP status code.
         /// </summary>
         public static bool IsEnabled(MaintenanceLockMode mode) => _lock?.IsLocked == true && _lock.Mode >= mode;
 
         /// <summary>
-        /// Sets maintenance mode ON. The returned lock handle should be used
-        /// to reset the maintenance state.
+        ///     Sets maintenance mode ON. The returned lock handle should be used
+        ///     to reset the maintenance state.
         /// </summary>
         /// <param name="mode">Lock mode, write only, or read and write</param>
         /// <exception cref="MaintenanceModeEnabledException">Maintenance mode already enabled somewhere else.</exception>
@@ -33,6 +41,7 @@ namespace Spark.Engine.Maintenance
                     }
                 }
             }
+
             throw new MaintenanceModeEnabledException();
         }
 

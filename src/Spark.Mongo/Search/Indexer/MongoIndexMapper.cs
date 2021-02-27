@@ -1,19 +1,26 @@
-﻿using MongoDB.Bson;
-using Spark.Engine.Model;
-using Spark.Mongo.Search.Common;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
 
 namespace Spark.Mongo.Search.Indexer
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using Common;
+    using Engine.Model;
     using Engine.Search.ValueExpressionTypes;
+    using MongoDB.Bson;
 
     //Maps IndexValue elements to BsonElements.
     public class MongoIndexMapper
     {
         /// <summary>
-        /// Meant for mapping the root IndexValue (and all the stuff below it)
+        ///     Meant for mapping the root IndexValue (and all the stuff below it)
         /// </summary>
         /// <param name="indexValue"></param>
         /// <returns>List of BsonDocuments, one for the root and one for each contained index in it.</returns>
@@ -33,33 +40,22 @@ namespace Spark.Mongo.Search.Indexer
         private void EntryToDocument(IndexValue indexValue, int level, List<BsonDocument> result)
         {
             //Add the real values (not contained) to a document and add that to the result.
-            var notNestedValues = indexValue.Values.OfType<IndexValue>()
-                .Where(exp => exp.Name != "contained")
-                .ToList();
+            var notNestedValues = indexValue.Values.OfType<IndexValue>().Where(exp => exp.Name != "contained").ToList();
             var doc = new BsonDocument(new BsonElement(InternalField.LEVEL, level));
             doc.AddRange(notNestedValues.Select(IndexValueToElement));
             result.Add(doc);
 
             //Then do that recursively for all contained indexed resources.
-            var containedValues = indexValue.Values
-                .OfType<IndexValue>()
-                .Where(exp => exp.Name == "contained")
-                .ToList();
+            var containedValues = indexValue.Values.OfType<IndexValue>().Where(exp => exp.Name == "contained").ToList();
             foreach (var contained in containedValues)
             {
                 EntryToDocument(contained, level + 1, result);
             }
         }
 
-        private BsonValue Map(Expression expression)
-        {
-            return MapExpression((dynamic)expression);
-        }
+        private BsonValue Map(Expression expression) => MapExpression((dynamic) expression);
 
-        private BsonValue MapExpression(IndexValue indexValue)
-        {
-            return new BsonDocument(IndexValueToElement(indexValue));
-        }
+        private BsonValue MapExpression(IndexValue indexValue) => new BsonDocument(IndexValueToElement(indexValue));
 
         private BsonElement IndexValueToElement(IndexValue indexValue)
         {
@@ -72,11 +68,13 @@ namespace Spark.Mongo.Search.Indexer
             {
                 return new BsonElement(indexValue.Name, Map(indexValue.Values[0]));
             }
+
             var values = new BsonArray();
             foreach (var value in indexValue.Values)
             {
                 values.Add(Map(value));
             }
+
             return new BsonElement(indexValue.Name, values);
         }
 
@@ -94,29 +92,19 @@ namespace Spark.Mongo.Search.Indexer
                     throw new ArgumentException("All Components of composite are expected to be of type IndexValue");
                 }
             }
+
             return compositeDocument;
         }
 
-        private static BsonValue MapExpression(StringValue stringValue)
-        {
-            return BsonValue.Create(stringValue.Value);
-        }
+        private static BsonValue MapExpression(StringValue stringValue) => BsonValue.Create(stringValue.Value);
 
-        private static BsonValue MapExpression(DateTimeValue datetimeValue)
-        {
-            return BsonValue.Create(datetimeValue.Value.UtcDateTime);
-        }
+        private static BsonValue MapExpression(DateTimeValue datetimeValue) =>
+            BsonValue.Create(datetimeValue.Value.UtcDateTime);
 
-        private static BsonValue MapExpression(DateValue dateValue)
-        {
-            return BsonValue.Create(dateValue.Value);
-        }
+        private static BsonValue MapExpression(DateValue dateValue) => BsonValue.Create(dateValue.Value);
 
-        private static BsonValue MapExpression(NumberValue numberValue)
-        {
-            return BsonValue.Create((double)numberValue.Value);
-            //TODO: double is not as accurate as decimal, but MongoDB has no support for decimal.
-            //https://docs.mongodb.org/v2.6/tutorial/model-monetary-data/#monetary-value-exact-precision.
-        }
+        private static BsonValue MapExpression(NumberValue numberValue) => BsonValue.Create((double) numberValue.Value);
+        //TODO: double is not as accurate as decimal, but MongoDB has no support for decimal.
+        //https://docs.mongodb.org/v2.6/tutorial/model-monetary-data/#monetary-value-exact-precision.
     }
 }

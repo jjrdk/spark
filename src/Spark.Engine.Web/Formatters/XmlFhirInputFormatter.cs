@@ -1,12 +1,10 @@
-﻿/*
- * Copyright (c) 2014, Furore (info@furore.com) and contributors
- * See the file CONTRIBUTORS for details.
- *
- * This file is licensed under the BSD 3-Clause license
- * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
- */
-
-using Tasks = System.Threading.Tasks;
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
 
 namespace Spark.Engine.Web.Formatters
 {
@@ -42,13 +40,12 @@ namespace Spark.Engine.Web.Formatters
         }
 
         /// <inheritdoc />
-        protected override bool CanReadType(Type type)
-        {
-            return typeof(Resource).IsAssignableFrom(type);
-        }
+        protected override bool CanReadType(Type type) => typeof(Resource).IsAssignableFrom(type);
 
         /// <inheritdoc />
-        public override async Tasks.Task<InputFormatterResult> ReadRequestBodyAsync(InputFormatterContext context, Encoding encoding)
+        public override async System.Threading.Tasks.Task<InputFormatterResult> ReadRequestBodyAsync(
+            InputFormatterContext context,
+            Encoding encoding)
         {
             try
             {
@@ -72,7 +69,9 @@ namespace Spark.Engine.Web.Formatters
                     return await InputFormatterResult.SuccessAsync(resource).ConfigureAwait(false);
                 }
 
-                throw Error.Internal("The type {0} expected by the controller can not be deserialized", context.ModelType.Name);
+                throw Error.Internal(
+                    "The type {0} expected by the controller can not be deserialized",
+                    context.ModelType.Name);
             }
             catch (FormatException exc)
             {

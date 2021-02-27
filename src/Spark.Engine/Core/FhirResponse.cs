@@ -1,40 +1,48 @@
-﻿namespace Spark.Engine.Core
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
+
+namespace Spark.Engine.Core
 {
     using System.Net;
     using Hl7.Fhir.Model;
 
     public class FhirResponse
     {
-        public HttpStatusCode StatusCode;
         public IKey Key;
         public Resource Resource;
+        public HttpStatusCode StatusCode;
 
         public FhirResponse(HttpStatusCode code, IKey key, Resource resource)
         {
-            this.StatusCode = code;
-            this.Key = key;
-            this.Resource = resource;
+            StatusCode = code;
+            Key = key;
+            Resource = resource;
         }
 
         public FhirResponse(HttpStatusCode code, Resource resource)
         {
-            this.StatusCode = code;
-            this.Key = null;
-            this.Resource = resource;
+            StatusCode = code;
+            Key = null;
+            Resource = resource;
         }
 
         public FhirResponse(HttpStatusCode code)
         {
-            this.StatusCode = code;
-            this.Key = null;
-            this.Resource = null;
+            StatusCode = code;
+            Key = null;
+            Resource = null;
         }
 
         public bool IsValid
         {
             get
             {
-                var code = (int)this.StatusCode;
+                var code = (int) StatusCode;
                 return code <= 300;
             }
         }

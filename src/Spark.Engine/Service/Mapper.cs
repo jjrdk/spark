@@ -1,10 +1,10 @@
-﻿/* 
- * Copyright (c) 2014, Furore (info@furore.com) and contributors
- * See the file CONTRIBUTORS for details.
- * 
- * This file is licensed under the BSD 3-Clause license
- * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
- */
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
 
 namespace Spark.Engine.Service
 {
@@ -14,8 +14,6 @@ namespace Spark.Engine.Service
     public class Mapper<TKey, TValue>
     {
         private readonly Dictionary<TKey, TValue> _mapping = new Dictionary<TKey, TValue>();
-
-        public Mapper() { }
 
         public void Clear()
         {
@@ -30,13 +28,14 @@ namespace Spark.Engine.Service
 
         public bool Exists(TKey key)
         {
-            foreach(var item in _mapping)
+            foreach (var item in _mapping)
             {
                 if (item.Key.Equals(key))
                 {
                     return true;
                 }
             }
+
             return false;
         }
 
@@ -60,9 +59,9 @@ namespace Spark.Engine.Service
             {
                 if (!Exists(keyValuePair.Key))
                 {
-                    this._mapping.Add(keyValuePair.Key, keyValuePair.Value);
+                    _mapping.Add(keyValuePair.Key, keyValuePair.Value);
                 }
-                else if(Exists(keyValuePair.Key) && TryGet(keyValuePair.Key).Equals(keyValuePair.Value) == false)
+                else if (Exists(keyValuePair.Key) && TryGet(keyValuePair.Key).Equals(keyValuePair.Value) == false)
                 {
                     throw new InvalidOperationException("Incompatible mappings");
                 }

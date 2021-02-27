@@ -1,18 +1,24 @@
-using System.Collections.Generic;
-using System.Linq;
-using Spark.Engine.Core;
-using Spark.Engine.Interfaces;
+// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
 
 namespace Spark.Engine.FhirResponseFactory
 {
+    using System.Collections.Generic;
+    using System.Linq;
+    using Core;
+    using Interfaces;
+
     public class FhirResponseInterceptorRunner : IFhirResponseInterceptorRunner
     {
         private readonly IList<IFhirResponseInterceptor> _interceptors;
 
-        public FhirResponseInterceptorRunner(IFhirResponseInterceptor[] interceptors)
-        {
-            this._interceptors = new List<IFhirResponseInterceptor>(interceptors);
-        }
+        public FhirResponseInterceptorRunner(IFhirResponseInterceptor[] interceptors) =>
+            _interceptors = new List<IFhirResponseInterceptor>(interceptors);
 
         public void AddInterceptor(IFhirResponseInterceptor interceptor)
         {

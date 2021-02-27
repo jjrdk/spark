@@ -1,19 +1,19 @@
-﻿/*
- * Copyright (c) 2014, Furore (info@furore.com) and contributors
- * See the file CONTRIBUTORS for details.
- *
- * This file is licensed under the BSD 3-Clause license
- * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
- */
-
-using Hl7.Fhir.Model;
-using Hl7.Fhir.Rest;
-using System;
-using System.Net.Http.Headers;
-using System.Text;
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
 
 namespace Spark.Engine.Core
 {
+    using System;
+    using System.Net.Http.Headers;
+    using System.Text;
+    using Hl7.Fhir.Model;
+    using Hl7.Fhir.Rest;
+
     public static class FhirMediaType
     {
         public const string OCTET_STREAM_CONTENT_HEADER = "application/octet-stream";
@@ -29,11 +29,11 @@ namespace Spark.Engine.Core
                 }
                 : "application/octet-stream";
         }
-        
+
         public static MediaTypeHeaderValue GetMediaTypeHeaderValue(Type type, ResourceFormat format)
         {
             var mediatype = GetContentType(type, format);
-            var header = new MediaTypeHeaderValue(mediatype) { CharSet = Encoding.UTF8.WebName };
+            var header = new MediaTypeHeaderValue(mediatype) {CharSet = Encoding.UTF8.WebName};
             return header;
         }
     }

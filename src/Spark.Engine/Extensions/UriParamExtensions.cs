@@ -1,20 +1,19 @@
-﻿/* 
- * Copyright (c) 2014, Furore (info@furore.com) and contributors
- * See the file CONTRIBUTORS for details.
- * 
- * This file is licensed under the BSD 3-Clause license
- * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
- */
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
 
 namespace Spark.Engine.Extensions
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+
     public static class UriParamExtensions
     {
-
         //TODO: horrible!! Should refactor
         public static Uri AddParam(this Uri uri, string name, params string[] values)
         {
@@ -22,14 +21,11 @@ namespace Spark.Engine.Extensions
             UriBuilder builder;
             if (uri.IsAbsoluteUri)
             {
-                builder  = new UriBuilder(uri);
+                builder = new UriBuilder(uri);
             }
             else
             {
-                builder = new UriBuilder(fakeBase)
-                {
-                    Path = uri.ToString()
-                };
+                builder = new UriBuilder(fakeBase) {Path = uri.ToString()};
             }
 
             ICollection<Tuple<string, string>> query = UriUtils.SplitParams(builder.Query).ToList();

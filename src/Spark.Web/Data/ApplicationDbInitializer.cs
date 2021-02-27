@@ -1,12 +1,23 @@
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
+// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
 
 namespace Spark.Web.Data
 {
+    using Microsoft.AspNetCore.Identity;
+    using Microsoft.EntityFrameworkCore;
+    using Microsoft.Extensions.Configuration;
+
     public static class ApplicationDbInitializer
     {
-        public static void SeedAdmin(ApplicationDbContext context, UserManager<IdentityUser> userManager, IConfiguration config)
+        public static void SeedAdmin(
+            ApplicationDbContext context,
+            UserManager<IdentityUser> userManager,
+            IConfiguration config)
         {
             context.Database.Migrate();
 
@@ -15,11 +26,7 @@ namespace Spark.Web.Data
 
             if (userManager.FindByEmailAsync(adminEmail).Result == null)
             {
-                var user = new IdentityUser
-                {
-                    UserName = adminEmail,
-                    Email = adminEmail
-                };
+                var user = new IdentityUser {UserName = adminEmail, Email = adminEmail};
 
                 var result = userManager.CreateAsync(user, adminPassword).Result;
 

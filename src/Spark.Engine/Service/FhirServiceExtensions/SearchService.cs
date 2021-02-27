@@ -1,3 +1,11 @@
+// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
+
 namespace Spark.Engine.Service.FhirServiceExtensions
 {
     using System;
@@ -5,26 +13,30 @@ namespace Spark.Engine.Service.FhirServiceExtensions
     using System.Linq;
     using System.Net;
     using System.Threading.Tasks;
+    using Core;
+    using Extensions;
     using Hl7.Fhir.Model;
     using Hl7.Fhir.Rest;
     using Interfaces;
-    using Spark.Engine.Core;
-    using Spark.Engine.Extensions;
     using Task = System.Threading.Tasks.Task;
 
     public class SearchService : ISearchService, IServiceListener
     {
-        private readonly IFhirModel _fhirModel;
-        private readonly ILocalhost _localhost;
-        private readonly IIndexService _indexService;
         private readonly IFhirIndex _fhirIndex;
+        private readonly IFhirModel _fhirModel;
+        private readonly IIndexService _indexService;
+        private readonly ILocalhost _localhost;
 
-        public SearchService(ILocalhost localhost, IFhirModel fhirModel, IFhirIndex fhirIndex, IIndexService indexService)
+        public SearchService(
+            ILocalhost localhost,
+            IFhirModel fhirModel,
+            IFhirIndex fhirIndex,
+            IIndexService indexService)
         {
-            this._fhirModel = fhirModel;
-            this._localhost = localhost;
-            this._indexService = indexService;
-            this._fhirIndex = fhirIndex;
+            _fhirModel = fhirModel;
+            _localhost = localhost;
+            _indexService = indexService;
+            _fhirIndex = fhirIndex;
         }
 
         public async Task<Snapshot> GetSnapshot(string type, SearchParams searchCommand)
@@ -37,10 +49,7 @@ namespace Spark.Engine.Service.FhirServiceExtensions
                 throw new SparkException(HttpStatusCode.BadRequest, results.Outcome);
             }
 
-            var builder = new UriBuilder(_localhost.Uri(type))
-            {
-                Query = results.UsedParameters
-            };
+            var builder = new UriBuilder(_localhost.Uri(type)) {Query = results.UsedParameters};
             var link = builder.Uri;
 
             return CreateSnapshot(link, results, searchCommand);
@@ -53,6 +62,7 @@ namespace Spark.Engine.Service.FhirServiceExtensions
             {
                 searchCommand.Add("_id", key.ResourceId);
             }
+
             var compartment = _fhirModel.FindCompartmentInfo(key.TypeName);
             if (compartment != null)
             {
@@ -65,55 +75,8 @@ namespace Spark.Engine.Service.FhirServiceExtensions
             return await GetSnapshot(key.TypeName, searchCommand).ConfigureAwait(false);
         }
 
-        private Snapshot CreateSnapshot(Uri selflink, IList<string> keys, SearchParams searchCommand)
-        {
-            var sort = GetFirstSort(searchCommand);
-
-            var count = searchCommand.Count;
-            if (count.HasValue)
-            {
-                //TODO: should we change count?
-                //count = Math.Min(searchCommand.Count.Value, MAX_PAGE_SIZE);
-                selflink = selflink.AddParam(SearchParams.SEARCH_PARAM_COUNT, new[] { count.ToString() });
-            }
-
-            if (searchCommand.Sort.Any())
-            {
-                foreach (var (item1, sortOrder) in searchCommand.Sort)
-                {
-                    selflink = selflink.AddParam(SearchParams.SEARCH_PARAM_SORT,
-                        $"{item1}:{(sortOrder == SortOrder.Ascending ? "asc" : "desc")}");
-                }
-            }
-
-            if (searchCommand.Include.Any())
-            {
-                selflink = selflink.AddParam(SearchParams.SEARCH_PARAM_INCLUDE, searchCommand.Include.Select(inc => inc.Item1).ToArray());
-            }
-
-            if (searchCommand.RevInclude.Any())
-            {
-                selflink = selflink.AddParam(SearchParams.SEARCH_PARAM_REVINCLUDE, searchCommand.RevInclude.Select(inc => inc.Item1).ToArray());
-            }
-
-            return Snapshot.Create(Bundle.BundleType.Searchset, selflink, keys, sort, count, searchCommand.Include.Select(inc => inc.Item1).ToList(),
-                searchCommand.RevInclude.Select(inc => inc.Item1).ToList());
-        }
-
-        private static string GetFirstSort(SearchParams searchCommand)
-        {
-            string firstSort = null;
-            if (searchCommand.Sort != null && searchCommand.Sort.Any())
-            {
-                firstSort = searchCommand.Sort[0].Item1; //TODO: Support sortorder and multiple sort arguments.
-            }
-            return firstSort;
-        }
-
-        public async Task<IKey> FindSingle(string type, SearchParams searchCommand)
-        {
-            return Key.ParseOperationPath((await GetSearchResults(type, searchCommand).ConfigureAwait(false)).Single());
-        }
+        public async Task<IKey> FindSingle(string type, SearchParams searchCommand) =>
+            Key.ParseOperationPath((await GetSearchResults(type, searchCommand).ConfigureAwait(false)).Single());
 
         public async Task<IKey> FindSingleOrDefault(string type, SearchParams searchCommand)
         {
@@ -129,9 +92,63 @@ namespace Spark.Engine.Service.FhirServiceExtensions
             return results.HasErrors ? throw new SparkException(HttpStatusCode.BadRequest, results.Outcome) : results;
         }
 
-        public Task Inform(Uri location, Entry interaction)
+        public Task Inform(Uri location, Entry interaction) => _indexService.Process(interaction);
+
+        private Snapshot CreateSnapshot(Uri selflink, IList<string> keys, SearchParams searchCommand)
         {
-            return _indexService.Process(interaction);
+            var sort = GetFirstSort(searchCommand);
+
+            var count = searchCommand.Count;
+            if (count.HasValue)
+            {
+                //TODO: should we change count?
+                //count = Math.Min(searchCommand.Count.Value, MAX_PAGE_SIZE);
+                selflink = selflink.AddParam(SearchParams.SEARCH_PARAM_COUNT, count.ToString());
+            }
+
+            if (searchCommand.Sort.Any())
+            {
+                foreach (var (item1, sortOrder) in searchCommand.Sort)
+                {
+                    selflink = selflink.AddParam(
+                        SearchParams.SEARCH_PARAM_SORT,
+                        $"{item1}:{(sortOrder == SortOrder.Ascending ? "asc" : "desc")}");
+                }
+            }
+
+            if (searchCommand.Include.Any())
+            {
+                selflink = selflink.AddParam(
+                    SearchParams.SEARCH_PARAM_INCLUDE,
+                    searchCommand.Include.Select(inc => inc.Item1).ToArray());
+            }
+
+            if (searchCommand.RevInclude.Any())
+            {
+                selflink = selflink.AddParam(
+                    SearchParams.SEARCH_PARAM_REVINCLUDE,
+                    searchCommand.RevInclude.Select(inc => inc.Item1).ToArray());
+            }
+
+            return Snapshot.Create(
+                Bundle.BundleType.Searchset,
+                selflink,
+                keys,
+                sort,
+                count,
+                searchCommand.Include.Select(inc => inc.Item1).ToList(),
+                searchCommand.RevInclude.Select(inc => inc.Item1).ToList());
+        }
+
+        private static string GetFirstSort(SearchParams searchCommand)
+        {
+            string firstSort = null;
+            if (searchCommand.Sort != null && searchCommand.Sort.Any())
+            {
+                firstSort = searchCommand.Sort[0].Item1; //TODO: Support sortorder and multiple sort arguments.
+            }
+
+            return firstSort;
         }
     }
 }

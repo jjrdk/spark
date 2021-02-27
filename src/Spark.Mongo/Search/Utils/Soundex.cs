@@ -1,10 +1,10 @@
-﻿/* 
- * Copyright (c) 2014, Furore (info@furore.com) and contributors
- * See the file CONTRIBUTORS for details.
- * 
- * This file is licensed under the BSD 3-Clause license
- * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
- */
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
 
 namespace Spark.Mongo.Search.Utils
 {
@@ -54,10 +54,7 @@ namespace Spark.Mongo.Search.Utils
                 previousWasHOrW = "HW".Contains(word[i]);
             }
 
-            return soundex
-                    .Replace("0", string.Empty).ToString()
-                    .PadRight(length, '0')
-                    .Substring(0, length);
+            return soundex.Replace("0", string.Empty).ToString().PadRight(length, '0').Substring(0, length);
         }
 
         private static char GetCharNumberForLetter(char letter)
@@ -89,5 +86,5 @@ namespace Spark.Mongo.Search.Utils
 
             return 'R' == letter ? '6' : '0';
         }
-    } 
+    }
 }

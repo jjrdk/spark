@@ -1,17 +1,17 @@
-﻿/* 
- * Copyright (c) 2014, Furore (info@furore.com) and contributors
- * See the file CONTRIBUTORS for details.
- * 
- * This file is licensed under the BSD 3-Clause license
- * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
- */
-
-using Hl7.Fhir.Model;
-using System.Collections.Generic;
-using Spark.Engine.Core;
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
 
 namespace Spark.Mongo.Search.Common
 {
+    using System.Collections.Generic;
+    using Engine.Core;
+    using Hl7.Fhir.Model;
+
     public static class DefinitionsFactory
     {
         public static Definition CreateDefinition(ModelInfo.SearchParamDefinition paramdef)
@@ -40,6 +40,7 @@ namespace Spark.Mongo.Search.Common
                     definitions.Add(definition);
                 }
             }
+
             ManualCorrectDefinitions(definitions);
             return definitions;
         }
@@ -47,8 +48,22 @@ namespace Spark.Mongo.Search.Common
         private static void ManualCorrectDefinitions(Definitions items)
         {
             // These overrides are for those cases where the current meta-data does not help or is incorrect.
-            items.Replace(new Definition() { Resource = "Patient", ParamName = "phonetic", Query = new ElementQuery("Patient.Name.Family", "Patient.Name.Given"), Argument = new FuzzyArgument() });
-            items.Replace(new Definition() { Resource = "Practitioner", ParamName = "phonetic", Query = new ElementQuery("Practitioner.Name.Family", "Practitioner.Name.Given"), Argument = new FuzzyArgument() });
+            items.Replace(
+                new Definition
+                {
+                    Resource = "Patient",
+                    ParamName = "phonetic",
+                    Query = new ElementQuery("Patient.Name.Family", "Patient.Name.Given"),
+                    Argument = new FuzzyArgument()
+                });
+            items.Replace(
+                new Definition
+                {
+                    Resource = "Practitioner",
+                    ParamName = "phonetic",
+                    Query = new ElementQuery("Practitioner.Name.Family", "Practitioner.Name.Given"),
+                    Argument = new FuzzyArgument()
+                });
         }
     }
 }

@@ -1,4 +1,12 @@
-﻿namespace Spark.Mongo.Store
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
+
+namespace Spark.Mongo.Store
 {
     using System;
     using System.Collections.Generic;
@@ -14,15 +22,15 @@
     [Obsolete("Don't use it at all")]
     public class MongoFhirStoreOther
     {
+        private readonly IMongoCollection<BsonDocument> _collection;
+        private readonly IMongoDatabase _database;
         private readonly IFhirStore _mongoFhirStoreOther;
-        readonly IMongoDatabase _database;
-        readonly IMongoCollection<BsonDocument> _collection;
 
         public MongoFhirStoreOther(string mongoUrl, IFhirStore mongoFhirStoreOther)
         {
             _mongoFhirStoreOther = mongoFhirStoreOther;
-            this._database = MongoDatabaseFactory.GetMongoDatabase(mongoUrl);
-            this._collection = _database.GetCollection<BsonDocument>(Collection.RESOURCE);
+            _database = MongoDatabaseFactory.GetMongoDatabase(mongoUrl);
+            _collection = _database.GetCollection<BsonDocument>(Collection.RESOURCE);
             //this.transaction = new MongoSimpleTransaction(collection);
         }
 
@@ -67,7 +75,7 @@
         public IList<Entry> GetCurrent(IEnumerable<string> identifiers, string sortby = null)
         {
             var clauses = new List<FilterDefinition<BsonDocument>>();
-            var ids = identifiers.Select(i => (BsonValue)i);
+            var ids = identifiers.Select(i => (BsonValue) i);
 
             clauses.Add(Builders<BsonDocument>.Filter.In(Field.REFERENCE, ids));
             clauses.Add(Builders<BsonDocument>.Filter.Eq(Field.STATE, Value.CURRENT));
@@ -92,8 +100,7 @@
             var pks = keys.Select(k => k.ToBsonReferenceKey());
             var query = Builders<BsonDocument>.Filter.And(
                 Builders<BsonDocument>.Filter.In(Field.REFERENCE, pks),
-                Builders<BsonDocument>.Filter.Eq(Field.STATE, Value.CURRENT)
-                );
+                Builders<BsonDocument>.Filter.Eq(Field.STATE, Value.CURRENT));
             var update = Builders<BsonDocument>.Update.Set(Field.STATE, Value.SUPERCEDED);
             _collection.UpdateMany(query, update);
         }
@@ -130,6 +137,7 @@
                 var isint = int.TryParse(remainder, out i);
                 return !isint;
             }
+
             return true;
         }
 
@@ -161,14 +169,8 @@
         */
 
 
-
-
-
         /// <summary>
         /// Does a complete wipe and reset of the database. USE WITH CAUTION!
         /// </summary>
-
-
-
     }
 }

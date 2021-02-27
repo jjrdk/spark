@@ -1,4 +1,12 @@
-﻿namespace Spark.Postgres
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
+
+namespace Spark.Postgres
 {
     using System;
     using System.Collections.Generic;
@@ -10,12 +18,9 @@
 
     internal class MartenPageResult<T> : IPageResult<T>
     {
-        public long TotalRecords { get; }
-
-        public long TotalPages => (long)Math.Ceiling(TotalRecords / (double)_pageSize);
+        private readonly int _pageSize;
 
         private readonly Func<IDocumentSession> _session;
-        private readonly int _pageSize;
         private readonly Func<Entry, T> _transformFunc;
 
         public MartenPageResult(
@@ -29,6 +34,10 @@
             _transformFunc = transformFunc;
             TotalRecords = totalRecords;
         }
+
+        public long TotalRecords { get; }
+
+        public long TotalPages => (long) Math.Ceiling(TotalRecords / (double) _pageSize);
 
         public async Task IterateAllPagesAsync(Func<IReadOnlyList<T>, Task> callback)
         {

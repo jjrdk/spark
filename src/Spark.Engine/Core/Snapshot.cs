@@ -1,21 +1,23 @@
-﻿/*
- * Copyright (c) 2014, Furore (info@furore.com) and contributors
- * See the file CONTRIBUTORS for details.
- *
- * This file is licensed under the BSD 3-Clause license
- * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
- */
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
+
 namespace Spark.Engine.Core
 {
-    using Hl7.Fhir.Model;
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using Hl7.Fhir.Model;
 
     public class Snapshot
     {
         //public const int NOCOUNT = -1;
         public const int MAX_PAGE_SIZE = 100;
+        public ICollection<string> Includes;
 
         public string Id { get; set; }
         public Bundle.BundleType Type { get; set; }
@@ -28,7 +30,6 @@ namespace Spark.Engine.Core
         public int? CountParam { get; set; }
         public DateTimeOffset WhenCreated { get; set; }
         public string SortBy { get; set; }
-        public ICollection<string> Includes;
         public ICollection<string> ReverseIncludes { get; set; }
 
         public static Snapshot Create(
@@ -58,15 +59,9 @@ namespace Spark.Engine.Core
             return snapshot;
         }
 
-        private static int? NormalizeCount(int? count)
-        {
-            return count.HasValue ? Math.Min(count.Value, MAX_PAGE_SIZE) : count;
-        }
+        private static int? NormalizeCount(int? count) => count.HasValue ? Math.Min(count.Value, MAX_PAGE_SIZE) : count;
 
-        public static string CreateKey()
-        {
-            return Guid.NewGuid().ToString();
-        }
+        public static string CreateKey() => Guid.NewGuid().ToString();
 
         public bool InRange(int index)
         {

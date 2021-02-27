@@ -1,4 +1,12 @@
-﻿namespace Spark.Engine.Web
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
+
+namespace Spark.Engine.Web
 {
     using System;
     using Microsoft.AspNetCore.Http;
@@ -22,10 +30,9 @@
                 new MediaTypeCollection());
         }
 
-        public static OutputFormatterWriteContext GetOutputFormatterWriteContext<T>(this HttpContext context, T model)
-        {
-            return context.GetOutputFormatterWriteContext(typeof(T), model);
-        }
+        public static OutputFormatterWriteContext
+            GetOutputFormatterWriteContext<T>(this HttpContext context, T model) =>
+            context.GetOutputFormatterWriteContext(typeof(T), model);
 
         public static OutputFormatterWriteContext GetOutputFormatterWriteContext(
             this HttpContext context,
@@ -55,9 +62,7 @@
             context.Items.Add(RESOURCE_TYPE_KEY, resourceType);
         }
 
-        public static Type GetResourceType(this HttpContext context)
-        {
-            return context.Items.TryGetValue(RESOURCE_TYPE_KEY, out var resourceType) ? resourceType as Type : null;
-        }
+        public static Type GetResourceType(this HttpContext context) =>
+            context.Items.TryGetValue(RESOURCE_TYPE_KEY, out var resourceType) ? resourceType as Type : null;
     }
 }

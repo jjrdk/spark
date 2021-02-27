@@ -1,15 +1,15 @@
-﻿/*
- * Copyright (c) 2014, Furore (info@furore.com) and contributors
- * See the file CONTRIBUTORS for details.
- *
- * This file is licensed under the BSD 3-Clause license
- * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
- */
-
-using System.Collections.Generic;
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
 
 namespace Spark.Mongo.Search.Common
 {
+    using System.Collections.Generic;
+
     /*
     Ik heb deze class losgetrokken van SearchParamDefinition,
     omdat Definition onafhankelijk van Spark zou moeten kunnen bestaan.
@@ -22,8 +22,9 @@ namespace Spark.Mongo.Search.Common
 
         public void Add(Definition definition)
         {
-            this._definitions.Add(definition);
+            _definitions.Add(definition);
         }
+
         public void Replace(Definition definition)
         {
             _definitions.RemoveAll(d => d.Resource == definition.Resource && d.ParamName == definition.ParamName);

@@ -1,10 +1,10 @@
-﻿/*
- * Copyright (c) 2014, Furore (info@furore.com) and contributors
- * See the file CONTRIBUTORS for details.
- *
- * This file is licensed under the BSD 3-Clause license
- * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
- */
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
 
 namespace Spark.Engine.Web.Extensions
 {
@@ -27,22 +27,18 @@ namespace Spark.Engine.Web.Extensions
         }
 
         /// <summary>
-        /// Returns true if the Content-Type header matches any of the supported Xml or Json MIME types.
+        ///     Returns true if the Content-Type header matches any of the supported Xml or Json MIME types.
         /// </summary>
-        /// <param name="content">An instance of <see cref="HttpContent"/>.</param>
+        /// <param name="content">An instance of <see cref="HttpContent" />.</param>
         /// <returns>Returns true if the Content-Type header matches any of the supported Xml or Json MIME types.</returns>
-        internal static bool IsContentTypeHeaderFhirMediaType(this HttpContent content)
-        {
-            return IsContentTypeHeaderFhirMediaType(content.Headers.ContentType?.MediaType);
-        }
+        internal static bool IsContentTypeHeaderFhirMediaType(this HttpContent content) =>
+            IsContentTypeHeaderFhirMediaType(content.Headers.ContentType?.MediaType);
 
-        public static bool IsContentTypeHeaderFhirMediaType(this string contentType)
-        {
-            return string.IsNullOrEmpty(contentType)
+        public static bool IsContentTypeHeaderFhirMediaType(this string contentType) =>
+            string.IsNullOrEmpty(contentType)
                 ? false
                 : ContentType.XML_CONTENT_HEADERS.Contains(contentType)
-                || ContentType.JSON_CONTENT_HEADERS.Contains(contentType);
-        }
+                  || ContentType.JSON_CONTENT_HEADERS.Contains(contentType);
 
         public static string GetParameter(this HttpRequest request, string key)
         {
@@ -51,6 +47,7 @@ namespace Spark.Engine.Web.Extensions
             {
                 value = request.Query.FirstOrDefault(p => p.Key == key).Value.FirstOrDefault();
             }
+
             return value;
         }
 

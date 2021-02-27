@@ -1,19 +1,37 @@
-﻿using Hl7.Fhir.Model;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.RegularExpressions;
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
 
 namespace Spark.Engine.Core
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text.RegularExpressions;
+    using Hl7.Fhir.Model;
+
     public class ResourceVisitor
     {
-        public ResourceVisitor(FhirPropertyIndex propIndex)
-        {
-            _propIndex = propIndex;
-        }
+        /// <summary>
+        ///     Matches
+        ///     value       => head     | predicate     | tail
+        ///     a           => "a"      | ""            | ""
+        ///     a.b.c       => "a"      | ""            | "b.c"
+        ///     a(x=y).b.c  => "a"      | "x=y"         | "b.c"
+        ///     See also ResourceVisitorTests.
+        /// </summary>
+        private readonly Regex _headTailRegex = new Regex(
+            @"(?([^\.]*\[.*\])(?<head>[^\[]*)\[(?<predicate>.*)\](\.(?<tail>.*))?|(?<head>[^\.]*)(\.(?<tail>.*))?)");
+
+        private readonly Regex _predicateRegex = new Regex(@"(?<propname>[^=]*)=(?<filterValue>.*)");
 
         private readonly FhirPropertyIndex _propIndex;
+
+        public ResourceVisitor(FhirPropertyIndex propIndex) => _propIndex = propIndex;
 
         public void VisitByType(object fhirObject, Action<object> action, params Type[] types)
         {
@@ -21,8 +39,9 @@ namespace Spark.Engine.Core
         }
 
         /// <summary>
-        /// Walk through an object, following the specified path of properties.
-        /// The path should NOT include the name of the resource itself (e.g. "Patient.birthdate" is wrong, "birthdate" is right).
+        ///     Walk through an object, following the specified path of properties.
+        ///     The path should NOT include the name of the resource itself (e.g. "Patient.birthdate" is wrong, "birthdate" is
+        ///     right).
         /// </summary>
         /// <param name="fhirObject"></param>
         /// <param name="action"></param>
@@ -81,16 +100,6 @@ namespace Spark.Engine.Core
             }
         }
 
-        /// <summary>
-        /// Matches
-        ///     value       => head     | predicate     | tail
-        ///     a           => "a"      | ""            | ""
-        ///     a.b.c       => "a"      | ""            | "b.c"
-        ///     a(x=y).b.c  => "a"      | "x=y"         | "b.c"
-        /// See also ResourceVisitorTests.
-        /// </summary>
-        private readonly Regex _headTailRegex = new Regex(@"(?([^\.]*\[.*\])(?<head>[^\[]*)\[(?<predicate>.*)\](\.(?<tail>.*))?|(?<head>[^\.]*)(\.(?<tail>.*))?)");
-
         private Tuple<string, string, string> HeadPredicateAndTail(string path)
         {
             var match = _headTailRegex.Match(path);
@@ -100,8 +109,6 @@ namespace Spark.Engine.Core
 
             return new Tuple<string, string, string>(head, predicate, tail);
         }
-
-        private readonly Regex _predicateRegex = new Regex(@"(?<propname>[^=]*)=(?<filterValue>.*)");
 
         private bool PredicateIsTrue(string predicate, object fhirObject)
         {
@@ -118,8 +125,8 @@ namespace Spark.Engine.Core
 
             //Handle the predicate by (again recursively) visiting from here.
             VisitByPath(
-                fhirObject: fhirObject,
-                action: el =>
+                fhirObject,
+                el =>
                 {
                     var actualValue = TestIfCodedEnum(el.GetType())
                         ? el.GetType().GetProperty("Value").GetValue(el).ToString()
@@ -127,15 +134,14 @@ namespace Spark.Engine.Core
 
                     result = filterValue.Equals(actualValue, StringComparison.InvariantCultureIgnoreCase);
                 },
-                path: propertyName,
-                predicate: null //No support for nested predicates.
+                propertyName //No support for nested predicates.
             );
 
             return result;
         }
 
         /// <summary>
-        /// Test if a type derives from IList of T, for any T.
+        ///     Test if a type derives from IList of T, for any T.
         /// </summary>
         private bool TestIfGenericList(Type type)
         {
@@ -144,7 +150,8 @@ namespace Spark.Engine.Core
                 throw new ArgumentNullException(nameof(type));
             }
 
-            var interfaceTest = new Predicate<Type>(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IList<>));
+            var interfaceTest =
+                new Predicate<Type>(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IList<>));
 
             return interfaceTest(type) || type.GetInterfaces().Any(i => interfaceTest(i));
         }
@@ -160,6 +167,5 @@ namespace Spark.Engine.Core
             var codedEnum = type.GenericTypeArguments?.FirstOrDefault()?.IsEnum;
             return codedEnum.HasValue && codedEnum.Value;
         }
-
     }
 }

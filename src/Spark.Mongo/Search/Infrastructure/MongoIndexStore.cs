@@ -1,4 +1,12 @@
-﻿namespace Spark.Mongo.Search.Infrastructure
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
+
+namespace Spark.Mongo.Search.Infrastructure
 {
     using System.Threading.Tasks;
     using Common;
@@ -33,6 +41,18 @@
             }
         }
 
+        public async Task Delete(Entry entry)
+        {
+            var id = entry.Key.WithoutVersion().ToOperationPath();
+            var query = Builders<BsonDocument>.Filter.Eq(InternalField.ID, id);
+            await Collection.DeleteManyAsync(query).ConfigureAwait(false);
+        }
+
+        public async Task Clean()
+        {
+            await Collection.DeleteManyAsync(Builders<BsonDocument>.Filter.Empty).ConfigureAwait(false);
+        }
+
         public async Task Save(BsonDocument document)
         {
             var keyvalue = document.GetValue(InternalField.ID).ToString();
@@ -41,18 +61,6 @@
             // todo: should use Update: collection.Update();
             await Collection.DeleteManyAsync(query).ConfigureAwait(false);
             await Collection.InsertOneAsync(document).ConfigureAwait(false);
-        }
-
-        public async Task Delete(Entry entry)
-        {
-            string id = entry.Key.WithoutVersion().ToOperationPath();
-            var query = Builders<BsonDocument>.Filter.Eq(InternalField.ID, id);
-            await Collection.DeleteManyAsync(query).ConfigureAwait(false);
-        }
-
-        public async Task Clean()
-        {
-            await Collection.DeleteManyAsync(Builders<BsonDocument>.Filter.Empty).ConfigureAwait(false);
         }
     }
 }

@@ -1,10 +1,10 @@
-﻿/*
- * Copyright (c) 2014, Furore (info@furore.com) and contributors
- * See the file CONTRIBUTORS for details.
- *
- * This file is licensed under the BSD 3-Clause license
- * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
- */
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
 
 namespace Spark.Engine.Service
 {
@@ -20,14 +20,14 @@ namespace Spark.Engine.Service
     {
         public static void TypeName(string name)
         {
-
             if (ModelInfo.SupportedResources.Contains(name))
             {
                 return;
             }
 
             //  Test for the most common mistake first: wrong casing of the resource name
-            var correct = ModelInfo.SupportedResources.FirstOrDefault(s => s.ToUpperInvariant() == name.ToUpperInvariant());
+            var correct =
+                ModelInfo.SupportedResources.FirstOrDefault(s => s.ToUpperInvariant() == name.ToUpperInvariant());
             if (correct != null)
             {
                 throw Error.NotFound("Wrong casing of collection name, try '{0}' instead", correct);
@@ -47,9 +47,9 @@ namespace Spark.Engine.Service
             {
                 throw Error.BadRequest(
                     "Received a body with a '{0}' resource, which does not match the indicated collection '{1}' in the url.",
-                    resource.TypeName, key.TypeName);
+                    resource.TypeName,
+                    key.TypeName);
             }
-
         }
 
         public static void Key(IKey key)
@@ -58,10 +58,12 @@ namespace Spark.Engine.Service
             {
                 ResourceId(key.ResourceId);
             }
+
             if (key.HasVersionId())
             {
                 VersionId(key.VersionId);
             }
+
             if (!string.IsNullOrEmpty(key.TypeName))
             {
                 TypeName(key.TypeName);
@@ -100,7 +102,10 @@ namespace Spark.Engine.Service
         {
             if (key.ResourceId != resource.Id)
             {
-                throw Error.BadRequest("The Id in the request '{0}' is not the same is the Id in the resource '{1}'.", key.ResourceId, resource.Id);
+                throw Error.BadRequest(
+                    "The Id in the request '{0}' is not the same is the Id in the resource '{1}'.",
+                    key.ResourceId,
+                    resource.Id);
             }
         }
 
@@ -151,63 +156,54 @@ namespace Spark.Engine.Service
             {
                 throw Error.BadRequest($"{resourceId} is not a valid value for an id");
             }
+
             if (resourceId.Length > 64)
             {
                 throw Error.BadRequest("Logical ID is too long.");
-
             }
         }
 
         public static void IsSameVersion(IKey orignal, IKey replacement)
         {
-
             if (orignal.VersionId != replacement.VersionId)
             {
-                throw Error.Create(HttpStatusCode.Conflict, "The current resource on this server '{0}' doesn't match the required version '{1}'", orignal, replacement);
+                throw Error.Create(
+                    HttpStatusCode.Conflict,
+                    "The current resource on this server '{0}' doesn't match the required version '{1}'",
+                    orignal,
+                    replacement);
             }
-
-
         }
 
-        public static OperationOutcome AgainstModel(Resource resource)
-        {
-            // Phase 1, validate against low-level rules built into the FHIR datatypes
+        public static OperationOutcome AgainstModel(Resource resource) =>
+            throw
+                // Phase 1, validate against low-level rules built into the FHIR datatypes
+                /*
+                (!FhirValidator.TryValidate(entry.Resource, vresults, recurse: true))
+                {
+                    foreach (var vresult in vresults)
+                        result.Issue.Add(createValidationResult("[.NET validation] " + vresult.ErrorMessage, vresult.MemberNames));
+                }
+                //doc.Validate(SchemaCollection.ValidationSchemaSet,
+                //    (source, args) => result.Issue.Add( createValidationResult("[XSD validation] " + args.Message,null))
+                //);
+    
+                */
+                new NotImplementedException();
 
-            /*
-            (!FhirValidator.TryValidate(entry.Resource, vresults, recurse: true))
-            {
-                foreach (var vresult in vresults)
-                    result.Issue.Add(createValidationResult("[.NET validation] " + vresult.ErrorMessage, vresult.MemberNames));
-            }
-            //doc.Validate(SchemaCollection.ValidationSchemaSet,
-            //    (source, args) => result.Issue.Add( createValidationResult("[XSD validation] " + args.Message,null))
-            //);
+        public static OperationOutcome AgainstSchema(Resource resource) =>
+            throw
+                //var result = new OperationOutcome {Issue = new List<OperationOutcome.IssueComponent>()};
+                new NotImplementedException();
 
-            */
-            throw new NotImplementedException();
-        }
+        //ICollection<ValidationResult> vresults = new List<ValidationResult>();
+        // DSTU2: validation
+        // Phase 2, validate against the XML schema
+        //var xml = FhirSerializer.SerializeResourceToXml(resource);
+        //var doc = XDocument.Parse(xml);
+        public static OperationOutcome AgainstProfile(Resource resource) => throw new NotImplementedException();
 
-        public static OperationOutcome AgainstSchema(Resource resource)
-        {
-            //var result = new OperationOutcome {Issue = new List<OperationOutcome.IssueComponent>()};
-
-            throw new NotImplementedException();
-
-            //ICollection<ValidationResult> vresults = new List<ValidationResult>();
-
-            // DSTU2: validation
-            // Phase 2, validate against the XML schema
-
-            //var xml = FhirSerializer.SerializeResourceToXml(resource);
-            //var doc = XDocument.Parse(xml);
-
-        }
-
-        public static OperationOutcome AgainstProfile(Resource resource)
-        {
-            throw new NotImplementedException();
-
-            /*
+        /*
             // Phase 3, validate against a profile, if present
             var profileTags = entry.GetAssertedProfiles();
             if (profileTags.Count() == 0)
@@ -248,8 +244,6 @@ namespace Spark.Engine.Service
             else
                 return result;
             */
-        }
-
         public static void Transaction(IList<Entry> interactions)
         {
             ValidateAllKeysUnique(interactions);
@@ -281,7 +275,6 @@ namespace Spark.Engine.Service
             //    string s = string.Join(", ", doubles);
             //    throw new SparkException("There are entries with duplicate SelfLinks or SelfLinks that are the same as an entry.Id: " + s);
             //}
-
         }
 
         public static void HasResourceType(IKey key, ResourceType type)

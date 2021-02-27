@@ -1,4 +1,12 @@
-﻿namespace Spark.Mongo.Store
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
+
+namespace Spark.Mongo.Store
 {
     using System;
     using System.Collections.Generic;
@@ -21,10 +29,8 @@
             return new BsonDocument();
         }
 
-        public static BsonValue ToBsonReferenceKey(this IKey key)
-        {
-            return new BsonString(key.TypeName + "/" + key.ResourceId);
-        }
+        public static BsonValue ToBsonReferenceKey(this IKey key) =>
+            new BsonString(key.TypeName + "/" + key.ResourceId);
 
         public static BsonDocument ToBsonDocument(this Entry entry)
         {
@@ -45,7 +51,7 @@
         {
             var when = GetVersionDate(document);
             var key = GetKey(document);
-            var method = (Bundle.HTTPVerb)(int)document[Field.METHOD];
+            var method = (Bundle.HTTPVerb) (int) document[Field.METHOD];
 
             RemoveMetadata(document);
             return Entry.Create(method, key, when);
@@ -65,6 +71,7 @@
                 {
                     entry.Resource = ParseResource(document);
                 }
+
                 return entry;
             }
             catch (Exception e)
@@ -131,7 +138,7 @@
             var valid = key.Base == null && key.TypeName != null && key.ResourceId != null && key.VersionId != null;
             if (!valid)
             {
-                throw new Exception("This key is not valid for storage: " + key.ToString());
+                throw new Exception("This key is not valid for storage: " + key);
             }
         }
 
@@ -150,9 +157,9 @@
         {
             var key = new Key
             {
-                TypeName = (string)document[Field.TYPENAME],
-                ResourceId = (string)document[Field.RESOURCEID],
-                VersionId = (string)document[Field.VERSIONID]
+                TypeName = (string) document[Field.TYPENAME],
+                ResourceId = (string) document[Field.RESOURCEID],
+                VersionId = (string) document[Field.VERSIONID]
             };
 
             return key;
@@ -167,6 +174,5 @@
             to[Field.METHOD] = from[Field.METHOD];
             to[Field.STATE] = from[Field.STATE];
         }
-
     }
 }

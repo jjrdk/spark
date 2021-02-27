@@ -1,10 +1,11 @@
-﻿/*
- * Copyright (c) 2014, Furore (info@furore.com) and contributors
- * See the file CONTRIBUTORS for details.
- *
- * This file is licensed under the BSD 3-Clause license
- * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
- */
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
+
 namespace Spark.Engine.Extensions
 {
     using System.Collections.Generic;
@@ -13,10 +14,7 @@ namespace Spark.Engine.Extensions
 
     public static class TagHelper
     {
-        public static bool EqualTag(Coding coding, Coding other)
-        {
-            return coding.System == other.System;
-        }
+        public static bool EqualTag(Coding coding, Coding other) => coding.System == other.System;
 
         public static bool HasTag(this IEnumerable<Coding> tags, Coding tag)
         {
@@ -44,7 +42,6 @@ namespace Spark.Engine.Extensions
 
         public static IEnumerable<Coding> AffixTags(this Meta target, Meta source)
         {
-
             var targetTags = target.Tag ?? Enumerable.Empty<Coding>();
             var sourceTags = source.Tag ?? Enumerable.Empty<Coding>();
             return targetTags.AffixTags(sourceTags);

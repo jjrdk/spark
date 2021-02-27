@@ -1,15 +1,23 @@
-﻿using FhirModel = Hl7.Fhir.Model;
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
+
+using FhirModel = Hl7.Fhir.Model;
 
 namespace Spark.Engine.Web.Tests.Formatters
 {
     using System.IO;
     using System.Text;
+    using System.Threading.Tasks;
     using Hl7.Fhir.Serialization;
     using Microsoft.AspNetCore.Http;
     using Utility;
     using Web.Formatters;
     using Xunit;
-    using Task = System.Threading.Tasks.Task;
 
     public class ResourceXmlInputFormatterTests : FormatterTestBase
     {
@@ -37,7 +45,8 @@ namespace Spark.Engine.Web.Tests.Formatters
         {
             var formatter = GetInputFormatter();
 
-            var contentBytes = Encoding.UTF8.GetBytes("{ \"resourceType\": \"Patient\", \"id\": \"example\", \"active\": true }");
+            var contentBytes = Encoding.UTF8.GetBytes(
+                "{ \"resourceType\": \"Patient\", \"id\": \"example\", \"active\": true }");
             var httpContext = GetHttpContext(contentBytes, contentType);
 
             var formatterContext = CreateInputFormatterContext(typeof(FhirModel.Resource), httpContext);
@@ -63,11 +72,12 @@ namespace Spark.Engine.Web.Tests.Formatters
             var formatter = GetInputFormatter();
 
             var fhirVersionMoniker = FhirVersionUtility.GetFhirVersionMoniker();
-            var content = GetResourceFromFileAsString(Path.Combine("TestData", fhirVersionMoniker.ToString(), "patient-example.xml"));
+            var content = GetResourceFromFileAsString(
+                Path.Combine("TestData", fhirVersionMoniker.ToString(), "patient-example.xml"));
             var contentBytes = Encoding.UTF8.GetBytes(content);
             var httpContext = new DefaultHttpContext();
             httpContext.Request.ContentType = DEFAULT_CONTENT_TYPE;
-            httpContext.Request.Body = new NonSeekableReadStream(contentBytes);
+            httpContext.Request.Body = new MemoryStream(contentBytes);
 
             var formatterContext = CreateInputFormatterContext(typeof(FhirModel.Resource), httpContext);
 

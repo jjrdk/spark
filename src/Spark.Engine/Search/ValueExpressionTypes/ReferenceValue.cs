@@ -1,10 +1,10 @@
-﻿/* 
- * Copyright (c) 2014, Furore (info@furore.com) and contributors
- * See the file CONTRIBUTORS for details.
- * 
- * This file is licensed under the BSD 3-Clause license
- * available at https://raw.githubusercontent.com/ewoutkramer/fhir-net-api/master/LICENSE
- */
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
 
 namespace Spark.Engine.Search.ValueExpressionTypes
 {
@@ -14,8 +14,6 @@ namespace Spark.Engine.Search.ValueExpressionTypes
 
     public class ReferenceValue : ValueExpression
     {
-        public string Value { get; }
-
         public ReferenceValue(string value)
         {
             if (!Uri.IsWellFormedUriString(value, UriKind.Absolute) && !Id.IsValidValue(value))
@@ -26,10 +24,9 @@ namespace Spark.Engine.Search.ValueExpressionTypes
             Value = value;
         }
 
-        public override string ToString()
-        {
-            return StringValue.EscapeString(Value);
-        }
+        public string Value { get; }
+
+        public override string ToString() => StringValue.EscapeString(Value);
 
         public static ReferenceValue Parse(string text)
         {

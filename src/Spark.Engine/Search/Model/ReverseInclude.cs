@@ -1,8 +1,16 @@
-﻿using System;
-using System.Text.RegularExpressions;
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
 
 namespace Spark.Engine.Search.Model
 {
+    using System;
+    using System.Text.RegularExpressions;
+
     public class ReverseInclude
     {
         private static readonly Regex _pattern = new Regex(@"(?<resourcetype>[^\.]+)\.(?<searchpath>.*)");
@@ -11,10 +19,13 @@ namespace Spark.Engine.Search.Model
         public string SearchPath { get; set; }
 
         /// <summary>
-        /// Expected format: ResourceType.searchParameter[.searchParameter]*
+        ///     Expected format: ResourceType.searchParameter[.searchParameter]*
         /// </summary>
         /// <param name="reverseInclude"></param>
-        /// <returns>ReverseInclude instance with ResourceType is everything before the first dot, and SearchPath everything after it.</returns>
+        /// <returns>
+        ///     ReverseInclude instance with ResourceType is everything before the first dot, and SearchPath everything after
+        ///     it.
+        /// </returns>
         public static ReverseInclude Parse(string reverseInclude)
         {
             //_revinclude should have the following format: ResourceType.searchParameter[.searchParameter]*
@@ -23,6 +34,7 @@ namespace Spark.Engine.Search.Model
             {
                 throw new ArgumentNullException(nameof(reverseInclude), "reverseInclude cannot be null");
             }
+
             var result = new ReverseInclude();
             var match = _pattern.Match(reverseInclude);
             if (match.Groups.Count < 2)

@@ -1,38 +1,44 @@
-using Hl7.Fhir.Model;
-using Spark.Engine.Core;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Spark.Engine.Interfaces;
-using Microsoft.AspNetCore.SignalR;
-using Spark.Web.Models.Config;
-using Spark.Web.Utilities;
-using System.IO;
-using Tasks = System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using Spark.Engine.Service;
-using Spark.Engine.Service.FhirServiceExtensions;
+// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
 
 namespace Spark.Web.Hubs
 {
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
+    using System.Text;
+    using Engine.Core;
     using Engine.Extensions;
+    using Engine.Interfaces;
+    using Engine.Service;
+    using Engine.Service.FhirServiceExtensions;
+    using Hl7.Fhir.Model;
+    using Microsoft.AspNetCore.SignalR;
+    using Microsoft.Extensions.Logging;
+    using Models.Config;
+    using Utilities;
 
     //[Authorize(Policy = "RequireAdministratorRole")]
     public class MaintenanceHub : Hub
     {
-        private List<Resource> _resources;
+        private readonly ExamplesSettings _examplesSettings;
+        private readonly IFhirIndex _fhirIndex;
 
         private readonly IAsyncFhirService _fhirService;
-        private readonly ILocalhost _localhost;
         private readonly IFhirStoreAdministration _fhirStoreAdministration;
-        private readonly IFhirIndex _fhirIndex;
-        private readonly ExamplesSettings _examplesSettings;
-        private readonly IIndexRebuildService _indexRebuildService;
-        private readonly ILogger<MaintenanceHub> _logger;
         private readonly IHubContext<MaintenanceHub> _hubContext;
+        private readonly IIndexRebuildService _indexRebuildService;
+        private readonly ILocalhost _localhost;
+        private readonly ILogger<MaintenanceHub> _logger;
 
         private int _resourceCount;
+        private List<Resource> _resources;
 
         public MaintenanceHub(
             IAsyncFhirService fhirService,
@@ -72,16 +78,13 @@ namespace Spark.Web.Hubs
                     }
                 }
             }
+
             return list;
         }
 
         private ImportProgressMessage Message(string message, int idx)
         {
-            var msg = new ImportProgressMessage
-            {
-                Message = message,
-                Progress = 10 + (idx + 1) * 90 / _resourceCount
-            };
+            var msg = new ImportProgressMessage {Message = message, Progress = 10 + (idx + 1) * 90 / _resourceCount};
             return msg;
         }
 
@@ -99,7 +102,6 @@ namespace Spark.Web.Hubs
             {
                 await notifier.SendProgressUpdate(100, "ERROR CLEARING :( " + e.InnerException).ConfigureAwait(false);
             }
-
         }
 
         public async void RebuildIndex()
@@ -107,8 +109,7 @@ namespace Spark.Web.Hubs
             var notifier = new HubContextProgressNotifier(_hubContext, _logger);
             try
             {
-                await _indexRebuildService.RebuildIndexAsync(notifier)
-                    .ConfigureAwait(false);
+                await _indexRebuildService.RebuildIndexAsync(notifier).ConfigureAwait(false);
             }
             catch (Exception e)
             {
@@ -119,7 +120,7 @@ namespace Spark.Web.Hubs
             }
         }
 
-        public async Tasks.Task LoadExamplesToStore()
+        public async System.Threading.Tasks.Task LoadExamplesToStore()
         {
             var messages = new StringBuilder();
             var notifier = new HubContextProgressNotifier(_hubContext, _logger);
@@ -158,8 +159,6 @@ namespace Spark.Web.Hubs
                         await Clients.All.SendAsync("Error", msg).ConfigureAwait(false);
                         messages.AppendLine(msgError.Message + ": " + e.Message);
                     }
-
-
                 }
 
                 await notifier.SendProgressUpdate(100, messages.ToString()).ConfigureAwait(false);

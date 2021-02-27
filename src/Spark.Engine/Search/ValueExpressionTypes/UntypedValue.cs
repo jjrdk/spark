@@ -1,10 +1,10 @@
-﻿/* 
- * Copyright (c) 2014, Furore (info@furore.com) and contributors
- * See the file CONTRIBUTORS for details.
- * 
- * This file is licensed under the BSD 3-Clause license
- * available at https://raw.githubusercontent.com/ewoutkramer/fhir-net-api/master/LICENSE
- */
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
 
 namespace Spark.Engine.Search.ValueExpressionTypes
 {
@@ -12,51 +12,24 @@ namespace Spark.Engine.Search.ValueExpressionTypes
 
     public class UntypedValue : ValueExpression
     {
+        public UntypedValue(string value) => Value = value;
+
         public string Value { get; }
 
-        public UntypedValue(string value)
-        {
-            Value = value;
-        }
+        public override string ToString() => Value;
 
-        public override string ToString()
-        {
-            return Value;
-        }
+        public NumberValue AsNumberValue() => NumberValue.Parse(Value);
 
-        public NumberValue AsNumberValue()
-        {
-            return NumberValue.Parse(Value);
-        }
+        public DateValue AsDateValue() => DateValue.Parse(Value);
 
-        public DateValue AsDateValue()
-        {
-            return DateValue.Parse(Value);
-        }
+        public FhirDateTime AsDateTimeValue() => new FhirDateTime(Value);
 
-        public FhirDateTime AsDateTimeValue()
-        {
-            return new FhirDateTime(Value);
-        }
+        public StringValue AsStringValue() => StringValue.Parse(Value);
 
-        public StringValue AsStringValue()
-        {
-            return StringValue.Parse(Value);
-        }
+        public TokenValue AsTokenValue() => TokenValue.Parse(Value);
 
-        public TokenValue AsTokenValue()
-        {
-            return TokenValue.Parse(Value);
-        }
+        public QuantityValue AsQuantityValue() => QuantityValue.Parse(Value);
 
-        public QuantityValue AsQuantityValue()
-        {
-            return QuantityValue.Parse(Value);
-        }
-
-        public ReferenceValue AsReferenceValue()
-        {
-            return ReferenceValue.Parse(Value);
-        }
+        public ReferenceValue AsReferenceValue() => ReferenceValue.Parse(Value);
     }
 }

@@ -1,10 +1,10 @@
-﻿/* 
- * Copyright (c) 2014, Furore (info@furore.com) and contributors
- * See the file CONTRIBUTORS for details.
- * 
- * This file is licensed under the BSD 3-Clause license
- * available at https://raw.githubusercontent.com/ewoutkramer/fhir-net-api/master/LICENSE
- */
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
 
 namespace Spark.Engine.Search.ValueExpressionTypes
 {
@@ -14,12 +14,6 @@ namespace Spark.Engine.Search.ValueExpressionTypes
 
     public class QuantityValue : ValueExpression
     {
-        public decimal Number { get; }
-
-        public string Namespace { get; }
-
-        public string Unit { get; }
-
         public QuantityValue(decimal number, string unit)
         {
             Number = number;
@@ -33,12 +27,20 @@ namespace Spark.Engine.Search.ValueExpressionTypes
             Namespace = ns;
         }
 
+        public decimal Number { get; }
+
+        public string Namespace { get; }
+
+        public string Unit { get; }
+
         public override string ToString()
         {
             var ns = Namespace ?? string.Empty;
-            return PrimitiveTypeConverter.ConvertTo<string>(Number) + "|" +
-                StringValue.EscapeString(ns) + "|" +
-                StringValue.EscapeString(Unit);
+            return PrimitiveTypeConverter.ConvertTo<string>(Number)
+                   + "|"
+                   + StringValue.EscapeString(ns)
+                   + "|"
+                   + StringValue.EscapeString(Unit);
         }
 
         public static QuantityValue Parse(string text)
@@ -69,8 +71,8 @@ namespace Spark.Engine.Search.ValueExpressionTypes
             }
 
             var unit = StringValue.UnescapeString(triple[2]);
- 
-            return new QuantityValue(number,ns,unit);
-        }     
+
+            return new QuantityValue(number, ns, unit);
+        }
     }
 }

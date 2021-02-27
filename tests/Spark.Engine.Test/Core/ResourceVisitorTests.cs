@@ -1,21 +1,60 @@
-﻿using Hl7.Fhir.Model;
-using Spark.Engine.Core;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.RegularExpressions;
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
 
 namespace Spark.Engine.Test.Core
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text.RegularExpressions;
+    using Engine.Core;
+    using Hl7.Fhir.Model;
     using Xunit;
 
     public class ResourceVisitorTests : IDisposable
     {
+        private readonly IFhirModel _fhirModel;
         //old version, with [x=y] as predicate
         //private Regex headTailRegex = new Regex(@"(?([^\.]*\[.*])(?<head>[^\[]*)\[(?<predicate>.*)](\.(?<tail>.*))?|(?<head>[^\.]*)(\.(?<tail>.*))?)");
 
         //new version, with (x=y) as predicate (so with round brackets instead of square brackets.
-        private readonly Regex _headTailRegex = new Regex(@"(?([^\.]*\(.*\))(?<head>[^\(]*)\((?<predicate>.*)\)(\.(?<tail>.*))?|(?<head>[^\.]*)(\.(?<tail>.*))?)");
+        private readonly Regex _headTailRegex = new(
+            @"(?([^\.]*\(.*\))(?<head>[^\(]*)\((?<predicate>.*)\)(\.(?<tail>.*))?|(?<head>[^\.]*)(\.(?<tail>.*))?)");
+
+        private readonly FhirPropertyIndex _index;
+        private readonly Patient _patient;
+        private readonly ResourceVisitor _sut;
+        private int _actualActionCounter;
+        private int _expectedActionCounter;
+
+        public ResourceVisitorTests()
+        {
+            _fhirModel = new FhirModel();
+            _index = new FhirPropertyIndex(
+                _fhirModel,
+                new List<Type>
+                {
+                    typeof(Patient),
+                    typeof(ClinicalImpression),
+                    typeof(HumanName),
+                    typeof(CodeableConcept),
+                    typeof(Coding)
+                });
+            _sut = new ResourceVisitor(_index);
+            _patient = new Patient();
+            _patient.Name.Add(new HumanName().WithGiven("Sjors").AndFamily("Jansen"));
+        }
+
+        public void Dispose()
+        {
+            GC.SuppressFinalize(this);
+            Assert.Equal(_expectedActionCounter, _actualActionCounter);
+        }
 
         [Fact]
         public void TestHeadNoTail()
@@ -77,28 +116,6 @@ namespace Spark.Engine.Test.Core
             Assert.Equal("bx", match.Groups["tail"].Value);
         }
 
-        private readonly IFhirModel _fhirModel;
-        private readonly FhirPropertyIndex _index;
-        private readonly ResourceVisitor _sut;
-        private readonly Patient _patient;
-        private int _expectedActionCounter;
-        private int _actualActionCounter;
-
-        public ResourceVisitorTests()
-        {
-            _fhirModel = new FhirModel();
-            _index = new FhirPropertyIndex(_fhirModel, new List<Type> { typeof(Patient), typeof(ClinicalImpression), typeof(HumanName), typeof(CodeableConcept), typeof(Coding) });
-            _sut = new ResourceVisitor(_index);
-            _patient = new Patient();
-            _patient.Name.Add(new HumanName().WithGiven("Sjors").AndFamily("Jansen"));
-        }
-
-        public void Dispose()
-        {
-            GC.SuppressFinalize(this);
-            Assert.Equal(_expectedActionCounter, _actualActionCounter);
-        }
-
         [Fact]
         public void TestVisitNotExistingPathNoPredicate()
         {
@@ -112,11 +129,17 @@ namespace Spark.Engine.Test.Core
         public void TestVisitSinglePathNoPredicate()
         {
             _expectedActionCounter = 1;
-            _sut.VisitByPath(_patient, ob =>
+            _sut.VisitByPath(
+                _patient,
+                ob =>
                 {
                     _actualActionCounter++;
-                    if (ob.GetType() != typeof(HumanName)) { throw new Exception("Failed test"); }
-                }, "name");
+                    if (ob.GetType() != typeof(HumanName))
+                    {
+                        throw new Exception("Failed test");
+                    }
+                },
+                "name");
         }
 
         [Fact]
@@ -124,7 +147,9 @@ namespace Spark.Engine.Test.Core
         {
             _expectedActionCounter = 1;
             var ci = new ClinicalImpression {Code = new CodeableConcept("test.system", "test.code")};
-            _sut.VisitByPath(ci, ob =>
+            _sut.VisitByPath(
+                ci,
+                ob =>
                 {
                     _actualActionCounter++;
                     if (ob.ToString() != "test.system")
@@ -138,13 +163,19 @@ namespace Spark.Engine.Test.Core
         [Fact]
         public void TestVisitDataChoice_x_Property()
         {
-            _expectedActionCounter = 0; //We expect 0 actions: ResourceVisitor needs not recognize this, it should be solved in processing the searchparameter at indexing time.
+            _expectedActionCounter =
+                0; //We expect 0 actions: ResourceVisitor needs not recognize this, it should be solved in processing the searchparameter at indexing time.
             var cd = new Condition {Onset = new FhirDateTime(2015, 6, 15)};
-            _sut.VisitByPath(cd, ob =>
-            {
-                _actualActionCounter++;
-                if (ob.GetType() != typeof(FhirDateTime)) { throw new Exception("Failed test"); }
-            },
+            _sut.VisitByPath(
+                cd,
+                ob =>
+                {
+                    _actualActionCounter++;
+                    if (ob.GetType() != typeof(FhirDateTime))
+                    {
+                        throw new Exception("Failed test");
+                    }
+                },
                 "onset[x]");
         }
 
@@ -152,11 +183,17 @@ namespace Spark.Engine.Test.Core
         public void TestVisitNestedPathNoPredicate()
         {
             _expectedActionCounter = 1;
-            _sut.VisitByPath(_patient, ob =>
+            _sut.VisitByPath(
+                _patient,
+                ob =>
                 {
                     _actualActionCounter++;
-                    if (ob.ToString() != "Sjors") { throw new Exception("Failed test"); }
-                }, "name.given");
+                    if (ob.ToString() != "Sjors")
+                    {
+                        throw new Exception("Failed test");
+                    }
+                },
+                "name.given");
         }
 
         [Fact]
@@ -164,11 +201,17 @@ namespace Spark.Engine.Test.Core
         {
             _expectedActionCounter = 1;
             _patient.Name.Add(new HumanName().WithGiven("Sjimmie").AndFamily("Visser"));
-            _sut.VisitByPath(_patient, ob =>
+            _sut.VisitByPath(
+                _patient,
+                ob =>
                 {
                     _actualActionCounter++;
-                    if (ob.ToString() != "Sjimmie") { throw new Exception("Failed test"); }
-                }, "name[given=Sjimmie].given");
+                    if (ob.ToString() != "Sjimmie")
+                    {
+                        throw new Exception("Failed test");
+                    }
+                },
+                "name[given=Sjimmie].given");
         }
 
         [Fact]
@@ -176,12 +219,15 @@ namespace Spark.Engine.Test.Core
         {
             _expectedActionCounter = 1;
             _patient.Name.Add(new HumanName().WithGiven("Sjimmie").AndFamily("Visser"));
-            _sut.VisitByPath(_patient, ob =>
-            {
-                _actualActionCounter++;
-                Assert.IsType<HumanName>(ob);
-                Assert.Equal("Sjimmie", (ob as HumanName).GivenElement.First().ToString());
-            }, "name[given=Sjimmie]");
+            _sut.VisitByPath(
+                _patient,
+                ob =>
+                {
+                    _actualActionCounter++;
+                    Assert.IsType<HumanName>(ob);
+                    Assert.Equal("Sjimmie", (ob as HumanName).GivenElement.First().ToString());
+                },
+                "name[given=Sjimmie]");
         }
     }
 }

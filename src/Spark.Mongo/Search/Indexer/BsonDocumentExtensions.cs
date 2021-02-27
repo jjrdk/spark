@@ -1,26 +1,24 @@
-﻿/* 
- * Copyright (c) 2014, Furore (info@furore.com) and contributors
- * See the file CONTRIBUTORS for details.
- * 
- * This file is licensed under the BSD 3-Clause license
- * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
- */
-
-
-using MongoDB.Bson;
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
 
 namespace Spark.Mongo.Search.Indexer
 {
+    using MongoDB.Bson;
+
     public static class BsonDocumentExtensions
     {
         public static void Append(this BsonDocument document, string name, BsonValue value)
         {
             document.Add(name, value ?? BsonNull.Value);
         }
-    
+
         public static void Write(this BsonDocument document, string field, BsonValue value)
         {
-
             if (value == null)
             {
                 return;
@@ -46,14 +44,14 @@ namespace Spark.Mongo.Search.Indexer
                 else
                 {
                     document.Remove(field);
-                    document.Append(field, new BsonArray() { element.Value, value ?? BsonNull.Value });
+                    document.Append(field, new BsonArray {element.Value, value ?? BsonNull.Value});
                 }
             }
             else
             {
                 if (forcearray)
                 {
-                    document.Append(field, new BsonArray() { value ?? BsonNull.Value });
+                    document.Append(field, new BsonArray {value ?? BsonNull.Value});
                 }
                 else
                 {
@@ -61,7 +59,5 @@ namespace Spark.Mongo.Search.Indexer
                 }
             }
         }
-
     }
-   
 }

@@ -1,4 +1,12 @@
-﻿namespace Spark.Postgres
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
+
+namespace Spark.Postgres
 {
     using System;
     using System.Collections.Generic;
@@ -40,13 +48,10 @@
                 return false;
             }
 
-            return ReferenceEquals(this, obj) ? true : obj.GetType() == this.GetType() && Equals((IndexEntry)obj);
+            return ReferenceEquals(this, obj) ? true : obj.GetType() == GetType() && Equals((IndexEntry) obj);
         }
 
         /// <inheritdoc />
-        public override int GetHashCode()
-        {
-            return HashCode.Combine(Id, Values);
-        }
+        public override int GetHashCode() => HashCode.Combine(Id, Values);
     }
 }

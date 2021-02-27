@@ -1,9 +1,17 @@
-﻿namespace Spark.Engine.Utility
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
+
+namespace Spark.Engine.Utility
 {
-    using Hl7.Fhir.Introspection;
     using System;
     using System.Linq;
     using System.Reflection;
+    using Hl7.Fhir.Introspection;
 
     internal static class FhirPathUtil
     {
@@ -44,9 +52,13 @@
                 fhirPathExpression += $"{resolvedElement.Item2}{elementAndIndexer.Item2}.";
 
                 currentType = resolvedElement.Item1;
-            };
+            }
 
-            return fhirPathExpression.Length == 0 ? fhirPathExpression : $"{rootType.Name}.{fhirPathExpression.TrimEnd('.')}";
+            ;
+
+            return fhirPathExpression.Length == 0
+                ? fhirPathExpression
+                : $"{rootType.Name}.{fhirPathExpression.TrimEnd('.')}";
         }
 
         internal static (Type, string) ResolveElement(Type root, string element)
@@ -76,7 +88,7 @@
 
             return (elementType, fhirElementName);
         }
-        
+
         internal static (string, string) GetElementSeparetedFromIndexer(string element)
         {
             var index = element.LastIndexOf("[");

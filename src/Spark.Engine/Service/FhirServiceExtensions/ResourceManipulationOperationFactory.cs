@@ -1,13 +1,21 @@
-﻿namespace Spark.Engine.Service.FhirServiceExtensions
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
+
+namespace Spark.Engine.Service.FhirServiceExtensions
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
+    using Core;
+    using Extensions;
     using Hl7.Fhir.Model;
     using Hl7.Fhir.Rest;
-    using Spark.Engine.Core;
-    using Spark.Engine.Extensions;
 
     public static partial class ResourceManipulationOperationFactory
     {
@@ -29,14 +37,12 @@
             this Resource resource,
             IKey key,
             ISearchService service = null,
-            SearchParams command = null)
-        {
-            return new PostManipulationOperation(
+            SearchParams command = null) =>
+            new PostManipulationOperation(
                 resource,
                 key,
                 await GetSearchResultAsync(key, service, command).ConfigureAwait(false),
                 command);
-        }
 
         private static async Task<SearchResults> GetSearchResultAsync(
             IKey key,
@@ -57,39 +63,33 @@
             this Resource resource,
             IKey key,
             ISearchService service = null,
-            SearchParams command = null)
-        {
-            return new PutManipulationOperation(
+            SearchParams command = null) =>
+            new PutManipulationOperation(
                 resource,
                 key,
                 await GetSearchResultAsync(key, service, command).ConfigureAwait(false),
                 command);
-        }
 
         public static async Task<ResourceManipulationOperation> CreateDelete(
             this IKey key,
             ISearchService service = null,
-            SearchParams command = null)
-        {
-            return new DeleteManipulationOperation(
+            SearchParams command = null) =>
+            new DeleteManipulationOperation(
                 null,
                 key,
                 await GetSearchResultAsync(key, service, command).ConfigureAwait(false),
                 command);
-        }
 
         private static async Task<ResourceManipulationOperation> CreateDelete(
             Resource resource,
             IKey key,
             ISearchService service = null,
-            SearchParams command = null)
-        {
-            return new DeleteManipulationOperation(
+            SearchParams command = null) =>
+            new DeleteManipulationOperation(
                 null,
                 key,
                 await GetSearchResultAsync(key, service, command).ConfigureAwait(false),
                 command);
-        }
 
         public static async Task<ResourceManipulationOperation> GetManipulationOperation(
             Bundle.EntryComponent entryComponent,
@@ -110,7 +110,7 @@
 
         private static Uri GetSearchUri(Bundle.EntryComponent entryComponent, Bundle.HTTPVerb method)
         {
-            Uri searchUri = method switch
+            var searchUri = method switch
             {
                 Bundle.HTTPVerb.POST => PostManipulationOperation.ReadSearchUri(entryComponent),
                 Bundle.HTTPVerb.PUT => PutManipulationOperation.ReadSearchUri(entryComponent),
@@ -122,7 +122,6 @@
 
         private static SearchParams ParseQueryString(ILocalhost localhost, Uri searchUri)
         {
-
             var absoluteUri = localhost.Absolute(searchUri);
             var keysCollection = ParseQueryString(absoluteUri);
 

@@ -1,4 +1,12 @@
-﻿namespace Spark.Engine.Web.Formatters
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
+
+namespace Spark.Engine.Web.Formatters
 {
     using System;
     using Core;
@@ -14,16 +22,11 @@
         }
 
         /// <inheritdoc />
-        public override bool CanWriteResult(OutputFormatterCanWriteContext context)
-        {
-            return SupportedMediaTypes.Contains(context.ContentType.Value) && base.CanWriteResult(context);
-        }
+        public override bool CanWriteResult(OutputFormatterCanWriteContext context) =>
+            SupportedMediaTypes.Contains(context.ContentType.Value) && base.CanWriteResult(context);
 
         /// <inheritdoc />
-        protected override bool CanWriteType(Type type)
-        {
-            return typeof(Resource).IsAssignableFrom(type);
-        }
+        protected override bool CanWriteType(Type type) => typeof(Resource).IsAssignableFrom(type);
 
         /// <inheritdoc />
         public override async System.Threading.Tasks.Task WriteResponseBodyAsync(OutputFormatterWriteContext context)
@@ -32,7 +35,8 @@
             {
                 return;
             }
-            var binary = (Binary)context.Object;
+
+            var binary = (Binary) context.Object;
             context.HttpContext.Response.Headers[HeaderNames.ContentType] = binary.ContentType;
             var responseBody = context.HttpContext.Response.Body;
             await responseBody.WriteAsync(binary.Data).ConfigureAwait(false);

@@ -1,18 +1,18 @@
-﻿/* 
- * Copyright (c) 2014, Furore (info@furore.com) and contributors
- * See the file CONTRIBUTORS for details.
- * 
- * This file is licensed under the BSD 3-Clause license
- * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
- */
-
-using Hl7.Fhir.Model;
-using System;
-using System.Collections.Generic;
-using System.Reflection;
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
 
 namespace Spark.Engine.Auxiliary
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Reflection;
+    using Hl7.Fhir.Model;
+
     public static class ResourceVisitor
     {
         public static void VisitByType(object item, Visitor action, params Type[] filter)
@@ -55,10 +55,7 @@ namespace Spark.Engine.Auxiliary
             return (isElementProperty || isElementCollection) && hasIndexParameters == false;
         }
 
-        private static string JoinPath(string old, string part)
-        {
-            return !string.IsNullOrEmpty(old) ? old + "." + part : part;
-        }
+        private static string JoinPath(string old, string part) => !string.IsNullOrEmpty(old) ? old + "." + part : part;
 
         private static void Scan(object item, string path, Visitor visitor)
         {
@@ -88,7 +85,7 @@ namespace Spark.Engine.Auxiliary
                         var index = 0;
                         foreach (var element in list)
                         {
-                            var propertyPath = JoinPath(path, property.Name + "[" + index.ToString() + "]");
+                            var propertyPath = JoinPath(path, property.Name + "[" + index + "]");
 
                             if (element != null)
                             {

@@ -1,15 +1,20 @@
-﻿using System;
+﻿// /*
+//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
+//  * See the file CONTRIBUTORS for details.
+//  *
+//  * This file is licensed under the BSD 3-Clause license
+//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+//  */
 
 namespace Spark.Engine.Core
 {
+    using System;
+
     public class Localhost : ILocalhost
     {
-        public Uri DefaultBase { get; set; }
+        public Localhost(Uri baseuri) => DefaultBase = baseuri;
 
-        public Localhost(Uri baseuri)
-        {
-            this.DefaultBase = baseuri;
-        }
+        public Uri DefaultBase { get; set; }
 
         public Uri Absolute(Uri uri)
         {
@@ -22,16 +27,8 @@ namespace Spark.Engine.Core
             return new Uri(@base + uri);
         }
 
-        public bool IsBaseOf(Uri uri)
-        {
-            return uri.IsAbsoluteUri && UriHelper.IsBaseOf(DefaultBase, uri);
-        }
+        public bool IsBaseOf(Uri uri) => uri.IsAbsoluteUri && UriHelper.IsBaseOf(DefaultBase, uri);
 
-        public Uri GetBaseOf(Uri uri)
-        {
-            return this.IsBaseOf(uri) ? this.DefaultBase : null;
-        }
+        public Uri GetBaseOf(Uri uri) => IsBaseOf(uri) ? DefaultBase : null;
     }
-
-
 }
