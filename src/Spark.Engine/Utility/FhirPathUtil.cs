@@ -46,15 +46,13 @@ namespace Spark.Engine.Utility
             var currentType = rootType;
             for (var i = 0; length > i; i++)
             {
-                var elementAndIndexer = GetElementSeparetedFromIndexer(elements[i]);
+                var elementAndIndexer = GetElementSeparatedFromIndexer(elements[i]);
                 var resolvedElement = ResolveElement(currentType, elementAndIndexer.Item1);
 
                 fhirPathExpression += $"{resolvedElement.Item2}{elementAndIndexer.Item2}.";
 
                 currentType = resolvedElement.Item1;
             }
-
-            ;
 
             return fhirPathExpression.Length == 0
                 ? fhirPathExpression
@@ -89,7 +87,7 @@ namespace Spark.Engine.Utility
             return (elementType, fhirElementName);
         }
 
-        internal static (string, string) GetElementSeparetedFromIndexer(string element)
+        internal static (string, string) GetElementSeparatedFromIndexer(string element)
         {
             var index = element.LastIndexOf("[");
             return index > -1 ? (element.Substring(0, index), element.Substring(index)) : (element, string.Empty);

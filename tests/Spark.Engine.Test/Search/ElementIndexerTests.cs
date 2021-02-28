@@ -11,6 +11,7 @@ namespace Spark.Engine.Test.Search
     using System.Collections.Generic;
     using System.Linq;
     using Engine.Core;
+    using Engine.Model;
     using Engine.Search;
     using Engine.Search.ValueExpressionTypes;
     using Hl7.Fhir.Model;

@@ -6,10 +6,10 @@
 //  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
 //  */
 
-using FM = Hl7.Fhir.Model;
-
 namespace Spark.Mongo.Search.Utils
 {
+    using FM = Hl7.Fhir.Model;
+
     using Engine.Extensions;
     using Engine.Search.ValueExpressionTypes;
     using Fhir.Metrics;
@@ -34,8 +34,8 @@ namespace Spark.Mongo.Search.Utils
 
         public static BsonDocument NonUcumIndexed(this FM.Quantity quantity)
         {
-            var system = quantity.System != null ? (BsonValue) quantity.System : BsonNull.Value;
-            var code = quantity.Code != null ? (BsonValue) quantity.Code : BsonNull.Value;
+            var system = quantity.System != null ? (BsonValue)quantity.System : BsonNull.Value;
+            var code = quantity.Code != null ? (BsonValue)quantity.Code : BsonNull.Value;
 
             var block = new BsonDocument
             {
@@ -60,13 +60,13 @@ namespace Spark.Mongo.Search.Utils
 
         public static BsonDouble GetValueAsBson(this FM.Quantity quantity)
         {
-            var value = (double) quantity.Value;
+            var value = (double)quantity.Value;
             return new BsonDouble(value);
         }
 
         public static BsonDouble GetValueAsBson(this Quantity quantity)
         {
-            var value = (double) quantity.Value.ToDecimal();
+            var value = (double)quantity.Value.ToDecimal();
             return new BsonDouble(value);
         }
 
@@ -74,7 +74,7 @@ namespace Spark.Mongo.Search.Utils
         public static FM.Quantity ToModelQuantity(this ValueExpression expression)
         {
             var q = QuantityValue.Parse(expression.ToString());
-            var quantity = new FM.Quantity {Value = q.Number, System = q.Namespace, Unit = q.Unit, Code = q.Unit};
+            var quantity = new FM.Quantity { Value = q.Number, System = q.Namespace, Unit = q.Unit, Code = q.Unit };
             return quantity;
         }
     }

@@ -13,6 +13,7 @@ namespace Spark.Engine.Test.Service
     using System.IO;
     using System.Linq;
     using Engine.Core;
+    using Engine.Model;
     using Engine.Search;
     using Engine.Search.ValueExpressionTypes;
     using Engine.Service.FhirServiceExtensions;

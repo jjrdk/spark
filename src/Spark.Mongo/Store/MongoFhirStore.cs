@@ -89,9 +89,29 @@ namespace Spark.Mongo.Store
             return cursor.ToEntries().ToList();
         }
 
+        /// <inheritdoc />
+        public async Task<bool> Exists(IKey key)
+        {
+            var clauses = new List<FilterDefinition<BsonDocument>>();
+            var bsonValue = (BsonValue)key.ToString();
+            if (key.HasVersionId())
+            {
+                clauses.Add(Builders<BsonDocument>.Filter.Eq(Field.PRIMARYKEY, bsonValue));
+            }
+            else
+            {
+                clauses.Add(Builders<BsonDocument>.Filter.Eq(Field.REFERENCE, bsonValue));
+                clauses.Add(Builders<BsonDocument>.Filter.Eq(Field.STATE, Value.CURRENT));
+            }
+
+            var result = await _collection.CountDocumentsAsync(Builders<BsonDocument>.Filter.And(clauses))
+                .ConfigureAwait(false);
+            return result > 0;
+        }
+
         private IEnumerable<BsonValue> GetBsonValues(IEnumerable<IKey> identifiers, Func<IKey, bool> keyCondition)
         {
-            return identifiers.Where(keyCondition).Select(k => (BsonValue) k.ToString());
+            return identifiers.Where(keyCondition).Select(k => (BsonValue)k.ToString());
         }
 
         private FilterDefinition<BsonDocument> GetCurrentVersionQuery(IEnumerable<BsonValue> ids)

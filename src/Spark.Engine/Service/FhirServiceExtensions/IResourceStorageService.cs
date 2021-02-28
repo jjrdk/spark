@@ -14,6 +14,8 @@ namespace Spark.Engine.Service.FhirServiceExtensions
 
     public interface IResourceStorageService : IFhirServiceExtension
     {
+        Task<bool> Exists(IKey key);
+
         Task<Entry> Get(IKey key);
 
         Task<Entry> Add(Entry entry);

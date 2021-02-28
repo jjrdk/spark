@@ -8,6 +8,7 @@
 
 namespace Spark.Engine.Service
 {
+    using System.Linq;
     using System.Net;
     using System.Threading.Tasks;
     using Core;
@@ -15,6 +16,8 @@ namespace Spark.Engine.Service
     using FhirResponseFactory;
     using FhirServiceExtensions;
     using Hl7.Fhir.Model;
+    using Model.Patch;
+    using Task = System.Threading.Tasks.Task;
 
     internal class DefaultInteractionHandler : IInteractionHandler
     {
@@ -41,11 +44,32 @@ namespace Spark.Engine.Service
                 case Bundle.HTTPVerb.POST:
                     return await Create(interaction).ConfigureAwait(false);
                 case Bundle.HTTPVerb.DELETE:
-                    var current = await _storageService.Get(interaction.Key.WithoutVersion()).ConfigureAwait(false);
-                    return current != null && current.IsPresent
-                        ? await Delete(interaction).ConfigureAwait(false)
-                        : Respond.WithCode(HttpStatusCode.NotFound);
+                    {
+                        var current = await _storageService.Get(interaction.Key.WithoutVersion()).ConfigureAwait(false);
+                        return current != null && current.IsPresent
+                            ? await Delete(interaction).ConfigureAwait(false)
+                            : Respond.WithCode(HttpStatusCode.NotFound);
+                    }
+                case Bundle.HTTPVerb.PATCH:
+                    {
+                        var current = await _storageService.Get(interaction.Key.WithoutVersion()).ConfigureAwait(false);
+                        if (current == null)
+                        {
+                            return new FhirResponse(HttpStatusCode.BadRequest);
+                        }
 
+                        if (interaction.Resource is Parameters patch)
+                        {
+                            var applier = new PatchApplier();
+                            applier.Apply(current.Resource as Patient, patch);
+                            return new FhirResponse(HttpStatusCode.OK, current.Resource);
+                        }
+                        else
+                        {
+                            return new FhirResponse(HttpStatusCode.BadRequest);
+                        }
+                    }
+                    break;
                 case Bundle.HTTPVerb.GET:
                     return await VersionRead((Key)interaction.Key).ConfigureAwait(false);
                 default:
@@ -70,10 +94,10 @@ namespace Spark.Engine.Service
 
         private async Task<FhirResponse> Put(Entry entry)
         {
-            var current = await _storageService.Get(entry.Key.WithoutVersion()).ConfigureAwait(false);
+            var exists = await _storageService.Exists(entry.Key.WithoutVersion()).ConfigureAwait(false);
             await _serviceListener.Inform(entry).ConfigureAwait(false);
             var result = await _storageService.Add(entry).ConfigureAwait(false);
-            return Respond.WithResource(current != null ? HttpStatusCode.OK : HttpStatusCode.Created, result);
+            return Respond.WithResource(exists ? HttpStatusCode.OK : HttpStatusCode.Created, result);
         }
 
         private async Task<FhirResponse> Create(Entry entry)

@@ -10,7 +10,7 @@ namespace Spark.Engine.Test.Service
 {
     using System.Collections.Generic;
     using System.Linq;
-    using Model;
+    using Engine.Model;
 
     public static class IndexValueTestExtensions
     {

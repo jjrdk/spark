@@ -26,6 +26,9 @@ namespace Spark.Engine.Service.FhirServiceExtensions
             _fhirStore = fhirStore;
         }
 
+        /// <inheritdoc />
+        public Task<bool> Exists(IKey key) => _fhirStore.Exists(key);
+
         public async Task<Entry> Get(IKey key)
         {
             var entry = await _fhirStore.Get(key).ConfigureAwait(false);

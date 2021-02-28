@@ -19,5 +19,6 @@ namespace Spark.Engine.Store.Interfaces
         Task<Entry> Get(IKey key);
 
         Task<IList<Entry>> Get(IEnumerable<IKey> localIdentifiers);
+        Task<bool> Exists(IKey key);
     }
 }

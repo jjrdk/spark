@@ -161,7 +161,7 @@ namespace Spark.Engine.Service.FhirServiceExtensions
         {
             var responses = new List<Tuple<Entry, FhirResponse>>();
 
-            _transfer.Internalize(interactions, mapper);
+            await _transfer.Internalize(interactions, mapper).ConfigureAwait(false);
 
             foreach (var interaction in interactions)
             {
