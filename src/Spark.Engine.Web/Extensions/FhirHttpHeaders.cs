@@ -10,6 +10,6 @@ namespace Spark.Engine.Web.Extensions
 {
     public static class FhirHttpHeaders
     {
-        public const string IF_NONE_EXIST = "If-None-Exist";
+        public const string IfNoneExist = "If-None-Exist";
     }
 }

@@ -19,13 +19,6 @@ namespace Spark.Engine.Web.Extensions
 
     public static class HttpRequestExtensions
     {
-        internal static void Replace(this HttpHeaders headers, string header, string value)
-        {
-            //if (headers.Exists(header))
-            headers.Remove(header);
-            headers.Add(header, value);
-        }
-
         /// <summary>
         ///     Returns true if the Content-Type header matches any of the supported Xml or Json MIME types.
         /// </summary>
@@ -35,10 +28,8 @@ namespace Spark.Engine.Web.Extensions
             IsContentTypeHeaderFhirMediaType(content.Headers.ContentType?.MediaType);
 
         public static bool IsContentTypeHeaderFhirMediaType(this string contentType) =>
-            string.IsNullOrEmpty(contentType)
-                ? false
-                : ContentType.XML_CONTENT_HEADERS.Contains(contentType)
-                  || ContentType.JSON_CONTENT_HEADERS.Contains(contentType);
+            !string.IsNullOrEmpty(contentType) && (ContentType.XML_CONTENT_HEADERS.Contains(contentType)
+                                                   || ContentType.JSON_CONTENT_HEADERS.Contains(contentType));
 
         public static string GetParameter(this HttpRequest request, string key)
         {
@@ -62,20 +53,6 @@ namespace Spark.Engine.Web.Extensions
 
             return request.GetSearchParams().AddAll(list);
         }
-
-        //public static SearchParams GetSearchParamsFromBody(this HttpRequestMessage request)
-        //{
-        //    var list = new List<Tuple<string, string>>();
-        //    string content = request.Content.ReadAsStringAsync().Result;
-        //    string[] parameters = string.IsNullOrEmpty(content) ? null : content.Split('&');
-        //    foreach (string parameter in parameters)
-        //    {
-        //        string[] p = parameter.Split('=');
-        //        list.Add(new Tuple<string, string>(p[0], Uri.UnescapeDataString(p[1])));
-        //    }
-
-        //    return request.GetSearchParams().AddAll(list);
-        //}
 
         public static SearchParams GetSearchParams(this HttpRequest request)
         {

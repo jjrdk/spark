@@ -128,7 +128,7 @@ namespace Spark.Engine.Service.FhirServiceExtensions
             return SearchParams.FromUriParamList(keysCollection);
         }
 
-        private static IEnumerable<Tuple<string, string>> ParseQueryString(Uri uri)
+        private static IEnumerable<Tuple<string, string>> ParseQueryString(this Uri uri)
         {
             var query = uri?.Query ?? throw new ArgumentNullException(nameof(uri));
             return query.Trim('?')

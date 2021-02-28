@@ -11,6 +11,7 @@ namespace Spark.Engine.Web.Formatters
     using System;
     using System.Text;
     using Core;
+    using Engine.Extensions;
     using Extensions;
     using Hl7.Fhir.Model;
     using Hl7.Fhir.Rest;

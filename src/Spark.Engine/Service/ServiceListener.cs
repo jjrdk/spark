@@ -47,12 +47,7 @@ namespace Spark.Engine.Service
                     listener => listener.Inform(_localhost.GetAbsoluteUri(interaction.Key), interaction)));
         }
 
-        public Task Inform(Uri location, Entry entry)
-        {
-            return Task.WhenAll(_listeners.Select(listener => listener.Inform(location, entry)));
-        }
-
-        public Task InformAsync(Uri location, Entry interaction)
+        public Task Inform(Uri location, Entry interaction)
         {
             return Task.WhenAll(_listeners.Select(listener => listener.Inform(location, interaction)));
         }

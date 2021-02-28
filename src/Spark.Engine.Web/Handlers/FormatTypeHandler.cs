@@ -10,6 +10,7 @@ namespace Spark.Engine.Web.Handlers
 {
     using System.Threading.Tasks;
     using Core;
+    using Engine.Extensions;
     using Extensions;
     using Hl7.Fhir.Rest;
     using Microsoft.AspNetCore.Http;

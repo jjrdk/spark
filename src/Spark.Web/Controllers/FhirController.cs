@@ -76,7 +76,7 @@ namespace Spark.Web.Controllers
         {
             var key = Key.Create(type, resource?.Id);
 
-            if (Request.Headers.ContainsKey(FhirHttpHeaders.IF_NONE_EXIST))
+            if (Request.Headers.ContainsKey(FhirHttpHeaders.IfNoneExist))
             {
                 var searchQueryString = HttpUtility.ParseQueryString(Request.GetTypedHeaders().IfNoneExist());
                 var searchValues = searchQueryString.Keys.Cast<string>()
