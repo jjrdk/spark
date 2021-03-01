@@ -111,7 +111,7 @@ namespace Spark.Engine.Core
         /// <returns><see cref="FhirPropertyInfo" /> for the specified property. Null if not present.</returns>
         public FhirPropertyInfo FindPropertyInfo(Type fhirType, string propertyName)
         {
-            FhirPropertyInfo propertyInfo = null;
+            FhirPropertyInfo propertyInfo;
             if (fhirType.IsGenericType)
             {
                 propertyInfo = FindFhirTypeInfo(r => r.FhirType.Name == fhirType.Name)?.FindPropertyInfo(propertyName);
@@ -164,8 +164,7 @@ namespace Spark.Engine.Core
             }
 
             result.TypedNames = result.AllowedTypes.Select(
-                    at => result.PropertyName + FindFhirTypeInfo(fti => fti.FhirType == at)?.TypeName.FirstUpper()
-                          ?? at.Name)
+                    at => result.PropertyName + FindFhirTypeInfo(fti => fti.FhirType == at)?.TypeName.FirstUpper())
                 .ToList();
 
             return result;

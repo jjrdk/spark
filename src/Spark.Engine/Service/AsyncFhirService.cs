@@ -18,43 +18,53 @@ namespace Spark.Engine.Service
     using FhirServiceExtensions;
     using Hl7.Fhir.Model;
     using Hl7.Fhir.Rest;
-    using Store;
     using Task = System.Threading.Tasks.Task;
 
-    public class AsyncFhirService : ExtendableWith<IFhirServiceExtension>, IAsyncFhirService
+    public class AsyncFhirService : IAsyncFhirService, IInteractionHandler
     {
         // CCR: FhirService now implements InteractionHandler that is used by the TransactionService to actually perform the operation.
         // This creates a circular reference that is solved by sending the handler on each call.
         // A future step might be to split that part into a different service (maybe StorageService?)
 
+        private readonly IResourceStorageService _storageService;
+        private readonly IPagingService _pagingService;
+        private readonly ISearchService _searchService;
+        private readonly ITransactionService _transactionService;
+        private readonly ICapabilityStatementService _capabilityStatementService;
+        private readonly IHistoryService _historyService;
         private readonly IInteractionHandler _interactionHandler;
         private readonly IFhirResponseFactory _responseFactory;
         private readonly ICompositeServiceListener _serviceListener;
 
         public AsyncFhirService(
+            IResourceStorageService storageService,
+            IPagingService pagingService,
+            ISearchService searchService,
+            ITransactionService transactionService,
+            ICapabilityStatementService capabilityStatementService,
+            IHistoryService historyService,
             IInteractionHandler interactionHandler,
-            IFhirServiceExtension[] extensions,
-            IFhirResponseFactory responseFactory, // TODO: can we remove this dependency?
-            ICompositeServiceListener serviceListener = null) // TODO: can we remove this dependency? - CCR
+            IFhirResponseFactory responseFactory,
+            ICompositeServiceListener serviceListener)
         {
+            _storageService = storageService;
+            _pagingService = pagingService;
+            _searchService = searchService;
+            _transactionService = transactionService;
+            _capabilityStatementService = capabilityStatementService;
+            _historyService = historyService;
             _interactionHandler = interactionHandler;
             _responseFactory = responseFactory ?? throw new ArgumentNullException(nameof(responseFactory));
             _serviceListener = serviceListener ?? throw new ArgumentNullException(nameof(serviceListener));
-
-            foreach (var serviceExtension in extensions)
-            {
-                AddExtension(serviceExtension);
-            }
         }
 
         public async Task<FhirResponse> AddMeta(IKey key, Parameters parameters)
         {
-            var storageService = GetFeature<IResourceStorageService>();
-            var entry = await storageService.Get(key).ConfigureAwait(false);
+            var entry = await _storageService.Get(key).ConfigureAwait(false);
             if (entry != null && !entry.IsDeleted())
             {
                 entry.Resource.AffixTags(parameters);
-                await storageService.Add(entry).ConfigureAwait(false);
+                await _storageService.Add(entry).ConfigureAwait(false);
             }
 
             return _responseFactory.GetMetadataResponse(entry, key);
@@ -68,37 +78,30 @@ namespace Spark.Engine.Service
 
         public async Task<FhirResponse> ConditionalCreate(IKey key, Resource resource, SearchParams parameters)
         {
-            var searchStore = GetFeature<ISearchService>();
-            var transactionService = GetFeature<ITransactionService>();
-            var operation = await resource.CreatePost(key, searchStore, parameters).ConfigureAwait(false);
-            return await transactionService.HandleTransaction(operation, _interactionHandler).ConfigureAwait(false);
+            var operation = await resource.CreatePost(key, _searchService, parameters).ConfigureAwait(false);
+            return await _transactionService.HandleTransaction(operation, _interactionHandler).ConfigureAwait(false);
         }
 
         public async Task<FhirResponse> ConditionalDelete(IKey key, IEnumerable<Tuple<string, string>> parameters)
         {
-            var searchStore = GetFeature<ISearchService>();
-            var transactionService = GetFeature<ITransactionService>();
-            var deleteOperation = await key.CreateDelete(searchStore, SearchParams.FromUriParamList(parameters))
+            var deleteOperation = await key.CreateDelete(_searchService, SearchParams.FromUriParamList(parameters))
                 .ConfigureAwait(false);
-            return await transactionService.HandleTransaction(deleteOperation, _interactionHandler).ConfigureAwait(false)
+            return await _transactionService.HandleTransaction(deleteOperation, _interactionHandler)
+                       .ConfigureAwait(false)
                    ?? Respond.WithCode(HttpStatusCode.NotFound);
         }
 
         public async Task<FhirResponse> ConditionalUpdate(IKey key, Resource resource, SearchParams parameters)
         {
-            var searchStore = GetFeature<ISearchService>();
-            var transactionService = GetFeature<ITransactionService>();
-
             // FIXME: if update receives a key with no version how do we handle concurrency?
 
-            var operation = await resource.CreatePut(key, searchStore, parameters).ConfigureAwait(false);
-            return await transactionService.HandleTransaction(operation, _interactionHandler).ConfigureAwait(false);
+            var operation = await resource.CreatePut(key, _searchService, parameters).ConfigureAwait(false);
+            return await _transactionService.HandleTransaction(operation, _interactionHandler).ConfigureAwait(false);
         }
 
         public Task<FhirResponse> CapabilityStatement(string sparkVersion)
         {
-            var capabilityStatementService = GetFeature<ICapabilityStatementService>();
-            var response = Respond.WithResource(capabilityStatementService.GetSparkCapabilityStatement(sparkVersion));
+            var response = Respond.WithResource(_capabilityStatementService.GetSparkCapabilityStatement(sparkVersion));
             return Task.FromResult(response);
         }
 
@@ -118,9 +121,7 @@ namespace Spark.Engine.Service
             Validate.Key(key);
             Validate.HasNoVersion(key);
 
-            var resourceStorage = GetFeature<IResourceStorageService>();
-
-            var current = await resourceStorage.Get(key).ConfigureAwait(false);
+            var current = await _storageService.Get(key).ConfigureAwait(false);
             return current != null && current.IsPresent
                 ? await Delete(Entry.Delete(key, DateTimeOffset.UtcNow)).ConfigureAwait(false)
                 : Respond.WithCode(HttpStatusCode.NotFound);
@@ -135,36 +136,31 @@ namespace Spark.Engine.Service
 
         public async Task<FhirResponse> GetPage(string snapshotKey, int index)
         {
-            var pagingExtension = GetFeature<IPagingService>();
-            var snapshot = await pagingExtension.StartPagination(snapshotKey).ConfigureAwait(false);
+            var snapshot = await _pagingService.StartPagination(snapshotKey).ConfigureAwait(false);
             var page = await snapshot.GetPage(index).ConfigureAwait(false);
             return _responseFactory.GetFhirResponse(page);
         }
 
         public async Task<FhirResponse> History(HistoryParameters parameters)
         {
-            var historyExtension = GetFeature<IHistoryService>();
-            var snapshot = await historyExtension.History(parameters).ConfigureAwait(false);
+            var snapshot = await _historyService.History(parameters).ConfigureAwait(false);
             return await CreateSnapshotResponse(snapshot).ConfigureAwait(false);
         }
 
         public async Task<FhirResponse> History(string type, HistoryParameters parameters)
         {
-            var historyExtension = GetFeature<IHistoryService>();
-            var snapshot = await historyExtension.History(type, parameters).ConfigureAwait(false);
+            var snapshot = await _historyService.History(type, parameters).ConfigureAwait(false);
             return await CreateSnapshotResponse(snapshot).ConfigureAwait(false);
         }
 
         public async Task<FhirResponse> History(IKey key, HistoryParameters parameters)
         {
-            var storageService = GetFeature<IResourceStorageService>();
-            if (await storageService.Get(key).ConfigureAwait(false) == null)
+            if (await _storageService.Get(key).ConfigureAwait(false) == null)
             {
                 return Respond.NotFound(key);
             }
 
-            var historyExtension = GetFeature<IHistoryService>();
-            var snapshot = await historyExtension.History(key, parameters).ConfigureAwait(false);
+            var snapshot = await _historyService.History(key, parameters).ConfigureAwait(false);
             return await CreateSnapshotResponse(snapshot).ConfigureAwait(false);
         }
 
@@ -187,38 +183,42 @@ namespace Spark.Engine.Service
             return Transaction(entry);
         }
 
+        public Task<FhirResponse> Patch(IKey key, Parameters parameters)
+        {
+            return HandleInteraction(Entry.Create(Bundle.HTTPVerb.PATCH, key, parameters));
+        }
+
         public async Task<FhirResponse> Read(IKey key, ConditionalHeaderParameters parameters = null)
         {
             ValidateKey(key);
-            var entry = await GetFeature<IResourceStorageService>().Get(key).ConfigureAwait(false);
+            var entry = await _storageService.Get(key).ConfigureAwait(false);
             return _responseFactory.GetFhirResponse(entry, key, parameters);
         }
 
         public async Task<FhirResponse> ReadMeta(IKey key)
         {
             ValidateKey(key);
-            var entry = await GetFeature<IResourceStorageService>().Get(key).ConfigureAwait(false);
+            var entry = await _storageService.Get(key).ConfigureAwait(false);
             return _responseFactory.GetMetadataResponse(entry, key);
         }
 
         public async Task<FhirResponse> Search(string type, SearchParams searchCommand, int pageIndex = 0)
         {
-            var searchService = GetFeature<ISearchService>();
-            var snapshot = await searchService.GetSnapshot(type, searchCommand).ConfigureAwait(false);
+            var snapshot = await _searchService.GetSnapshot(type, searchCommand).ConfigureAwait(false);
             return await CreateSnapshotResponse(snapshot, pageIndex).ConfigureAwait(false);
         }
 
         public async Task<FhirResponse> Transaction(params Entry[] interactions)
         {
-            var transactionExtension = GetFeature<ITransactionService>();
-            var responses = await transactionExtension.HandleTransaction(interactions, _interactionHandler).ConfigureAwait(false);
+            var responses = await _transactionService.HandleTransaction(interactions, _interactionHandler)
+                .ConfigureAwait(false);
             return _responseFactory.GetFhirResponse(responses, Bundle.BundleType.TransactionResponse);
         }
 
         public async Task<FhirResponse> Transaction(Bundle bundle)
         {
-            var transactionExtension = GetFeature<ITransactionService>();
-            var responses = await transactionExtension.HandleTransaction(bundle, _interactionHandler).ConfigureAwait(false);
+            var responses = await _transactionService.HandleTransaction(bundle, _interactionHandler)
+                .ConfigureAwait(false);
             return _responseFactory.GetFhirResponse(responses, Bundle.BundleType.TransactionResponse);
         }
 
@@ -244,7 +244,7 @@ namespace Spark.Engine.Service
         public async Task<FhirResponse> VersionRead(IKey key)
         {
             ValidateKey(key, true);
-            var entry = await GetFeature<IResourceStorageService>().Get(key).ConfigureAwait(false);
+            var entry = await _storageService.Get(key).ConfigureAwait(false);
             return _responseFactory.GetFhirResponse(entry, key);
         }
 
@@ -253,15 +253,14 @@ namespace Spark.Engine.Service
             Validate.HasTypeName(versionedKey);
             Validate.HasVersion(versionedKey);
             var key = versionedKey.WithoutVersion();
-            var current = await GetFeature<IResourceStorageService>().Get(key).ConfigureAwait(false);
+            var current = await _storageService.Get(key).ConfigureAwait(false);
             Validate.IsSameVersion(current.Key, versionedKey);
             return await Put(key, resource).ConfigureAwait(false);
         }
 
         public async Task<FhirResponse> Everything(IKey key)
         {
-            var searchService = GetFeature<ISearchService>();
-            var snapshot = await searchService.GetSnapshotForEverything(key).ConfigureAwait(false);
+            var snapshot = await _searchService.GetSnapshotForEverything(key).ConfigureAwait(false);
             return await CreateSnapshotResponse(snapshot).ConfigureAwait(false);
         }
 
@@ -291,6 +290,62 @@ namespace Spark.Engine.Service
             return await Search(key.TypeName, searchCommand).ConfigureAwait(false);
         }
 
+        public async Task<FhirResponse> HandleInteraction(Entry interaction)
+        {
+            switch (interaction.Method)
+            {
+                case Bundle.HTTPVerb.PUT:
+                    return await Put(interaction).ConfigureAwait(false);
+                case Bundle.HTTPVerb.POST:
+                    return await Create(interaction).ConfigureAwait(false);
+                case Bundle.HTTPVerb.DELETE:
+                {
+                    var current = await _storageService.Get(interaction.Key.WithoutVersion()).ConfigureAwait(false);
+                    return current != null && current.IsPresent
+                        ? await Delete(interaction).ConfigureAwait(false)
+                        : Respond.WithCode(HttpStatusCode.NotFound);
+                }
+                case Bundle.HTTPVerb.PATCH:
+                {
+                    var current = await _storageService.Get(interaction.Key.WithoutVersion()).ConfigureAwait(false);
+                    if (current == null)
+                    {
+                        return new FhirResponse(HttpStatusCode.BadRequest);
+                    }
+
+                    if (interaction.Resource is Parameters patch)
+                    {
+                        var applier = new PatchApplicationService();
+                        applier.Apply(current.Resource as Patient, patch);
+                        return new FhirResponse(HttpStatusCode.OK, current.Resource);
+                    }
+
+                    return new FhirResponse(HttpStatusCode.BadRequest);
+                }
+                case Bundle.HTTPVerb.GET:
+                    return await VersionRead((Key) interaction.Key).ConfigureAwait(false);
+                default:
+                    return Respond.Success;
+            }
+        }
+
+        private async Task<FhirResponse> Create(Entry entry)
+        {
+            Validate.Key(entry.Key);
+            Validate.HasTypeName(entry.Key);
+            Validate.ResourceType(entry.Key, entry.Resource);
+
+            if (entry.State != EntryState.Internal)
+            {
+                Validate.HasNoResourceId(entry.Key);
+                Validate.HasNoVersion(entry.Key);
+            }
+
+            var result = await _storageService.Add(entry).ConfigureAwait(false);
+            await _serviceListener.Inform(entry).ConfigureAwait(false);
+            return Respond.WithResource(HttpStatusCode.Created, result);
+        }
+
         private static void ValidateKey(IKey key, bool withVersion = false)
         {
             Validate.HasTypeName(key);
@@ -309,29 +364,14 @@ namespace Spark.Engine.Service
 
         private async Task<FhirResponse> CreateSnapshotResponse(Snapshot snapshot, int pageIndex = 0)
         {
-            var pagingExtension = FindExtension<IPagingService>();
-            if (pagingExtension == null)
-            {
-                var bundle = new Bundle { Type = snapshot.Type, Total = snapshot.Count };
-                var resourceStorage = FindExtension<IResourceStorageService>();
-                bundle.Append(await resourceStorage.Get(snapshot.Keys).ConfigureAwait(false));
-                return _responseFactory.GetFhirResponse(bundle);
-            }
-            else
-            {
-                var pagination = await pagingExtension.StartPagination(snapshot).ConfigureAwait(false);
-                var bundle = await pagination.GetPage(pageIndex).ConfigureAwait(false);
-                return _responseFactory.GetFhirResponse(bundle);
-            }
+            var pagination = await _pagingService.StartPagination(snapshot).ConfigureAwait(false);
+            var bundle = await pagination.GetPage(pageIndex).ConfigureAwait(false);
+            return _responseFactory.GetFhirResponse(bundle);
         }
-
-        private T GetFeature<T>()
-            where T : IFhirServiceExtension =>
-            FindExtension<T>() ?? throw new NotSupportedException($"Feature {typeof(T)} not supported");
 
         private async Task<Entry> Store(Entry entry)
         {
-            var result = await GetFeature<IResourceStorageService>().Add(entry).ConfigureAwait(false);
+            var result = await _storageService.Add(entry).ConfigureAwait(false);
             await _serviceListener.Inform(entry).ConfigureAwait(false);
             return result;
         }

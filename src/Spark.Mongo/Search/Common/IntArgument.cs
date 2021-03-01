@@ -18,8 +18,7 @@ namespace Spark.Mongo.Search.Common
 
         public override bool Validate(string value)
         {
-            int i;
-            return int.TryParse(value, out i);
+            return int.TryParse(value, out _);
         }
     }
 }

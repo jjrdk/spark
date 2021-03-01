@@ -14,7 +14,7 @@ namespace Spark.Engine.Service.FhirServiceExtensions
     using Core;
     using Hl7.Fhir.Model;
 
-    public interface ITransactionService : IFhirServiceExtension
+    public interface ITransactionService
     {
         Task<FhirResponse> HandleTransaction(
             ResourceManipulationOperation operation,

@@ -8,28 +8,24 @@
 
 namespace Spark.Mongo.Search.Common
 {
+    using Hl7.Fhir.Model;
+
     public static class ArgumentFactory
     {
-        public static Argument Create(Hl7.Fhir.Model.SearchParamType type, bool fuzzy = false)
+        public static Argument Create(SearchParamType type)
         {
-            switch (type)
+            return type switch
             {
-                case Hl7.Fhir.Model.SearchParamType.Number:
-                    return new IntArgument();
-                case Hl7.Fhir.Model.SearchParamType.String:
-                    return new StringArgument();
-                case Hl7.Fhir.Model.SearchParamType.Date:
-                    return new DateArgument();
-                case Hl7.Fhir.Model.SearchParamType.Token:
-                    return new TokenArgument();
-                case Hl7.Fhir.Model.SearchParamType.Reference:
-                    return new ReferenceArgument();
-                case Hl7.Fhir.Model.SearchParamType.Composite:
+                SearchParamType.Number => new IntArgument(),
+                SearchParamType.String => new StringArgument(),
+                SearchParamType.Date => new DateArgument(),
+                SearchParamType.Token => new TokenArgument(),
+                SearchParamType.Reference => new ReferenceArgument(),
+                SearchParamType.Composite =>
                     //TODO: Implement Composite arguments
-                    return new Argument();
-                default:
-                    return new Argument();
-            }
+                    new Argument(),
+                _ => new Argument()
+            };
         }
     }
 }

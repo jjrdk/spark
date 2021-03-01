@@ -22,15 +22,13 @@ namespace Spark.Engine.Web
     using Search;
     using Service;
     using Service.FhirServiceExtensions;
-    using Store.Interfaces;
 
     public static class ServiceCollectionExtensions
     {
         public static IMvcCoreBuilder AddFhir(
             this IServiceCollection services,
             SparkSettings settings,
-            Action<MvcOptions> setupAction = null,
-            Func<IServiceProvider, IInteractionHandler> interactionHandler = null)
+            Action<MvcOptions> setupAction = null)
         {
             if (settings == null)
             {
@@ -59,41 +57,21 @@ namespace Spark.Engine.Web
             services.TryAddTransient<IFhirResponseInterceptorRunner, FhirResponseInterceptorRunner>();
             services.TryAddTransient<IFhirResponseFactory, FhirResponseFactory>();
             services.TryAddTransient<IIndexRebuildService, IndexRebuildService>();
-            services.TryAddTransient<ISearchService, SearchService>();
             services.TryAddTransient<ISnapshotPaginationProvider, SnapshotPaginationProvider>();
             services.TryAddTransient<ISnapshotPaginationCalculator, SnapshotPaginationCalculator>();
             services.TryAddTransient<IServiceListener, SearchService>(); // searchListener
             services.TryAddTransient(provider => new[] { provider.GetRequiredService<IServiceListener>() });
-            services.TryAddTransient<SearchService>(); // search
-            services.TryAddTransient<TransactionService>(); // transaction
+            services.TryAddTransient<ISearchService, SearchService>(); // search
+            services.TryAddTransient<ITransactionService, TransactionService>(); // transaction
             //services.TryAddTransient<HistoryService>();                    // history
-            services.TryAddTransient<PagingService>(); // paging
-            services.TryAddTransient<ResourceStorageService>(); // storage
-            services.TryAddTransient<CapabilityStatementService>(); // conformance
+            services.TryAddTransient<IPagingService, PagingService>(); // paging
+            services.TryAddTransient<IResourceStorageService, ResourceStorageService>(); // storage
+            services.TryAddTransient<ICapabilityStatementService, CapabilityStatementService>(); // conformance
             services.TryAddTransient<ICompositeServiceListener, ServiceListener>();
             services.TryAddTransient<JsonFhirInputFormatter>();
             services.TryAddTransient<JsonFhirOutputFormatter>();
             services.TryAddTransient<XmlFhirInputFormatter>();
             services.TryAddTransient<XmlFhirOutputFormatter>();
-            if (interactionHandler == null)
-            {
-                services.TryAddTransient<IInteractionHandler, DefaultInteractionHandler>();
-            }
-            else
-            {
-                services.TryAddTransient(interactionHandler);
-            }
-            services.AddTransient(
-                provider => new IFhirServiceExtension[]
-                {
-                    provider.GetRequiredService<SearchService>(),
-                    provider.GetRequiredService<TransactionService>(),
-                    provider.GetRequiredService<IHistoryStore>(),
-                    provider.GetRequiredService<PagingService>(),
-                    provider.GetRequiredService<ResourceStorageService>(),
-                    provider.GetRequiredService<CapabilityStatementService>()
-                });
-
             services.TryAddSingleton(_ => new FhirJsonParser(settings.ParserSettings));
             services.TryAddSingleton(_ => new FhirXmlParser(settings.ParserSettings));
             services.TryAddSingleton(_ => new FhirJsonSerializer(settings.SerializerSettings));

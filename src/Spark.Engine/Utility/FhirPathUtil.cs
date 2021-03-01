@@ -74,23 +74,17 @@ namespace Spark.Engine.Utility
                 fhirElementName = fhirElement.Name;
             }
 
-            Type elementType;
-            if (pi.PropertyType.IsGenericType)
-            {
-                elementType = pi.PropertyType.GetGenericArguments().FirstOrDefault();
-            }
-            else
-            {
-                elementType = pi.PropertyType.UnderlyingSystemType;
-            }
+            var elementType = pi.PropertyType.IsGenericType
+                ? pi.PropertyType.GetGenericArguments().FirstOrDefault()
+                : pi.PropertyType.UnderlyingSystemType;
 
             return (elementType, fhirElementName);
         }
 
-        internal static (string, string) GetElementSeparatedFromIndexer(string element)
+        private static (string, string) GetElementSeparatedFromIndexer(string element)
         {
             var index = element.LastIndexOf("[");
-            return index > -1 ? (element.Substring(0, index), element.Substring(index)) : (element, string.Empty);
+            return index > -1 ? (element.Substring(0, index), element[index..]) : (element, string.Empty);
         }
     }
 }

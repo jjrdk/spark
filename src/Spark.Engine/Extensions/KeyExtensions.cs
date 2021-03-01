@@ -173,6 +173,6 @@ namespace Spark.Engine.Extensions
         ///     Determines if the Key was constructed from a temporary id.
         /// </summary>
         public static bool IsTemporary(this IKey key) =>
-            key.ResourceId != null ? UriHelper.IsTemporaryUri(key.ResourceId) : false;
+            key.ResourceId != null && UriHelper.IsTemporaryUri(key.ResourceId);
     }
 }

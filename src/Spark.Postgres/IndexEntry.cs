@@ -37,7 +37,7 @@ namespace Spark.Postgres
                 return false;
             }
 
-            return ReferenceEquals(this, other) ? true : Id == other.Id && Equals(Values, other.Values);
+            return ReferenceEquals(this, other) || Id == other.Id && Equals(Values, other.Values);
         }
 
         /// <inheritdoc />
@@ -48,7 +48,7 @@ namespace Spark.Postgres
                 return false;
             }
 
-            return ReferenceEquals(this, obj) ? true : obj.GetType() == GetType() && Equals((IndexEntry) obj);
+            return ReferenceEquals(this, obj) || obj.GetType() == GetType() && Equals((IndexEntry) obj);
         }
 
         /// <inheritdoc />

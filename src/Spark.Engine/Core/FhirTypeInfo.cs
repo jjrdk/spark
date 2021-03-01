@@ -52,19 +52,15 @@ namespace Spark.Engine.Core
 
         /// <summary>
         ///     Find the first property with the name <paramref name="propertyName" />, or where one of the TypedNames matches
-        ///     <paramref name="propertName" />.
+        ///     <paramref name="propertyName" />.
         ///     Properties that are FhirElements are preferred over properties that are not.
         /// </summary>
         /// <param name="propertyName"></param>
-        /// <returns>PropertyInofo for property that matches this name.</returns>
+        /// <returns>PropertyInfo for property that matches this name.</returns>
         public FhirPropertyInfo FindPropertyInfo(string propertyName)
         {
-            var result = FindPropertyInfo(pi => pi.PropertyName == propertyName);
-            if (result == null)
-            {
-                //try it by typed name
-                result = FindPropertyInfo(pi => pi.TypedNames.Contains(propertyName));
-            }
+            var result = FindPropertyInfo(pi => pi.PropertyName == propertyName)
+                         ?? FindPropertyInfo(pi => pi.TypedNames.Contains(propertyName));
 
             return result;
         }

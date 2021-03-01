@@ -54,7 +54,7 @@ namespace Spark.Engine.Core
         public Type GetTypeForResourceName(string name) => GetTypeForFhirType(name);
 
         public ResourceType GetResourceTypeForResourceName(string name) =>
-            (ResourceType) Enum.Parse(typeof(ResourceType), name, true);
+            (ResourceType)Enum.Parse(typeof(ResourceType), name, true);
 
         public string GetResourceNameForResourceType(ResourceType type) => Enum.GetName(typeof(ResourceType), type);
 
@@ -157,7 +157,7 @@ namespace Spark.Engine.Core
             //Not implemented (yet): _query, _text, _content
 
             var genericSearchParameters =
-                genericSearchParamDefinitions.Select(spd => CreateSearchParameterFromSearchParamDefinition(spd));
+                genericSearchParamDefinitions.Select(CreateSearchParameterFromSearchParamDefinition);
 
             SearchParameters.AddRange(genericSearchParameters.Except(SearchParameters));
             //We have no control over the incoming list of searchParameters (in the constructor), so these generic parameters may or may not be in there.
@@ -170,7 +170,7 @@ namespace Spark.Engine.Core
             {
                 Name = def.Name,
                 Code = def.Name,
-                Base = new List<ResourceType?> {GetResourceTypeForResourceName(def.Resource)},
+                Base = new List<ResourceType?> { GetResourceTypeForResourceName(def.Resource) },
                 Type = def.Type,
                 Target = def.Target != null ? def.Target.ToList().Cast<ResourceType?>() : new List<ResourceType?>(),
                 Description = def.Description,
@@ -307,9 +307,7 @@ namespace Spark.Engine.Core
                     return false;
                 }
 
-                return ReferenceEquals(this, obj)
-                    ? true
-                    : obj.GetType() == GetType() && Equals((ComparableSearchParameter) obj);
+                return ReferenceEquals(this, obj) || obj.GetType() == GetType() && Equals((ComparableSearchParameter)obj);
             }
 
             public override int GetHashCode()

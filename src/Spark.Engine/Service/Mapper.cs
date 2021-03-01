@@ -10,36 +10,23 @@ namespace Spark.Engine.Service
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
 
     public class Mapper<TKey, TValue>
     {
         private readonly Dictionary<TKey, TValue> _mapping = new Dictionary<TKey, TValue>();
 
-        public void Clear()
-        {
-            _mapping.Clear();
-        }
-
         public TValue TryGet(TKey key)
         {
-            TValue value;
-            return _mapping.TryGetValue(key, out value) ? value : default;
+            return _mapping.TryGetValue(key, out var value) ? value : default;
         }
 
         public bool Exists(TKey key)
         {
-            foreach (var item in _mapping)
-            {
-                if (item.Key.Equals(key))
-                {
-                    return true;
-                }
-            }
-
-            return false;
+            return _mapping.Any(item => item.Key.Equals(key));
         }
 
-        public TValue Remap(TKey key, TValue value)
+        public void Remap(TKey key, TValue value)
         {
             if (Exists(key))
             {
@@ -49,8 +36,6 @@ namespace Spark.Engine.Service
             {
                 _mapping.Add(key, value);
             }
-
-            return value;
         }
 
         public void Merge(Mapper<TKey, TValue> mapper)

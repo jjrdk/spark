@@ -38,6 +38,7 @@ namespace Spark.Engine.Service
         Task<FhirResponse> Mailbox(Bundle bundle, Binary body);
         Task<FhirResponse> Put(IKey key, Resource resource);
         Task<FhirResponse> Put(Entry entry);
+        Task<FhirResponse> Patch(IKey key, Parameters parameters);
         Task<FhirResponse> Read(IKey key, ConditionalHeaderParameters parameters = null);
         Task<FhirResponse> ReadMeta(IKey key);
         Task<FhirResponse> Search(string type, SearchParams searchCommand, int pageIndex = 0);

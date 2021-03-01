@@ -59,7 +59,7 @@ namespace Spark.Engine.Core
             return snapshot;
         }
 
-        private static int? NormalizeCount(int? count) => count.HasValue ? Math.Min(count.Value, MAX_PAGE_SIZE) : count;
+        private static int? NormalizeCount(int? count) => count.HasValue ? (int?)Math.Min(count.Value, MAX_PAGE_SIZE) : null;
 
         public static string CreateKey() => Guid.NewGuid().ToString();
 

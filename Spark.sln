@@ -14,8 +14,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.editorconfig = .editorconfig
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Spark.IntegrationTest", "tests\Spark.IntegrationTest\Spark.IntegrationTest.csproj", "{49FB5DBC-8F10-49C2-B358-84EEF9B12F83}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".docker", ".docker", "{40662456-0D34-4F03-8568-A10372856F88}"
 	ProjectSection(SolutionItems) = preProject
 		.docker\docker-compose.example.yml = .docker\docker-compose.example.yml
@@ -53,7 +51,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Spark.Web", "src\Spark.Web\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Spark.Mongo.Tests", "tests\Spark.Mongo.Tests\Spark.Mongo.Tests.csproj", "{FD611B5E-74F8-4D95-963B-0F921DEE3AF2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Spark.Postgres", "src\Spark.Postgres\Spark.Postgres.csproj", "{26E4DB90-BE4F-4B71-BE40-CAAE998A3D75}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Spark.Postgres", "src\Spark.Postgres\Spark.Postgres.csproj", "{26E4DB90-BE4F-4B71-BE40-CAAE998A3D75}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -73,10 +71,6 @@ Global
 		{5CA90A21-AC2E-4C30-B618-A459A1E5B04F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5CA90A21-AC2E-4C30-B618-A459A1E5B04F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5CA90A21-AC2E-4C30-B618-A459A1E5B04F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{49FB5DBC-8F10-49C2-B358-84EEF9B12F83}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{49FB5DBC-8F10-49C2-B358-84EEF9B12F83}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{49FB5DBC-8F10-49C2-B358-84EEF9B12F83}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{49FB5DBC-8F10-49C2-B358-84EEF9B12F83}.Release|Any CPU.Build.0 = Release|Any CPU
 		{FF6EA470-2011-4106-900B-2668428D6A30}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{FF6EA470-2011-4106-900B-2668428D6A30}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FF6EA470-2011-4106-900B-2668428D6A30}.Release|Any CPU.ActiveCfg = Release|Any CPU

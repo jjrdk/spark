@@ -17,7 +17,7 @@ namespace Spark.Engine.Core
         private IKey _key;
         private DateTimeOffset? _when;
 
-        protected Entry(Bundle.HTTPVerb method, IKey key, DateTimeOffset? when, Resource resource)
+        private Entry(Bundle.HTTPVerb method, IKey key, DateTimeOffset? when, Resource resource)
         {
             if (resource != null)
             {
@@ -52,7 +52,7 @@ namespace Spark.Engine.Core
 
         public Resource Resource { get; set; }
 
-        public Bundle.HTTPVerb Method { get; set; }
+        public Bundle.HTTPVerb Method { get; }
 
         // API: HttpVerb should not be in Bundle.
         public DateTimeOffset? When
@@ -95,9 +95,7 @@ namespace Spark.Engine.Core
             Create(Bundle.HTTPVerb.DELETE, key, when ?? DateTimeOffset.UtcNow);
 
         public static Entry Post(IKey key, Resource resource) => Create(Bundle.HTTPVerb.POST, key, resource);
-
-        public static Entry Post(Resource resource) => Create(Bundle.HTTPVerb.POST, resource);
-
+        
         public static Entry Put(IKey key, Resource resource) => Create(Bundle.HTTPVerb.PUT, key, resource);
 
         //public static Interaction GET(IKey key)

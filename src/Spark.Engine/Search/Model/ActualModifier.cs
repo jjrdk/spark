@@ -105,18 +105,12 @@ namespace Spark.Engine.Search.Model
         public override string ToString()
         {
             var modifierText = _mapping.FirstOrDefault(m => m.Value == Modifier).Key;
-            switch (Modifier)
+            return Modifier switch
             {
-                case Modifier.MISSING:
-                {
-                    return modifierText + MISSING_SEPARATOR + (Missing.Value ? MISSINGTRUE : MISSINGFALSE);
-                }
-                case Modifier.TYPE:
-                {
-                    return ModelInfo.GetFhirTypeNameForType(ModifierType);
-                }
-                default: return modifierText;
-            }
+                Modifier.MISSING => modifierText + MISSING_SEPARATOR + (Missing.Value ? MISSINGTRUE : MISSINGFALSE),
+                Modifier.TYPE => ModelInfo.GetFhirTypeNameForType(ModifierType),
+                _ => modifierText
+            };
         }
     }
 }

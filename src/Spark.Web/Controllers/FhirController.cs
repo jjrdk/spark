@@ -205,11 +205,11 @@ namespace Spark.Web.Controllers
         [Route("${operation}")]
         public FhirResponse ServerOperation(string operation)
         {
-            switch (operation.ToLower())
+            return operation.ToLower() switch
             {
-                case "error": throw new Exception("This error is for testing purposes");
-                default: return Respond.WithError(HttpStatusCode.NotFound, "Unknown operation");
-            }
+                "error" => throw new Exception("This error is for testing purposes"),
+                _ => Respond.WithError(HttpStatusCode.NotFound, "Unknown operation")
+            };
         }
 
         [HttpPost]
@@ -221,14 +221,13 @@ namespace Spark.Web.Controllers
             Parameters parameters)
         {
             var key = Key.Create(type, id);
-            switch (operation.ToLower())
+            return operation.ToLower() switch
             {
-                case "meta": return await _fhirService.ReadMeta(key).ConfigureAwait(false);
-                case "meta-add": return await _fhirService.AddMeta(key, parameters).ConfigureAwait(false);
-                case "meta-delete":
-
-                default: return Respond.WithError(HttpStatusCode.NotFound, "Unknown operation");
-            }
+                "meta" => await _fhirService.ReadMeta(key).ConfigureAwait(false),
+                "meta-add" => await _fhirService.AddMeta(key, parameters).ConfigureAwait(false),
+                "meta-delete" => Respond.WithError(HttpStatusCode.NotFound, "Unknown operation"),
+                _ => Respond.WithError(HttpStatusCode.NotFound, "Unknown operation")
+            };
         }
 
         [HttpPost]

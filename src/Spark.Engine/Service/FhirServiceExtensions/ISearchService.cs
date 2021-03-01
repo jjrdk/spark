@@ -12,7 +12,7 @@ namespace Spark.Engine.Service.FhirServiceExtensions
     using Core;
     using Hl7.Fhir.Rest;
 
-    public interface ISearchService : IFhirServiceExtension
+    public interface ISearchService
     {
         Task<Snapshot> GetSnapshot(string type, SearchParams searchCommand);
 

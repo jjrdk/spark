@@ -1,4 +1,4 @@
-﻿namespace Spark.Engine.Model.Patch
+﻿namespace Spark.Engine.Service
 {
     using System;
     using System.Collections.Generic;
@@ -11,11 +11,11 @@
     using Expression = System.Linq.Expressions.Expression;
     using fhirExpression = Hl7.FhirPath.Expressions;
 
-    public class PatchApplier
+    public class PatchApplicationService
     {
         private readonly FhirPathCompiler _compiler;
 
-        public PatchApplier()
+        public PatchApplicationService()
         {
             _compiler = new FhirPathCompiler();
         }
@@ -103,7 +103,7 @@
                         Expression.IfThen(
                             Expression.Equal(me, Expression.Default(result.Type)),
                             Expression.Throw(Expression.New(typeof(InvalidOperationException)))),
-                        Expression.Call(me, GetMethod(me.Type, "Add"), null, value)),
+                        Expression.Call(me, GetMethod(me.Type, "Add"), value)),
                 MemberExpression me => Expression.Block(
                     Expression.IfThen(
                         Expression.NotEqual(me, Expression.Default(result.Type)),

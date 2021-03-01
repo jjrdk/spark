@@ -99,7 +99,7 @@ namespace Spark.Engine.Service.FhirServiceExtensions
                 {
                     resolvedValues = resource.SelectNew(searchParameter.Expression);
                 }
-                catch (Exception e)
+                catch// (Exception e)
                 {
                     // TODO: log error!
                     resolvedValues = new List<Base>();
@@ -107,8 +107,7 @@ namespace Spark.Engine.Service.FhirServiceExtensions
 
                 foreach (var value in resolvedValues)
                 {
-                    var element = value as Element;
-                    if (element == null)
+                    if (!(value is Element element))
                     {
                         continue;
                     }
@@ -122,9 +121,9 @@ namespace Spark.Engine.Service.FhirServiceExtensions
                 }
             }
 
-            if (resource is DomainResource)
+            if (resource is DomainResource domainResource)
             {
-                AddContainedResources((DomainResource) resource, rootIndexValue);
+                AddContainedResources(domainResource, rootIndexValue);
             }
 
             return rootIndexValue;
@@ -141,7 +140,7 @@ namespace Spark.Engine.Service.FhirServiceExtensions
         /// </summary>
         /// <param name="resource"></param>
         /// <returns>A copy of resource, with id's of contained resources and references in resource adjusted to unique values.</returns>
-        private Resource MakeContainedReferencesUnique(Resource resource)
+        private static Resource MakeContainedReferencesUnique(Resource resource)
         {
             //We may change id's of contained resources, and don't want that to influence other code. So we make a copy for our own needs.
             Resource result = (dynamic) resource.DeepCopy();
@@ -196,7 +195,7 @@ namespace Spark.Engine.Service.FhirServiceExtensions
                         }));
         }
 
-        private void AddMetaParts(Resource resource, IKey key, IndexValue entry)
+        private static void AddMetaParts(Resource resource, IKey key, IndexValue entry)
         {
             entry.Values.Add(new IndexValue("internal_forResource", new StringValue(key.ToUriString())));
             entry.Values.Add(new IndexValue(IndexFieldNames.RESOURCE, new StringValue(resource.TypeName)));

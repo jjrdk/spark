@@ -12,7 +12,7 @@ namespace Spark.Engine.Service.FhirServiceExtensions
     using System.Threading.Tasks;
     using Core;
 
-    public interface IResourceStorageService : IFhirServiceExtension
+    public interface IResourceStorageService
     {
         Task<bool> Exists(IKey key);
 
@@ -20,6 +20,6 @@ namespace Spark.Engine.Service.FhirServiceExtensions
 
         Task<Entry> Add(Entry entry);
 
-        Task<IList<Entry>> Get(IEnumerable<string> localIdentifiers, string sortby = null);
+        Task<IList<Entry>> Get(IEnumerable<string> localIdentifiers, string sortBy = null);
     }
 }

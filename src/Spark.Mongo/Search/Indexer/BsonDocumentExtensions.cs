@@ -33,9 +33,7 @@ namespace Spark.Mongo.Search.Indexer
             var forcearray = value.BsonType == BsonType.Document;
             // anders kan er op zo'n document geen $elemMatch gedaan worden.
 
-            BsonElement element;
-
-            if (document.TryGetElement(field, out element))
+            if (document.TryGetElement(field, out var element))
             {
                 if (element.Value.BsonType == BsonType.Array)
                 {

@@ -59,18 +59,8 @@ namespace Spark.Engine.Search.ValueExpressionTypes
         public Expression Operand { get; set; }
 
         //CK: TODO: This should be SearchParameter, but that does not support Composite parameters very well.
-        public List<ModelInfo.SearchParamDefinition> SearchParameters
-        {
-            get
-            {
-                if (_searchParameters == null)
-                {
-                    _searchParameters = new List<ModelInfo.SearchParamDefinition>();
-                }
-
-                return _searchParameters;
-            }
-        }
+        public List<ModelInfo.SearchParamDefinition> SearchParameters =>
+            _searchParameters ??= new List<ModelInfo.SearchParamDefinition>();
 
         object ICloneable.Clone() => Clone();
 
@@ -109,7 +99,6 @@ namespace Spark.Engine.Search.ValueExpressionTypes
                 ? throw Error.Argument("text", "Value must contain an '=' to separate key and value")
                 : Parse(keyVal.Item1, keyVal.Item2);
         }
-
 
         public override string ToString()
         {
@@ -168,22 +157,14 @@ namespace Spark.Engine.Search.ValueExpressionTypes
             {
                 modifier = null;
 
-                if (value == MISSINGTRUE)
+                type = value switch
                 {
-                    type = Operator.ISNULL;
-                }
-                else if (value == MISSINGFALSE)
-                {
-                    type = Operator.NOTNULL;
-                }
-                else
-                {
-                    throw Error.Argument(
+                    MISSINGTRUE => Operator.ISNULL,
+                    MISSINGFALSE => Operator.NOTNULL,
+                    _ => throw Error.Argument(
                         "value",
-                        "For the :missing modifier, only values 'true' and 'false' are allowed");
-                }
-
-                operand = null;
+                        "For the :missing modifier, only values 'true' and 'false' are allowed")
+                };
             }
             // else see if the value starts with a comparator
             else
@@ -230,15 +211,13 @@ namespace Spark.Engine.Search.ValueExpressionTypes
 
         private string BuildValue()
         {
-            // Turn ISNULL and NOTNULL operators into either true/or false to match the :missing modifier
-            if (Operator == Operator.ISNULL)
+            switch (Operator)
             {
-                return "true";
-            }
-
-            if (Operator == Operator.NOTNULL)
-            {
-                return "false";
+                // Turn ISNULL and NOTNULL operators into either true/or false to match the :missing modifier
+                case Operator.ISNULL:
+                    return "true";
+                case Operator.NOTNULL:
+                    return "false";
             }
 
             if (Operand == null)
@@ -260,9 +239,9 @@ namespace Spark.Engine.Search.ValueExpressionTypes
 
         private static Tuple<Operator, string> FindComparator(string value)
         {
-            var opMap = _operatorMapping.FirstOrDefault(t => value.StartsWith(t.Item1));
+            var (item1, item2) = _operatorMapping.FirstOrDefault(t => value.StartsWith(t.Item1));
 
-            return Tuple.Create(opMap.Item2, value.Substring(opMap.Item1.Length));
+            return Tuple.Create(item2, value[item1.Length..]);
         }
 
         public Criterium Clone()

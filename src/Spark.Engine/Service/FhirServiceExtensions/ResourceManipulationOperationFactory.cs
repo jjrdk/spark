@@ -27,10 +27,12 @@ namespace Spark.Engine.Service.FhirServiceExtensions
         {
             _builders =
                 new Dictionary<Bundle.HTTPVerb, Func<Resource, IKey, ISearchService, SearchParams,
-                    Task<ResourceManipulationOperation>>>();
-            _builders.Add(Bundle.HTTPVerb.POST, CreatePost);
-            _builders.Add(Bundle.HTTPVerb.PUT, CreatePut);
-            _builders.Add(Bundle.HTTPVerb.DELETE, CreateDelete);
+                    Task<ResourceManipulationOperation>>>
+                {
+                    {Bundle.HTTPVerb.POST, CreatePost},
+                    {Bundle.HTTPVerb.PUT, CreatePut},
+                    {Bundle.HTTPVerb.DELETE, CreateDelete}
+                };
         }
 
         public static async Task<ResourceManipulationOperation> CreatePost(
@@ -54,7 +56,7 @@ namespace Spark.Engine.Service.FhirServiceExtensions
                 return null;
             }
 
-            return command != null && searchService == null
+            return searchService == null
                 ? throw new InvalidOperationException("Invalid operation")
                 : await searchService.GetSearchResults(key.TypeName, command).ConfigureAwait(false);
         }

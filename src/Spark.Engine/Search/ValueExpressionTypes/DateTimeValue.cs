@@ -42,8 +42,5 @@ namespace Spark.Engine.Search.ValueExpressionTypes
         public DateTimeOffset Value { get; }
 
         public override string ToString() => new FhirDateTime(Value).ToString();
-
-        //return Value.ToString("YYYY-MM-ddThh:mm:sszzz");
-        public static DateTimeValue Parse(string text) => new DateTimeValue(text);
     }
 }

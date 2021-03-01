@@ -208,7 +208,7 @@ namespace Spark.Engine.Core
                 //TODO: CK: Search for 'FhirElement' with the name 'propname' first, just like we do in fillChainLinks above.
                 var predicateRegex = new Regex(@"(?<propname>[^=]*)=(?<filterValue>.*)");
                 var match = predicateRegex.Match(predicate);
-                if (match == null || !match.Success)
+                if (!match.Success)
                 {
                     return null;
                 }
@@ -216,9 +216,9 @@ namespace Spark.Engine.Core
                 var propertyName = match.Groups["propname"].Value;
                 var filterValue = match.Groups["filterValue"].Value;
 
-                Predicate<object> result = obj => GetPredicateForPropertyAndFilter(propertyName, filterValue, obj);
+                bool Result(object obj) => GetPredicateForPropertyAndFilter(propertyName, filterValue, obj);
 
-                return result;
+                return Result;
             }
 
             private bool GetPredicateForPropertyAndFilter(string propertyName, string filterValue, object obj)
@@ -305,7 +305,7 @@ namespace Spark.Engine.Core
                     throw new ArgumentNullException(nameof(type));
                 }
 
-                var codedEnum = type.GenericTypeArguments?.FirstOrDefault()?.IsEnum;
+                var codedEnum = type.GenericTypeArguments.FirstOrDefault()?.IsEnum;
                 return codedEnum.HasValue && codedEnum.Value;
             }
 

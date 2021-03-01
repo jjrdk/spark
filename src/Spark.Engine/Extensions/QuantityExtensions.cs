@@ -27,15 +27,7 @@ namespace Spark.Engine.Extensions
             Exponential value = input.Value ?? 1; //todo: is this assumption correct?
             return new Quantity(value, metric);
         }
-
-        public static FM.Quantity ToFhirModelQuantity(this Quantity input)
-        {
-            var output = new FM.Quantity {Value = (decimal) input.Value, Code = input.Metric.ToString()};
-            output.Unit = output.Code;
-            output.System = UcumUriString;
-            return output;
-        }
-
+        
         public static Expression ToExpression(this Quantity quantity)
         {
             quantity = quantity.Canonical();
@@ -89,18 +81,13 @@ namespace Spark.Engine.Extensions
 
         public static Quantity Canonical(this Quantity input)
         {
-            Quantity output = null;
-            switch (input.Metric.Symbols)
+            Quantity output = input.Metric.Symbols switch
             {
                 // TODO: Conversion of Celsius to its base unit Kelvin fails using the method SystemOfUnits::Canoncial
                 // Waiting for feedback on issue: https://github.com/FirelyTeam/Fhir.Metrics/issues/7
-                case "Cel":
-                    output = new Quantity(input.Value + 273.15m, System.Metric("K"));
-                    break;
-                default:
-                    output = System.Canonical(input);
-                    break;
-            }
+                "Cel" => new Quantity(input.Value + 273.15m, System.Metric("K")),
+                _ => System.Canonical(input)
+            };
 
             return output;
         }

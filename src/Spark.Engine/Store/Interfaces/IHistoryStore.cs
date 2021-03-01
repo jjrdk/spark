@@ -10,9 +10,8 @@ namespace Spark.Engine.Store.Interfaces
 {
     using System.Threading.Tasks;
     using Core;
-    using Service.FhirServiceExtensions;
 
-    public interface IHistoryStore : IFhirServiceExtension
+    public interface IHistoryStore
     {
         Task<Snapshot> History(string typename, HistoryParameters parameters);
         Task<Snapshot> History(IKey key, HistoryParameters parameters);

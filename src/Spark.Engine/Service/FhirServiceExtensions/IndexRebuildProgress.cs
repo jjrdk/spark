@@ -62,11 +62,6 @@ namespace Spark.Engine.Service.FhirServiceExtensions
             await _reporter.ReportErrorAsync(error).ConfigureAwait(false);
         }
 
-        public async Task ErrorAsync(Exception exception)
-        {
-            await ErrorAsync(exception.Message).ConfigureAwait(false);
-        }
-
         private async Task ReportProgressAsync(string message)
         {
             if (_reporter == null)

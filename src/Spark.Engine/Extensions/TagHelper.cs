@@ -49,10 +49,7 @@ namespace Spark.Engine.Extensions
 
         public static void AffixTags(this Resource target, Parameters parameters)
         {
-            if (target.Meta == null)
-            {
-                target.Meta = new Meta();
-            }
+            target.Meta ??= new Meta();
 
             var meta = parameters.ExtractMeta().FirstOrDefault();
             if (meta != null)

@@ -96,7 +96,7 @@ namespace Spark.Engine.Test.Service
 
             var middleName = result.NonInternalValues().Skip(1).First();
             Assert.Equal("middlename", middleName.Name);
-            Assert.Equal(1, middleName.Values.Count());
+            Assert.Single(middleName.Values);
             Assert.IsType<StringValue>(middleName.Values[0]);
             Assert.Equal("Michel", middleName.Values[0].ToString());
         }
@@ -112,9 +112,7 @@ namespace Spark.Engine.Test.Service
             var result = await _limitedIndexService.IndexResource(patient, patientKey).ConfigureAwait(false);
 
             Assert.Equal("root", result.Name);
-            Assert.Equal(
-                1,
-                result.NonInternalValues().Count()); //, "Expected 1 non-internal result for searchparameter 'name'");
+            Assert.Single(result.NonInternalValues()); //, "Expected 1 non-internal result for searchparameter 'name'");
             var first = result.NonInternalValues().First();
             Assert.Equal("name", first.Name);
             Assert.Equal(2, first.Values.Count);

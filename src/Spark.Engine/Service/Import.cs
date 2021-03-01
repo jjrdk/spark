@@ -10,7 +10,6 @@ namespace Spark.Engine.Service
 {
     using System;
     using System.Collections.Generic;
-    using System.Net;
     using System.Threading.Tasks;
     using System.Xml.Linq;
     using Core;
@@ -105,14 +104,9 @@ namespace Spark.Engine.Service
 
         private void AddKeyToInternalMapping(IKey localKey, IKey generatedKey)
         {
-            if (_localhost.GetKeyKind(localKey) == KeyKind.Temporary)
-            {
-                _mapper.Remap(localKey.ResourceId, generatedKey.WithoutVersion());
-            }
-            else
-            {
-                _mapper.Remap(localKey.ToString(), generatedKey.WithoutVersion());
-            }
+            _mapper.Remap(
+                _localhost.GetKeyKind(localKey) == KeyKind.Temporary ? localKey.ResourceId : localKey.ToString(),
+                generatedKey.WithoutVersion());
         }
 
         private async Task InternalizeKey(Entry entry)
@@ -134,14 +128,13 @@ namespace Spark.Engine.Service
                 case KeyKind.Local:
                 case KeyKind.Internal:
                 {
-                    if (entry.Method == Bundle.HTTPVerb.PUT || entry.Method == Bundle.HTTPVerb.DELETE)
+                    entry.Key = entry.Method switch
                     {
-                        entry.Key = await RemapHistoryOnly(key).ConfigureAwait(false);
-                    }
-                    else if (entry.Method == Bundle.HTTPVerb.POST)
-                    {
-                        entry.Key = await Remap(entry.Resource).ConfigureAwait(false);
-                    }
+                        Bundle.HTTPVerb.PUT => await RemapHistoryOnly(key).ConfigureAwait(false),
+                        Bundle.HTTPVerb.DELETE => await RemapHistoryOnly(key).ConfigureAwait(false),
+                        Bundle.HTTPVerb.POST => await Remap(entry.Resource).ConfigureAwait(false),
+                        _ => entry.Key
+                    };
 
                     return;
                 }
@@ -157,27 +150,27 @@ namespace Spark.Engine.Service
         {
             void Visitor(Element element, string name)
             {
-                if (element == null)
+                switch (element)
                 {
-                    return;
-                }
-
-                if (element is ResourceReference reference)
-                {
-                    if (reference.Url != null)
+                    case null:
+                        return;
+                    case ResourceReference reference:
                     {
-                        reference.Url = new Uri(
-                            InternalizeReference(reference.Url.ToString()),
-                            UriKind.RelativeOrAbsolute);
+                        if (reference.Url != null)
+                        {
+                            reference.Url = new Uri(
+                                InternalizeReference(reference.Url.ToString()),
+                                UriKind.RelativeOrAbsolute);
+                        }
+
+                        break;
                     }
-                }
-                else if (element is FhirUri uri)
-                {
-                    uri.Value = InternalizeReference(uri.Value);
-                }
-                else if (element is Narrative n)
-                {
-                    n.Div = FixXhtmlDiv(n.Div);
+                    case FhirUri uri:
+                        uri.Value = InternalizeReference(uri.Value);
+                        break;
+                    case Narrative n:
+                        n.Div = FixXhtmlDiv(n.Div);
+                        break;
                 }
             }
 
@@ -189,41 +182,25 @@ namespace Spark.Engine.Service
         private IKey InternalizeReference(IKey localkey)
         {
             var triage = _localhost.GetKeyKind(localkey);
-            if (triage == KeyKind.Foreign)
+            return triage switch
             {
-                throw new ArgumentException("Cannot internalize foreign reference");
-            }
-
-            if (triage == KeyKind.Temporary)
-            {
-                return GetReplacement(localkey);
-            }
-
-            return triage == KeyKind.Local ? localkey.WithoutBase() : localkey;
+                KeyKind.Foreign => throw new ArgumentException("Cannot internalize foreign reference"),
+                KeyKind.Temporary => GetReplacement(localkey),
+                _ => triage == KeyKind.Local ? localkey.WithoutBase() : localkey
+            };
         }
 
-        private IKey GetReplacement(IKey localkey)
+        private IKey GetReplacement(IKey localKey)
         {
-            var replacement = localkey;
+            var replacement = localKey;
             //CCR: To check if this is still needed. Since we don't store the version in the mapper, do we ever need to replace the key multiple times?
             while (_mapper.Exists(replacement.ResourceId))
             {
-                var triage = _localhost.GetKeyKind(localkey);
-                if (triage == KeyKind.Temporary)
-                {
-                    replacement = _mapper.TryGet(replacement.ResourceId);
-                }
-                else
-                {
-                    replacement = _mapper.TryGet(replacement.ToString());
-                }
+                var triage = _localhost.GetKeyKind(localKey);
+                replacement = _mapper.TryGet(triage == KeyKind.Temporary ? replacement.ResourceId : replacement.ToString());
             }
 
-            return replacement
-                   ?? throw Error.Create(
-                       HttpStatusCode.Conflict,
-                       "This reference does not point to a resource in the server or the current transaction: {0}",
-                       localkey);
+            return replacement;
         }
 
         private string InternalizeReference(string uristring)
