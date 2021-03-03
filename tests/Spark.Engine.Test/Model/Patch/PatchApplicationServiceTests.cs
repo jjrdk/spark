@@ -7,7 +7,7 @@
     using Hl7.Fhir.Serialization;
     using Xunit;
 
-    public class PatchApplierTests
+    public class PatchApplicationServiceTests
     {
         [Fact]
         public void CanApplyPropertyAssignmentPatch()
@@ -154,6 +154,79 @@
             var applier = new PatchApplicationService();
             resource = (Patient)applier.Apply(resource, parameters);
 
+            Assert.Equal("Jane", resource.Name[0].Given.First());
+            Assert.Equal("Doe", resource.Name[0].Family);
+        }
+
+        [Fact]
+        public void CanFullResourceReplacePatch()
+        {
+            var resource = new Patient
+            {
+                Id = "test",
+                Name = { new HumanName { Given = new[] { "John" }, Family = "Johnson" } }
+            };
+
+            var replacement = new Patient
+            {
+                Id = "test",
+                Name = { new HumanName { Given = new[] { "Jane" }, Family = "Doe" } }
+            };
+
+            var applier = new PatchApplicationService();
+            var parameters = replacement.ToPatch();
+
+            resource = (Patient)applier.Apply(resource, parameters);
+
+            Assert.Equal("Jane", resource.Name[0].Given.First());
+            Assert.Equal("Doe", resource.Name[0].Family);
+        }
+
+        [Fact]
+        public void CanCreateDiffPatch()
+        {
+            var resource = new Patient
+            {
+                Id = "test",
+                Gender = AdministrativeGender.Male,
+                Name = { new HumanName { Given = new[] { "John" }, Family = "Johnson" } }
+            };
+
+            var replacement = new Patient
+            {
+                Id = "test",
+                BirthDateElement = new Hl7.Fhir.Model.Date(2020, 1, 2),
+                Name = { new HumanName { Given = new[] { "Jane" }, Family = "Doe" } }
+            };
+
+            var parameters = replacement.ToPatch(resource);
+
+            Assert.Equal(4, parameters.Parameter.Count);
+        }
+
+        [Fact]
+        public void CanApplyCreatedDiffPatch()
+        {
+            var resource = new Patient
+            {
+                Id = "test",
+                Gender = AdministrativeGender.Male,
+                Name = { new HumanName { Given = new[] { "John" }, Family = "Johnson" } }
+            };
+
+            var replacement = new Patient
+            {
+                Id = "test",
+                BirthDateElement = new Hl7.Fhir.Model.Date(2020, 1, 2),
+                Name = { new HumanName { Given = new[] { "Jane" }, Family = "Doe" } }
+            };
+
+            var patch = replacement.ToPatch(resource);
+            var service = new PatchApplicationService();
+            service.Apply(resource, patch);
+
+            Assert.Null(resource.Gender);
+            Assert.Equal(replacement.BirthDate, resource.BirthDate);
             Assert.Equal("Jane", resource.Name[0].Given.First());
             Assert.Equal("Doe", resource.Name[0].Family);
         }

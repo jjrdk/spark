@@ -32,7 +32,6 @@ namespace Spark.Engine.Service
         private readonly ITransactionService _transactionService;
         private readonly ICapabilityStatementService _capabilityStatementService;
         private readonly IHistoryService _historyService;
-        private readonly IInteractionHandler _interactionHandler;
         private readonly IFhirResponseFactory _responseFactory;
         private readonly ICompositeServiceListener _serviceListener;
 
@@ -43,7 +42,6 @@ namespace Spark.Engine.Service
             ITransactionService transactionService,
             ICapabilityStatementService capabilityStatementService,
             IHistoryService historyService,
-            IInteractionHandler interactionHandler,
             IFhirResponseFactory responseFactory,
             ICompositeServiceListener serviceListener)
         {
@@ -53,7 +51,6 @@ namespace Spark.Engine.Service
             _transactionService = transactionService;
             _capabilityStatementService = capabilityStatementService;
             _historyService = historyService;
-            _interactionHandler = interactionHandler;
             _responseFactory = responseFactory ?? throw new ArgumentNullException(nameof(responseFactory));
             _serviceListener = serviceListener ?? throw new ArgumentNullException(nameof(serviceListener));
         }
@@ -79,14 +76,14 @@ namespace Spark.Engine.Service
         public async Task<FhirResponse> ConditionalCreate(IKey key, Resource resource, SearchParams parameters)
         {
             var operation = await resource.CreatePost(key, _searchService, parameters).ConfigureAwait(false);
-            return await _transactionService.HandleTransaction(operation, _interactionHandler).ConfigureAwait(false);
+            return await _transactionService.HandleTransaction(operation, this).ConfigureAwait(false);
         }
 
         public async Task<FhirResponse> ConditionalDelete(IKey key, IEnumerable<Tuple<string, string>> parameters)
         {
             var deleteOperation = await key.CreateDelete(_searchService, SearchParams.FromUriParamList(parameters))
                 .ConfigureAwait(false);
-            return await _transactionService.HandleTransaction(deleteOperation, _interactionHandler)
+            return await _transactionService.HandleTransaction(deleteOperation, this)
                        .ConfigureAwait(false)
                    ?? Respond.WithCode(HttpStatusCode.NotFound);
         }
@@ -96,7 +93,7 @@ namespace Spark.Engine.Service
             // FIXME: if update receives a key with no version how do we handle concurrency?
 
             var operation = await resource.CreatePut(key, _searchService, parameters).ConfigureAwait(false);
-            return await _transactionService.HandleTransaction(operation, _interactionHandler).ConfigureAwait(false);
+            return await _transactionService.HandleTransaction(operation, this).ConfigureAwait(false);
         }
 
         public Task<FhirResponse> CapabilityStatement(string sparkVersion)
@@ -210,14 +207,14 @@ namespace Spark.Engine.Service
 
         public async Task<FhirResponse> Transaction(params Entry[] interactions)
         {
-            var responses = await _transactionService.HandleTransaction(interactions, _interactionHandler)
+            var responses = await _transactionService.HandleTransaction(interactions, this)
                 .ConfigureAwait(false);
             return _responseFactory.GetFhirResponse(responses, Bundle.BundleType.TransactionResponse);
         }
 
         public async Task<FhirResponse> Transaction(Bundle bundle)
         {
-            var responses = await _transactionService.HandleTransaction(bundle, _interactionHandler)
+            var responses = await _transactionService.HandleTransaction(bundle, this)
                 .ConfigureAwait(false);
             return _responseFactory.GetFhirResponse(responses, Bundle.BundleType.TransactionResponse);
         }
@@ -308,7 +305,7 @@ namespace Spark.Engine.Service
                 case Bundle.HTTPVerb.PATCH:
                 {
                     var current = await _storageService.Get(interaction.Key.WithoutVersion()).ConfigureAwait(false);
-                    if (current == null)
+                    if (current?.IsPresent!= true)
                     {
                         return new FhirResponse(HttpStatusCode.BadRequest);
                     }
@@ -317,7 +314,8 @@ namespace Spark.Engine.Service
                     {
                         var applier = new PatchApplicationService();
                         applier.Apply(current.Resource as Patient, patch);
-                        return new FhirResponse(HttpStatusCode.OK, current.Resource);
+                        await _storageService.Add(interaction).ConfigureAwait(false);
+                        return await Put(interaction.Key, interaction.Resource).ConfigureAwait(false);
                     }
 
                     return new FhirResponse(HttpStatusCode.BadRequest);
