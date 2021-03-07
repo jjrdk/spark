@@ -71,6 +71,14 @@ namespace Spark.Web.Controllers
                     .ConfigureAwait(false));
         }
 
+        [HttpPatch("{type}/{id}")]
+        public async Task<ActionResult<FhirResponse>> Patch(string type, string id, Parameters patch)
+        {
+            var key = Key.Create(type, id);
+            var response = await _fhirService.Patch(key, patch).ConfigureAwait(false);
+            return new ActionResult<FhirResponse>(response);
+        }
+
         [HttpPost("{type}")]
         public async Task<FhirResponse> Create(string type, Resource resource)
         {
@@ -233,7 +241,7 @@ namespace Spark.Web.Controllers
         [HttpPost]
         [HttpGet]
         [Route("{type}/{id}/$everything")]
-        public async Task<FhirResponse> Everything(string type, string id = null)
+        public async Task<FhirResponse> Everything(string type, string id)
         {
             var key = Key.Create(type, id);
             return await _fhirService.Everything(key).ConfigureAwait(false);
