@@ -184,7 +184,7 @@ namespace Spark.Engine.Core
                     .Where(at => at != null));
         }
 
-        private void ExtractDataChoiceTypes(PropertyInfo prop, FhirPropertyInfo target)
+        private static void ExtractDataChoiceTypes(PropertyInfo prop, FhirPropertyInfo target)
         {
             var attFhirElement = prop.GetCustomAttribute<FhirElementAttribute>(false);
             if (attFhirElement != null)

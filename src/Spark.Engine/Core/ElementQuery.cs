@@ -68,7 +68,7 @@ namespace Spark.Engine.Core
 
         public class Chain
         {
-            private readonly List<Segment> _segments;
+            private readonly List<Segment> _segments = new List<Segment>();
 
             public Chain(string path)
             {
@@ -87,7 +87,7 @@ namespace Spark.Engine.Core
             // Example: Practitioner.practitionerRole.Extension[url=http://hl7.no/fhir/StructureDefinition/practitionerRole-identifier]:
             //  <Practitioner, "practitionerRole", (propertyInfo of practitionerRole), null, null>
             //  <PractitionerRoleComponent, "Extension", (propertyInfo of Extension), null, extension => extension.url = "http://hl7.no/fhir/StructureDefinition/practitionerRole-identifier">
-            private List<string> SplitPath(string path)
+            private static List<string> SplitPath(string path)
             {
                 // todo: This whole function can probably be replaced by a single RegExp. --MH
                 //var path = path.Replace("[x]", ""); // we won't remove this, and start treating it as a predicate.
@@ -163,7 +163,6 @@ namespace Spark.Engine.Core
                                         var curTypeName = segment.Name.Remove(0, feAtt.Name.Length);
                                         var curType = ModelInfo.GetTypeForFhirType(curTypeName);
                                         if (allowedType.IsAssignableFrom(curType))
-                                            //if (link.propertyName.Equals(feAtt.Name + ModelInfo.FhirCsTypeToString[allowedType], StringComparison.InvariantCultureIgnoreCase))
                                         {
                                             segment.AllowedType = allowedType;
                                         }
@@ -183,7 +182,6 @@ namespace Spark.Engine.Core
                     }
 
                     segments.Add(segment);
-                    //infoChain.Add(Tuple.Create<Type, string, PropertyInfo, Type>(baseType, propertyname, info, choiceType));
 
                     if (segment.Property.PropertyType.IsGenericType)
                     {
@@ -221,7 +219,7 @@ namespace Spark.Engine.Core
                 return Result;
             }
 
-            private bool GetPredicateForPropertyAndFilter(string propertyName, string filterValue, object obj)
+            private static bool GetPredicateForPropertyAndFilter(string propertyName, string filterValue, object obj)
             {
                 var property = obj.GetType().GetProperty(propertyName);
                 if (property != null)
@@ -238,7 +236,7 @@ namespace Spark.Engine.Core
 
             private static bool IsFhirElement(MemberInfo member, object criterium)
             {
-                var fhirElementName = (string) criterium;
+                var fhirElementName = (string)criterium;
                 var feAtt = member.GetCustomAttribute<FhirElementAttribute>();
 
                 if (feAtt != null)
@@ -260,13 +258,9 @@ namespace Spark.Engine.Core
                                     var curTypeName = fhirElementName.Remove(0, feAtt.Name.Length);
                                     var curType = ModelInfo.GetTypeForFhirType(curTypeName);
                                     if (allowedType.IsAssignableFrom(curType))
-                                        //                                        if (link.propertyName.Equals(feAtt.Name + ModelInfo.FhirCsTypeToString[allowedType], StringComparison.InvariantCultureIgnoreCase))
                                     {
                                         return true;
                                     }
-
-                                    //if (fhirElementName.Equals(feAtt.Name + ModelInfo.FhirCsTypeToString[allowedType], StringComparison.InvariantCultureIgnoreCase))
-                                    //    return true;
                                 }
                             }
                         }
@@ -285,7 +279,7 @@ namespace Spark.Engine.Core
             /// <summary>
             ///     Test if a type derives from IList of T, for any T.
             /// </summary>
-            private bool TestIfGenericList(Type type)
+            private static bool TestIfGenericList(Type type)
             {
                 if (type == null)
                 {
@@ -298,7 +292,7 @@ namespace Spark.Engine.Core
                 return interfaceTest(type) || type.GetInterfaces().Any(i => interfaceTest(i));
             }
 
-            private bool TestIfCodedEnum(Type type)
+            private static bool TestIfCodedEnum(Type type)
             {
                 if (type == null)
                 {
@@ -368,45 +362,6 @@ namespace Spark.Engine.Core
                 }
             }
 
-            /// <summary>
-            ///     Returns the property matching the propertyname, and if it is a FhirElement with DatatypeChoice or ResourceChoice,
-            ///     the allowed type as stated in the path.
-            /// </summary>
-            /// <param name="x"></param>
-            /// <param name="propertyname"></param>
-            /// <returns></returns>
-
-            //private Tuple<ChainLink, object> GetObjectProperty(object x, string propertyname)
-            //{
-            //    Type type = x.GetType();
-            //    //var match = infoChain.Find(t => t.Item1 == type && t.Item2 == propertyname);
-            //    var match = links.Find(t => t.FhirType == type && t.propertyName == propertyname);
-            //    if (match != null && match.propertyInfo != null)
-            //    {
-            //        return Tuple.Create<ChainLink, object>(match, match.propertyInfo.GetValue(x));
-            //    }
-            //    else return null;
-            //}
-
-            //private static object GetObjectProperty(object x, string propertyname)
-            //{
-            //    Type type = x.GetType();
-            //    PropertyInfo info;
-            //    var matchingFhirElements = type.FindMembers(MemberTypes.Property, BindingFlags.Instance | BindingFlags.Public, new MemberFilter(IsFhirElement), propertyname);
-            //    if (matchingFhirElements.Count() > 0)
-            //    {
-            //        info = type.GetProperty(matchingFhirElements.First().Name);
-            //    }
-            //    else
-            //    {
-            //        info = type.GetProperty(propertyname);
-            //    }
-            //    if (info != null)
-            //        return info.GetValue(x);
-            //    else
-            //        return null;
-
-            //}
             public override string ToString()
             {
                 return string.Join(".", _segments.Select(l => l.Name));

@@ -9,6 +9,7 @@
 namespace Spark.Engine.Auxiliary
 {
     using System;
+    using System.Security.Cryptography.X509Certificates;
     using System.Security.Cryptography.Xml;
     using System.Xml;
 
@@ -24,7 +25,7 @@ namespace Spark.Engine.Auxiliary
                 throw new ArgumentNullException(nameof(xml));
             }
 
-            var doc = new XmlDocument {PreserveWhitespace = true};
+            var doc = new XmlDocument { PreserveWhitespace = true };
             doc.LoadXml(xml);
 
             // If there's no signature => return that we are "valid"
@@ -35,13 +36,7 @@ namespace Spark.Engine.Auxiliary
             }
 
             var signedXml = new SignedXml(doc);
-            signedXml.LoadXml((XmlElement) signatureNode);
-
-            //var x509Certificates = signedXml.KeyInfo.OfType<KeyInfoX509Data>();
-            //var certificate = x509Certificates.SelectMany(cert => cert.Certificates.Cast<X509Certificate2>()).FirstOrDefault();
-
-            //if (certificate == null) throw new InvalidOperationException("Signature does not contain a X509 certificate public key to verify the signature");
-            //return signedXml.CheckSignature(certificate, true);
+            signedXml.LoadXml((XmlElement)signatureNode);
 
             return signedXml.CheckSignature();
         }
@@ -58,7 +53,7 @@ namespace Spark.Engine.Auxiliary
             }
 
             return signatureElements.Count == 0
-                ? (XmlNode) null
+                ? (XmlNode)null
                 : throw new InvalidOperationException("Document has multiple xmldsig Signature elements");
         }
 
@@ -81,49 +76,40 @@ namespace Spark.Engine.Auxiliary
             return FindSignatureElement(doc) != null;
         }
 
-        //public static string Sign(string xml, X509Certificate2 certificate)
-        //{
-        //    if (xml == null)
-        //    {
-        //        throw new ArgumentNullException(nameof(xml));
-        //    }
+        public static string Sign(string xml, X509Certificate2 certificate)
+        {
+            if (xml == null) throw new ArgumentNullException(nameof(xml));
+            if (certificate == null) throw new ArgumentNullException(nameof(certificate));
+            if (!certificate.HasPrivateKey)
+                throw new ArgumentException("Certificate should have a private key", nameof(certificate));
 
-        //    if (certificate == null)
-        //    {
-        //        throw new ArgumentNullException(nameof(certificate));
-        //    }
+            XmlDocument doc = new XmlDocument { PreserveWhitespace = true };
+            doc.LoadXml(xml);
 
-        //    if (!certificate.HasPrivateKey)
-        //    {
-        //        throw new ArgumentException("Certificate should have a private key", nameof(certificate));
-        //    }
+            doc.LoadXml(xml);
 
-        //    var doc = new XmlDocument {PreserveWhitespace = true};
+            var signedXml = new SignedXml(doc) { SigningKey = certificate.PrivateKey };
 
-        //    doc.LoadXml(xml);
+            // Attach certificate KeyInfo
+            var keyInfoData = new KeyInfoX509Data(certificate);
+            var keyInfo = new KeyInfo();
+            keyInfo.AddClause(keyInfoData);
+            signedXml.KeyInfo = keyInfo;
 
-        //    var signedXml = new SignedXml(doc) {SigningKey = certificate.PrivateKey};
+            // Attach transforms
+            var reference = new Reference("");
+            reference.AddTransform(new XmlDsigEnvelopedSignatureTransform(includeComments: false));
+            reference.AddTransform(new XmlDsigExcC14NTransform(includeComments: false));
+            signedXml.AddReference(reference);
 
-        //    // Attach certificate KeyInfo
-        //    var keyInfoData = new KeyInfoX509Data(certificate);
-        //    var keyInfo = new KeyInfo();
-        //    keyInfo.AddClause(keyInfoData);
-        //    signedXml.KeyInfo = keyInfo;
+            // Compute signature
+            signedXml.ComputeSignature();
+            var signatureElement = signedXml.GetXml();
 
-        //    // Attach transforms
-        //    var reference = new Reference("");
-        //    reference.AddTransform(new XmlDsigEnvelopedSignatureTransform(includeComments: false));
-        //    reference.AddTransform(new XmlDsigExcC14NTransform(includeComments: false));
-        //    signedXml.AddReference(reference);
+            // Add signature to bundle
+            doc.DocumentElement.AppendChild(doc.ImportNode(signatureElement, true));
 
-        //    // Compute signature
-        //    signedXml.ComputeSignature();
-        //    var signatureElement = signedXml.GetXml();
-
-        //    // Add signature to bundle
-        //    doc.DocumentElement.AppendChild(doc.ImportNode(signatureElement, true));
-
-        //    return doc.OuterXml;
-        //}
+            return doc.OuterXml;
+        }
     }
 }

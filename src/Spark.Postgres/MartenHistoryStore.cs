@@ -17,6 +17,7 @@ namespace Spark.Postgres
     using Engine.Extensions;
     using Engine.Store.Interfaces;
     using Hl7.Fhir.Model;
+    using Hl7.Fhir.Rest;
     using Marten;
 
     public class MartenHistoryStore : IHistoryStore
@@ -107,7 +108,7 @@ namespace Spark.Postgres
             IList<string> reverseIncludes = null) =>
             Snapshot.Create(
                 Bundle.BundleType.History,
-                new Uri(RestOperation.History, UriKind.Relative),
+                new Uri(TransactionBuilder.HISTORY, UriKind.Relative),
                 keys,
                 "history",
                 count,

@@ -13,7 +13,7 @@ namespace Spark.Web.Services
     using Engine.Service.FhirServiceExtensions;
     using Hl7.Fhir.Rest;
 
-    public class ServerMetadata
+    public partial class ServerMetadata
     {
         private readonly ISearchService _searchService;
 
@@ -26,23 +26,17 @@ namespace Spark.Web.Services
 
             foreach (var name in names)
             {
-                var search = await _searchService.GetSnapshot(name, new SearchParams {Summary = SummaryType.Count})
+                var search = await _searchService.GetSnapshot(name, new SearchParams { Summary = SummaryType.Count })
                     .ConfigureAwait(false);
-                stats.Add(new ResourceStat {ResourceName = name, Count = search.Count});
+                stats.Add(new ResourceStat { ResourceName = name, Count = search.Count });
             }
 
             return stats;
         }
+    }
 
-        public class ResourceStat
-        {
-            public string ResourceName { get; set; }
-            public long Count { get; set; }
-        }
-
-        public class ResourceStatsVm
-        {
-            public List<ResourceStat> ResourceStats;
-        }
+    public class ResourceStatsVm
+    {
+        public List<ServerMetadata.ResourceStat> ResourceStats;
     }
 }
