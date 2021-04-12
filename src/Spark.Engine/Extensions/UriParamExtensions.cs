@@ -18,15 +18,7 @@ namespace Spark.Engine.Extensions
         public static Uri AddParam(this Uri uri, string name, params string[] values)
         {
             var fakeBase = new Uri("http://example.com");
-            UriBuilder builder;
-            if (uri.IsAbsoluteUri)
-            {
-                builder = new UriBuilder(uri);
-            }
-            else
-            {
-                builder = new UriBuilder(fakeBase) {Path = uri.ToString()};
-            }
+            var builder = uri.IsAbsoluteUri ? new UriBuilder(uri) : new UriBuilder(fakeBase) {Path = uri.ToString()};
 
             ICollection<Tuple<string, string>> query = UriUtils.SplitParams(builder.Query).ToList();
 

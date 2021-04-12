@@ -11,7 +11,7 @@ namespace Spark.Engine.Service.FhirServiceExtensions
     using System.Threading.Tasks;
     using Core;
 
-    public interface IPagingService : IFhirServiceExtension
+    public interface IPagingService
     {
         Task<ISnapshotPagination> StartPagination(Snapshot snapshot);
         Task<ISnapshotPagination> StartPagination(string snapshotKey);

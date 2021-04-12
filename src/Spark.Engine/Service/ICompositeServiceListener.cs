@@ -15,7 +15,6 @@ namespace Spark.Engine.Service
     {
         void Add(IServiceListener listener);
         void Clear();
-
         Task Inform(Entry interaction);
     }
 }

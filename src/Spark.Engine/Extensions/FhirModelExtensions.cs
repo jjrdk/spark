@@ -40,25 +40,14 @@ namespace Spark.Engine.Extensions
             // API: The api should have a function for this. AddResourceEntry doesn't cut it.
             // Might TransactionBuilder be better suitable?
 
-            Bundle.EntryComponent bundleEntry;
-            switch (bundle.Type)
+            Bundle.EntryComponent bundleEntry = bundle.Type switch
             {
-                case Bundle.BundleType.History:
-                    bundleEntry = entry.ToTransactionEntry();
-                    break;
-                case Bundle.BundleType.Searchset:
-                    bundleEntry = entry.TranslateToSparseEntry();
-                    break;
-                case Bundle.BundleType.BatchResponse:
-                    bundleEntry = entry.TranslateToSparseEntry(response);
-                    break;
-                case Bundle.BundleType.TransactionResponse:
-                    bundleEntry = entry.TranslateToSparseEntry(response);
-                    break;
-                default:
-                    bundleEntry = entry.TranslateToSparseEntry();
-                    break;
-            }
+                Bundle.BundleType.History => entry.ToTransactionEntry(),
+                Bundle.BundleType.Searchset => entry.TranslateToSparseEntry(),
+                Bundle.BundleType.BatchResponse => entry.TranslateToSparseEntry(response),
+                Bundle.BundleType.TransactionResponse => entry.TranslateToSparseEntry(response),
+                _ => entry.TranslateToSparseEntry()
+            };
 
             bundle.Entry.Add(bundleEntry);
 

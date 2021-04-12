@@ -37,9 +37,7 @@ namespace Spark.Engine.Core
                 return Outcome != null && Outcome.Issue.Any(i => i.Severity <= OperationOutcome.IssueSeverity.Error);
             }
         }
-
-        public bool HasIssues => Outcome != null && Outcome.Issue.Any();
-
+        
         public string UsedParameters
         {
             get

@@ -16,19 +16,17 @@ namespace Spark.Engine.Extensions
     {
         public static Tuple<string, string> SplitParam(string s)
         {
-            var a = s.Split(new[] {'='}, 2);
+            var a = s.Split(new[] { '=' }, 2);
             return new Tuple<string, string>(a.First(), a.Skip(1).FirstOrDefault());
         }
 
         public static ICollection<Tuple<string, string>> SplitParams(string query)
         {
             return query.TrimStart('?')
-                .Split(new[] {'&'}, 2, StringSplitOptions.RemoveEmptyEntries)
+                .Split(new[] { '&' }, 2, StringSplitOptions.RemoveEmptyEntries)
                 .Select(SplitParam)
                 .ToList();
         }
-
-        public static ICollection<Tuple<string, string>> SplitParams(this Uri uri) => SplitParams(uri.Query);
 
         public static string JoinParams(IEnumerable<Tuple<string, string>> query)
         {

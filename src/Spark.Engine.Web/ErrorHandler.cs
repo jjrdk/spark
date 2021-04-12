@@ -30,7 +30,7 @@ namespace Spark.Engine.Web
             }
         }
 
-        private async Task HandleExceptionAsync(HttpContext context, Exception exception)
+        private static async Task HandleExceptionAsync(HttpContext context, Exception exception)
         {
             var code = HttpStatusCode.InternalServerError;
             Hl7.Fhir.Model.OperationOutcome outcome;
@@ -52,12 +52,12 @@ namespace Spark.Engine.Web
             await formatter.WriteAsync(writeContext).ConfigureAwait(false);
         }
 
-        private Hl7.Fhir.Model.OperationOutcome GetOperationOutcome(SparkException exception) =>
+        private static Hl7.Fhir.Model.OperationOutcome GetOperationOutcome(SparkException exception) =>
             exception == null
                 ? null
                 : (exception.Outcome ?? new Hl7.Fhir.Model.OperationOutcome()).AddAllInnerErrors(exception);
 
-        private Hl7.Fhir.Model.OperationOutcome GetOperationOutcome(Exception exception) =>
+        private static Hl7.Fhir.Model.OperationOutcome GetOperationOutcome(Exception exception) =>
             exception == null ? null : new Hl7.Fhir.Model.OperationOutcome().AddAllInnerErrors(exception);
     }
 }

@@ -13,7 +13,6 @@ namespace Spark.Web.Hubs
     using System.IO;
     using System.Linq;
     using System.Text;
-    using Engine.Core;
     using Engine.Extensions;
     using Engine.Interfaces;
     using Engine.Service;
@@ -24,7 +23,6 @@ namespace Spark.Web.Hubs
     using Models.Config;
     using Utilities;
 
-    //[Authorize(Policy = "RequireAdministratorRole")]
     public class MaintenanceHub : Hub
     {
         private readonly ExamplesSettings _examplesSettings;
@@ -34,7 +32,6 @@ namespace Spark.Web.Hubs
         private readonly IFhirStoreAdministration _fhirStoreAdministration;
         private readonly IHubContext<MaintenanceHub> _hubContext;
         private readonly IIndexRebuildService _indexRebuildService;
-        private readonly ILocalhost _localhost;
         private readonly ILogger<MaintenanceHub> _logger;
 
         private int _resourceCount;
@@ -42,7 +39,6 @@ namespace Spark.Web.Hubs
 
         public MaintenanceHub(
             IAsyncFhirService fhirService,
-            ILocalhost localhost,
             IFhirStoreAdministration fhirStoreAdministration,
             IFhirIndex fhirIndex,
             ExamplesSettings examplesSettings,
@@ -50,7 +46,6 @@ namespace Spark.Web.Hubs
             ILogger<MaintenanceHub> logger,
             IHubContext<MaintenanceHub> hubContext)
         {
-            _localhost = localhost;
             _fhirService = fhirService;
             _fhirStoreAdministration = fhirStoreAdministration;
             _fhirIndex = fhirIndex;
@@ -65,18 +60,11 @@ namespace Spark.Web.Hubs
             var list = new List<Resource>();
             var examplePath = Path.Combine(AppContext.BaseDirectory, _examplesSettings.FilePath);
 
-            Bundle data;
-            data = FhirFileImport.ImportEmbeddedZip(examplePath).ToBundle(_localhost.DefaultBase);
+            var data = FhirFileImport.ImportEmbeddedZip(examplePath).ToBundle();
 
-            if (data.Entry != null && data.Entry.Count() != 0)
+            if (data.Entry != null && data.Entry.Count != 0)
             {
-                foreach (var entry in data.Entry)
-                {
-                    if (entry.Resource != null)
-                    {
-                        list.Add(entry.Resource);
-                    }
-                }
+                list.AddRange(from entry in data.Entry where entry.Resource != null select entry.Resource);
             }
 
             return list;

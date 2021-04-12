@@ -26,7 +26,7 @@ namespace Spark.Engine.Extensions
             var result = m.Value;
             foreach (var (groupName, replaceWith) in replacements)
             {
-                foreach (Capture cap in m.Groups[groupName]?.Captures)
+                foreach (Capture cap in m.Groups[groupName].Captures)
                 {
                     result = result.Remove(cap.Index - m.Index, cap.Length);
                     result = result.Insert(cap.Index - m.Index, replaceWith);

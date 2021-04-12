@@ -61,17 +61,7 @@ namespace Spark.Engine.Extensions
             Bundle.EntryComponent entry,
             IKey key) =>
             entry.Request?.Method ?? DetermineMethod(localhost, key);
-
-        public static Entry ToInteraction(this ILocalhost localhost, Bundle.EntryComponent bundleEntry)
-        {
-            var key = localhost.ExtractKey(bundleEntry);
-            var method = localhost.ExtrapolateMethod(bundleEntry, key);
-
-            return key != null
-                ? Entry.Create(method, key, bundleEntry.Resource)
-                : Entry.Create(method, bundleEntry.Resource);
-        }
-
+        
         public static Bundle.EntryComponent TranslateToSparseEntry(this Entry entry, FhirResponse response = null)
         {
             var bundleEntry = new Bundle.EntryComponent();
@@ -193,7 +183,7 @@ namespace Spark.Engine.Extensions
 
         public static IEnumerable<string> GetReferences(this IEnumerable<Resource> resources, IEnumerable<string> paths)
         {
-            return paths.SelectMany(i => resources.GetReferences(i));
+            return paths.SelectMany(resources.GetReferences);
         }
 
         // If an interaction has no base, you should be able to supplement it (from the containing bundle for example)

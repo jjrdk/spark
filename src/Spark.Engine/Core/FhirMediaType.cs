@@ -1,10 +1,14 @@
-﻿// /*
-//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
-//  * See the file CONTRIBUTORS for details.
-//  *
-//  * This file is licensed under the BSD 3-Clause license
-//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
-//  */
+﻿/*
+ * Copyright (c) 2014, Furore (info@furore.com) and contributors
+ * See the file CONTRIBUTORS for details.
+ *
+ * This file is licensed under the BSD 3-Clause license
+ * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
+ */
+
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http;
 
 namespace Spark.Engine.Core
 {
@@ -16,18 +20,71 @@ namespace Spark.Engine.Core
 
     public static class FhirMediaType
     {
-        public const string OCTET_STREAM_CONTENT_HEADER = "application/octet-stream";
+        public static readonly string DefaultJsonMimeType = ContentType.JSON_CONTENT_HEADER;
+        public static readonly string DefaultXmlMimeType = ContentType.XML_CONTENT_HEADER;
+        public static readonly string OctetStreamMimeType = "application/octet-stream";
+        public static readonly string FormUrlEncodedMimeType = "application/x-www-form-urlencoded";
+        public static readonly string AnyMimeType = "*/*";
+
+        public static IEnumerable<string> JsonMimeTypes => ContentType.JSON_CONTENT_HEADERS;
+        public static IEnumerable<string> XmlMimeTypes => ContentType.XML_CONTENT_HEADERS;
+        public static IEnumerable<string> SupportedMimeTypes => JsonMimeTypes
+            .Concat(XmlMimeTypes)
+            .Concat(new[] { OctetStreamMimeType, FormUrlEncodedMimeType, AnyMimeType });
+
+        /// <summary>
+        /// Transforms loose formats to their strict variant
+        /// </summary>
+        /// <param name="format">Mime type</param>
+        /// <returns></returns>
+        public static string Interpret(string format)
+        {
+            if (format == null) return DefaultJsonMimeType;
+            if (XmlMimeTypes.Contains(format)) return DefaultXmlMimeType;
+            if (JsonMimeTypes.Contains(format)) return DefaultJsonMimeType;
+            return format;
+        }
+
+        public static ResourceFormat GetResourceFormat(string format)
+        {
+            string strict = Interpret(format);
+            if (strict == DefaultXmlMimeType) return ResourceFormat.Xml;
+            else if (strict == DefaultJsonMimeType) return ResourceFormat.Json;
+            else return ResourceFormat.Xml;
+        }
 
         public static string GetContentType(Type type, ResourceFormat format)
         {
-            return typeof(Resource).IsAssignableFrom(type) || type == typeof(Resource)
-                ? format switch
+            if (typeof(Resource).IsAssignableFrom(type) || type == typeof(Resource))
+            {
+                return format switch
                 {
-                    ResourceFormat.Json => ContentType.JSON_CONTENT_HEADER,
-                    ResourceFormat.Xml => ContentType.XML_CONTENT_HEADER,
-                    _ => ContentType.XML_CONTENT_HEADER
-                }
-                : "application/octet-stream";
+                    ResourceFormat.Json => DefaultJsonMimeType,
+                    ResourceFormat.Xml => DefaultXmlMimeType,
+                    _ => DefaultXmlMimeType
+                };
+            }
+
+            return OctetStreamMimeType;
+        }
+
+        public static string GetMediaType(this HttpRequestMessage request)
+        {
+            MediaTypeHeaderValue headervalue = request.Content.Headers.ContentType;
+            string s = headervalue?.MediaType;
+            return Interpret(s);
+        }
+
+        public static string GetContentTypeHeaderValue(this HttpRequestMessage request)
+        {
+            MediaTypeHeaderValue headervalue = request.Content.Headers.ContentType;
+            return headervalue?.MediaType;
+        }
+
+        public static string GetAcceptHeaderValue(this HttpRequestMessage request)
+        {
+            HttpHeaderValueCollection<MediaTypeWithQualityHeaderValue> headers = request.Headers.Accept;
+            return headers.FirstOrDefault()?.MediaType;
         }
 
         public static MediaTypeHeaderValue GetMediaTypeHeaderValue(Type type, ResourceFormat format)

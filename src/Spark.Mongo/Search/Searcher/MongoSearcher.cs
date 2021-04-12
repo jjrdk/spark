@@ -81,7 +81,7 @@ namespace Spark.Mongo.Search.Searcher
         {
             var results = new SearchResults();
 
-            if (keys.Count() > 0)
+            if (keys.Any())
             {
                 var cursor = (await _collection.FindAsync(
                         Builders<BsonDocument>.Filter.In(InternalField.ID, keys),
@@ -98,7 +98,7 @@ namespace Spark.Mongo.Search.Searcher
                     results.Add(id);
                 }
 
-                results.MatchCount = results.Count();
+                results.MatchCount = results.Count;
             }
 
             return results;
@@ -148,28 +148,18 @@ namespace Spark.Mongo.Search.Searcher
                 return null;
             }
 
-            SortDefinition<BsonDocument> sortDefinition = null;
             var first = sortItems.FirstOrDefault();
-            if (first.Item2 == SortOrder.Ascending)
-            {
-                sortDefinition = Builders<BsonDocument>.Sort.Ascending(first.Item1);
-            }
-            else
-            {
-                sortDefinition = Builders<BsonDocument>.Sort.Descending(first.Item1);
-            }
+
+            var sortDefinition = first.Item2 == SortOrder.Ascending
+                ? Builders<BsonDocument>.Sort.Ascending(first.Item1)
+                : Builders<BsonDocument>.Sort.Descending(first.Item1);
 
             sortItems.Remove(first);
-            foreach (var sortItem in sortItems)
+            foreach (var (s, sortOrder) in sortItems)
             {
-                if (sortItem.Item2 == SortOrder.Ascending)
-                {
-                    sortDefinition = sortDefinition.Ascending(sortItem.Item1);
-                }
-                else
-                {
-                    sortDefinition = sortDefinition.Descending(sortItem.Item1);
-                }
+                sortDefinition = sortOrder == SortOrder.Ascending
+                    ? sortDefinition.Ascending(s)
+                    : sortDefinition.Descending(s);
             }
 
             return sortDefinition;
@@ -182,7 +172,7 @@ namespace Spark.Mongo.Search.Searcher
             Dictionary<Criterium, Criterium> closedCriteria)
         {
             var resultQuery = CriteriaMongoExtensions.ResourceFilter(resourceType, level);
-            if (closedCriteria.Count() > 0)
+            if (closedCriteria.Any())
             {
                 var criteriaQueries = new List<FilterDefinition<BsonDocument>>();
                 foreach (var crit in closedCriteria)
@@ -286,13 +276,11 @@ namespace Spark.Mongo.Search.Searcher
                 }
             }
 
-            if (errors.Count == targeted.Count())
+            if (errors.Count == targeted.Count)
             {
                 //It is possible that some of the targets don't support the current parameter. But if none do, there is a serious problem.
                 throw new ArgumentException(
-                    string.Format(
-                        "None of the possible target resources support querying for parameter {0}",
-                        crit.ParamName));
+                    $"None of the possible target resources support querying for parameter {crit.ParamName}");
             }
 
             crit.Operator = Operator.IN;
@@ -411,11 +399,10 @@ namespace Spark.Mongo.Search.Searcher
                                     (crit.Operand as ChoiceValue).Choices.Select(
                                         choice =>
                                         {
-                                            Uri uriOperand;
                                             Uri.TryCreate(
                                                 (choice as UntypedValue).Value,
                                                 UriKind.RelativeOrAbsolute,
-                                                out uriOperand);
+                                                out var uriOperand);
                                             var refUri =
                                                 _localhost.RemoveBase(
                                                     uriOperand); //Drop the first part if it points to our own server.
@@ -424,8 +411,7 @@ namespace Spark.Mongo.Search.Searcher
                             }
                             else
                             {
-                                Uri uriOperand;
-                                Uri.TryCreate(operand, UriKind.RelativeOrAbsolute, out uriOperand);
+                                Uri.TryCreate(operand, UriKind.RelativeOrAbsolute, out var uriOperand);
                                 var refUri =
                                     _localhost.RemoveBase(
                                         uriOperand); //Drop the first part if it points to our own server.
@@ -519,19 +505,14 @@ namespace Spark.Mongo.Search.Searcher
         {
             var definition = _fhirModel.FindSearchParameter(resourceType, sortItem.Item1)?.GetOriginalDefinition();
 
-            if (definition?.Type == SearchParamType.Token)
+            return definition?.Type switch
             {
-                return (sortItem.Item1 + ".code", sortItem.Item2);
-            }
-
-            if (definition?.Type == SearchParamType.Date)
-            {
-                return (sortItem.Item1 + ".start", sortItem.Item2);
-            }
-
-            return definition?.Type == SearchParamType.Quantity
-                ? (sortItem.Item1 + ".value", sortItem.Item2)
-                : sortItem;
+                SearchParamType.Token => (sortItem.Item1 + ".code", sortItem.Item2),
+                SearchParamType.Date => (sortItem.Item1 + ".start", sortItem.Item2),
+                _ => definition?.Type == SearchParamType.Quantity
+                    ? (sortItem.Item1 + ".value", sortItem.Item2)
+                    : sortItem
+            };
         }
 
         public async Task<SearchResults> GetReverseIncludesAsync(IList<IKey> keys, IList<string> revIncludes)
@@ -650,7 +631,7 @@ namespace Spark.Mongo.Search.Searcher
         }
         */
 
-        private List<Criterium> ParseCriteria(SearchParams searchCommand, SearchResults results)
+        private static List<Criterium> ParseCriteria(SearchParams searchCommand, SearchResults results)
         {
             var result = new List<Criterium>();
             foreach (var c in searchCommand.Parameters)

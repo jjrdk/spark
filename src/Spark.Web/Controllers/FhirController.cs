@@ -54,8 +54,8 @@ namespace Spark.Web.Controllers
         [HttpPut("{type}/{id?}")]
         public async Task<ActionResult<FhirResponse>> Update(string type, Resource resource, string id = null)
         {
-            var versionId = Request.GetTypedHeaders().IfMatch?.FirstOrDefault()?.Tag.Buffer;
-            var key = Key.Create(type, id, versionId);
+            string versionId = Request.GetTypedHeaders().IfMatch?.FirstOrDefault()?.Tag.Buffer;
+            Key key = Key.Create(type, id, versionId);
             if (key.HasResourceId())
             {
                 Request.TransferResourceIdIfRawBinary(resource, id);
@@ -69,6 +69,14 @@ namespace Spark.Web.Controllers
                         resource,
                         SearchParams.FromUriParamList(Request.TupledParameters()))
                     .ConfigureAwait(false));
+        }
+
+        [HttpPatch("{type}/{id}")]
+        public async Task<ActionResult<FhirResponse>> Patch(string type, string id, Parameters patch)
+        {
+            var key = Key.Create(type, id);
+            var response = await _fhirService.Patch(key, patch).ConfigureAwait(false);
+            return new ActionResult<FhirResponse>(response);
         }
 
         [HttpPost("{type}")]
@@ -88,7 +96,7 @@ namespace Spark.Web.Controllers
 
             return await _fhirService.Create(key, resource).ConfigureAwait(false);
         }
-
+        
         [HttpDelete("{type}/{id}")]
         public async Task<FhirResponse> Delete(string type, string id)
         {
@@ -205,11 +213,11 @@ namespace Spark.Web.Controllers
         [Route("${operation}")]
         public FhirResponse ServerOperation(string operation)
         {
-            switch (operation.ToLower())
+            return operation.ToLower() switch
             {
-                case "error": throw new Exception("This error is for testing purposes");
-                default: return Respond.WithError(HttpStatusCode.NotFound, "Unknown operation");
-            }
+                "error" => throw new Exception("This error is for testing purposes"),
+                _ => Respond.WithError(HttpStatusCode.NotFound, "Unknown operation")
+            };
         }
 
         [HttpPost]
@@ -221,20 +229,19 @@ namespace Spark.Web.Controllers
             Parameters parameters)
         {
             var key = Key.Create(type, id);
-            switch (operation.ToLower())
+            return operation.ToLower() switch
             {
-                case "meta": return await _fhirService.ReadMeta(key).ConfigureAwait(false);
-                case "meta-add": return await _fhirService.AddMeta(key, parameters).ConfigureAwait(false);
-                case "meta-delete":
-
-                default: return Respond.WithError(HttpStatusCode.NotFound, "Unknown operation");
-            }
+                "meta" => await _fhirService.ReadMeta(key).ConfigureAwait(false),
+                "meta-add" => await _fhirService.AddMeta(key, parameters).ConfigureAwait(false),
+                "meta-delete" => Respond.WithError(HttpStatusCode.NotFound, "Unknown operation"),
+                _ => Respond.WithError(HttpStatusCode.NotFound, "Unknown operation")
+            };
         }
 
         [HttpPost]
         [HttpGet]
         [Route("{type}/{id}/$everything")]
-        public async Task<FhirResponse> Everything(string type, string id = null)
+        public async Task<FhirResponse> Everything(string type, string id)
         {
             var key = Key.Create(type, id);
             return await _fhirService.Everything(key).ConfigureAwait(false);

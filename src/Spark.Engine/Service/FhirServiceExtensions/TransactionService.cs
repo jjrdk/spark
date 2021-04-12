@@ -132,25 +132,19 @@ namespace Spark.Engine.Service.FhirServiceExtensions
             ResourceManipulationOperation operation,
             IList<Entry> interactions)
         {
-            if (mapper == null)
+            if (mapper == null || interactions.Count != 1)
             {
                 return;
             }
 
-            if (interactions.Count() == 1)
+            var entry = interactions[0];
+            if (!entry.Key.Equals(operation.OperationKey))
             {
-                var entry = interactions.First();
-                if (!entry.Key.Equals(operation.OperationKey))
-                {
-                    if (_localhost.GetKeyKind(operation.OperationKey) == KeyKind.Temporary)
-                    {
-                        mapper.Remap(operation.OperationKey.ResourceId, entry.Key.WithoutVersion());
-                    }
-                    else
-                    {
-                        mapper.Remap(operation.OperationKey.ToString(), entry.Key.WithoutVersion());
-                    }
-                }
+                mapper.Remap(
+                    _localhost.GetKeyKind(operation.OperationKey) == KeyKind.Temporary
+                        ? operation.OperationKey.ResourceId
+                        : operation.OperationKey.ToString(),
+                    entry.Key.WithoutVersion());
             }
         }
 
@@ -161,7 +155,7 @@ namespace Spark.Engine.Service.FhirServiceExtensions
         {
             var responses = new List<Tuple<Entry, FhirResponse>>();
 
-            _transfer.Internalize(interactions, mapper);
+            await _transfer.Internalize(interactions, mapper).ConfigureAwait(false);
 
             foreach (var interaction in interactions)
             {

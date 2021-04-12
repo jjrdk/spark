@@ -18,12 +18,7 @@ namespace Spark.Engine.Service
     public interface IAsyncFhirService
     {
         Task<FhirResponse> AddMeta(IKey key, Parameters parameters);
-
-        Task<FhirResponse> ConditionalCreate(
-            IKey key,
-            Resource resource,
-            IEnumerable<Tuple<string, string>> parameters);
-
+        Task<FhirResponse> ConditionalCreate(IKey key, Resource resource, IEnumerable<Tuple<string, string>> parameters);
         Task<FhirResponse> ConditionalCreate(IKey key, Resource resource, SearchParams parameters);
         Task<FhirResponse> ConditionalDelete(IKey key, IEnumerable<Tuple<string, string>> parameters);
         Task<FhirResponse> ConditionalUpdate(IKey key, Resource resource, SearchParams parameters);
@@ -44,6 +39,8 @@ namespace Spark.Engine.Service
         Task<FhirResponse> Transaction(params Entry[] interactions);
         Task<FhirResponse> Transaction(Bundle bundle);
         Task<FhirResponse> Update(IKey key, Resource resource);
+        Task<FhirResponse> Patch(IKey key, Parameters patch);
+
         Task<FhirResponse> ValidateOperation(IKey key, Resource resource);
         Task<FhirResponse> VersionRead(IKey key);
         Task<FhirResponse> VersionSpecificUpdate(IKey versionedKey, Resource resource);

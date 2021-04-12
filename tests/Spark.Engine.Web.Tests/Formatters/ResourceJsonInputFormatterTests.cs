@@ -65,7 +65,7 @@ namespace Spark.Engine.Web.Tests.Formatters
 
             var mediaType = formatter.SupportedMediaTypes[0];
 
-            Assert.Equal("application/fhir+json", mediaType);
+            Assert.Equal("application/fhir+json", mediaType.ToString());
         }
 
         [Fact]

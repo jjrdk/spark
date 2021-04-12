@@ -12,7 +12,7 @@ namespace Spark.Engine.Service.FhirServiceExtensions
 {
     using Hl7.Fhir.Model;
 
-    internal interface ICapabilityStatementService : IFhirServiceExtension
+    public interface ICapabilityStatementService
     {
         CapabilityStatement GetSparkCapabilityStatement(string sparkVersion);
     }

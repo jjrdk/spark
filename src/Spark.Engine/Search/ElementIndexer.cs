@@ -27,7 +27,10 @@ namespace Spark.Engine.Search
         private readonly ILogger<ElementIndexer> _logger;
         private readonly IReferenceNormalizationService _referenceNormalizationService;
 
-        public ElementIndexer(IFhirModel fhirModel, ILogger<ElementIndexer> logger, IReferenceNormalizationService referenceNormalizationService = null)
+        public ElementIndexer(
+            IFhirModel fhirModel,
+            ILogger<ElementIndexer> logger,
+            IReferenceNormalizationService referenceNormalizationService = null)
         {
             _fhirModel = fhirModel;
             _logger = logger;
@@ -58,7 +61,7 @@ namespace Spark.Engine.Search
             {
                 // TODO: How to handle composite SearchParameter type
                 //if (element is Sequence.VariantComponent) return result;
-                List<Expression> expressions = ToExpressions((dynamic)element);
+                List<Expression> expressions = ToExpressions((dynamic) element);
                 if (expressions != null)
                 {
                     result.AddRange(expressions.Where(exp => exp != null).ToList());
@@ -111,7 +114,7 @@ namespace Spark.Engine.Search
         }
 
         private List<Expression> ToExpressions(Extension element) =>
-            element == null ? null : (List<Expression>)ToExpressions((dynamic)element.Value);
+            element == null ? null : (List<Expression>) ToExpressions((dynamic) element.Value);
 
         private static List<Expression> ToExpressions(Markdown element) =>
             element == null || string.IsNullOrWhiteSpace(element.Value) ? null : ListOf(new StringValue(element.Value));
@@ -452,7 +455,9 @@ namespace Spark.Engine.Search
             }
             catch (ArgumentException ex)
             {
-                _logger.LogError($"unknown element: Quantity: {element.Code} {element.Unit} {element.Value}", ex.Message);
+                _logger.LogError(
+                    $"unknown element: Quantity: {element.Code} {element.Unit} {element.Value}",
+                    ex.Message);
             }
 
             return null;

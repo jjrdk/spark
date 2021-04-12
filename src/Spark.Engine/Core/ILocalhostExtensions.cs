@@ -10,15 +10,12 @@ namespace Spark.Engine.Core
 {
     using System;
     using Extensions;
-    using Hl7.Fhir.Model;
     using Hl7.Fhir.Rest;
 
     public static class LocalhostExtensions
     {
         public static bool IsLocal(this ILocalhost localhost, IKey key) =>
             key.Base == null || localhost.IsBaseOf(key.Base);
-
-        public static bool IsForeign(this ILocalhost localhost, IKey key) => !localhost.IsLocal(key);
 
         public static Uri RemoveBase(this ILocalhost localhost, Uri uri)
         {
@@ -83,32 +80,13 @@ namespace Spark.Engine.Core
             return localhost.IsLocal(key) ? KeyKind.Local : KeyKind.Foreign;
         }
 
-        public static bool IsBaseOf(this ILocalhost localhost, string uristring)
+        private static bool IsBaseOf(this ILocalhost localhost, string uristring)
         {
             var uri = new Uri(uristring, UriKind.RelativeOrAbsolute);
             return localhost.IsBaseOf(uri);
         }
 
-        //public static string GetOperationPath(this ILocalhost localhost, Uri uri)
-        //{
-        //    Key key = localhost.AnyUriToKey(uri).WithoutBase();
-
-        //    return key.ToOperationPath();
-        //    //Uri endpoint = localhost.GetBaseOf(uri);
-        //    //string _base = endpoint.ToString();
-        //    //string path = uri.ToString().Remove(0, _base.Length);
-        //    //return path;
-        //}
-
         public static Uri Uri(this ILocalhost localhost, params string[] segments) =>
             new RestUrl(localhost.DefaultBase).AddPath(segments).Uri;
-
-        public static Uri Uri(this ILocalhost localhost, IKey key) => key.ToUri(localhost.DefaultBase);
-
-        public static Bundle CreateBundle(this ILocalhost localhost, Bundle.BundleType type)
-        {
-            var bundle = new Bundle {Type = type};
-            return bundle;
-        }
     }
 }

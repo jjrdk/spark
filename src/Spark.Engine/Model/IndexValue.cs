@@ -16,7 +16,7 @@ namespace Spark.Engine.Model
     {
         private readonly List<Expression> _values;
 
-        public IndexValue() => _values = new List<Expression>();
+        private IndexValue() => _values = new List<Expression>();
 
         public IndexValue(string name)
             : this() =>

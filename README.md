@@ -8,20 +8,26 @@ Spark
 =====
 
 Spark is a public domain FHIR server developed in C#, initially built by Firely and as of recently being
-maintained by Kufu.
+maintained by Incendi.
 
 Spark implements a major part of the FHIR specification and has been used and tested during several
 HL7 WGM Connectathons.
 
-As of recently the task of maintaining Spark has been taken upon by the community and is led by Kufu.
-Kufu and the community, will keep enhancing this server to support the latest versions and add functionality.
+As of recently the task of maintaining Spark has been taken upon by the community and is led by Incendi.
+Incendi and the community, will keep enhancing this server to support the latest versions and add functionality.
 We also welcome anyone who wants to support this effort and help us make Spark a better reference
 platform and playground for FHIR.
 
 **DISCLAIMER: The web projects Spark.Web and Spark are meant as reference implementations and should never be used out of the box in a production environment without adding as a minimum security features.**
 
-## Quickstart
-The easiest way to test Spark FHIR server is by using Docker. Make sure you have installed [Docker](https://docs.docker.com/install/). On Linux you will need to install [Docker Compose](https://docs.docker.com/compose/install/) as well. After installing Docker you could run Spark server by running one of the following commands, found below, for your preferred FHIR Version. Remember to replace the single quotes with double quotes on Windows. The Spark FHIR Server will be available after startup at `http://localhost:5555`.
+### Get Started
+There are two ways to get started with Spark. Either by using the NuGet packages and following the Quickstart Tutorial, or by using the Docker Images.
+
+#### NuGet Packages
+Read the [Quickstart Tutorial](https://firelyteam.github.io/spark/quickstart) on how to set up your own FHIR Server using the NuGet Packages. There is also an example project that accompanies the Quickstart Tutorial which you can find here: https://github.com/incendilabs/spark-example
+
+#### Docker Images
+Set up the Spark FHIR server by using the Docker Images. Make sure you have installed [Docker](https://docs.docker.com/install/). On Linux you will need to install [Docker Compose](https://docs.docker.com/compose/install/) as well. After installing Docker you could run Spark server by running one of the following commands, found below, for your preferred FHIR Version. Remember to replace the single quotes with double quotes on Windows. The Spark FHIR Server will be available after startup at `http://localhost:5555`.
 
 #### DSTU2
 `curl 'https://raw.githubusercontent.com/FirelyTeam/spark/master/.docker/docker-compose.example.yml' > docker-compose.yml && docker-compose up`
@@ -38,14 +44,15 @@ The easiest way to test Spark FHIR server is by using Docker. Make sure you have
 DSTU1 is no longer maintained by this project. The source code can be found in the branch **dstu1/master**.
 
 #### DSTU2
-Source code can be found in the branch **master**, we try to keep up-to-date with the DSTU2 version of FHIR.
+DSTU2 is no longer maintained by this project. The source code can be found in the branch **master**.
 
 #### STU3
 Source code can be found in the branch **stu3/master**, we try to keep up-to-date with the STU3 version of FHIR.
+This is the version of Spark running at http://spark-stu3.incendi.no FHIR Endpoint: http://spark-stu3.incendi.no/fhir
 
 #### R4
-Source code can be found in the branch **r4/master**. This is the version of Spark running at http://spark.kufu.no
-FHIR Endpoint: http://spark.kufu.no/fhir
+Source code can be found in the branch **r4/master**. This is the version of Spark running at http://spark.incendi.no
+FHIR Endpoint: http://spark.incendi.no/fhir
 
 ## Contributing
 If you want to contribute, see our [guidelines](https://github.com/furore-fhir/spark/wiki/Contributing)

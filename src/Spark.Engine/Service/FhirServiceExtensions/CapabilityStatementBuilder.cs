@@ -9,7 +9,6 @@
 namespace Spark.Engine.Service.FhirServiceExtensions
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq;
     using Core;
     using Hl7.Fhir.Model;
@@ -116,22 +115,7 @@ namespace Spark.Engine.Service.FhirServiceExtensions
 
             return capabilityStatement;
         }
-
-        public static CapabilityStatement AddMultipleResourceComponents(
-            this CapabilityStatement capabilityStatement,
-            List<string> resourcetypes,
-            bool readhistory,
-            bool updatecreate,
-            CapabilityStatement.ResourceVersionPolicy versioning)
-        {
-            foreach (var type in resourcetypes)
-            {
-                AddSingleResourceComponent(capabilityStatement, type, readhistory, updatecreate, versioning);
-            }
-
-            return capabilityStatement;
-        }
-
+        
         public static CapabilityStatement AddSingleResourceComponent(
             this CapabilityStatement capabilityStatement,
             string resourcetype,
@@ -212,7 +196,7 @@ namespace Spark.Engine.Service.FhirServiceExtensions
             foreach (CapabilityStatement.TypeRestfulInteraction type in Enum.GetValues(
                 typeof(CapabilityStatement.TypeRestfulInteraction)))
             {
-                var interaction = AddSingleResourceInteraction(resourcecomp, type);
+                var interaction = AddSingleResourceInteraction(type);
                 resourcecomp.Interaction.Add(interaction);
             }
 
@@ -220,7 +204,6 @@ namespace Spark.Engine.Service.FhirServiceExtensions
         }
 
         public static CapabilityStatement.ResourceInteractionComponent AddSingleResourceInteraction(
-            CapabilityStatement.ResourceComponent resourcecomp,
             CapabilityStatement.TypeRestfulInteraction type)
         {
             var interaction = new CapabilityStatement.ResourceInteractionComponent {Code = type};

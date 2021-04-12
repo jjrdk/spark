@@ -8,12 +8,11 @@
 
 namespace Spark.Engine.Service.FhirServiceExtensions
 {
-    using System;
     using System.Threading.Tasks;
 
     internal class IndexRebuildProgress
     {
-        private const int INDEX_CLEAR_PROGRESS_PERCENTAGE = 10;
+        private const int _indexClearProgressPercentage = 10;
 
         private readonly IIndexBuildProgressReporter _reporter;
         private int _overallProgress;
@@ -34,7 +33,7 @@ namespace Spark.Engine.Service.FhirServiceExtensions
 
         public async Task CleanCompletedAsync()
         {
-            _overallProgress += INDEX_CLEAR_PROGRESS_PERCENTAGE;
+            _overallProgress += _indexClearProgressPercentage;
             await ReportProgressAsync("Index cleared").ConfigureAwait(false);
             _remainingProgress -= _overallProgress;
         }
@@ -60,11 +59,6 @@ namespace Spark.Engine.Service.FhirServiceExtensions
             }
 
             await _reporter.ReportErrorAsync(error).ConfigureAwait(false);
-        }
-
-        public async Task ErrorAsync(Exception exception)
-        {
-            await ErrorAsync(exception.Message).ConfigureAwait(false);
         }
 
         private async Task ReportProgressAsync(string message)

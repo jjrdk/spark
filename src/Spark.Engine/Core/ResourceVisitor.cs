@@ -32,12 +32,7 @@ namespace Spark.Engine.Core
         private readonly FhirPropertyIndex _propIndex;
 
         public ResourceVisitor(FhirPropertyIndex propIndex) => _propIndex = propIndex;
-
-        public void VisitByType(object fhirObject, Action<object> action, params Type[] types)
-        {
-            throw new NotImplementedException("Should be implemented to replace Auxiliary.ResourceVisitor.");
-        }
-
+        
         /// <summary>
         ///     Walk through an object, following the specified path of properties.
         ///     The path should NOT include the name of the resource itself (e.g. "Patient.birthdate" is wrong, "birthdate" is
@@ -79,14 +74,11 @@ namespace Spark.Engine.Core
                     var pm = _propIndex.FindPropertyInfo(fhirObject.GetType(), head);
 
                     //Path might denote an unknown property.
-                    if (pm != null)
-                    {
-                        var headValue = pm.PropInfo.GetValue(fhirObject);
+                    var headValue = pm?.PropInfo.GetValue(fhirObject);
 
-                        if (headValue != null)
-                        {
-                            VisitByPath(headValue, action, tail, headPredicate);
-                        }
+                    if (headValue != null)
+                    {
+                        VisitByPath(headValue, action, tail, headPredicate);
                     }
                 }
             }
@@ -164,7 +156,7 @@ namespace Spark.Engine.Core
                 throw new ArgumentNullException(nameof(type));
             }
 
-            var codedEnum = type.GenericTypeArguments?.FirstOrDefault()?.IsEnum;
+            var codedEnum = type.GenericTypeArguments.FirstOrDefault()?.IsEnum;
             return codedEnum.HasValue && codedEnum.Value;
         }
     }

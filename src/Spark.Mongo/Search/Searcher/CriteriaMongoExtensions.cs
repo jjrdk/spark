@@ -574,47 +574,49 @@ namespace Spark.Mongo.Search.Searcher
             string modifier,
             ValueExpression operand)
         {
-            if (optor == Operator.IN)
+            switch (optor)
             {
-                var choices = (ChoiceValue) operand;
-                var queries = new List<FilterDefinition<BsonDocument>>();
-                foreach (var choice in choices.Choices)
+                case Operator.IN:
                 {
-                    queries.Add(CompositeQuery(parameterDef, Operator.EQ, modifier, choice));
-                }
-
-                return Builders<BsonDocument>.Filter.Or(queries);
-            }
-
-            if (optor == Operator.EQ)
-            {
-                var typedOperand = (CompositeValue) operand;
-                var queries = new List<FilterDefinition<BsonDocument>>();
-                var components = typedOperand.Components;
-                var subParams = parameterDef.CompositeParams;
-
-                if (components.Length != subParams.Length)
-                {
-                    throw new ArgumentException(
-                        $"Parameter {parameterDef.Name} requires exactly {subParams.Length} composite values, not the currently provided {components.Length} values.");
-                }
-
-                for (var i = 0; i < subParams.Length; i++)
-                {
-                    var subCrit = new Criterium
+                    var choices = (ChoiceValue) operand;
+                    var queries = new List<FilterDefinition<BsonDocument>>();
+                    foreach (var choice in choices.Choices)
                     {
-                        Operator = Operator.EQ,
-                        ParamName = subParams[i],
-                        Operand = components[i],
-                        Modifier = modifier
-                    };
-                    queries.Add(subCrit.ToFilter(parameterDef.Resource));
+                        queries.Add(CompositeQuery(parameterDef, Operator.EQ, modifier, choice));
+                    }
+
+                    return Builders<BsonDocument>.Filter.Or(queries);
                 }
+                case Operator.EQ:
+                {
+                    var typedOperand = (CompositeValue) operand;
+                    var queries = new List<FilterDefinition<BsonDocument>>();
+                    var components = typedOperand.Components;
+                    var subParams = parameterDef.CompositeParams;
 
-                return Builders<BsonDocument>.Filter.And(queries);
+                    if (components.Length != subParams.Length)
+                    {
+                        throw new ArgumentException(
+                            $"Parameter {parameterDef.Name} requires exactly {subParams.Length} composite values, not the currently provided {components.Length} values.");
+                    }
+
+                    for (var i = 0; i < subParams.Length; i++)
+                    {
+                        var subCrit = new Criterium
+                        {
+                            Operator = Operator.EQ,
+                            ParamName = subParams[i],
+                            Operand = components[i],
+                            Modifier = modifier
+                        };
+                        queries.Add(subCrit.ToFilter(parameterDef.Resource));
+                    }
+
+                    return Builders<BsonDocument>.Filter.And(queries);
+                }
+                default:
+                    throw new ArgumentException($"Invalid operator {optor} on composite parameter {parameterDef.Name}");
             }
-
-            throw new ArgumentException($"Invalid operator {optor} on composite parameter {parameterDef.Name}");
         }
 
         //internal static FilterDefinition<BsonDocument> _lastUpdatedFixedQuery(Criterium crit)

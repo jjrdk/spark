@@ -79,5 +79,17 @@ namespace Spark.Postgres
                 .ConfigureAwait(false);
             return results.Select(result => Entry.Create(result.Method, result.Key, result.Resource)).ToList();
         }
+
+        /// <inheritdoc />
+        public async Task<bool> Exists(IKey key)
+        {
+            using var session = _sessionFunc();
+            var count = await session.Query<EntryEnvelope>()
+                      .CountAsync(
+                          x => x.Key.TypeName == key.TypeName
+                               && x.Key.ResourceId == key.ResourceId
+                               && x.Key.VersionId == key.VersionId).ConfigureAwait(false);
+            return count > 0;
+        }
     }
 }

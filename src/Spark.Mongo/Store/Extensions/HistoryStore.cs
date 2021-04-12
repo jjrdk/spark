@@ -12,10 +12,10 @@ namespace Spark.Mongo.Store.Extensions
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using Engine.Auxiliary;
     using Engine.Core;
     using Engine.Store.Interfaces;
     using Hl7.Fhir.Model;
+    using Hl7.Fhir.Rest;
     using MongoDB.Bson;
     using MongoDB.Driver;
     using Search.Infrastructure;
@@ -95,13 +95,13 @@ namespace Spark.Mongo.Store.Extensions
             return FetchPrimaryKeys(query);
         }
 
-        private Snapshot CreateSnapshot(
+        private static Snapshot CreateSnapshot(
             IList<string> keys,
             int? count = null,
             IList<string> includes = null,
             IList<string> reverseIncludes = null)
         {
-            var link = new Uri(RestOperation.History, UriKind.Relative);
+            var link = new Uri(TransactionBuilder.HISTORY, UriKind.Relative);
             var snapshot = Snapshot.Create(
                 Bundle.BundleType.History,
                 link,

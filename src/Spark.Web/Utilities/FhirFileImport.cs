@@ -59,15 +59,13 @@ namespace Spark.Web.Utilities
 
         public static IEnumerable<string> ExtractZipEntries(this byte[] buffer)
         {
-            using (Stream stream = new MemoryStream(buffer))
-            using (var archive = new ZipArchive(stream, ZipArchiveMode.Read))
+            using Stream stream = new MemoryStream(buffer);
+            using var archive = new ZipArchive(stream, ZipArchiveMode.Read);
+            foreach (var entry in archive.Entries)
             {
-                foreach (var entry in archive.Entries)
-                {
-                    var reader = new StreamReader(entry.Open());
-                    var data = reader.ReadToEnd();
-                    yield return data;
-                }
+                var reader = new StreamReader(entry.Open());
+                var data = reader.ReadToEnd();
+                yield return data;
             }
         }
 
@@ -82,20 +80,13 @@ namespace Spark.Web.Utilities
 
         public static byte[] GetPathAsBytes(string path) => File.ReadAllBytes(path);
 
-        public static Bundle ToBundle(this IEnumerable<Resource> resources, Uri @base)
+        public static Bundle ToBundle(this IEnumerable<Resource> resources)
         {
             var bundle = new Bundle();
             foreach (var resource in resources)
             {
                 // Make sure that resources without id's are posted.
-                if (resource.Id != null)
-                {
-                    bundle.Append(Bundle.HTTPVerb.PUT, resource);
-                }
-                else
-                {
-                    bundle.Append(Bundle.HTTPVerb.POST, resource);
-                }
+                bundle.Append(resource.Id != null ? Bundle.HTTPVerb.PUT : Bundle.HTTPVerb.POST, resource);
             }
 
             return bundle;

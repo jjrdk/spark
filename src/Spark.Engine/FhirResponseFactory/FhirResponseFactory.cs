@@ -19,11 +19,9 @@ namespace Spark.Engine.FhirResponseFactory
     public class FhirResponseFactory : IFhirResponseFactory
     {
         private readonly IFhirResponseInterceptorRunner _interceptorRunner;
-        private readonly ILocalhost _localhost;
 
-        public FhirResponseFactory(ILocalhost localhost, IFhirResponseInterceptorRunner interceptorRunner)
+        public FhirResponseFactory(IFhirResponseInterceptorRunner interceptorRunner)
         {
-            _localhost = localhost;
             _interceptorRunner = interceptorRunner;
         }
 
@@ -71,7 +69,7 @@ namespace Spark.Engine.FhirResponseFactory
             IEnumerable<Tuple<Entry, FhirResponse>> responses,
             Bundle.BundleType bundleType)
         {
-            var bundle = _localhost.CreateBundle(bundleType);
+            var bundle = new Bundle {Type = bundleType};
             foreach (var response in responses)
             {
                 bundle.Append(response.Item1, response.Item2);

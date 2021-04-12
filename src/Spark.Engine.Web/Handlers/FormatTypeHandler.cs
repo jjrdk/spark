@@ -45,7 +45,7 @@ namespace Spark.Engine.Web.Handlers
                 {
                     var contentType = context.Request.ContentType;
                     context.Request.Headers.Add("X-Content-Type", contentType);
-                    context.Request.ContentType = FhirMediaType.OCTET_STREAM_CONTENT_HEADER;
+                    context.Request.ContentType = FhirMediaType.OctetStreamMimeType;
                 }
             }
             //else if(context.Request.IsRawBinaryRequest())

@@ -26,8 +26,7 @@ namespace Spark.Engine.Core
             ResourceId = resourceId;
             VersionId = versionId;
         }
-
-        public static Key Null => default;
+        
         public string Base { get; set; }
         public string TypeName { get; set; }
         public string ResourceId { get; set; }

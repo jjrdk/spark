@@ -1,18 +1,9 @@
-﻿// /*
-//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
-//  * See the file CONTRIBUTORS for details.
-//  *
-//  * This file is licensed under the BSD 3-Clause license
-//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
-//  */
-
-namespace Spark.Web
+﻿namespace Spark.Web
 {
     using System.Linq;
     using Data;
     using Engine;
     using Engine.Web;
-    using Engine.Web.Formatters;
     using Hubs;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
@@ -115,30 +106,6 @@ namespace Spark.Web
             services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo {Title = "Spark API", Version = "v1"}); });
 
             services.AddSignalR();
-
-            //// Make validation errors to be returned as application/json or application/xml
-            //// instead of application/problem+json and application/problem+xml.
-            //// (https://github.com/FirelyTeam/spark/issues/282)
-            services.Configure<ApiBehaviorOptions>(
-                options =>
-                {
-                    var defaultInvalidModelStateResponseFactory = options.InvalidModelStateResponseFactory;
-                    options.InvalidModelStateResponseFactory = context =>
-                    {
-                        var actionResult = defaultInvalidModelStateResponseFactory(context) as ObjectResult;
-                        if (actionResult != null)
-                        {
-                            actionResult.ContentTypes.Clear();
-                            foreach (var mediaType in JsonFhirOutputFormatter.JsonMediaTypes.Concat(
-                                XmlFhirOutputFormatter.XmlMediaTypes))
-                            {
-                                actionResult.ContentTypes.Add(mediaType);
-                            }
-                        }
-
-                        return actionResult;
-                    };
-                });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

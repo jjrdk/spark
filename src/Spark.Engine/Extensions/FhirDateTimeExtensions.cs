@@ -30,28 +30,15 @@ namespace Spark.Engine.Extensions
         public static DateTimeOffset UpperBound(this FhirDateTime fdt)
         {
             var dtoStart = fdt.LowerBound();
-            var dtoEnd = dtoStart;
-            switch (fdt.Precision())
+            var dtoEnd = fdt.Precision() switch
             {
-                case FhirDateTimePrecision.Year:
-                    dtoEnd = dtoStart.AddYears(1);
-                    break;
-                case FhirDateTimePrecision.Month:
-                    dtoEnd = dtoStart.AddMonths(1);
-                    break;
-                case FhirDateTimePrecision.Day:
-                    dtoEnd = dtoStart.AddDays(1);
-                    break;
-                case FhirDateTimePrecision.Minute:
-                    dtoEnd = dtoStart.AddMinutes(1);
-                    break;
-                case FhirDateTimePrecision.Second:
-                    dtoEnd = dtoStart.AddSeconds(1);
-                    break;
-                default:
-                    dtoEnd = dtoStart;
-                    break;
-            }
+                FhirDateTimePrecision.Year => dtoStart.AddYears(1),
+                FhirDateTimePrecision.Month => dtoStart.AddMonths(1),
+                FhirDateTimePrecision.Day => dtoStart.AddDays(1),
+                FhirDateTimePrecision.Minute => dtoStart.AddMinutes(1),
+                FhirDateTimePrecision.Second => dtoStart.AddSeconds(1),
+                _ => dtoStart
+            };
 
             return dtoEnd;
         }

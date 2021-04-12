@@ -24,7 +24,7 @@ namespace Spark.Engine.Service
             _localhost = localhost;
             if (listeners != null)
             {
-                _listeners = new List<IServiceListener>(listeners.AsEnumerable());
+                _listeners = listeners.ToList();
             }
         }
 
@@ -47,9 +47,9 @@ namespace Spark.Engine.Service
                     listener => listener.Inform(_localhost.GetAbsoluteUri(interaction.Key), interaction)));
         }
 
-        public Task Inform(Uri location, Entry interaction)
+        public Task Inform(Uri location, Entry entry)
         {
-            return Task.WhenAll(_listeners.Select(listener => listener.Inform(location, interaction)));
+            return Task.WhenAll(_listeners.Select(listener => listener.Inform(location, entry)));
         }
-    }
+        }
 }
