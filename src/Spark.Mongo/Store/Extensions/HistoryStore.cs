@@ -12,7 +12,6 @@ namespace Spark.Mongo.Store.Extensions
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using Engine.Auxiliary;
     using Engine.Core;
     using Engine.Store.Interfaces;
     using Hl7.Fhir.Model;

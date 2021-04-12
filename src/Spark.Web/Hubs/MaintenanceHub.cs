@@ -13,7 +13,6 @@ namespace Spark.Web.Hubs
     using System.IO;
     using System.Linq;
     using System.Text;
-    using Engine.Core;
     using Engine.Extensions;
     using Engine.Interfaces;
     using Engine.Service;

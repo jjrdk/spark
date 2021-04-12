@@ -18,7 +18,7 @@ namespace Spark.Engine.Web.Formatters
     {
         public BinaryFhirOutputFormatter()
         {
-            SupportedMediaTypes.Add(new MediaTypeHeaderValue(FhirMediaType.OCTET_STREAM_CONTENT_HEADER));
+            SupportedMediaTypes.Add(new MediaTypeHeaderValue(FhirMediaType.OctetStreamMimeType));
         }
 
         /// <inheritdoc />

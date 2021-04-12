@@ -16,7 +16,6 @@ namespace Spark.Engine.Test.Search
     using Engine.Search.ValueExpressionTypes;
     using Hl7.Fhir.Model;
     using Microsoft.Extensions.Logging;
-    using Model;
     using Moq;
     using Xunit;
     using Expression = Engine.Search.ValueExpressionTypes.Expression;
@@ -69,7 +68,7 @@ namespace Spark.Engine.Test.Search
         public void ElementMapTest()
         {
             var input = new Annotation {Text = new Markdown("Text of the annotation")};
-            var result = _sut.Map(input);
+            _ = _sut.Map(input);
 
             //    Assert.Equal(2, lastLogEntry.EventId); //EventId 2 is related to Unsupported  features.
         }

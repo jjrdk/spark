@@ -10,7 +10,6 @@ namespace Spark.Engine.Core
 {
     using System;
     using Extensions;
-    using Hl7.Fhir.Model;
     using Hl7.Fhir.Rest;
 
     public static class LocalhostExtensions

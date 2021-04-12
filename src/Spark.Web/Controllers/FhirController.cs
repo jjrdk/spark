@@ -54,8 +54,8 @@ namespace Spark.Web.Controllers
         [HttpPut("{type}/{id?}")]
         public async Task<ActionResult<FhirResponse>> Update(string type, Resource resource, string id = null)
         {
-            var versionId = Request.GetTypedHeaders().IfMatch?.FirstOrDefault()?.Tag.Buffer;
-            var key = Key.Create(type, id, versionId);
+            string versionId = Request.GetTypedHeaders().IfMatch?.FirstOrDefault()?.Tag.Buffer;
+            Key key = Key.Create(type, id, versionId);
             if (key.HasResourceId())
             {
                 Request.TransferResourceIdIfRawBinary(resource, id);
@@ -96,7 +96,7 @@ namespace Spark.Web.Controllers
 
             return await _fhirService.Create(key, resource).ConfigureAwait(false);
         }
-
+        
         [HttpDelete("{type}/{id}")]
         public async Task<FhirResponse> Delete(string type, string id)
         {

@@ -1,42 +1,24 @@
-﻿// /*
-//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
-//  * See the file CONTRIBUTORS for details.
-//  *
-//  * This file is licensed under the BSD 3-Clause license
-//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
-//  */
+﻿using Hl7.Fhir.Model;
+using System;
+using Spark.Engine.Extensions;
 
 namespace Spark.Engine.Core
 {
-    using System;
-    using Extensions;
-    using Hl7.Fhir.Model;
-
     public class Entry
     {
-        private IKey _key;
-        private DateTimeOffset? _when;
-
-        private Entry(Bundle.HTTPVerb method, IKey key, DateTimeOffset? when, Resource resource)
-        {
-            if (resource != null)
-            {
-                key.ApplyTo(resource);
-            }
-            else
-            {
-                Key = key;
-            }
-
-            Resource = resource;
-            Method = method;
-            When = when ?? DateTimeOffset.Now;
-            State = EntryState.Undefined;
-        }
-
         public IKey Key
         {
-            get => Resource != null ? Resource.ExtractKey() : _key;
+            get
+            {
+                if (Resource != null)
+                {
+                    return Resource.ExtractKey();
+                }
+                else
+                {
+                    return _key;
+                }
+            }
             set
             {
                 if (Resource != null)
@@ -52,18 +34,28 @@ namespace Spark.Engine.Core
 
         public Resource Resource { get; set; }
 
-        public Bundle.HTTPVerb Method { get; }
+        public Bundle.HTTPVerb Method { get; private set; }
 
         // API: HttpVerb should not be in Bundle.
         public DateTimeOffset? When
         {
-            get => Resource?.Meta != null ? Resource.Meta.LastUpdated : _when;
+            get
+            {
+                if (Resource != null && Resource.Meta != null)
+                {
+                    return Resource.Meta.LastUpdated;
+                }
+                else
+                {
+                    return _when;
+                }
+            }
             set
             {
                 if (Resource != null)
                 {
-                    Resource.Meta ??= new Meta();
-                    Resource.Meta.LastUpdated = value;
+                    if (Resource.Meta == null) Resource.Meta = new Meta();
+                    Resource.Meta.LastUpdated = value?.TruncateToMillis();
                 }
                 else
                 {
@@ -74,35 +66,82 @@ namespace Spark.Engine.Core
 
         public EntryState State { get; set; }
 
-        public bool IsDelete => Method == Bundle.HTTPVerb.DELETE;
+        private IKey _key = null;
+        private DateTimeOffset? _when = null;
 
-        public bool IsPresent => Method != Bundle.HTTPVerb.DELETE;
+        protected Entry(Bundle.HTTPVerb method, IKey key, DateTimeOffset? when, Resource resource)
+        {
+            if (resource != null)
+            {
+                key.ApplyTo(resource);
+            }
+            else
+            {
+                Key = key;
+            }
 
+            Resource = resource;
+            Method = method;
+            When = when ?? DateTimeOffset.Now;
+            State = EntryState.Undefined;
+        }
+        
+        public static Entry Create(Bundle.HTTPVerb method, Resource resource)
+        {
+            return new Entry(method, null, null, resource);
+        }
 
-        public static Entry Create(Bundle.HTTPVerb method, Resource resource) =>
-            new Entry(method, null, null, resource);
+        public static Entry Create(Bundle.HTTPVerb method, IKey key, Resource resource)
+        {
+            return new Entry(method, key, null, resource);
+        }
 
-        public static Entry Create(Bundle.HTTPVerb method, IKey key, Resource resource) =>
-            new Entry(method, key, null, resource);
-
-        public static Entry Create(Bundle.HTTPVerb method, IKey key, DateTimeOffset when) =>
-            new Entry(method, key, when, null);
+        public static Entry Create(Bundle.HTTPVerb method, IKey key, DateTimeOffset when)
+        {
+            return new Entry(method, key, when, null);
+        }
 
         /// <summary>
-        ///     Creates a deleted entry
+        ///  Creates a deleted entry
         /// </summary>
-        public static Entry Delete(IKey key, DateTimeOffset? when) =>
-            Create(Bundle.HTTPVerb.DELETE, key, when ?? DateTimeOffset.UtcNow);
+        public static Entry Delete(IKey key, DateTimeOffset? when)
+        {
+            return Create(Bundle.HTTPVerb.DELETE, key, DateTimeOffset.UtcNow);
+        }
 
-        public static Entry Post(IKey key, Resource resource) => Create(Bundle.HTTPVerb.POST, key, resource);
-        
-        public static Entry Put(IKey key, Resource resource) => Create(Bundle.HTTPVerb.PUT, key, resource);
+        public bool IsDelete
+        {
+            get { return Method == Bundle.HTTPVerb.DELETE; }
+            set
+            {
+                Method = Bundle.HTTPVerb.DELETE;
+                Resource = null;
+            }
+        }
 
-        //public static Interaction GET(IKey key)
-        //{
-        //    return new Interaction(Bundle.HTTPVerb.GET, key, null, null);
-        //}
+        public bool IsPresent
+        {
+            get { return Method != Bundle.HTTPVerb.DELETE; }
+        }
 
-        public override string ToString() => $"{Method} {Key}";
+        public static Entry Post(IKey key, Resource resource)
+        {
+            return Create(Bundle.HTTPVerb.POST, key, resource);
+        }
+
+        public static Entry Post(Resource resource)
+        {
+            return Create(Bundle.HTTPVerb.POST, resource);
+        }
+
+        public static Entry Put(IKey key, Resource resource)
+        {
+            return Create(Bundle.HTTPVerb.PUT, key, resource);
+        }
+
+        public override string ToString()
+        {
+            return $"{Method} {Key}";
+        }
     }
 }

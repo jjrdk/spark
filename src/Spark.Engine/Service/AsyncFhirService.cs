@@ -34,6 +34,7 @@ namespace Spark.Engine.Service
         private readonly IHistoryService _historyService;
         private readonly IFhirResponseFactory _responseFactory;
         private readonly ICompositeServiceListener _serviceListener;
+        private readonly IPatchService _patchService;
 
         public AsyncFhirService(
             IResourceStorageService storageService,
@@ -43,7 +44,8 @@ namespace Spark.Engine.Service
             ICapabilityStatementService capabilityStatementService,
             IHistoryService historyService,
             IFhirResponseFactory responseFactory,
-            ICompositeServiceListener serviceListener)
+            ICompositeServiceListener serviceListener,
+            IPatchService patchService)
         {
             _storageService = storageService;
             _pagingService = pagingService;
@@ -51,8 +53,9 @@ namespace Spark.Engine.Service
             _transactionService = transactionService;
             _capabilityStatementService = capabilityStatementService;
             _historyService = historyService;
-            _responseFactory = responseFactory ?? throw new ArgumentNullException(nameof(responseFactory));
-            _serviceListener = serviceListener ?? throw new ArgumentNullException(nameof(serviceListener));
+            _responseFactory = responseFactory;
+            _serviceListener = serviceListener;
+            _patchService = patchService;
         }
 
         public async Task<FhirResponse> AddMeta(IKey key, Parameters parameters)
@@ -180,11 +183,6 @@ namespace Spark.Engine.Service
             return Transaction(entry);
         }
 
-        public Task<FhirResponse> Patch(IKey key, Parameters parameters)
-        {
-            return HandleInteraction(Entry.Create(Bundle.HTTPVerb.PATCH, key, parameters));
-        }
-
         public async Task<FhirResponse> Read(IKey key, ConditionalHeaderParameters parameters = null)
         {
             ValidateKey(key);
@@ -223,6 +221,30 @@ namespace Spark.Engine.Service
             key.HasVersionId()
                 ? await VersionSpecificUpdate(key, resource).ConfigureAwait(false)
                 : await Put(key, resource).ConfigureAwait(false);
+
+        public async Task<FhirResponse> Patch(IKey key, Parameters parameters)
+        {
+            if (parameters == null)
+            {
+                return new FhirResponse(HttpStatusCode.BadRequest);
+            }
+
+            var current = await _storageService.Get(key.WithoutVersion()).ConfigureAwait(false);
+            if (current is { IsPresent: true })
+            {
+                try
+                {
+                    var resource = _patchService.Apply(current.Resource, parameters);
+                    return await Put(Entry.Put(current.Key.WithoutVersion(), resource)).ConfigureAwait(false);
+                }
+                catch
+                {
+                    return new FhirResponse(HttpStatusCode.BadRequest);
+                }
+            }
+
+            return Respond.WithCode(HttpStatusCode.NotFound);
+        }
 
         public Task<FhirResponse> ValidateOperation(IKey key, Resource resource)
         {
@@ -296,32 +318,16 @@ namespace Spark.Engine.Service
                 case Bundle.HTTPVerb.POST:
                     return await Create(interaction).ConfigureAwait(false);
                 case Bundle.HTTPVerb.DELETE:
-                {
-                    var current = await _storageService.Get(interaction.Key.WithoutVersion()).ConfigureAwait(false);
-                    return current != null && current.IsPresent
-                        ? await Delete(interaction).ConfigureAwait(false)
-                        : Respond.WithCode(HttpStatusCode.NotFound);
-                }
-                case Bundle.HTTPVerb.PATCH:
-                {
-                    var current = await _storageService.Get(interaction.Key.WithoutVersion()).ConfigureAwait(false);
-                    if (current?.IsPresent!= true)
                     {
-                        return new FhirResponse(HttpStatusCode.BadRequest);
+                        var current = await _storageService.Get(interaction.Key.WithoutVersion()).ConfigureAwait(false);
+                        return current != null && current.IsPresent
+                            ? await Delete(interaction).ConfigureAwait(false)
+                            : Respond.WithCode(HttpStatusCode.NotFound);
                     }
-
-                    if (interaction.Resource is Parameters patch)
-                    {
-                        var applier = new PatchApplicationService();
-                        applier.Apply(current.Resource as Patient, patch);
-                        await _storageService.Add(interaction).ConfigureAwait(false);
-                        return await Put(interaction.Key, interaction.Resource).ConfigureAwait(false);
-                    }
-
-                    return new FhirResponse(HttpStatusCode.BadRequest);
-                }
                 case Bundle.HTTPVerb.GET:
-                    return await VersionRead((Key) interaction.Key).ConfigureAwait(false);
+                    return await VersionRead((Key)interaction.Key).ConfigureAwait(false);
+                case Bundle.HTTPVerb.PATCH:
+                    return await Patch(interaction.Key, interaction.Resource as Parameters).ConfigureAwait(false);
                 default:
                     return Respond.Success;
             }

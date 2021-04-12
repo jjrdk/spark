@@ -12,7 +12,6 @@ namespace Spark.Postgres
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using Engine.Auxiliary;
     using Engine.Core;
     using Engine.Extensions;
     using Engine.Store.Interfaces;

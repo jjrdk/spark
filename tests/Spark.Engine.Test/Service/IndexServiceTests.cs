@@ -20,7 +20,6 @@ namespace Spark.Engine.Test.Service
     using Hl7.Fhir.Model;
     using Hl7.Fhir.Serialization;
     using Microsoft.Extensions.Logging;
-    using Model;
     using Moq;
     using Store.Interfaces;
     using Xunit;
