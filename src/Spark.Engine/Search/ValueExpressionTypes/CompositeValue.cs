@@ -14,7 +14,7 @@ namespace Spark.Engine.Search.ValueExpressionTypes
 
     public class CompositeValue : ValueExpression
     {
-        private const char TUPLESEPARATOR = '$';
+        private const char _tupleseparator = '$';
 
         public CompositeValue(ValueExpression[] components) =>
             Components = components ?? throw Error.ArgumentNull("components");
@@ -34,7 +34,7 @@ namespace Spark.Engine.Search.ValueExpressionTypes
         public override string ToString()
         {
             var values = Components.Select(v => v.ToString());
-            return string.Join(TUPLESEPARATOR.ToString(), values);
+            return string.Join(_tupleseparator.ToString(), values);
         }
 
 
@@ -45,7 +45,7 @@ namespace Spark.Engine.Search.ValueExpressionTypes
                 throw Error.ArgumentNull("text");
             }
 
-            var values = text.SplitNotEscaped(TUPLESEPARATOR);
+            var values = text.SplitNotEscaped(_tupleseparator);
 
             return new CompositeValue(values.Select(v => new UntypedValue(v)));
         }

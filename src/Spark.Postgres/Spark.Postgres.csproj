@@ -2,6 +2,10 @@
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
+      <LangVersion>latest</LangVersion>
+      <Version>1.5.5</Version>
+      <Copyright>Copyright © Reimers.dk 2021</Copyright>
+      <PackageId>Spark.Postgres</PackageId>
   </PropertyGroup>
 
   <ItemGroup>

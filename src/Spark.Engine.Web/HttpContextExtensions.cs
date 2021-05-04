@@ -17,7 +17,7 @@ namespace Spark.Engine.Web
 
     public static class HttpContextExtensions
     {
-        private const string RESOURCE_TYPE_KEY = "resourceType";
+        private const string _resourceTypeKey = "resourceType";
 
         public static IOutputFormatter SelectFormatter(
             this HttpContext context,
@@ -54,15 +54,15 @@ namespace Spark.Engine.Web
 
         public static void AddResourceType(this HttpContext context, Type resourceType)
         {
-            if (context.Items.ContainsKey(RESOURCE_TYPE_KEY))
+            if (context.Items.ContainsKey(_resourceTypeKey))
             {
                 return;
             }
 
-            context.Items.Add(RESOURCE_TYPE_KEY, resourceType);
+            context.Items.Add(_resourceTypeKey, resourceType);
         }
 
         public static Type GetResourceType(this HttpContext context) =>
-            context.Items.TryGetValue(RESOURCE_TYPE_KEY, out var resourceType) ? resourceType as Type : null;
+            context.Items.TryGetValue(_resourceTypeKey, out var resourceType) ? resourceType as Type : null;
     }
 }

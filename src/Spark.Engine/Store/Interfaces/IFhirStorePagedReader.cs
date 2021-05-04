@@ -8,11 +8,12 @@
 
 namespace Spark.Engine.Store.Interfaces
 {
-    using System.Threading.Tasks;
+    using System.Collections.Generic;
+    using System.Threading;
     using Core;
 
     public interface IFhirStorePagedReader
     {
-        Task<IPageResult<Entry>> ReadAsync(FhirStorePageReaderOptions options = null);
+        IAsyncEnumerable<Entry> ReadAsync(FhirStorePageReaderOptions options = null, CancellationToken cancellationToken = default);
     }
 }

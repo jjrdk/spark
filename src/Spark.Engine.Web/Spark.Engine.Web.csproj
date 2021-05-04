@@ -2,6 +2,10 @@
 
     <PropertyGroup>
         <TargetFramework>net5.0</TargetFramework>
+        <LangVersion>latest</LangVersion>
+        <Version>1.5.5</Version>
+        <Copyright>Copyright © Firely 2014, © Kufu 2018, © Reimers.dk 2021</Copyright>
+        <PackageId>Spark.Engine.R4.Clone.Web</PackageId>
     </PropertyGroup>
 
     <ItemGroup>

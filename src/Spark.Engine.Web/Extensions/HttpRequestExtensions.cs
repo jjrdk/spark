@@ -12,7 +12,6 @@ namespace Spark.Engine.Web.Extensions
     using System.Collections.Generic;
     using System.Linq;
     using System.Net.Http;
-    using System.Net.Http.Headers;
     using Engine.Extensions;
     using Hl7.Fhir.Rest;
     using Microsoft.AspNetCore.Http;

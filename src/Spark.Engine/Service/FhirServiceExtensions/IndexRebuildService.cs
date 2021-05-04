@@ -50,34 +50,35 @@ namespace Spark.Engine.Service.FhirServiceExtensions
                     await progress.CleanCompletedAsync().ConfigureAwait(false);
                 }
 
-                var paging = await _entryReader
-                    .ReadAsync(new FhirStorePageReaderOptions {PageSize = indexSettings.ReindexBatchSize})
+                var paging = _entryReader
+                    .ReadAsync(new FhirStorePageReaderOptions { PageSize = indexSettings.ReindexBatchSize })
                     .ConfigureAwait(false);
 
-                await paging.IterateAllPagesAsync(
-                        async entries =>
-                        {
-                            // Selecting records page-by-page (page size is defined in app config, default is 100).
-                            // This will help to keep memory usage under control.
-                            foreach (var entry in entries)
-                            {
-                                // TODO: use BulkWrite operation for this
-                                try
-                                {
-                                    await _indexService.Process(entry).ConfigureAwait(false);
-                                }
-                                catch (Exception)
-                                {
-                                    // TODO: log exception!
-                                    await progress.ErrorAsync($"Failed to reindex entry {entry.Key}")
-                                        .ConfigureAwait(false);
-                                }
-                            }
+                var count = 0;
+                //async entries =>
+                //{
+                // Selecting records page-by-page (page size is defined in app config, default is 100).
+                // This will help to keep memory usage under control.
+                await foreach (var entry in paging)
+                {
+                    count++;
+                    // TODO: use BulkWrite operation for this
+                    try
+                    {
+                        await _indexService.Process(entry).ConfigureAwait(false);
+                    }
+                    catch (Exception)
+                    {
+                        // TODO: log exception!
+                        await progress.ErrorAsync($"Failed to reindex entry {entry.Key}")
+                            .ConfigureAwait(false);
+                    }
+                }
 
-                            await progress.RecordsProcessedAsync(entries.Count, paging.TotalRecords)
-                                .ConfigureAwait(false);
-                        })
+                await progress.RecordsProcessedAsync(count, count)
                     .ConfigureAwait(false);
+                //    })
+                //.ConfigureAwait(false);
 
                 // TODO: - unlock collections for writing
 

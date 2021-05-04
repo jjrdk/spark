@@ -16,9 +16,9 @@ namespace Spark.Postgres
 
     public class LogListener : IServiceListener
     {
-        private readonly ILogger<LogListener> _logger;
+        private readonly ILogger _logger;
 
-        public LogListener(ILogger<LogListener> logger) => _logger = logger;
+        public LogListener(ILogger logger) => _logger = logger;
 
         /// <inheritdoc />
         public Task Inform(Uri location, Entry interaction)

@@ -41,7 +41,7 @@ namespace Spark.Engine.Core
         {
             get
             {
-                if (Resource != null && Resource.Meta != null)
+                if (Resource is {Meta: { }})
                 {
                     return Resource.Meta.LastUpdated;
                 }

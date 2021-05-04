@@ -18,8 +18,8 @@ namespace Spark.Engine.Extensions
 
     public static class QuantityExtensions
     {
-        public static string UcumUriString = "http://unitsofmeasure.org";
-        public static SystemOfUnits System = UCUM.Load();
+        public static readonly string UcumUriString = "http://unitsofmeasure.org";
+        public static readonly SystemOfUnits System = UCUM.Load();
 
         public static Quantity ToUnitsOfMeasureQuantity(this FM.Quantity input)
         {

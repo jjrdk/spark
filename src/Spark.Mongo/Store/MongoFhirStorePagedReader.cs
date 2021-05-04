@@ -8,7 +8,9 @@
 
 namespace Spark.Mongo.Store
 {
-    using System.Threading.Tasks;
+    using System.Collections.Generic;
+    using System.Runtime.CompilerServices;
+    using System.Threading;
     using Engine.Core;
     using Engine.Store.Interfaces;
     using MongoDB.Bson;
@@ -25,20 +27,30 @@ namespace Spark.Mongo.Store
             _collection = database.GetCollection<BsonDocument>(Collection.RESOURCE);
         }
 
-        public async Task<IPageResult<Entry>> ReadAsync(FhirStorePageReaderOptions options)
+        public async IAsyncEnumerable<Entry> ReadAsync(
+            FhirStorePageReaderOptions options,
+            [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             options ??= new FhirStorePageReaderOptions();
 
             var filter = Builders<BsonDocument>.Filter.Empty;
 
-            var totalRecords = await _collection.CountDocumentsAsync(filter).ConfigureAwait(false);
+            var totalRecords = await _collection.CountDocumentsAsync(filter, cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
 
-            return new MongoCollectionPageResult<Entry>(
-                _collection,
-                filter,
-                options.PageSize,
-                totalRecords,
-                document => document.ToEntry());
+            for (var offset = 0; offset < totalRecords; offset += options.PageSize)
+            {
+                var data = await _collection.Find(filter)
+                    .Sort(Builders<BsonDocument>.Sort.Ascending(Field.PRIMARYKEY))
+                    .Skip(offset)
+                    .Limit(options.PageSize)
+                    .ToListAsync(cancellationToken: cancellationToken)
+                    .ConfigureAwait(false);
+                foreach (var envelope in data)
+                {
+                    yield return envelope.ToEntry();
+                }
+            }
         }
     }
 }

@@ -9,10 +9,14 @@
 namespace Spark.Postgres
 {
     using System;
-    using System.Threading.Tasks;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Runtime.CompilerServices;
+    using System.Threading;
     using Engine.Core;
     using Engine.Store.Interfaces;
     using Marten;
+    using Marten.Pagination;
 
     public class MartenFhirStorePagedReader : IFhirStorePagedReader
     {
@@ -21,16 +25,30 @@ namespace Spark.Postgres
         public MartenFhirStorePagedReader(Func<IDocumentSession> sessionFunc) => _sessionFunc = sessionFunc;
 
         /// <inheritdoc />
-        public async Task<IPageResult<Entry>> ReadAsync(FhirStorePageReaderOptions options = null)
+        public async IAsyncEnumerable<Entry> ReadAsync(
+            FhirStorePageReaderOptions options = null,
+            [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var pagesize = options?.PageSize ?? 100;
-            var total = 0;
-            using (var session = _sessionFunc())
+            var pageNumber = 0;
+            using var session = _sessionFunc();
+            while (true)
             {
-                total = await session.Query<EntryEnvelope>().CountAsync().ConfigureAwait(false);
-            }
+                var data = await session.Query<EntryEnvelope>()
+                    .OrderBy(x => x.Id)
+                    .ToPagedListAsync(pageNumber, pagesize, cancellationToken)
+                    .ConfigureAwait(false);
 
-            return new MartenPageResult<Entry>(_sessionFunc, pagesize, total, e => e);
+                foreach (var envelope in data)
+                {
+                    yield return Entry.Create(envelope.Method, envelope.Key, envelope.Resource);
+                }
+
+                if (data.IsLastPage)
+                {
+                    break;
+                }
+            }
         }
     }
 }

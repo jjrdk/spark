@@ -18,6 +18,7 @@ namespace Spark.Engine.Service
     using FhirServiceExtensions;
     using Hl7.Fhir.Model;
     using Hl7.Fhir.Rest;
+    using Store.Interfaces;
     using Task = System.Threading.Tasks.Task;
 
     public class AsyncFhirService : IAsyncFhirService, IInteractionHandler
@@ -31,7 +32,7 @@ namespace Spark.Engine.Service
         private readonly ISearchService _searchService;
         private readonly ITransactionService _transactionService;
         private readonly ICapabilityStatementService _capabilityStatementService;
-        private readonly IHistoryService _historyService;
+        private readonly IHistoryStore _historyService;
         private readonly IFhirResponseFactory _responseFactory;
         private readonly ICompositeServiceListener _serviceListener;
         private readonly IPatchService _patchService;
@@ -42,7 +43,7 @@ namespace Spark.Engine.Service
             ISearchService searchService,
             ITransactionService transactionService,
             ICapabilityStatementService capabilityStatementService,
-            IHistoryService historyService,
+            IHistoryStore historyService,
             IFhirResponseFactory responseFactory,
             ICompositeServiceListener serviceListener,
             IPatchService patchService)
@@ -122,7 +123,7 @@ namespace Spark.Engine.Service
             Validate.HasNoVersion(key);
 
             var current = await _storageService.Get(key).ConfigureAwait(false);
-            return current != null && current.IsPresent
+            return current is {IsPresent: true}
                 ? await Delete(Entry.Delete(key, DateTimeOffset.UtcNow)).ConfigureAwait(false)
                 : Respond.WithCode(HttpStatusCode.NotFound);
         }
@@ -320,7 +321,7 @@ namespace Spark.Engine.Service
                 case Bundle.HTTPVerb.DELETE:
                     {
                         var current = await _storageService.Get(interaction.Key.WithoutVersion()).ConfigureAwait(false);
-                        return current != null && current.IsPresent
+                        return current is {IsPresent: true}
                             ? await Delete(interaction).ConfigureAwait(false)
                             : Respond.WithCode(HttpStatusCode.NotFound);
                     }

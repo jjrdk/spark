@@ -34,7 +34,7 @@ namespace Spark.Engine.Service
 
         public void Add(Entry interaction)
         {
-            if (interaction != null && interaction.State == EntryState.Undefined)
+            if (interaction is {State: EntryState.Undefined})
             {
                 _entries.Add(interaction);
             }

@@ -24,7 +24,11 @@ namespace Spark.Postgres
                 .Duplicate(x => x.IsPresent)
                 .Index(x => x.When)
                 .GinIndexJsonData();
-            For<IndexEntry>().Identity(x => x.Id).Index(x => x.Id).Duplicate(x => x.ResourceType).GinIndexJsonData();
+            For<IndexEntry>()
+                .Identity(x => x.Id)
+                .Index(x => x.Id)
+                .Duplicate(x => x.ResourceType)
+                .GinIndexJsonData();
         }
     }
 }

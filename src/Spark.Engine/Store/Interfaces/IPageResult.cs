@@ -8,9 +8,7 @@
 
 namespace Spark.Engine.Store.Interfaces
 {
-    using System;
     using System.Collections.Generic;
-    using System.Threading.Tasks;
 
     public interface IPageResult<out T>
     {
@@ -18,6 +16,6 @@ namespace Spark.Engine.Store.Interfaces
 
         long TotalPages { get; }
 
-        Task IterateAllPagesAsync(Func<IReadOnlyList<T>, Task> callback);
+        IAsyncEnumerable<T> IterateAllPagesAsync();
     }
 }

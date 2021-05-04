@@ -8,9 +8,7 @@
 
 namespace Spark.Engine.Core
 {
-    using System.Collections.Generic;
     using System.Net;
-    using Hl7.Fhir.Model;
 
     public static class Error
     {
