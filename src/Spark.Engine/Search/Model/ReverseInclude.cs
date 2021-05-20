@@ -13,7 +13,7 @@ namespace Spark.Engine.Search.Model
 
     public class ReverseInclude
     {
-        private static readonly Regex _pattern = new Regex(@"(?<resourcetype>[^\.]+)\.(?<searchpath>.*)");
+        private static readonly Regex _pattern = new(@"(?<resourcetype>[^\.]+)\.(?<searchpath>.*)");
 
         public string ResourceType { get; set; }
         public string SearchPath { get; set; }

@@ -13,15 +13,15 @@ namespace Spark.Engine.Core
     public static class Error
     {
         public static SparkException Internal(string message, params object[] values) =>
-            new SparkException(HttpStatusCode.InternalServerError, message, values);
+            new(HttpStatusCode.InternalServerError, message, values);
 
         public static SparkException NotFound(string message, params object[] values) =>
-            new SparkException(HttpStatusCode.NotFound, message, values);
+            new(HttpStatusCode.NotFound, message, values);
 
         public static SparkException Create(HttpStatusCode code, string message, params object[] values) =>
-            new SparkException(code, message, values);
+            new(code, message, values);
 
         public static SparkException BadRequest(string message, params object[] values) =>
-            new SparkException(HttpStatusCode.BadRequest, message, values);
+            new(HttpStatusCode.BadRequest, message, values);
     }
 }

@@ -27,6 +27,7 @@ namespace Spark.Engine.Web.Tests.Formatters
 
         [Theory]
         [InlineData("application/fhir+json", true)]
+        [InlineData("application/fhir+json;fhirVersion=4", true)]
         [InlineData("application/json+fhir", true)]
         [InlineData("application/json", true)]
         [InlineData("application/*", false)]
@@ -41,7 +42,7 @@ namespace Spark.Engine.Web.Tests.Formatters
         [InlineData("application/some.entity+*", false)]
         [InlineData("text/some.entity+json", false)]
         [InlineData("", false)]
-        [InlineData(null, false)]
+        //[InlineData(null, false)]
         [InlineData("invalid", false)]
         public void CanRead_ReturnsTrueForSupportedContent(string contentType, bool expectedCanRead)
         {
@@ -122,10 +123,10 @@ namespace Spark.Engine.Web.Tests.Formatters
             Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
         }
 
-        private static JsonFhirInputFormatter GetInputFormatter(ParserSettings parserSettings = null)
+        private static AsyncResourceJsonInputFormatter GetInputFormatter(ParserSettings parserSettings = null)
         {
             parserSettings ??= new ParserSettings {PermissiveParsing = false};
-            return new JsonFhirInputFormatter(new FhirJsonParser(parserSettings));
+            return new AsyncResourceJsonInputFormatter(new FhirJsonParser(parserSettings));
         }
     }
 }

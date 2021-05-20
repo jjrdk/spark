@@ -12,7 +12,7 @@ namespace Spark.Engine.Maintenance
 
     internal static class MaintenanceMode
     {
-        private static readonly object _mutex = new object();
+        private static readonly object _mutex = new();
         private static volatile MaintenanceLock _lock;
 
         /// <summary>
@@ -52,16 +52,13 @@ namespace Spark.Engine.Maintenance
                 throw new ArgumentException(nameof(method));
             }
 
-            switch (method.ToUpper())
+            return method.ToUpper() switch
             {
-                case "GET":
-                case "HEAD":
-                case "OPTIONS":
-                    return IsEnabled(MaintenanceLockMode.Full);
-
-                default: // PUT, POST, PATCH, DELETE ETC
-                    return IsEnabled(MaintenanceLockMode.Write);
-            }
+                "GET" => IsEnabled(MaintenanceLockMode.Full),
+                "HEAD" => IsEnabled(MaintenanceLockMode.Full),
+                "OPTIONS" => IsEnabled(MaintenanceLockMode.Full),
+                _ => IsEnabled(MaintenanceLockMode.Write)
+            };
         }
     }
 }

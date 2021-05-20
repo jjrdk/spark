@@ -16,7 +16,7 @@ namespace Spark.Engine.Search.ValueExpressionTypes
 
         public override string ToString() => EscapeString(Value);
 
-        public static StringValue Parse(string text) => new StringValue(UnescapeString(text));
+        public static StringValue Parse(string text) => new(UnescapeString(text));
 
 
         public static string EscapeString(string value)

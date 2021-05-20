@@ -24,7 +24,7 @@ namespace Spark.Engine.Search.ValueExpressionTypes
         public const string NOT_MODIFIER = "not";
 
         //CK: Order of these mappings is important for string matching. From more specific to less specific.
-        private static readonly List<Tuple<string, Operator>> _operatorMapping = new List<Tuple<string, Operator>>
+        private static readonly List<Tuple<string, Operator>> _operatorMapping = new()
         {
             new Tuple<string, Operator>("ne", Operator.NOT_EQUAL),
             new Tuple<string, Operator>("ge", Operator.GTE),

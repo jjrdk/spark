@@ -25,10 +25,10 @@ namespace Spark.Engine.Extensions
             @"(?<chainPart>(?<element>[^{0}\(]+)(?<predicate>\((?<propname>[^=]*)=(?<filterValue>[^\)]*)\))?((?<separator>{0})|(?<endofinput>$)))+";
 
         public static readonly Regex XpathPattern =
-            new Regex(string.Format(@"(?<root>^//)" + GENERAL_PATH_PATTERN, XPATH_SEPARATOR));
+            new(string.Format(@"(?<root>^//)" + GENERAL_PATH_PATTERN, XPATH_SEPARATOR));
 
         public static readonly Regex
-            PathPattern = new Regex(string.Format(GENERAL_PATH_PATTERN, @"\" + PATH_SEPARATOR));
+            PathPattern = new(string.Format(GENERAL_PATH_PATTERN, @"\" + PATH_SEPARATOR));
 
         public static void SetPropertyPath(this SearchParameter searchParameter, string[] paths)
         {

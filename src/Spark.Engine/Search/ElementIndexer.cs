@@ -87,8 +87,8 @@ namespace Spark.Engine.Search
 
             var position = new List<IndexValue>
             {
-                new IndexValue("latitude", new NumberValue(element.Latitude.Value)),
-                new IndexValue("longitude", new NumberValue(element.Longitude.Value))
+                new("latitude", new NumberValue(element.Latitude.Value)),
+                new("longitude", new NumberValue(element.Longitude.Value))
             };
 
             return ListOf(new CompositeValue(position));
@@ -186,8 +186,8 @@ namespace Spark.Engine.Search
 
             var bounds = new List<IndexValue>
             {
-                new IndexValue("start", new DateTimeValue(element.LowerBound())),
-                new IndexValue("end", new DateTimeValue(element.UpperBound()))
+                new("start", new DateTimeValue(element.LowerBound())),
+                new("end", new DateTimeValue(element.UpperBound()))
             };
 
 
@@ -357,7 +357,7 @@ namespace Spark.Engine.Search
 
             var values = new List<IndexValue>
             {
-                new IndexValue("code", element.Value.Value ? new StringValue("true") : new StringValue("false"))
+                new("code", element.Value.Value ? new StringValue("true") : new StringValue("false"))
             };
 
             return ListOf(new CompositeValue(values));
@@ -478,7 +478,7 @@ namespace Spark.Engine.Search
             {
                 var values = new List<IndexValue>
                 {
-                    new IndexValue(
+                    new(
                         "code",
                         new StringValue(_fhirModel.GetLiteralForEnum(element.Value.Value as Enum)))
                 };

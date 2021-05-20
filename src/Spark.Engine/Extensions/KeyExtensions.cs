@@ -160,7 +160,7 @@ namespace Spark.Engine.Extensions
             return new Uri(path, UriKind.Relative);
         }
 
-        public static Uri ToUri(this IKey self) => new Uri(self.ToUriString(), UriKind.RelativeOrAbsolute);
+        public static Uri ToUri(this IKey self) => new(self.ToUriString(), UriKind.RelativeOrAbsolute);
 
         public static Uri ToUri(this IKey key, Uri endpoint)
         {

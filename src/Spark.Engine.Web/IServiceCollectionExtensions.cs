@@ -10,6 +10,7 @@ namespace Spark.Engine.Web
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using Core;
     using FhirResponseFactory;
     using Formatters;
@@ -36,6 +37,7 @@ namespace Spark.Engine.Web
             }
 
             services.AddFhirHttpSearchParameters();
+            services.SetContentTypeAsFhirMediaTypeOnValidationError();
 
             services.TryAddSingleton(settings);
             services.TryAddTransient<ElementIndexer>();
@@ -68,10 +70,10 @@ namespace Spark.Engine.Web
             services.TryAddTransient<IResourceStorageService, ResourceStorageService>(); // storage
             services.TryAddTransient<ICapabilityStatementService, CapabilityStatementService>(); // conformance
             services.TryAddTransient<ICompositeServiceListener, ServiceListener>();
-            services.TryAddTransient<JsonFhirInputFormatter>();
-            services.TryAddTransient<JsonFhirOutputFormatter>();
-            services.TryAddTransient<XmlFhirInputFormatter>();
-            services.TryAddTransient<XmlFhirOutputFormatter>();
+            services.TryAddTransient<AsyncResourceJsonInputFormatter>();
+            services.TryAddTransient<AsyncResourceJsonOutputFormatter>();
+            services.TryAddTransient<AsyncResourceXmlInputFormatter>();
+            services.TryAddTransient<AsyncResourceXmlOutputFormatter>();
             services.TryAddSingleton(_ => new FhirJsonParser(settings.ParserSettings));
             services.TryAddSingleton(_ => new FhirXmlParser(settings.ParserSettings));
             services.TryAddSingleton(_ => new FhirJsonSerializer(settings.SerializerSettings));
@@ -84,7 +86,7 @@ namespace Spark.Engine.Web
             return builder;
         }
 
-        public static IMvcCoreBuilder AddFhirFormatters(
+        private static IMvcCoreBuilder AddFhirFormatters(
             this IServiceCollection services,
             SparkSettings settings,
             Action<MvcOptions> setupAction = null)
@@ -95,14 +97,14 @@ namespace Spark.Engine.Web
                     options =>
                     {
                         options.InputFormatters.Add(
-                            new JsonFhirInputFormatter(new FhirJsonParser(settings.ParserSettings)));
+                            new AsyncResourceJsonInputFormatter(new FhirJsonParser(settings.ParserSettings)));
                         options.InputFormatters.Add(
-                            new XmlFhirInputFormatter(new FhirXmlParser(settings.ParserSettings)));
+                            new AsyncResourceXmlInputFormatter(new FhirXmlParser(settings.ParserSettings)));
                         options.InputFormatters.Add(new BinaryFhirInputFormatter());
                         options.OutputFormatters.Add(
-                            new JsonFhirOutputFormatter(new FhirJsonSerializer(settings.SerializerSettings)));
+                            new AsyncResourceJsonOutputFormatter(new FhirJsonSerializer(settings.SerializerSettings)));
                         options.OutputFormatters.Add(
-                            new XmlFhirOutputFormatter(new FhirXmlSerializer(settings.SerializerSettings)));
+                            new AsyncResourceXmlOutputFormatter(new FhirXmlSerializer(settings.SerializerSettings)));
                         options.OutputFormatters.Add(new BinaryFhirOutputFormatter());
 
                         options.RespectBrowserAcceptHeader = true;
@@ -160,6 +162,31 @@ namespace Spark.Engine.Web
                         Path = new[] {"Resource.meta.security"}
                     }
                 });
+        }
+
+        private static void SetContentTypeAsFhirMediaTypeOnValidationError(this IServiceCollection services)
+        {
+            // Validation errors need to be returned as application/json or application/xml
+            // instead of application/problem+json and application/problem+xml.
+            // (https://github.com/FirelyTeam/spark/issues/282)
+            services.Configure<ApiBehaviorOptions>(options =>
+            {
+                var defaultInvalidModelStateResponseFactory = options.InvalidModelStateResponseFactory;
+                options.InvalidModelStateResponseFactory = context =>
+                {
+                    var actionResult = defaultInvalidModelStateResponseFactory(context) as ObjectResult;
+                    if (actionResult != null)
+                    {
+                        actionResult.ContentTypes.Clear();
+                        foreach (var mediaType in FhirMediaType.JsonMimeTypes
+                            .Concat(FhirMediaType.XmlMimeTypes))
+                        {
+                            actionResult.ContentTypes.Add(mediaType);
+                        }
+                    }
+                    return actionResult;
+                };
+            });
         }
     }
 }

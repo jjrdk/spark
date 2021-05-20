@@ -9,6 +9,7 @@
 namespace Spark.Engine.Web.Formatters
 {
     using System;
+    using System.Linq;
     using Core;
     using Hl7.Fhir.Model;
     using Microsoft.AspNetCore.Mvc.Formatters;
@@ -22,8 +23,11 @@ namespace Spark.Engine.Web.Formatters
         }
 
         /// <inheritdoc />
-        public override bool CanWriteResult(OutputFormatterCanWriteContext context) =>
-            SupportedMediaTypes.Contains(context.ContentType.Value) && base.CanWriteResult(context);
+        public override bool CanWriteResult(OutputFormatterCanWriteContext context)
+        {
+            var contentTypes = context.ContentType.Value.Split(';', StringSplitOptions.TrimEntries);
+            return SupportedMediaTypes.Intersect(contentTypes).Any() && base.CanWriteResult(context);
+        }
 
         /// <inheritdoc />
         protected override bool CanWriteType(Type type) => typeof(Resource).IsAssignableFrom(type);

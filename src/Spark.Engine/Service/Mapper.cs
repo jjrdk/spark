@@ -14,7 +14,7 @@ namespace Spark.Engine.Service
 
     public class Mapper<TKey, TValue>
     {
-        private readonly Dictionary<TKey, TValue> _mapping = new Dictionary<TKey, TValue>();
+        private readonly Dictionary<TKey, TValue> _mapping = new();
 
         public TValue TryGet(TKey key)
         {

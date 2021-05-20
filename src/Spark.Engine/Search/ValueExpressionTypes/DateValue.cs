@@ -42,6 +42,6 @@ namespace Spark.Engine.Search.ValueExpressionTypes
 
         public override string ToString() => Value;
 
-        public static DateValue Parse(string text) => new DateValue(text);
+        public static DateValue Parse(string text) => new(text);
     }
 }

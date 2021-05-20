@@ -36,7 +36,7 @@ namespace Spark.Engine.Search.Support
             string parameterName,
             string messageFormat,
             params object[] messageArgs) =>
-            new ArgumentException(FormatMessage(messageFormat, messageArgs), parameterName);
+            new(FormatMessage(messageFormat, messageArgs), parameterName);
 
         /// <summary>
         ///     Creates an <see cref="ArgumentNullException" /> with the provided properties.

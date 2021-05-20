@@ -103,10 +103,10 @@ namespace Spark.Engine.Web.Tests.Formatters
             Assert.Equal(true, patient.Active);
         }
 
-        protected static XmlFhirInputFormatter GetInputFormatter(ParserSettings parserSettings = null)
+        protected static AsyncResourceXmlInputFormatter GetInputFormatter(ParserSettings parserSettings = null)
         {
-            parserSettings ??= new ParserSettings {PermissiveParsing = false};
-            return new XmlFhirInputFormatter(new FhirXmlParser(parserSettings));
+            parserSettings ??= new ParserSettings { PermissiveParsing = false };
+            return new AsyncResourceXmlInputFormatter(new FhirXmlParser(parserSettings));
         }
     }
 }

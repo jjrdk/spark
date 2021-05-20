@@ -22,7 +22,7 @@ namespace Spark.Engine.Search.ValueExpressionTypes
 
         public DateValue AsDateValue() => DateValue.Parse(Value);
 
-        public FhirDateTime AsDateTimeValue() => new FhirDateTime(Value);
+        public FhirDateTime AsDateTimeValue() => new(Value);
 
         public StringValue AsStringValue() => StringValue.Parse(Value);
 

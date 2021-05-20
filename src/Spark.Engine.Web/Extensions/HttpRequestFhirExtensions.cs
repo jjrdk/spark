@@ -23,10 +23,31 @@ namespace Spark.Engine.Extensions
     using Microsoft.AspNetCore.Http.Features;
     using Microsoft.AspNetCore.Http.Headers;
     using Utility;
+    using Web;
     using Web.Extensions;
 
     public static class HttpRequestFhirExtensions
     {
+        internal static void AcquireHeaders(this HttpResponse response, FhirResponse fhirResponse)
+        {
+            if (fhirResponse.Key != null)
+            {
+                response.Headers.Add(HttpHeaderName.ETAG, ETag.Create(fhirResponse.Key.VersionId)?.ToString());
+
+                Uri location = fhirResponse.Key.ToUri();
+                response.Headers.Add(HttpHeaderName.LOCATION, location.OriginalString);
+
+                if (response.Body != null)
+                {
+                    response.Headers.Add(HttpHeaderName.CONTENT_LOCATION, location.OriginalString);
+                    if (fhirResponse.Resource is {Meta: { }})
+                    {
+                        response.Headers.Add(HttpHeaderName.LAST_MODIFIED, fhirResponse.Resource.Meta.LastUpdated.Value.ToString("R"));
+                    }
+                }
+            }
+        }
+
         public static IEnumerable<Tuple<string, string>> TupledParameters(this HttpRequest request)
         {
             return request.Query.Select(x => Tuple.Create(x.Key, x.Value.ToString()));

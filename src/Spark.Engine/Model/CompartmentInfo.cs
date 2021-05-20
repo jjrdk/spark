@@ -21,7 +21,7 @@ namespace Spark.Engine.Model
 
         public ResourceType ResourceType { get; set; }
 
-        public List<string> ReverseIncludes { get; } = new List<string>();
+        public List<string> ReverseIncludes { get; } = new();
 
         public void AddReverseInclude(string revInclude)
         {

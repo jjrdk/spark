@@ -32,12 +32,12 @@ namespace Spark.Engine.Core
         public string ResourceId { get; set; }
         public string VersionId { get; set; }
 
-        public static Key Create(string type) => new Key(null, type, null, null);
+        public static Key Create(string type) => new(null, type, null, null);
 
-        public static Key Create(string type, string resourceId) => new Key(null, type, resourceId, null);
+        public static Key Create(string type, string resourceId) => new(null, type, resourceId, null);
 
         public static Key Create(string type, string resourceId, string versionId) =>
-            new Key(null, type, resourceId, versionId);
+            new(null, type, resourceId, versionId);
 
         public override bool Equals(object obj)
         {

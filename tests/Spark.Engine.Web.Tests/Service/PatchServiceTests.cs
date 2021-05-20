@@ -1,13 +1,13 @@
-﻿using Hl7.Fhir.Model;
-using Hl7.Fhir.Rest;
-using Spark.Engine.Service.FhirServiceExtensions;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using Xunit;
-
-namespace Spark.Engine.Test
+﻿namespace Spark.Engine.Web.Tests.Service
 {
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Reflection;
+    using Engine.Service.FhirServiceExtensions;
+    using Hl7.Fhir.Model;
+    using Hl7.Fhir.Rest;
+    using Xunit;
+
     public class PatchServiceTests
     {
         private readonly PatchService _patchService = new ();

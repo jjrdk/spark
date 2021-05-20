@@ -20,7 +20,7 @@ namespace Spark.Engine.Search.Model
         public const string MISSINGFALSE = "false";
         public const string MISSING_SEPARATOR = "=";
 
-        private static readonly Dictionary<string, Modifier> _mapping = new Dictionary<string, Modifier>
+        private static readonly Dictionary<string, Modifier> _mapping = new()
         {
             {"exact", Modifier.EXACT},
             {"partial", Modifier.PARTIAL},

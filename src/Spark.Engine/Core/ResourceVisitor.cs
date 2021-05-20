@@ -24,10 +24,10 @@ namespace Spark.Engine.Core
         ///     a(x=y).b.c  => "a"      | "x=y"         | "b.c"
         ///     See also ResourceVisitorTests.
         /// </summary>
-        private readonly Regex _headTailRegex = new Regex(
+        private readonly Regex _headTailRegex = new(
             @"(?([^\.]*\[.*\])(?<head>[^\[]*)\[(?<predicate>.*)\](\.(?<tail>.*))?|(?<head>[^\.]*)(\.(?<tail>.*))?)");
 
-        private readonly Regex _predicateRegex = new Regex(@"(?<propname>[^=]*)=(?<filterValue>.*)");
+        private readonly Regex _predicateRegex = new(@"(?<propname>[^=]*)=(?<filterValue>.*)");
 
         private readonly FhirPropertyIndex _propIndex;
 

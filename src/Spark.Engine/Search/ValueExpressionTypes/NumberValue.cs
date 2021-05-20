@@ -19,6 +19,6 @@ namespace Spark.Engine.Search.ValueExpressionTypes
         public override string ToString() => PrimitiveTypeConverter.ConvertTo<string>(Value);
 
         public static NumberValue Parse(string text) =>
-            new NumberValue(PrimitiveTypeConverter.ConvertTo<decimal>(text));
+            new(PrimitiveTypeConverter.ConvertTo<decimal>(text));
     }
 }

@@ -19,7 +19,7 @@ namespace Spark.Engine.Core
 
     public class ElementQuery
     {
-        private readonly List<Chain> _chains = new List<Chain>();
+        private readonly List<Chain> _chains = new();
 
         public ElementQuery(params string[] paths)
         {
@@ -68,7 +68,7 @@ namespace Spark.Engine.Core
 
         public class Chain
         {
-            private readonly List<Segment> _segments = new List<Segment>();
+            private readonly List<Segment> _segments = new();
 
             public Chain(string path)
             {

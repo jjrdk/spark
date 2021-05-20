@@ -15,9 +15,9 @@ namespace Spark.Engine.Core
     // This class serves instances of "Response"
     public static class Respond
     {
-        public static FhirResponse Success => new FhirResponse(HttpStatusCode.OK);
+        public static FhirResponse Success => new(HttpStatusCode.OK);
 
-        public static FhirResponse WithCode(HttpStatusCode code) => new FhirResponse(code, null);
+        public static FhirResponse WithCode(HttpStatusCode code) => new(code, null);
 
         public static FhirResponse WithError(HttpStatusCode code, string message, params object[] args)
         {
@@ -27,11 +27,11 @@ namespace Spark.Engine.Core
         }
 
         public static FhirResponse WithResource(int code, Resource resource) =>
-            new FhirResponse((HttpStatusCode) code, resource);
+            new((HttpStatusCode) code, resource);
 
-        public static FhirResponse WithResource(Resource resource) => new FhirResponse(HttpStatusCode.OK, resource);
+        public static FhirResponse WithResource(Resource resource) => new(HttpStatusCode.OK, resource);
 
-        public static FhirResponse WithBundle(Bundle bundle) => new FhirResponse(HttpStatusCode.OK, bundle);
+        public static FhirResponse WithBundle(Bundle bundle) => new(HttpStatusCode.OK, bundle);
 
         public static FhirResponse WithMeta(Meta meta)
         {
@@ -48,10 +48,10 @@ namespace Spark.Engine.Core
                     "Could not retrieve meta. Meta was not present on the resource");
 
         public static FhirResponse WithResource(HttpStatusCode code, Entry entry) =>
-            new FhirResponse(code, entry.Key, entry.Resource);
+            new(code, entry.Key, entry.Resource);
 
         public static FhirResponse WithResource(Entry entry) =>
-            new FhirResponse(HttpStatusCode.OK, entry.Key, entry.Resource);
+            new(HttpStatusCode.OK, entry.Key, entry.Resource);
 
         public static FhirResponse NotFound(IKey key) =>
             key.VersionId == null
