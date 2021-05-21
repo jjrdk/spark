@@ -39,11 +39,17 @@ namespace Spark.Engine.Web.Formatters
             return typeof(Resource).IsAssignableFrom(type);
         }
 
+        /// <inheritdoc />
+        public override bool CanRead(InputFormatterContext context)
+        {
+            return true && base.CanRead(context);
+        }
+
         public override async Task<InputFormatterResult> ReadRequestBodyAsync(InputFormatterContext context, Encoding encoding)
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
             if (encoding == null) throw new ArgumentNullException(nameof(encoding));
-            if (encoding != Encoding.UTF8)
+            if (!encoding.Equals(Encoding.UTF8))
                 throw Error.BadRequest("FHIR supports UTF-8 encoding exclusively, not " + encoding.WebName);
 
             try

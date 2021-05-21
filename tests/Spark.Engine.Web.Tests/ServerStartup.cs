@@ -1,6 +1,7 @@
 ﻿namespace Spark.Engine.Web.Tests
 {
     using System;
+    using System.Text;
     using Engine.Service.FhirServiceExtensions;
     using Hl7.Fhir.Serialization;
     using Interfaces;
@@ -22,12 +23,13 @@
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddControllers();
             services.AddLogging(l => l.AddXunit(_outputHelper));
             services.AddFhir(
                 new SparkSettings
                 {
-                    UseAsynchronousIO = false,
-                    Endpoint = new Uri("https://localhost:6001/fhir"),
+                    UseAsynchronousIO = true,
+                    Endpoint = new Uri("https://localhost:60001/fhir"),
                     FhirRelease = "R4",
                     ParserSettings = ParserSettings.CreateDefault(),
                     SerializerSettings = SerializerSettings.CreateDefault()

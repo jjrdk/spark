@@ -174,14 +174,16 @@ namespace Spark.Engine.Service
             return Put(Entry.Put(key, resource));
         }
 
-        public Task<FhirResponse> Put(Entry entry)
+        public async Task<FhirResponse> Put(Entry entry)
         {
             Validate.Key(entry.Key);
             Validate.ResourceType(entry.Key, entry.Resource);
             Validate.HasTypeName(entry.Key);
             Validate.HasResourceId(entry.Key);
 
-            return Transaction(entry);
+            //return Transaction(entry);
+            var result = await Store(Entry.Put(entry.Key, entry.Resource)).ConfigureAwait(false);
+            return Respond.WithResource(HttpStatusCode.Created, result);
         }
 
         public async Task<FhirResponse> Read(IKey key, ConditionalHeaderParameters parameters = null)

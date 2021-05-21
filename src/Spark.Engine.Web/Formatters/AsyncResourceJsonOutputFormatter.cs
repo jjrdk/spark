@@ -6,6 +6,8 @@
 //  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
 //  */
 
+using System;
+
 namespace Spark.Engine.Web.Formatters
 {
     using System;
@@ -96,7 +98,7 @@ namespace Spark.Engine.Web.Formatters
             if (!string.IsNullOrWhiteSpace(writeBodyString))
             {
                 var writeBuffer = selectedEncoding.GetBytes(writeBodyString);
-                await responseBody.WriteAsync(writeBuffer, 0, writeBuffer.Length).ConfigureAwait(false);
+                await responseBody.WriteAsync(writeBuffer.AsMemory(0, writeBuffer.Length)).ConfigureAwait(false);
                 await responseBody.FlushAsync().ConfigureAwait(false);
             }
         }

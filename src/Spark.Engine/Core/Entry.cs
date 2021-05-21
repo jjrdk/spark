@@ -1,9 +1,9 @@
-﻿using Hl7.Fhir.Model;
-using System;
-using Spark.Engine.Extensions;
-
-namespace Spark.Engine.Core
+﻿namespace Spark.Engine.Core
 {
+    using Hl7.Fhir.Model;
+    using System;
+    using Spark.Engine.Extensions;
+
     public class Entry
     {
         public IKey Key
@@ -41,7 +41,7 @@ namespace Spark.Engine.Core
         {
             get
             {
-                if (Resource is {Meta: { }})
+                if (Resource is { Meta: { } })
                 {
                     return Resource.Meta.LastUpdated;
                 }
@@ -54,7 +54,7 @@ namespace Spark.Engine.Core
             {
                 if (Resource != null)
                 {
-                    if (Resource.Meta == null) Resource.Meta = new Meta();
+                    Resource.Meta ??= new Meta();
                     Resource.Meta.LastUpdated = value?.TruncateToMillis();
                 }
                 else
@@ -69,7 +69,7 @@ namespace Spark.Engine.Core
         private IKey _key = null;
         private DateTimeOffset? _when = null;
 
-        protected Entry(Bundle.HTTPVerb method, IKey key, DateTimeOffset? when, Resource resource)
+        private Entry(Bundle.HTTPVerb method, IKey key, DateTimeOffset? when, Resource resource)
         {
             if (resource != null)
             {
@@ -85,15 +85,15 @@ namespace Spark.Engine.Core
             When = when ?? DateTimeOffset.Now;
             State = EntryState.Undefined;
         }
-        
+
         public static Entry Create(Bundle.HTTPVerb method, Resource resource)
         {
-            return new(method, null, null, resource);
+            return new(method, null, DateTimeOffset.UtcNow, resource);
         }
 
         public static Entry Create(Bundle.HTTPVerb method, IKey key, Resource resource)
         {
-            return new(method, key, null, resource);
+            return new(method, key, DateTimeOffset.UtcNow, resource);
         }
 
         public static Entry Create(Bundle.HTTPVerb method, IKey key, DateTimeOffset when)
@@ -106,7 +106,7 @@ namespace Spark.Engine.Core
         /// </summary>
         public static Entry Delete(IKey key, DateTimeOffset? when)
         {
-            return Create(Bundle.HTTPVerb.DELETE, key, DateTimeOffset.UtcNow);
+            return Create(Bundle.HTTPVerb.DELETE, key, when ?? DateTimeOffset.UtcNow);
         }
 
         public bool IsDelete

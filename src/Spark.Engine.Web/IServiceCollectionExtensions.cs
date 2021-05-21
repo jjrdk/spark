@@ -20,6 +20,7 @@ namespace Spark.Engine.Web
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.DependencyInjection.Extensions;
+    using Newtonsoft.Json;
     using Search;
     using Service;
     using Service.FhirServiceExtensions;
@@ -41,7 +42,6 @@ namespace Spark.Engine.Web
 
             services.TryAddSingleton(settings);
             services.TryAddTransient<ElementIndexer>();
-
 
             services.TryAddTransient<IReferenceNormalizationService, ReferenceNormalizationService>();
 
@@ -70,14 +70,14 @@ namespace Spark.Engine.Web
             services.TryAddTransient<IResourceStorageService, ResourceStorageService>(); // storage
             services.TryAddTransient<ICapabilityStatementService, CapabilityStatementService>(); // conformance
             services.TryAddTransient<ICompositeServiceListener, ServiceListener>();
-            services.TryAddTransient<AsyncResourceJsonInputFormatter>();
-            services.TryAddTransient<AsyncResourceJsonOutputFormatter>();
-            services.TryAddTransient<AsyncResourceXmlInputFormatter>();
-            services.TryAddTransient<AsyncResourceXmlOutputFormatter>();
-            services.TryAddSingleton(_ => new FhirJsonParser(settings.ParserSettings));
-            services.TryAddSingleton(_ => new FhirXmlParser(settings.ParserSettings));
-            services.TryAddSingleton(_ => new FhirJsonSerializer(settings.SerializerSettings));
-            services.TryAddSingleton(_ => new FhirXmlSerializer(settings.SerializerSettings));
+            //services.TryAddTransient<AsyncResourceJsonInputFormatter>();
+            //services.TryAddTransient<AsyncResourceJsonOutputFormatter>();
+            //services.TryAddTransient<AsyncResourceXmlInputFormatter>();
+            //services.TryAddTransient<AsyncResourceXmlOutputFormatter>();
+            //services.TryAddSingleton(_ => new TestFhirJsonParser(settings.ParserSettings));
+            //services.TryAddSingleton(_ => new FhirXmlParser(settings.ParserSettings));
+            //services.TryAddSingleton(_ => new FhirJsonSerializer(settings.SerializerSettings));
+            //services.TryAddSingleton(_ => new FhirXmlSerializer(settings.SerializerSettings));
 
             services.TryAddSingleton<IAsyncFhirService, AsyncFhirService>();
 
@@ -96,16 +96,16 @@ namespace Spark.Engine.Web
                 : services.AddMvcCore(
                     options =>
                     {
-                        options.InputFormatters.Add(
+                        options.InputFormatters.Insert(0,
                             new AsyncResourceJsonInputFormatter(new FhirJsonParser(settings.ParserSettings)));
-                        options.InputFormatters.Add(
+                        options.InputFormatters.Insert(0,
                             new AsyncResourceXmlInputFormatter(new FhirXmlParser(settings.ParserSettings)));
-                        options.InputFormatters.Add(new BinaryFhirInputFormatter());
-                        options.OutputFormatters.Add(
+                        options.InputFormatters.Insert(0, new BinaryFhirInputFormatter());
+                        options.OutputFormatters.Insert(0,
                             new AsyncResourceJsonOutputFormatter(new FhirJsonSerializer(settings.SerializerSettings)));
-                        options.OutputFormatters.Add(
+                        options.OutputFormatters.Insert(0,
                             new AsyncResourceXmlOutputFormatter(new FhirXmlSerializer(settings.SerializerSettings)));
-                        options.OutputFormatters.Add(new BinaryFhirOutputFormatter());
+                        options.OutputFormatters.Insert(0, new BinaryFhirOutputFormatter());
 
                         options.RespectBrowserAcceptHeader = true;
 
