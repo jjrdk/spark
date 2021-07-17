@@ -6,7 +6,6 @@
     using Xbehave;
     using Xunit;
     using Xunit.Abstractions;
-    using Task = System.Threading.Tasks.Task;
 
     public class PatientLifeCycleFeature
     {

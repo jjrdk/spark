@@ -40,8 +40,6 @@ namespace Spark.Engine.Service
 
         public Task Inform(Entry interaction)
         {
-            // todo: what we want is not to send localhost to the listener, but to add the Resource.Base. But that is not an option in the current infrastructure.
-            // It would modify interaction.Resource, while
             return Task.WhenAll(
                 _listeners.Select(
                     listener => listener.Inform(_localhost.GetAbsoluteUri(interaction.Key), interaction)));

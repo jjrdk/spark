@@ -83,7 +83,7 @@ namespace Spark.Engine.Auxiliary
             if (!certificate.HasPrivateKey)
                 throw new ArgumentException("Certificate should have a private key", nameof(certificate));
 
-            XmlDocument doc = new XmlDocument { PreserveWhitespace = true };
+            var doc = new XmlDocument { PreserveWhitespace = true };
             doc.LoadXml(xml);
 
             doc.LoadXml(xml);

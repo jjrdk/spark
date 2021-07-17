@@ -28,14 +28,14 @@
         {
             _logger.LogDebug("Clean requested");
         }
-        
+
         /// <inheritdoc />
         Task IIndexStore.Clean()
         {
             Clean();
             return Task.CompletedTask;
         }
-        
+
         /// <inheritdoc />
         public Task Save(IndexValue indexValue)
         {
@@ -108,7 +108,7 @@
             Clean();
             return Task.CompletedTask;
         }
-        
+
         private IEnumerable<string> GetIndexValues(string resource, SearchParams searchCommand)
         {
             lock (_indexValues)

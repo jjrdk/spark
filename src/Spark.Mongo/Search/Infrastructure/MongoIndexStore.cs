@@ -1,22 +1,16 @@
-﻿// /*
-//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
-//  * See the file CONTRIBUTORS for details.
-//  *
-//  * This file is licensed under the BSD 3-Clause license
-//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
-//  */
+﻿using MongoDB.Bson;
+using MongoDB.Driver;
+using Spark.Engine.Core;
+using System.Threading.Tasks;
+using Spark.Store.Mongo;
+using Spark.Engine.Model;
+using Spark.Mongo.Search.Indexer;
+using Spark.Engine.Store.Interfaces;
 
-namespace Spark.Mongo.Search.Infrastructure
+namespace Spark.Mongo.Search.Common
 {
-    using System.Threading.Tasks;
-    using Common;
-    using Engine.Core;
     using Engine.Extensions;
-    using Engine.Model;
-    using Engine.Store.Interfaces;
-    using Indexer;
-    using MongoDB.Bson;
-    using MongoDB.Driver;
+    using Infrastructure;
 
     public class MongoIndexStore : IIndexStore
     {
@@ -37,30 +31,34 @@ namespace Spark.Mongo.Search.Infrastructure
 
             foreach (var doc in result)
             {
-                await Save(doc).ConfigureAwait(false);
+                await SaveAsync(doc).ConfigureAwait(false);
             }
+        }
+
+        public void Save(BsonDocument document)
+        {
+            string keyvalue = document.GetValue(InternalField.ID).ToString();
+            var query = Builders<BsonDocument>.Filter.Eq(InternalField.ID, keyvalue);
+            Collection.ReplaceOne(query, document, new ReplaceOptions { IsUpsert = true });
+        }
+
+        public async Task SaveAsync(BsonDocument document)
+        {
+            string keyvalue = document.GetValue(InternalField.ID).ToString();
+            var query = Builders<BsonDocument>.Filter.Eq(InternalField.ID, keyvalue);
+            await Collection.ReplaceOneAsync(query, document, new ReplaceOptions { IsUpsert = true }).ConfigureAwait(false);
         }
 
         public async Task Delete(Entry entry)
         {
-            var id = entry.Key.WithoutVersion().ToOperationPath();
+            string id = entry.Key.WithoutVersion().ToOperationPath();
             var query = Builders<BsonDocument>.Filter.Eq(InternalField.ID, id);
             await Collection.DeleteManyAsync(query).ConfigureAwait(false);
         }
 
-        public async Task Clean()
+        public Task Clean()
         {
-            await Collection.DeleteManyAsync(Builders<BsonDocument>.Filter.Empty).ConfigureAwait(false);
-        }
-
-        public async Task Save(BsonDocument document)
-        {
-            var keyvalue = document.GetValue(InternalField.ID).ToString();
-            var query = Builders<BsonDocument>.Filter.Eq(InternalField.ID, keyvalue);
-
-            // todo: should use Update: collection.Update();
-            await Collection.DeleteManyAsync(query).ConfigureAwait(false);
-            await Collection.InsertOneAsync(document).ConfigureAwait(false);
+            return Collection.DeleteManyAsync(Builders<BsonDocument>.Filter.Empty);
         }
     }
 }

@@ -81,7 +81,7 @@ namespace Spark.Engine.Extensions
 
         public static Quantity Canonical(this Quantity input)
         {
-            Quantity output = input.Metric.Symbols switch
+            var output = input.Metric.Symbols switch
             {
                 // TODO: Conversion of Celsius to its base unit Kelvin fails using the method SystemOfUnits::Canoncial
                 // Waiting for feedback on issue: https://github.com/FirelyTeam/Fhir.Metrics/issues/7

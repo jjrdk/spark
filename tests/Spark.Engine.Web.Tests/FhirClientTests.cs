@@ -1,25 +1,18 @@
 ﻿namespace Spark.Engine.Web.Tests
 {
-    using System;
-    using System.Text;
-    using Hl7.Fhir.ElementModel;
-    using Hl7.Fhir.Introspection;
     using Hl7.Fhir.Model;
     using Hl7.Fhir.Rest;
     using Hl7.Fhir.Serialization;
-    using Hl7.Fhir.Specification;
     using Xunit;
     using Xunit.Abstractions;
     using Task = System.Threading.Tasks.Task;
 
     public class FhirClientTests
     {
-        private readonly ITestOutputHelper _outputHelper;
         private readonly TestFhirServer _server;
 
         public FhirClientTests(ITestOutputHelper outputHelper)
         {
-            _outputHelper = outputHelper;
             _server = new TestFhirServer(outputHelper, "https://localhost:60001");
         }
 

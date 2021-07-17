@@ -1,11 +1,11 @@
-// /*
-//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
-//  * See the file CONTRIBUTORS for details.
-//  *
-//  * This file is licensed under the BSD 3-Clause license
-//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
-//  */
-
+/* 
+ * Copyright (c) 2016, Furore (info@furore.com) and contributors
+ * Copyright (c) 2021, Incendi (info@incendi.no) and contributors
+ * See the file CONTRIBUTORS for details.
+ * 
+ * This file is licensed under the BSD 3-Clause license
+ * available at https://raw.githubusercontent.com/FirelyTeam/spark/stu3/master/LICENSE
+ */
 namespace Spark.Engine.Service.FhirServiceExtensions
 {
     using System;
@@ -49,7 +49,7 @@ namespace Spark.Engine.Service.FhirServiceExtensions
                 throw new SparkException(HttpStatusCode.BadRequest, results.Outcome);
             }
 
-            var builder = new UriBuilder(_localhost.Uri(type)) {Query = results.UsedParameters};
+            var builder = new UriBuilder(_localhost.Uri(type)) { Query = results.UsedParameters };
             var link = builder.Uri;
 
             return CreateSnapshot(link, results, searchCommand);
@@ -94,7 +94,7 @@ namespace Spark.Engine.Service.FhirServiceExtensions
 
         public Task Inform(Uri location, Entry interaction) => _indexService.Process(interaction);
 
-        private Snapshot CreateSnapshot(Uri selflink, IList<string> keys, SearchParams searchCommand)
+        private static Snapshot CreateSnapshot(Uri selflink, IList<string> keys, SearchParams searchCommand)
         {
             var sort = GetFirstSort(searchCommand);
 

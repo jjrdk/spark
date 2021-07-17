@@ -1,29 +1,36 @@
-﻿namespace Spark.Web
-{
-    using System.Linq;
-    using Data;
-    using Engine;
-    using Engine.Web;
-    using Hubs;
-    using Microsoft.AspNetCore.Builder;
-    using Microsoft.AspNetCore.Hosting;
-    using Microsoft.AspNetCore.Http;
-    using Microsoft.AspNetCore.Identity;
-    using Microsoft.AspNetCore.Mvc;
-    using Microsoft.AspNetCore.Mvc.Formatters;
-    using Microsoft.AspNetCore.ResponseCompression;
-    using Microsoft.EntityFrameworkCore;
-    using Microsoft.Extensions.Configuration;
-    using Microsoft.Extensions.DependencyInjection;
-    using Microsoft.Extensions.Hosting;
-    using Microsoft.OpenApi.Models;
-    using Models.Config;
-    using Postgres;
-    using Services;
+﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.OpenApi.Models;
+using Spark.Engine;
+using Spark.Engine.Extensions;
+using Spark.Mongo.Extensions;
+using Spark.Web.Data;
+using Spark.Web.Models.Config;
+using Spark.Web.Services;
+using Spark.Web.Hubs;
+using Microsoft.AspNetCore.ResponseCompression;
+using System.Linq;
+using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Mvc.Formatters;
+using Microsoft.Extensions.Hosting;
 
+namespace Spark.Web
+{
     public class Startup
     {
-        public Startup(IConfiguration configuration) => Configuration = configuration;
+        private readonly ILogger<Startup> _logger;
+
+        public Startup(IConfiguration configuration, ILogger<Startup> logger)
+        {
+            Configuration = configuration;
+            _logger = logger;
+        }
 
         public IConfiguration Configuration { get; }
 
@@ -31,40 +38,38 @@
         public void ConfigureServices(IServiceCollection services)
         {
             // Bind to Spark and store settings from appSettings.json
-            var sparkSettings = new SparkSettings();
-            Configuration.Bind("Settings", sparkSettings);
-            services.AddSingleton(sparkSettings);
+            SparkSettings sparkSettings = new SparkSettings();
+            Configuration.Bind("SparkSettings", sparkSettings);
+            services.AddSingleton<SparkSettings>(sparkSettings);
 
-            var storeSettings = new StoreSettings();
+            StoreSettings storeSettings = new StoreSettings();
             Configuration.Bind("StoreSettings", storeSettings);
 
             // Read examples settings from config
-            var examplesSettings = new ExamplesSettings();
+            ExamplesSettings examplesSettings = new ExamplesSettings();
             Configuration.Bind("ExamplesSettings", examplesSettings);
             services.Configure<ExamplesSettings>(options => Configuration.GetSection("ExamplesSettings").Bind(options));
-            services.AddSingleton(examplesSettings);
+            services.AddSingleton<ExamplesSettings>(examplesSettings);
 
             // Configure cookie policy
-            services.Configure<CookiePolicyOptions>(
-                options =>
-                {
-                    // This lambda determines whether user consent for non-essential cookies is needed for a given request.
-                    options.CheckConsentNeeded = _ => true;
-                    options.MinimumSameSitePolicy = SameSiteMode.None;
-                });
+            services.Configure<CookiePolicyOptions>(options =>
+            {
+                // This lambda determines whether user consent for non-essential cookies is needed for a given request.
+                options.CheckConsentNeeded = context => true;
+                options.MinimumSameSitePolicy = SameSiteMode.None;
+            });
 
-            services.AddResponseCompression(
-                options =>
-                {
-                    options.Providers.Add<GzipCompressionProvider>();
-                    options.Providers.Add<BrotliCompressionProvider>();
-                    options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
-                        new[] {"application/fhir+json", "application/fhir+xml"});
-                });
+            services.AddResponseCompression(options =>
+            {
+                options.Providers.Add<GzipCompressionProvider>();
+                options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
+                    new[] { "application/fhir+json", "application/fhir+xml" });
+            });
 
             // Add database context for user administration
-            services.AddDbContext<ApplicationDbContext>(
-                options => options.UseSqlite(Configuration.GetConnectionString("DefaultConnection")));
+            services.AddDbContext<ApplicationDbContext>(options =>
+                options.UseSqlite(Configuration.GetConnectionString("DefaultConnection"))
+            );
 
             // Add Identity management
             services.AddIdentity<IdentityUser, IdentityRole>()
@@ -76,34 +81,37 @@
 
             // Set up a default policy for CORS that accepts any origin, method and header.
             // only for test purposes.
-            services.AddCors(
-                options => options.AddDefaultPolicy(
-                    policy =>
-                    {
-                        policy.AllowAnyOrigin();
-                        policy.AllowAnyMethod();
-                        policy.AllowAnyHeader();
-                    }));
+            services.AddCors(options =>
+                options.AddDefaultPolicy(policy =>
+                {
+                    policy.AllowAnyOrigin();
+                    policy.AllowAnyMethod();
+                    policy.AllowAnyHeader();
+                }));
 
             // Sets up the MongoDB store
-            //services.AddMongoFhirStore(storeSettings);
-            services.AddPostgresFhirStore(storeSettings);
+            services.AddMongoFhirStore(storeSettings);
+
             // AddFhir also calls AddMvcCore
             services.AddFhir(sparkSettings);
 
             services.AddTransient<ServerMetadata>();
 
             // AddMvc needs to be called since we are using a Home page that is reliant on the full MVC framework
-            services.AddMvc(
-                    options =>
-                    {
-                        options.InputFormatters.RemoveType<SystemTextJsonInputFormatter>();
-                        options.OutputFormatters.RemoveType<SystemTextJsonOutputFormatter>();
-                        options.EnableEndpointRouting = false;
-                    })
-                .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+            services.AddMvc(options =>
+            {
+                options.InputFormatters.RemoveType<SystemTextJsonInputFormatter>();
+                options.OutputFormatters.RemoveType<SystemTextJsonOutputFormatter>();
+                // We remove StringOutputFormatter to make Swagger happy by not 
+                // showing text/plain in the list of available media types.
+                options.OutputFormatters.RemoveType<StringOutputFormatter>();
+                options.EnableEndpointRouting = false;
+            }).SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
 
-            services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo {Title = "Spark API", Version = "v1"}); });
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Spark API", Version = "v1" });
+            });
 
             services.AddSignalR();
         }
@@ -124,18 +132,23 @@
             app.UseStaticFiles();
 
             app.UseSwagger();
-            app.UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", "Spark API"); });
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Spark API");
+            });
 
             app.UseAuthentication();
             app.UseCors();
 
             app.UseRouting();
 
-            app.UseEndpoints(endpoints => { endpoints.MapHub<MaintenanceHub>("/maintenanceHub"); });
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapHub<MaintenanceHub>("/maintenanceHub");
+            });
 
             // UseFhir also calls UseMvc
-            app.UseFhir(
-                r => r.MapRoute("default", "{controller}/{action}/{id?}", new {controller = "Home", action = "Index"}));
+            app.UseFhir(r => r.MapRoute(name: "default", template: "{controller}/{action}/{id?}", defaults: new { controller = "Home", action = "Index" }));
         }
     }
 }

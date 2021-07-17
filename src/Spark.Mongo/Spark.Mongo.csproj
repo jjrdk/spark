@@ -2,19 +2,15 @@
 
     <PropertyGroup>
         <TargetFramework>net5.0</TargetFramework>
-        <LangVersion>latest</LangVersion>
-        <Version>1.5.7-beta2</Version>
+        <LangVersion>8.0</LangVersion>
         <PackageId>Spark.Mongo.R4</PackageId>
         <Product>Spark.Mongo.R4</Product>
         <Description>MongoDB Storage Implementation for Spark</Description>
-        <langVersion>8.0</langVersion>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Hl7.Fhir.R4" Version="3.2.0" />
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="5.0.0" />
-        <PackageReference Include="MongoDB.Driver" Version="2.12.3" />
-        <None Include="..\..\LICENSE" Pack="true" Visible="false" PackagePath="" />
+        <PackageReference Include="Hl7.Fhir.R4" Version="3.4.0" />
+        <PackageReference Include="MongoDB.Driver" Version="2.13.0" />
     </ItemGroup>
 
     <ItemGroup>

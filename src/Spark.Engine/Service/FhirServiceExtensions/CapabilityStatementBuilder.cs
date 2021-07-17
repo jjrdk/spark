@@ -18,8 +18,8 @@ namespace Spark.Engine.Service.FhirServiceExtensions
     {
         public static CapabilityStatement GetSparkCapabilityStatement(string sparkVersion, ILocalhost localhost)
         {
-            var vsn = FHIRVersion.N4_0_0;
-            var capabilityStatement = CreateServer("Spark", sparkVersion, "Kufu", vsn);
+            var vsn = FHIRVersion.N4_0_1;
+            var capabilityStatement = CreateServer("Spark", sparkVersion, "Incendi", fhirVersion: vsn);
 
             capabilityStatement.AddAllCoreResources(
                 true,
@@ -38,9 +38,8 @@ namespace Spark.Engine.Service.FhirServiceExtensions
             //capabilityStatement.AcceptUnknown = CapabilityStatement.UnknownContentCode.Both;
             capabilityStatement.Experimental = true;
             capabilityStatement.Kind = CapabilityStatementKind.Capability;
-            capabilityStatement.Format = new[] {"xml", "json"};
-            capabilityStatement.Description = new Markdown(
-                "This FHIR SERVER is a reference Implementation server built in C# on HL7.Fhir.Core (nuget) by Furore and others");
+            capabilityStatement.Format = new string[] { "xml", "json" };
+            capabilityStatement.Description = new Markdown("This FHIR SERVER is a reference Implementation server built in C# on HL7.Fhir.Core (nuget) by Firely, Incendi and others");
 
             return capabilityStatement;
         }

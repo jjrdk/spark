@@ -1,24 +1,28 @@
-﻿// /*
-//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
-//  * See the file CONTRIBUTORS for details.
-//  *
-//  * This file is licensed under the BSD 3-Clause license
-//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
-//  */
+﻿/* 
+ * Copyright (c) 2016, Furore (info@furore.com) and contributors
+ * Copyright (c) 2021, Incendi (info@incendi.no) and contributors
+ * See the file CONTRIBUTORS for details.
+ * 
+ * This file is licensed under the BSD 3-Clause license
+ * available at https://raw.githubusercontent.com/FirelyTeam/spark/stu3/master/LICENSE
+ */
+
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using MongoDB.Bson;
+using MongoDB.Driver;
+using Spark.Engine.Interfaces;
+using Spark.Store.Mongo;
 
 namespace Spark.Mongo.Store
 {
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
-    using Engine.Interfaces;
-    using MongoDB.Bson;
-    using MongoDB.Driver;
     using Search.Infrastructure;
 
     public class MongoStoreAdministration : IFhirStoreAdministration
     {
-        private readonly IMongoCollection<BsonDocument> _collection;
         private readonly IMongoDatabase _database;
+        private readonly IMongoCollection<BsonDocument> _collection;
 
         public MongoStoreAdministration(string mongoUrl)
         {
@@ -37,24 +41,8 @@ namespace Spark.Mongo.Store
         private async Task EraseDataAsync()
         {
             // Don't try this at home
-            var collectionsToDrop = new[] {Collection.RESOURCE, Collection.COUNTERS, Collection.SNAPSHOT};
+            var collectionsToDrop = new string[] { Collection.RESOURCE, Collection.COUNTERS, Collection.SNAPSHOT };
             await DropCollectionsAsync(collectionsToDrop).ConfigureAwait(false);
-
-            /*
-            // When using Amazon S3, remove blobs from there as well
-            if (Config.Settings.UseS3)
-            {
-                using (var blobStorage = getBlobStorage())
-                {
-                    if (blobStorage != null)
-                    {
-                        blobStorage.Open();
-                        blobStorage.DeleteAll();
-                        blobStorage.Close();
-                    }
-                }
-            }
-            */
         }
 
         private async Task DropCollectionsAsync(IEnumerable<string> collections)
@@ -65,19 +53,13 @@ namespace Spark.Mongo.Store
             }
         }
 
-
         private async Task EnsureIndicesAsync()
         {
             var indices = new List<CreateIndexModel<BsonDocument>>
             {
-                new CreateIndexModel<BsonDocument>(
-                    Builders<BsonDocument>.IndexKeys.Ascending(Field.STATE)
-                        .Ascending(Field.METHOD)
-                        .Ascending(Field.TYPENAME)),
-                new CreateIndexModel<BsonDocument>(
-                    Builders<BsonDocument>.IndexKeys.Ascending(Field.PRIMARYKEY).Ascending(Field.STATE)),
-                new CreateIndexModel<BsonDocument>(
-                    Builders<BsonDocument>.IndexKeys.Descending(Field.WHEN).Ascending(Field.TYPENAME))
+                new CreateIndexModel<BsonDocument>(Builders<BsonDocument>.IndexKeys.Ascending(Field.STATE).Ascending(Field.METHOD).Ascending(Field.TYPENAME)),
+                new CreateIndexModel<BsonDocument>(Builders<BsonDocument>.IndexKeys.Ascending(Field.PRIMARYKEY).Ascending(Field.STATE)),
+                new CreateIndexModel<BsonDocument>(Builders<BsonDocument>.IndexKeys.Descending(Field.WHEN).Ascending(Field.TYPENAME)),
             };
             await _collection.Indexes.CreateManyAsync(indices).ConfigureAwait(false);
         }

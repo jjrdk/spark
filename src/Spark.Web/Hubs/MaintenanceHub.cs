@@ -1,41 +1,34 @@
-// /*
-//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
-//  * See the file CONTRIBUTORS for details.
-//  *
-//  * This file is licensed under the BSD 3-Clause license
-//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
-//  */
-
 namespace Spark.Web.Hubs
 {
+    using Hl7.Fhir.Model;
+    using Spark.Engine.Core;
     using System;
     using System.Collections.Generic;
-    using System.IO;
     using System.Linq;
-    using System.Text;
-    using Engine.Extensions;
-    using Engine.Interfaces;
-    using Engine.Service;
-    using Engine.Service.FhirServiceExtensions;
-    using Hl7.Fhir.Model;
+    using Spark.Engine.Interfaces;
     using Microsoft.AspNetCore.SignalR;
+    using Spark.Web.Models.Config;
+    using Spark.Web.Utilities;
+    using System.IO;
+    using Engine.Extensions;
     using Microsoft.Extensions.Logging;
-    using Models.Config;
-    using Utilities;
+    using Spark.Engine.Service;
+    using Spark.Engine.Service.FhirServiceExtensions;
 
+    //[Authorize(Policy = "RequireAdministratorRole")]
     public class MaintenanceHub : Hub
     {
-        private readonly ExamplesSettings _examplesSettings;
-        private readonly IFhirIndex _fhirIndex;
+        private List<Resource> _resources = null;
 
         private readonly IAsyncFhirService _fhirService;
         private readonly IFhirStoreAdministration _fhirStoreAdministration;
-        private readonly IHubContext<MaintenanceHub> _hubContext;
+        private readonly IFhirIndex _fhirIndex;
+        private readonly ExamplesSettings _examplesSettings;
         private readonly IIndexRebuildService _indexRebuildService;
         private readonly ILogger<MaintenanceHub> _logger;
+        private readonly IHubContext<MaintenanceHub> _hubContext;
 
         private int _resourceCount;
-        private List<Resource> _resources;
 
         public MaintenanceHub(
             IAsyncFhirService fhirService,
@@ -58,78 +51,80 @@ namespace Spark.Web.Hubs
         public List<Resource> GetExampleData()
         {
             var list = new List<Resource>();
-            var examplePath = Path.Combine(AppContext.BaseDirectory, _examplesSettings.FilePath);
+            string examplePath = Path.Combine(AppContext.BaseDirectory, _examplesSettings.FilePath);
 
-            var data = FhirFileImport.ImportEmbeddedZip(examplePath).ToBundle();
+            Bundle data;
+            data = FhirFileImport.ImportEmbeddedZip(examplePath).ToBundle();
 
             if (data.Entry != null && data.Entry.Count != 0)
             {
-                list.AddRange(from entry in data.Entry where entry.Resource != null select entry.Resource);
+                foreach (var entry in data.Entry)
+                {
+                    if (entry.Resource != null)
+                    {
+                        list.Add((Resource)entry.Resource);
+                    }
+                }
             }
-
             return list;
-        }
-
-        private ImportProgressMessage Message(string message, int idx)
-        {
-            var msg = new ImportProgressMessage {Message = message, Progress = 10 + (idx + 1) * 90 / _resourceCount};
-            return msg;
         }
 
         public async void ClearStore()
         {
-            var notifier = new HubContextProgressNotifier(_hubContext, _logger);
             try
             {
-                await notifier.SendProgressUpdate(0, "Clearing the database...").ConfigureAwait(false);
+                await _hubContext.Clients.All.SendAsync("UpdateProgress", "Starting clearing database...").ConfigureAwait(false);
                 await _fhirStoreAdministration.Clean().ConfigureAwait(false);
+
+                await _hubContext.Clients.All.SendAsync("UpdateProgress", "... and cleaning indexes...").ConfigureAwait(false);
                 await _fhirIndex.Clean().ConfigureAwait(false);
-                await notifier.SendProgressUpdate(100, "Database cleared").ConfigureAwait(false);
+                await _hubContext.Clients.All.SendAsync("UpdateProgress", "Database cleared").ConfigureAwait(false);
             }
             catch (Exception e)
             {
-                await notifier.SendProgressUpdate(100, "ERROR CLEARING :( " + e.InnerException).ConfigureAwait(false);
+                _logger.LogError(e, "Failed to clear store.");
+                await _hubContext.Clients.All.SendAsync("UpdateProgress", $"ERROR CLEARING :(").ConfigureAwait(false);
             }
+
         }
 
         public async void RebuildIndex()
         {
-            var notifier = new HubContextProgressNotifier(_hubContext, _logger);
             try
             {
-                await _indexRebuildService.RebuildIndexAsync(notifier).ConfigureAwait(false);
+                await _hubContext.Clients.All.SendAsync("UpdateProgress", "Rebuilding index...").ConfigureAwait(false);
+                await _indexRebuildService.RebuildIndexAsync()
+                    .ConfigureAwait(false);
             }
             catch (Exception e)
             {
                 _logger.LogError(e, "Failed to rebuild index");
 
-                await notifier.SendProgressUpdate(100, "ERROR REBUILDING INDEX :( " + e.InnerException)
+                await _hubContext.Clients.All.SendAsync("UpdateProgress", "ERROR REBUILDING INDEX :( ")
                     .ConfigureAwait(false);
             }
+            await _hubContext.Clients.All.SendAsync("UpdateProgress", "Index rebuilt!").ConfigureAwait(false);
         }
 
-        public async System.Threading.Tasks.Task LoadExamplesToStore()
+        public async void LoadExamplesToStore()
         {
-            var messages = new StringBuilder();
-            var notifier = new HubContextProgressNotifier(_hubContext, _logger);
             try
             {
-                await notifier.SendProgressUpdate(1, "Loading examples data...").ConfigureAwait(false);
+                await _hubContext.Clients.All.SendAsync("UpdateProgress", "Loading examples").ConfigureAwait(false);
                 _resources = GetExampleData();
 
                 var resarray = _resources.ToArray();
                 _resourceCount = resarray.Length;
 
-                for (var x = 0; x <= _resourceCount - 1; x++)
+                for (int x = 0; x <= _resourceCount - 1; x++)
                 {
                     var res = resarray[x];
-                    // Sending message:
-                    var msg = Message("Importing " + res.TypeName + " " + res.Id + "...", x);
-                    await notifier.SendProgressUpdate(msg.Progress, msg.Message).ConfigureAwait(false);
+                    var msg = $"Importing {res.TypeName}, id {res.Id} ...";
+                    await _hubContext.Clients.All.SendAsync("UpdateProgress", msg).ConfigureAwait(false);
 
                     try
                     {
-                        var key = res.ExtractKey();
+                        Key key = res.ExtractKey();
 
                         if (!string.IsNullOrEmpty(res.Id))
                         {
@@ -142,18 +137,18 @@ namespace Spark.Web.Hubs
                     }
                     catch (Exception e)
                     {
-                        // Sending message:
-                        var msgError = Message("ERROR Importing " + res.TypeName + " " + res.Id + "... ", x);
-                        await Clients.All.SendAsync("Error", msg).ConfigureAwait(false);
-                        messages.AppendLine(msgError.Message + ": " + e.Message);
+                        _logger.LogError(e, "Failed when loading example.");
+                        var msgError = $"ERROR Importing {res.TypeName}, id {res.Id}...";
+                        await _hubContext.Clients.All.SendAsync("UpdateProgress", msgError).ConfigureAwait(false);
                     }
                 }
 
-                await notifier.SendProgressUpdate(100, messages.ToString()).ConfigureAwait(false);
+                await _hubContext.Clients.All.SendAsync("UpdateProgress", "Finished loading examples").ConfigureAwait(false);
             }
             catch (Exception e)
             {
-                await notifier.Progress("Error: " + e.Message).ConfigureAwait(false);
+                _logger.LogError(e, "Failed to load examples.");
+                await _hubContext.Clients.All.SendAsync("UpdateProgress", "Error: " + e.Message).ConfigureAwait(false);
             }
         }
     }

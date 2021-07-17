@@ -18,7 +18,7 @@ namespace Spark.Engine.Search
     using Microsoft.CSharp.RuntimeBinder;
     using Microsoft.Extensions.Logging;
     using ValueExpressionTypes;
-    using Expression = ValueExpressionTypes.Expression;
+    using Expression = Spark.Engine.Search.ValueExpressionTypes.Expression;
 
     //This class is not static because it needs a IFhirModel to do some of the indexing (especially enums).
     public class ElementIndexer
@@ -61,7 +61,7 @@ namespace Spark.Engine.Search
             {
                 // TODO: How to handle composite SearchParameter type
                 //if (element is Sequence.VariantComponent) return result;
-                List<Expression> expressions = ToExpressions((dynamic) element);
+                List<Expression> expressions = ToExpressions((dynamic)element);
                 if (expressions != null)
                 {
                     result.AddRange(expressions.Where(exp => exp != null).ToList());
@@ -114,7 +114,7 @@ namespace Spark.Engine.Search
         }
 
         private List<Expression> ToExpressions(Extension element) =>
-            element == null ? null : (List<Expression>) ToExpressions((dynamic) element.Value);
+            element == null ? null : (List<Expression>)ToExpressions((dynamic)element.Value);
 
         private static List<Expression> ToExpressions(Markdown element) =>
             element == null || string.IsNullOrWhiteSpace(element.Value) ? null : ListOf(new StringValue(element.Value));
@@ -442,11 +442,17 @@ namespace Spark.Engine.Search
             if (element.FamilyElement != null)
             {
                 values.AddRange(ToExpressions(element.FamilyElement));
+                if (element.PrefixElement != null && element.PrefixElement.Count > 0)
+                    values.AddRange(ToExpressions(element.PrefixElement));
+                if (element.SuffixElement != null && element.SuffixElement.Count > 0)
+                    values.AddRange(ToExpressions(element.SuffixElement));
+                if (element.TextElement != null)
+                    values.AddRange(ToExpressions(element.TextElement));
             }
 
             return values;
         }
-
+        
         private List<Expression> ToExpressions(Quantity element)
         {
             try
@@ -463,9 +469,6 @@ namespace Spark.Engine.Search
             return null;
         }
 
-        private static List<Expression> ToExpressions(Code element) =>
-            element != null ? ListOf(new StringValue(element.Value)) : null;
-
         private static List<Expression> ToExpressions(FhirString element) =>
             element != null ? ListOf(new StringValue(element.Value)) : null;
 
@@ -478,9 +481,7 @@ namespace Spark.Engine.Search
             {
                 var values = new List<IndexValue>
                 {
-                    new(
-                        "code",
-                        new StringValue(_fhirModel.GetLiteralForEnum(element.Value.Value as Enum)))
+                    new("code", new StringValue(_fhirModel.GetLiteralForEnum(element.Value.Value as Enum)))
                 };
                 return ListOf(new CompositeValue(values));
             }

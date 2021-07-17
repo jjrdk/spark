@@ -20,14 +20,14 @@ namespace Spark.Engine.Extensions
             var fakeBase = new Uri("http://example.com");
             var builder = uri.IsAbsoluteUri ? new UriBuilder(uri) : new UriBuilder(fakeBase) {Path = uri.ToString()};
 
-            ICollection<Tuple<string, string>> query = UriUtils.SplitParams(builder.Query).ToList();
+            ICollection<Tuple<string, string>> query = UriUtil.SplitParams(builder.Query).ToList();
 
             foreach (var value in values)
             {
                 query.Add(new Tuple<string, string>(name, value));
             }
 
-            builder.Query = UriUtils.JoinParams(query);
+            builder.Query = UriUtil.JoinParams(query);
 
             return uri.IsAbsoluteUri ? builder.Uri : fakeBase.MakeRelativeUri(builder.Uri);
         }

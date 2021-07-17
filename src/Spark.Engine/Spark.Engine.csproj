@@ -15,11 +15,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Fhir.Metrics" Version="1.2.0" />
-        <PackageReference Include="Hl7.Fhir.R4" Version="3.2.0" />
+        <PackageReference Include="Fhir.Metrics" Version="1.2.1" />
+        <PackageReference Include="Hl7.Fhir.R4" Version="3.4.0" />
+        <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="5.0.0" />
         <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
         <PackageReference Include="System.Security.Cryptography.Xml" Version="5.0.0" />
-        <None Include="..\..\LICENSE" Pack="true" Visible="false" PackagePath="" />
     </ItemGroup>
 
     <ItemGroup>

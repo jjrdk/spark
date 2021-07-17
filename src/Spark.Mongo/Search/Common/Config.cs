@@ -10,15 +10,15 @@ namespace Spark.Mongo.Search.Common
 {
     using System;
 
-    public static class Config
+    internal static class Config
     {
         public const string PARAM_TRUE = "true", PARAM_FALSE = "false";
 
         public const int PARAM_NOLIMIT = -1;
 
-        public static int MaxSearchResults = 5000;
+        public const int MaxSearchResults = 5000;
 
-        public static string LuceneIndexPath = @"C:\Index", Mongoindexcollection = "searchindex";
+        public const string LuceneIndexPath = @"C:\Index", Mongoindexcollection = "searchindex";
 
         public static bool Equal(string a, string b) => string.Equals(a, b, StringComparison.OrdinalIgnoreCase);
     }

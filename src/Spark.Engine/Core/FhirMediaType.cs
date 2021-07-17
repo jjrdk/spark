@@ -47,7 +47,7 @@ namespace Spark.Engine.Core
 
         public static ResourceFormat GetResourceFormat(string format)
         {
-            string strict = Interpret(format);
+            var strict = Interpret(format);
             if (strict == DefaultXmlMimeType) return ResourceFormat.Xml;
             else if (strict == DefaultJsonMimeType) return ResourceFormat.Json;
             else return ResourceFormat.Xml;
@@ -70,20 +70,20 @@ namespace Spark.Engine.Core
 
         public static string GetMediaType(this HttpRequestMessage request)
         {
-            MediaTypeHeaderValue headervalue = request.Content.Headers.ContentType;
-            string s = headervalue?.MediaType;
+            var headervalue = request.Content.Headers.ContentType;
+            var s = headervalue?.MediaType;
             return Interpret(s);
         }
 
         public static string GetContentTypeHeaderValue(this HttpRequestMessage request)
         {
-            MediaTypeHeaderValue headervalue = request.Content.Headers.ContentType;
+            var headervalue = request.Content.Headers.ContentType;
             return headervalue?.MediaType;
         }
 
         public static string GetAcceptHeaderValue(this HttpRequestMessage request)
         {
-            HttpHeaderValueCollection<MediaTypeWithQualityHeaderValue> headers = request.Headers.Accept;
+            var headers = request.Headers.Accept;
             return headers.FirstOrDefault()?.MediaType;
         }
 

@@ -25,7 +25,7 @@ namespace Spark.Mongo.Search.Infrastructure
                 _instances = new Dictionary<string, IMongoDatabase>();
             }
 
-            if (_instances.Where(i => i.Key == url).Count() == 0) //there is no instance for this url yet
+            if (!_instances.Where(i => i.Key == url).Any()) //there is no instance for this url yet
             {
                 result = CreateMongoDatabase(url);
                 _instances.Add(url, result);

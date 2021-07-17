@@ -1,7 +1,6 @@
 ﻿namespace Spark.Engine.Web.Tests
 {
     using System;
-    using System.Text;
     using Engine.Service.FhirServiceExtensions;
     using Hl7.Fhir.Serialization;
     using Interfaces;

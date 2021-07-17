@@ -14,6 +14,7 @@ namespace Spark.Mongo.Tests.Search
     using Hl7.Fhir.Utility;
     using Mongo.Search.Searcher;
     using MongoDB.Bson;
+    using Spark.Search.Mongo;
     using Xunit;
 
     public class CriteriumStringSearchParameterTests

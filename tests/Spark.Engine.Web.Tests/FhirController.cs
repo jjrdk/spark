@@ -12,10 +12,8 @@
     using Extensions;
     using Hl7.Fhir.Model;
     using Hl7.Fhir.Rest;
-    using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
-    using Service;
 
     //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [Route("fhir")]

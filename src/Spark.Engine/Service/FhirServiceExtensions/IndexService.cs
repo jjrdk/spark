@@ -1,26 +1,25 @@
-﻿// /*
-//  * Copyright (c) 2014, Furore (info@furore.com) and contributors
-//  * See the file CONTRIBUTORS for details.
-//  *
-//  * This file is licensed under the BSD 3-Clause license
-//  * available at https://raw.github.com/furore-fhir/spark/master/LICENSE
-//  */
-
+﻿/* 
+ * Copyright (c) 2021, Incendi (info@incendi.no) and contributors
+ * See the file CONTRIBUTORS for details.
+ * 
+ * This file is licensed under the BSD 3-Clause license
+ * available at https://raw.githubusercontent.com/FirelyTeam/spark/stu3/master/LICENSE
+ */
 namespace Spark.Engine.Service.FhirServiceExtensions
 {
+    using Hl7.Fhir.FhirPath;
+    using Hl7.Fhir.Model;
+    using Spark.Engine.Core;
+    using Spark.Engine.Extensions;
+    using Spark.Engine.Model;
+    using Spark.Engine.Search;
+    using Spark.Engine.Search.Model;
+    using Spark.Engine.Store.Interfaces;
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using Core;
-    using Extensions;
-    using Hl7.Fhir.FhirPath;
-    using Hl7.Fhir.Model;
-    using Model;
-    using Search;
-    using Search.Model;
     using Search.ValueExpressionTypes;
-    using Store.Interfaces;
     using Task = System.Threading.Tasks.Task;
 
     public class IndexService : IIndexService
@@ -107,7 +106,7 @@ namespace Spark.Engine.Service.FhirServiceExtensions
 
                 foreach (var value in resolvedValues)
                 {
-                    if (!(value is Element element))
+                    if (value is not Element element)
                     {
                         continue;
                     }
@@ -143,10 +142,10 @@ namespace Spark.Engine.Service.FhirServiceExtensions
         private static Resource MakeContainedReferencesUnique(Resource resource)
         {
             //We may change id's of contained resources, and don't want that to influence other code. So we make a copy for our own needs.
-            Resource result = (dynamic) resource.DeepCopy();
+            Resource result = (dynamic)resource.DeepCopy();
             if (resource is DomainResource)
             {
-                var domainResource = (DomainResource) result;
+                var domainResource = (DomainResource)result;
                 if (domainResource.Contained != null && domainResource.Contained.Any())
                 {
                     var referenceMap = new Dictionary<string, string>();

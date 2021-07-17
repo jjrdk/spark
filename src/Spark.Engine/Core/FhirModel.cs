@@ -69,17 +69,38 @@ namespace Spark.Engine.Core
 
         private SearchParameter createSearchParameterFromSearchParamDefinition(SearchParamDefinition def)
         {
-            var result = new ComparableSearchParameter
+            var result = new ComparableSearchParameter();
+            result.Name = def.Name;
+            result.Code = def.Name; //CK: SearchParamDefinition has no Code, but in all current SearchParameter resources, name and code are equal.
+            result.Base = new List<ResourceType?> { GetResourceTypeForResourceName(def.Resource) };
+            result.Type = def.Type;
+            result.Target = def.Target != null ? def.Target.ToList().Cast<ResourceType?>() : new List<ResourceType?>();
+            result.Description = def.Description;
+            // NOTE: This is a fix to handle an issue in firely-net-sdk 
+            // where the expression 'ConceptMap.source as uri' returns 
+            // a string instead of uri.
+            // FIXME: On a longer term we should refactor the 
+            // SearchParameter in-memory cache so we can more elegantly 
+            // swap out a SearchParameter
+            if (def.Resource == ResourceType.ConceptMap.GetLiteral())
             {
-                Name = def.Name,
-                Code = def.Name,
-                Base = new List<ResourceType?> {GetResourceTypeForResourceName(def.Resource)},
-                Type = def.Type,
-                Target = def.Target != null ? def.Target.ToList().Cast<ResourceType?>() : new List<ResourceType?>(),
-                Description = def.Description,
-                Expression = def.Expression
-            };
-            //CK: SearchParamDefinition has no Code, but in all current SearchParameter resources, name and code are equal.
+                if (def.Name == "source-uri")
+                {
+                    result.Expression = "ConceptMap.source.as(uri)";
+                }
+                else if (def.Name == "target-uri")
+                {
+                    result.Expression = "ConceptMap.target.as(uri)";
+                }
+                else
+                {
+                    result.Expression = def.Expression;
+                }
+            }
+            else
+            {
+                result.Expression = def.Expression;
+            }
             //Strip off the [x], for example in Condition.onset[x].
             result.SetPropertyPath(def.Path?.Select(p => p.Replace("[x]", "")).ToArray());
             

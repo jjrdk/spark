@@ -18,6 +18,8 @@ namespace Spark.Mongo.Extensions
     using Search.Indexer;
     using Search.Infrastructure;
     using Search.Searcher;
+    using Spark.Search.Mongo;
+    using Spark.Store.Mongo;
     using Store;
     using Store.Extensions;
 
